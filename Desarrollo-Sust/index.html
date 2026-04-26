@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Artículo académico sobre el Desarrollo Sustentable, su marco conceptual y la importancia de su transversalidad en la educación universitaria.">
+    <title>Desarrollo Sustentable en la Educación Superior</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #eef2f5;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --accent: #00b894;
+            --shadow-light: #ffffff;
+            --shadow-dark: #d1d9e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .panel-3d {
+            background: var(--bg-color);
+            border-radius: 30px;
+            box-shadow: 
+                20px 20px 60px var(--shadow-dark),
+                -20px -20px 60px var(--shadow-light);
+            padding: 50px;
+            margin-bottom: 60px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: transform 0.4s ease;
+        }
+
+        .panel-3d:hover {
+            transform: translateY(-2px);
+        }
+
+        .header-3d {
+            text-align: center;
+            background: linear-gradient(145deg, #fbfdfe, #c8d0d8);
+            border-radius: 30px;
+            padding: 60px 40px;
+            box-shadow: 
+                15px 15px 45px var(--shadow-dark),
+                -15px -15px 45px var(--shadow-light);
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #00b894;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 40px;
+            background: #00b894;
+            border-radius: 6px;
+            box-shadow: 3px 3px 6px rgba(0, 184, 148, 0.4), inset 2px 2px 4px rgba(255,255,255,0.5);
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .img-wrapper {
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 25px;
+            box-shadow: 
+                inset 8px 8px 16px var(--shadow-dark), 
+                inset -8px -8px 16px var(--shadow-light);
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .img-3d {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 
+                10px 10px 30px rgba(0,0,0,0.15),
+                -5px -5px 15px rgba(255,255,255,0.8);
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .img-3d:hover {
+            transform: translateY(-5px) scale(1.01);
+        }
+
+        .grid-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .list-item-3d {
+            background: var(--bg-color);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 
+                10px 10px 20px var(--shadow-dark),
+                -10px -10px 20px var(--shadow-light);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .list-item-3d::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: #00b894;
+        }
+
+        .list-item-3d:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                15px 15px 30px var(--shadow-dark),
+                -15px -15px 30px var(--shadow-light);
+        }
+
+        .list-item-3d h3 {
+            font-size: 1.3rem;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        ul.custom-list {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        ul.custom-list li {
+            position: relative;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            padding-left: 35px;
+        }
+
+        ul.custom-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 14px;
+            height: 14px;
+            background: #00b894;
+            border-radius: 50%;
+            box-shadow: 2px 2px 4px rgba(0, 184, 148, 0.4), inset 1px 1px 2px rgba(255,255,255,0.6);
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: #00b894;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.6rem; }
+            .panel-3d { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <header class="header-3d">
+        <h1>El Paradigma del Desarrollo Sustentable</h1>
+        <p style="text-align: center; font-size: 1.3rem; margin:0; color: #636e72;">Hacia una Educación Universitaria Transversal frente a la Crisis Climática</p>
+    </header>
+
+    <section class="panel-3d">
+        <h2>Introducción</h2>
+        <p>El concepto de <strong>Desarrollo Sustentable</strong> fue formalizado internacionalmente en 1987 a través del histórico <span class="highlight">Informe Brundtland</span> (titulado originalmente <em>Nuestro Futuro Común</em>). Este documento lo definió como "el desarrollo que satisface las necesidades del presente sin comprometer la capacidad de las futuras generaciones para satisfacer sus propias necesidades".</p>
+        <p>Hoy, frente a una crisis climática sin precedentes caracterizada por el calentamiento global, la pérdida de biodiversidad y el agotamiento de recursos naturales, esta definición ha evolucionado de ser una recomendación preventiva a convertirse en un <strong>imperativo de supervivencia global</strong>. La sustentabilidad ya no es un concepto periférico, sino el eje central sobre el cual deben orbitar todas las políticas públicas y las estrategias de desarrollo humano.</p>
+        
+        <div class="img-wrapper">
+            <img src="sustainable_development.png" alt="Concepto de Desarrollo Sustentable y sus tres pilares" class="img-3d">
+        </div>
+    </section>
+
+    <section class="panel-3d">
+        <h2>Marco Conceptual: El Equilibrio Sistémico</h2>
+        <p>El Desarrollo Sustentable se concibe no como un objetivo estático, sino como un proceso de optimización continua que exige un equilibrio armónico entre tres pilares fundamentales. La interdependencia de estos elementos dicta que el progreso en una dimensión no puede sostenerse si se logra a expensas del detrimento de las otras.</p>
+        
+        <div class="grid-list">
+            <div class="list-item-3d">
+                <h3>1. Pilar Económico</h3>
+                <p>Busca generar riqueza y eficiencia productiva, pero redefiniendo el "crecimiento". Impulsa la transición hacia una economía circular que minimice el desperdicio, valore el capital natural y asegure la viabilidad financiera a largo plazo sin agotar los recursos base.</p>
+            </div>
+            <div class="list-item-3d">
+                <h3>2. Pilar Social</h3>
+                <p>Garantiza la equidad, la erradicación de la pobreza, el acceso a la educación y la salud, y la cohesión comunitaria. Un sistema sustentable debe ser intrínsecamente justo, promoviendo la participación ciudadana y el respeto a los derechos humanos y la diversidad cultural.</p>
+            </div>
+            <div class="list-item-3d">
+                <h3>3. Pilar Ambiental</h3>
+                <p>Se enfoca en la conservación y protección de los ecosistemas. Requiere el uso racional de los recursos renovables, la drástica reducción de la huella de carbono, la protección de la biodiversidad y la mitigación de la contaminación del aire, agua y suelo.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel-3d">
+        <h2>Justificación Académica: La Transversalidad en las Universidades</h2>
+        <p>Para materializar el desarrollo sustentable, es absolutamente crítico que las instituciones de educación superior integren esta disciplina de manera <strong>transversal</strong> en todos sus programas académicos. La sustentabilidad no debe estar confinada a las facultades de ecología, sino que debe permear la ingeniería, la economía, el derecho y las humanidades.</p>
+        
+        <div class="img-wrapper">
+            <img src="university_leaders.png" alt="Líderes universitarios trabajando en innovación técnica" class="img-3d">
+        </div>
+
+        <p>Esta integración sistémica en las universidades cumple tres objetivos formativos indispensables:</p>
+        
+        <ul class="custom-list">
+            <li><strong>Formación de líderes con Ética Climática:</strong> Las universidades deben forjar profesionales que, más allá de la competencia técnica, posean un profundo sentido de responsabilidad intergeneracional. La ética climática dota a los futuros tomadores de decisiones de un marco moral para priorizar el bienestar planetario frente al beneficio económico cortoplacista.</li>
+            <li><strong>Innovación Técnica Orientada al Entorno:</strong> Los desafíos contemporáneos requieren soluciones disruptivas. Desde arquitectos que diseñen edificios de energía neta cero, hasta ingenieros que desarrollen nuevos materiales biodegradables, la educación transversal estimula la creación de tecnologías y metodologías que operen en sinergia con el medio ambiente, no en su contra.</li>
+            <li><strong>Fomento de la Responsabilidad Social Corporativa (RSC):</strong> Al egresar e integrarse al tejido empresarial, estos profesionales actuarán como agentes de cambio interno. Con una base sólida en sustentabilidad, impulsarán a las corporaciones a adoptar prácticas de RSC auténticas y medibles, transformando a la iniciativa privada en un motor de resiliencia ecológica y justicia social.</li>
+        </ul>
+    </section>
+
+</div>
+
+</body>
+</html>
