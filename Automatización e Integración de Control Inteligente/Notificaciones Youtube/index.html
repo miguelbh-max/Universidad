@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones YouTube a Telegram</title>
+    <meta name="description" content="Aprende a automatizar tus notificaciones de YouTube a Telegram usando Make.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <header class="hero glass-panel reveal">
+        <div class="hero-content">
+            <span class="badge">Automatización con Make</span>
+            <h1>Notificaciones de <span class="highlight-yt">YouTube</span> a <span class="highlight-tg">Telegram</span></h1>
+            <p>Descubre cómo recibir alertas en tiempo real cada vez que un canal sube un nuevo video, configurando una lógica perfecta e instantánea.</p>
+        </div>
+        <div class="hero-image">
+            <img src="assets/hero_banner.png" alt="Hero Banner Automation">
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <section class="intro glass-panel reveal">
+            <h2>Visión General del Escenario</h2>
+            <p>Como experto en Make (anteriormente Integromat), he diseñado la lógica perfecta para tu escenario. Este flujo te permitirá recibir notificaciones automáticas en Telegram cada vez que se suba un nuevo video a un canal de YouTube específico.</p>
+            <div class="image-wrapper">
+                <img src="assets/scenario_overview.png" alt="Visión general del escenario" class="glass-image">
+            </div>
+        </section>
+
+        <section class="step glass-panel reveal" id="step-1">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <h2>Configurar el Trigger de YouTube</h2>
+            </div>
+            <div class="step-content">
+                <p>El primer paso es indicarle a Make que vigile un canal específico. Para esto usaremos el módulo de YouTube.</p>
+                <ol>
+                    <li>Añade un nuevo módulo y busca <strong>YouTube</strong>.</li>
+                    <li>Selecciona el trigger: <strong>Watch videos</strong>.</li>
+                    <li><strong>Configuración del módulo:</strong>
+                        <ul>
+                            <li><strong>Connection:</strong> Conecta tu cuenta de Google/YouTube si aún no lo has hecho.</li>
+                            <li><strong>Watch:</strong> Selecciona <code>By Channel ID</code>.</li>
+                            <li><strong>Channel ID:</strong> Ingresa el ID del canal que deseas monitorear.</li>
+                            <li><strong>Limit:</strong> Configúralo en <code>1</code> o <code>2</code> (1 es ideal para notificaciones en tiempo real).</li>
+                        </ul>
+                    </li>
+                </ol>
+                <div class="alert note">
+                    <strong>💡 TIP:</strong> Al configurar este módulo por primera vez, Make te preguntará desde cuándo quieres empezar a observar. Te sugiero seleccionar "From now on" (A partir de ahora) para no recibir notificaciones de videos viejos.
+                </div>
+                <div class="image-wrapper">
+                    <img src="assets/youtube_config.png" alt="Configuración del módulo de YouTube" class="glass-image">
+                </div>
+            </div>
+        </section>
+
+        <section class="step glass-panel reveal" id="step-2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <h2>Configurar la Acción de Telegram</h2>
+            </div>
+            <div class="step-content">
+                <p>Ahora, tomaremos la información que Make recolectó del video y la enviaremos a tu Telegram.</p>
+                <ol>
+                    <li>Añade un segundo módulo conectado al de YouTube y busca <strong>Telegram Bot</strong>.</li>
+                    <li>Selecciona la acción: <strong>Send a Text Message or Reply</strong>.</li>
+                    <li><strong>Configuración del módulo:</strong>
+                        <ul>
+                            <li><strong>Connection:</strong> Crea una conexión añadiendo el Token de tu bot de Telegram.</li>
+                            <li><strong>Chat ID:</strong> Ingresa tu ID de chat personal, o el ID del grupo/canal.</li>
+                            <li><strong>Text:</strong> Vamos a mapear las variables que vienen del módulo de YouTube para estructurar el mensaje.</li>
+                            <li><strong>Parse Mode:</strong> Es crucial seleccionar <code>HTML</code> o <code>Markdown</code>.</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="code-block">
+                    <h3>📝 Estructura del Mensaje (HTML)</h3>
+                    <pre><code>🚨 &lt;b&gt;¡NUEVO VIDEO DISPONIBLE!&lt;/b&gt; 🚨
+
+&lt;b&gt;🎬 Título:&lt;/b&gt; {{1.title}}
+
+&lt;b&gt;📝 Descripción:&lt;/b&gt; 
+&lt;i&gt;{{1.description}}&lt;/i&gt;
+
+👉 &lt;a href="{{1.url}}"&gt;&lt;b&gt;HAZ CLIC AQUÍ PARA VERLO&lt;/b&gt;&lt;/a&gt;</code></pre>
+                </div>
+                
+                <div class="image-wrapper">
+                    <img src="assets/telegram_config.png" alt="Configuración del módulo de Telegram" class="glass-image">
+                </div>
+            </div>
+        </section>
+
+        <section class="step glass-panel reveal" id="step-3">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <h2>Frecuencia de Ejecución</h2>
+            </div>
+            <div class="step-content">
+                <p>Has mencionado el objetivo de asegurar que el flujo sea <strong>instantáneo</strong>. Es importante entender cómo funciona Make:</p>
+                
+                <div class="alert warning">
+                    <strong>⚠️ IMPORTANTE:</strong> El módulo 'Watch videos' de YouTube es un trigger de tipo <strong>Polling</strong> (búsqueda periódica), no un Webhook (notificación push instantánea).
+                </div>
+
+                <p>Esto significa que Make revisará el canal cada cierto tiempo. Para lograr que sea lo más cercano a "instantáneo":</p>
+                <ul>
+                    <li>Ve al ícono del reloj ⏱️ en la parte inferior izquierda de tu escenario (Schedule setting).</li>
+                    <li>Si tienes una cuenta de pago de Make, puedes configurarlo para que se ejecute cada <strong>1 minuto</strong>.</li>
+                    <li>Si tienes una cuenta gratuita, el mínimo permitido son <strong>15 minutos</strong>.</li>
+                    <li>¡Asegúrate de encender el interruptor de <code>ON</code> en la parte inferior izquierda para activar el escenario!</li>
+                </ul>
+
+                <div class="checklist">
+                    <h3>✨ Resumen de Verificación</h3>
+                    <ul>
+                        <li><span class="check">✓</span> El bot de Telegram debe haber iniciado conversación.</li>
+                        <li><span class="check">✓</span> El Chat ID debe ser correcto.</li>
+                        <li><span class="check">✓</span> El link está correctamente formateado en HTML.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Diseñado con IA &copy; 2026</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
