@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Red Empresarial - Simulación de infraestructura de red corporativa con diseño 3D inmersivo">
+    <title>Red Empresarial | Infraestructura de Red Corporativa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="scene-bg">
+        <div class="grid-floor"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="logo-cube">
+                <div class="cube">
+                    <div class="face front"></div>
+                    <div class="face back"></div>
+                    <div class="face left"></div>
+                    <div class="face right"></div>
+                    <div class="face top"></div>
+                    <div class="face bottom"></div>
+                </div>
+            </div>
+            <span>NetCorp</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#hero">Inicio</a></li>
+            <li><a href="#topology">Topología</a></li>
+            <li><a href="#devices">Dispositivos</a></li>
+            <li><a href="#config">Configuración</a></li>
+            <li><a href="#status">Estado</a></li>
+        </ul>
+    </nav>
+
+    <header id="hero" class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">SIMULACIÓN DE RED</div>
+            <h1 class="hero-title">
+                <span class="line1">Infraestructura</span>
+                <span class="line2">de Red</span>
+                <span class="line3">Empresarial</span>
+            </h1>
+            <p class="hero-subtitle">Configuración paso a paso de una red corporativa con servidor HTTP, switch y estación de trabajo en Cisco Packet Tracer</p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">🖥️</div>
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Workstation</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔀</div>
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Switch</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌐</div>
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Servidor HTTP</div>
+                </div>
+            </div>
+            <a href="#topology" class="cta-btn">
+                <span>Explorar Red</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+            </a>
+        </div>
+        <div class="hero-3d">
+            <div class="floating-server">
+                <div class="server-rack">
+                    <div class="rack-unit active"><span class="led green"></span><span class="led green"></span><span class="led amber"></span></div>
+                    <div class="rack-unit active"><span class="led green"></span><span class="led green"></span><span class="led green"></span></div>
+                    <div class="rack-unit"><span class="led green"></span><span class="led off"></span><span class="led off"></span></div>
+                    <div class="rack-unit active"><span class="led green"></span><span class="led amber"></span><span class="led green"></span></div>
+                    <div class="rack-unit"><span class="led off"></span><span class="led off"></span><span class="led off"></span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="topology" class="section topology-section">
+        <div class="section-header">
+            <span class="section-tag">01</span>
+            <h2>Topología de Red</h2>
+            <p>Arquitectura de la red empresarial simulada en Packet Tracer</p>
+        </div>
+        <div class="topology-visual">
+            <div class="topo-device" id="topo-pc">
+                <div class="device-3d pc-3d">
+                    <div class="monitor"><div class="screen"><span>&gt;_</span></div></div>
+                    <div class="stand"></div>
+                </div>
+                <div class="device-info">
+                    <h3>PC0 - Workstation</h3>
+                    <p>IP: 192.168.1.10</p>
+                    <p>Mask: 255.255.255.0</p>
+                    <p>GW: 192.168.1.1</p>
+                </div>
+            </div>
+            <div class="topo-cable cable1">
+                <div class="cable-line"><div class="data-packet p1"></div></div>
+                <span class="cable-label">Fa0/1</span>
+            </div>
+            <div class="topo-device" id="topo-switch">
+                <div class="device-3d switch-3d">
+                    <div class="switch-body">
+                        <div class="port-row">
+                            <span class="port active"></span><span class="port active"></span>
+                            <span class="port"></span><span class="port"></span>
+                            <span class="port"></span><span class="port"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="device-info">
+                    <h3>Switch0</h3>
+                    <p>Cisco 2960</p>
+                    <p>24 Puertos FastEthernet</p>
+                </div>
+            </div>
+            <div class="topo-cable cable2">
+                <div class="cable-line"><div class="data-packet p2"></div></div>
+                <span class="cable-label">Fa0/2</span>
+            </div>
+            <div class="topo-device" id="topo-server">
+                <div class="device-3d server-3d">
+                    <div class="server-tower">
+                        <div class="srv-unit"><span class="srv-led on"></span></div>
+                        <div class="srv-unit"><span class="srv-led on"></span></div>
+                        <div class="srv-unit"><span class="srv-led blink"></span></div>
+                    </div>
+                </div>
+                <div class="device-info">
+                    <h3>Server0 - HTTP</h3>
+                    <p>IP: 192.168.1.100</p>
+                    <p>Mask: 255.255.255.0</p>
+                    <p>Servicio: HTTP/HTTPS</p>
+                </div>
+            </div>
+        </div>
+        <div class="network-info-bar">
+            <div class="info-item"><span class="info-key">Red:</span> 192.168.1.0/24</div>
+            <div class="info-item"><span class="info-key">Broadcast:</span> 192.168.1.255</div>
+            <div class="info-item"><span class="info-key">Hosts disponibles:</span> 254</div>
+            <div class="info-item"><span class="info-key">Cableado:</span> Copper Straight-Through</div>
+        </div>
+    </section>
+
+    <section id="devices" class="section devices-section">
+        <div class="section-header">
+            <span class="section-tag">02</span>
+            <h2>Dispositivos de Red</h2>
+            <p>Componentes que conforman nuestra infraestructura</p>
+        </div>
+        <div class="devices-grid">
+            <div class="device-card" data-tilt>
+                <div class="card-glow"></div>
+                <div class="card-icon">🖥️</div>
+                <h3>Estación de Trabajo</h3>
+                <p class="card-model">PC Genérico</p>
+                <ul class="specs-list">
+                    <li><span>Hostname:</span> PC0</li>
+                    <li><span>IP Address:</span> 192.168.1.10</li>
+                    <li><span>Subnet Mask:</span> 255.255.255.0</li>
+                    <li><span>Default GW:</span> 192.168.1.1</li>
+                    <li><span>DNS:</span> 192.168.1.100</li>
+                    <li><span>Interfaz:</span> FastEthernet0</li>
+                </ul>
+                <div class="card-status online">● En línea</div>
+            </div>
+            <div class="device-card" data-tilt>
+                <div class="card-glow"></div>
+                <div class="card-icon">🔀</div>
+                <h3>Switch de Acceso</h3>
+                <p class="card-model">Cisco 2960-24TT</p>
+                <ul class="specs-list">
+                    <li><span>Hostname:</span> Switch0</li>
+                    <li><span>Puertos:</span> 24x FastEthernet</li>
+                    <li><span>Fa0/1:</span> → PC0</li>
+                    <li><span>Fa0/2:</span> → Server0</li>
+                    <li><span>VLAN:</span> 1 (default)</li>
+                    <li><span>STP:</span> Activo</li>
+                </ul>
+                <div class="card-status online">● En línea</div>
+            </div>
+            <div class="device-card" data-tilt>
+                <div class="card-glow"></div>
+                <div class="card-icon">🌐</div>
+                <h3>Servidor HTTP</h3>
+                <p class="card-model">Server-PT</p>
+                <ul class="specs-list">
+                    <li><span>Hostname:</span> Server0</li>
+                    <li><span>IP Address:</span> 192.168.1.100</li>
+                    <li><span>Subnet Mask:</span> 255.255.255.0</li>
+                    <li><span>Servicio:</span> HTTP (Puerto 80)</li>
+                    <li><span>Estado HTTP:</span> ON</li>
+                    <li><span>Interfaz:</span> FastEthernet0</li>
+                </ul>
+                <div class="card-status online">● En línea</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="config" class="section config-section">
+        <div class="section-header">
+            <span class="section-tag">03</span>
+            <h2>Configuración Paso a Paso</h2>
+            <p>Guía completa para replicar esta red en Packet Tracer</p>
+        </div>
+        <div class="steps-timeline">
+            <div class="step" data-step="1">
+                <div class="step-marker"><span>1</span></div>
+                <div class="step-content">
+                    <h3>Abrir Cisco Packet Tracer</h3>
+                    <p>Inicia Cisco Packet Tracer y crea un nuevo proyecto en blanco.</p>
+                    <div class="step-detail">
+                        <code>File → New (Ctrl + N)</code>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-marker"><span>2</span></div>
+                <div class="step-content">
+                    <h3>Agregar el Switch</h3>
+                    <p>Desde el panel inferior, selecciona la categoría <strong>Network Devices → Switches</strong> y arrastra un <strong>2960</strong> al área de trabajo.</p>
+                    <div class="step-detail">
+                        <code>Panel inferior → Switches → 2960-24TT</code>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-marker"><span>3</span></div>
+                <div class="step-content">
+                    <h3>Agregar la Estación de Trabajo (PC)</h3>
+                    <p>Ve a <strong>End Devices</strong> y arrastra un <strong>PC</strong> al área de trabajo, a la izquierda del switch.</p>
+                    <div class="step-detail">
+                        <code>Panel inferior → End Devices → PC</code>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-marker"><span>4</span></div>
+                <div class="step-content">
+                    <h3>Agregar el Servidor</h3>
+                    <p>Desde <strong>End Devices</strong>, arrastra un <strong>Server</strong> al área de trabajo, a la derecha del switch.</p>
+                    <div class="step-detail">
+                        <code>Panel inferior → End Devices → Server</code>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-marker"><span>5</span></div>
+                <div class="step-content">
+                    <h3>Cablear los Dispositivos</h3>
+                    <p>Usa cable <strong>Copper Straight-Through</strong> para conectar:</p>
+                    <div class="step-detail">
+                        <div class="connection-diagram">
+                            <span class="conn-item">PC0 (FastEthernet0)</span>
+                            <span class="conn-arrow">──────→</span>
+                            <span class="conn-item">Switch0 (Fa0/1)</span>
+                        </div>
+                        <div class="connection-diagram">
+                            <span class="conn-item">Server0 (FastEthernet0)</span>
+                            <span class="conn-arrow">──────→</span>
+                            <span class="conn-item">Switch0 (Fa0/2)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="6">
+                <div class="step-marker"><span>6</span></div>
+                <div class="step-content">
+                    <h3>Configurar IP del Servidor</h3>
+                    <p>Haz clic en el servidor → pestaña <strong>Desktop</strong> → <strong>IP Configuration</strong>:</p>
+                    <div class="step-detail config-table">
+                        <table>
+                            <tr><td>IP Address</td><td><code>192.168.1.100</code></td></tr>
+                            <tr><td>Subnet Mask</td><td><code>255.255.255.0</code></td></tr>
+                            <tr><td>Default Gateway</td><td><code>192.168.1.1</code></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="7">
+                <div class="step-marker"><span>7</span></div>
+                <div class="step-content">
+                    <h3>Activar el Servicio HTTP</h3>
+                    <p>En el servidor → pestaña <strong>Services</strong> → <strong>HTTP</strong>:</p>
+                    <div class="step-detail">
+                        <ol>
+                            <li>Asegúrate de que el servicio HTTP esté en <strong>ON</strong></li>
+                            <li>Edita el archivo <strong>index.html</strong> con el contenido deseado</li>
+                            <li>Puedes agregar más archivos HTML si lo deseas</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="8">
+                <div class="step-marker"><span>8</span></div>
+                <div class="step-content">
+                    <h3>Configurar IP de la Workstation</h3>
+                    <p>Haz clic en PC0 → pestaña <strong>Desktop</strong> → <strong>IP Configuration</strong>:</p>
+                    <div class="step-detail config-table">
+                        <table>
+                            <tr><td>IP Address</td><td><code>192.168.1.10</code></td></tr>
+                            <tr><td>Subnet Mask</td><td><code>255.255.255.0</code></td></tr>
+                            <tr><td>Default Gateway</td><td><code>192.168.1.1</code></td></tr>
+                            <tr><td>DNS Server</td><td><code>192.168.1.100</code></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="9">
+                <div class="step-marker"><span>9</span></div>
+                <div class="step-content">
+                    <h3>Verificar Conectividad (Ping)</h3>
+                    <p>En PC0 → <strong>Desktop</strong> → <strong>Command Prompt</strong>:</p>
+                    <div class="step-detail terminal">
+                        <div class="terminal-header"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span> Command Prompt</div>
+                        <pre><code>C:\> ping 192.168.1.100
+
+Pinging 192.168.1.100 with 32 bytes of data:
+
+Reply from 192.168.1.100: bytes=32 time&lt;1ms TTL=128
+Reply from 192.168.1.100: bytes=32 time&lt;1ms TTL=128
+Reply from 192.168.1.100: bytes=32 time&lt;1ms TTL=128
+Reply from 192.168.1.100: bytes=32 time&lt;1ms TTL=128
+
+Ping statistics for 192.168.1.100:
+    Packets: Sent = 4, Received = 4, Lost = 0
+</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="step" data-step="10">
+                <div class="step-marker"><span>10</span></div>
+                <div class="step-content">
+                    <h3>Probar el Servicio HTTP</h3>
+                    <p>En PC0 → <strong>Desktop</strong> → <strong>Web Browser</strong>:</p>
+                    <div class="step-detail">
+                        <div class="browser-mock">
+                            <div class="browser-bar">
+                                <div class="browser-dots"><span></span><span></span><span></span></div>
+                                <div class="url-bar">http://192.168.1.100</div>
+                            </div>
+                            <div class="browser-content">
+                                <h4>¡Bienvenido al Servidor Corporativo!</h4>
+                                <p>La página se carga correctamente ✅</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="status" class="section status-section">
+        <div class="section-header">
+            <span class="section-tag">04</span>
+            <h2>Estado de la Red</h2>
+            <p>Monitoreo en tiempo real de los dispositivos</p>
+        </div>
+        <div class="status-dashboard">
+            <div class="status-card">
+                <div class="status-header">
+                    <h3>Latencia de Red</h3>
+                    <span class="badge good">Excelente</span>
+                </div>
+                <div class="metric-value">&lt;1<span>ms</span></div>
+                <div class="progress-bar"><div class="progress" style="width: 5%;"></div></div>
+            </div>
+            <div class="status-card">
+                <h3>Uso del ancho de banda</h3>
+                <div class="metric-value">12<span>%</span></div>
+                <div class="progress-bar"><div class="progress" style="width: 12%;"></div></div>
+            </div>
+            <div class="status-card">
+                <h3>Paquetes transmitidos</h3>
+                <div class="metric-value counter" id="packetCounter">0</div>
+                <div class="progress-bar"><div class="progress pulse" style="width: 45%;"></div></div>
+            </div>
+            <div class="status-card">
+                <h3>Uptime del servidor</h3>
+                <div class="metric-value">99.9<span>%</span></div>
+                <div class="progress-bar"><div class="progress" style="width: 99.9%;"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>Simulación de Red Empresarial — Cisco Packet Tracer</p>
+            <p class="footer-sub">Diseño 3D Inmersivo • 2026</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
