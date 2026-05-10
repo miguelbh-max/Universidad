@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defensa en Profundidad</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="container glass">
+        <header>
+            <h1>Defensa en Profundidad</h1>
+            <p>Guía de Práctica para Redes Empresariales</p>
+        </header>
+
+        <section id="objetivos">
+            <h2>1. Objetivos de la Práctica</h2>
+            <ul>
+                <li>Implementar la segmentación de red mediante VLANs.</li>
+                <li>Configurar un perímetro de seguridad con Firewall y una DMZ.</li>
+                <li>Aplicar Listas de Control de Acceso (ACLs) para filtrar tráfico.</li>
+                <li>Asegurar la gestión de dispositivos mediante protocolos seguros.</li>
+            </ul>
+        </section>
+
+        <section id="topologia">
+            <h2>2. Topología Requerida</h2>
+            <p>Arma la siguiente topología en tu espacio de trabajo de Packet Tracer:</p>
+            <div class="image-container">
+                <img src="file:///C:/Users/Miguel%20Barron/.gemini/antigravity/brain/60b20be6-1fb0-495d-b203-a12cc22bec29/packet_tracer_topology_1778432999101.png" alt="Topología de Packet Tracer" id="topology-img">
+            </div>
+            <ul class="topology-list">
+                <li><strong>Router de Borde:</strong> Conexión al ISP.</li>
+                <li><strong>Firewall (ASA 5506):</strong> Núcleo de seguridad perimetral.</li>
+                <li><strong>Switch de Capa 3:</strong> Para enrutar las VLANs internas.</li>
+                <li><strong>DMZ:</strong> Servidor Web y Servidor DNS.</li>
+                <li><strong>Red Interna:</strong> VLAN 10 (Administración), VLAN 20 (Usuarios), VLAN 30 (Servidores).</li>
+            </ul>
+        </section>
+
+        <section id="guia">
+            <h2>3. Fase de Configuración Técnica</h2>
+            
+            <div class="step-card">
+                <h3>Paso 1: Segmentación Lógica</h3>
+                <pre><code>enable
+configure terminal
+vlan 10
+ name Administracion
+vlan 20
+ name Usuarios
+vlan 30
+ name Servidores_Internos</code></pre>
+            </div>
+
+            <div class="step-card">
+                <h3>Paso 2: Seguridad Perimetral y DMZ</h3>
+                <pre><code>interface GigabitEthernet1/1
+ nameif outside
+ security-level 0
+ ip address 200.0.0.2 255.255.255.252
+
+interface GigabitEthernet1/2
+ nameif inside
+ security-level 100
+ ip address 192.168.1.1 255.255.255.0</code></pre>
+            </div>
+            
+            <div class="step-card">
+                <h3>Paso 3: Listas de Control de Acceso</h3>
+                <pre><code>access-list OUTSIDE_IN extended permit tcp any host 172.16.1.10 eq 80
+access-list OUTSIDE_IN extended permit tcp any host 172.16.1.10 eq 443
+access-group OUTSIDE_IN in interface outside</code></pre>
+            </div>
+        </section>
+
+        <section id="quizz">
+            <h2>4. Quizz Educativo</h2>
+            <div class="quiz-container">
+                <p class="question">1. ¿Cuál es el propósito principal de implementar VLANs en esta práctica?</p>
+                <div class="options">
+                    <button onclick="checkAnswer(this, false)">Aumentar velocidad de internet</button>
+                    <button onclick="checkAnswer(this, true)">Segmentar la red y reducir dominios de difusión</button>
+                    <button onclick="checkAnswer(this, false)">Cifrar el tráfico</button>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
