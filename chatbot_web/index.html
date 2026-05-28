@@ -784,37 +784,40 @@
             ======================================================================
             */
             
-            /*
-            try {
-                // Puedes agregar un indicador visual de "Procesando..." aquí
-                
-                const WEBHOOK_URL = 'https://hook.us1.make.com/TU_IDENTIFICADOR_AQUI';
-                
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userText }) 
-                });
-                
-                // Asumiendo que tu Webhook devuelve JSON, ej: { "respuesta": "El mensaje de tu bot" }
-                const data = await response.json();
-                
-                // 2. Mostrar la respuesta recibida del Webhook
-                appendMessage(data.respuesta, 'bot');
+           
+           try {
+    // Indicador visual de "escribiendo..."
+    appendMessage("⏳ Consultando registros...", 'bot');
 
-            } catch (error) {
-                console.error('Error de conexión con el Webhook:', error);
-                appendMessage("[Error]: Conexión fallida con la Red HoloNet.", 'bot');
-            }
-            */
+    const WEBHOOK_URL = 'https://hook.us2.make.com/https://hook.us2.make.com/cpxlo5ckl3ge4cjm5f7gjwemsaycnjsd';
+    
+    const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText }) 
+    });
+    
+    const data = await response.json();
+    
+    // Eliminar el mensaje "Consultando..."
+    chatMessages.removeChild(chatMessages.lastChild);
+    
+    appendMessage(data.respuesta, 'bot');
+
+} catch (error) {
+    console.error('Error de conexión con el Webhook:', error);
+    appendMessage("[Error]: Conexión fallida con la Red HoloNet.", 'bot');
+}
+            
 
             // ===================================================================
             // [SIMULACIÓN TEMPORAL]
             // Borra o comenta esta parte cuando conectes el bloque de arriba.
             // ===================================================================
-            setTimeout(() => {
+           
+                /* setTimeout(() => {
                 appendMessage("Accediendo a los registros... Simulación de respuesta completada. (Conecta la función fetch() a tu Webhook en el código fuente para habilitar el motor real).", 'bot');
-            }, 800);
+            }, 800);*/
             
         });
     </script>
