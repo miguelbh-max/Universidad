@@ -797,12 +797,16 @@
         body: JSON.stringify({ message: userText }) 
     });
     
-    const data = await response.json();
-    
-    // Eliminar el mensaje "Consultando..."
-    chatMessages.removeChild(chatMessages.lastChild);
-    
-    appendMessage(data.respuesta, 'bot');
+   const text = await response.text();
+chatMessages.removeChild(chatMessages.lastChild);
+let respuesta;
+try {
+    const data = JSON.parse(text);
+    respuesta = data.respuesta || text;
+} catch {
+    respuesta = text;
+}
+appendMessage(respuesta, 'bot');
 
 } catch (error) {
     console.error('Error de conexión con el Webhook:', error);
