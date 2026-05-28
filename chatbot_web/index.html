@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivo Holocrón - Saga Star Wars</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 1. ESTILO VISUAL: "Sci-Fi Minimalista de Alta Gama" */
+        :root {
+            --bg-color: #050505;
+            --text-main: #ffffff;
+            --text-secondary: #a0aab2;
+            --accent-blue: #00f0ff;
+            --accent-red: #ff003c;
+            --accent-green: #00ff66;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Títulos Tecnológicos */
+        h1, h2, h3, .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Estrellas de Fondo (Minimalista) */
+        #starfield-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at center, #111 0%, #050505 100%);
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* A) Encabezado */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+
+        nav ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-blue);
+            text-shadow: 0 0 8px var(--accent-blue);
+        }
+
+        /* B) Sección Hero */
+        #hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        #hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #7a7a7a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInDown 1.5s ease-out;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+        }
+
+        #hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            animation: fadeInUp 1.5s ease-out 0.5s both;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        /* C) El Archivo Holocrón (Catálogo) */
+        .trilogy-section {
+            padding: 100px 5vw;
+            min-height: 100vh;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            text-align: center;
+            color: var(--text-main);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 2px;
+            background: var(--text-secondary);
+            margin: 15px auto 0;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        #prequels .section-title::after { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+        #originals .section-title::after { background: var(--accent-blue); box-shadow: 0 0 10px var(--accent-blue); }
+        #sequels .section-title::after { background: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            padding: 20px 0;
+        }
+
+        .movie-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: var(--glass-blur);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            opacity: 0; /* Para animación de entrada */
+            transform: translateY(40px);
+            cursor: default;
+        }
+
+        .movie-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .movie-card:hover {
+            transform: scale(1.03) translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .movie-image {
+            width: 100%;
+            height: 350px;
+            background-color: #111;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        /* Gradiente sobre la imagen para fusionar con el texto */
+        .movie-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-color) 0%, transparent 100%);
+            opacity: 0.9;
+        }
+
+        .movie-content {
+            padding: 30px;
+            position: relative;
+            z-index: 2;
+            margin-top: -60px; /* Para que el texto suba sobre el gradiente */
+        }
+
+        .episode-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-main);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            display: block;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .movie-title {
+            font-size: 1.6rem;
+            margin-bottom: 5px;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .movie-year {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .movie-synopsis {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Variaciones de color por trilogía en hover */
+        #prequels .movie-card:hover { box-shadow: 0 0 30px rgba(0, 255, 102, 0.15); border-color: rgba(0, 255, 102, 0.4); }
+        #prequels .episode-badge { color: var(--accent-green); text-shadow: 0 0 8px var(--accent-green); }
+        
+        #originals .movie-card:hover { box-shadow: 0 0 30px rgba(0, 240, 255, 0.15); border-color: rgba(0, 240, 255, 0.4); }
+        #originals .episode-badge { color: var(--accent-blue); text-shadow: 0 0 8px var(--accent-blue); }
+
+        #sequels .movie-card:hover { box-shadow: 0 0 30px rgba(255, 0, 60, 0.15); border-color: rgba(255, 0, 60, 0.4); }
+        #sequels .episode-badge { color: var(--accent-red); text-shadow: 0 0 8px var(--accent-red); }
+
+        /* 3. COMPONENTE DEL CHATBOT INTEGRADO */
+        #chat-widget {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 1000;
+        }
+
+        #chat-button {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: rgba(5, 5, 5, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: var(--glass-blur);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #chat-button:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+        }
+
+        #chat-window {
+            position: absolute;
+            bottom: 90px;
+            right: 0;
+            width: 380px;
+            height: 550px;
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            transform-origin: bottom right;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #chat-window.hidden {
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+        }
+
+        .chat-header {
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* Punto parpadeante de "En línea" */
+        .chat-header h3::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-blue);
+            animation: blink 2s infinite;
+        }
+
+        #close-chat {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: color 0.2s, transform 0.2s;
+            line-height: 1;
+        }
+
+        #close-chat:hover { 
+            color: var(--accent-red); 
+            transform: scale(1.2);
+        }
+
+        #chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* Scrollbar custom para el chat */
+        #chat-messages::-webkit-scrollbar { width: 5px; }
+        #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 5px; }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            animation: messagePop 0.3s ease-out;
+        }
+
+        .chat-msg.bot {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-left: 2px solid var(--accent-blue);
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-msg.user {
+            background: rgba(0, 240, 255, 0.08);
+            color: var(--text-main);
+            align-self: flex-end;
+            border-right: 2px solid var(--accent-blue);
+            border-bottom-right-radius: 2px;
+        }
+
+        #chat-form {
+            display: flex;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-top: 1px solid var(--card-border);
+            gap: 10px;
+        }
+
+        #chat-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            padding: 12px 15px;
+            transition: border-color 0.3s;
+        }
+
+        #chat-input:focus { border-color: rgba(0, 240, 255, 0.5); }
+        #chat-input::placeholder { color: rgba(255,255,255,0.2); }
+
+        #send-btn {
+            background: var(--accent-blue);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            cursor: pointer;
+            padding: 0 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #send-btn:hover { 
+            box-shadow: 0 0 15px var(--accent-blue); 
+            transform: translateY(-2px);
+        }
+
+        /* Animaciones */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { opacity: 0.2; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(10px); }
+            100% { opacity: 0.2; transform: translateY(0); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        @keyframes messagePop {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header { padding: 15px 20px; flex-direction: column; gap: 15px; }
+            #hero h1 { font-size: 2.8rem; }
+            .movies-grid { grid-template-columns: 1fr; }
+            .trilogy-section { padding: 80px 20px; }
+            #chat-widget { bottom: 20px; right: 20px; }
+            #chat-window { width: calc(100vw - 40px); height: 80vh; bottom: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor del fondo espacial animado -->
+    <div id="starfield-container">
+        <canvas id="starfield"></canvas>
+    </div>
+
+    <header>
+        <a href="#" class="nav-logo">Archivo Holocrón</a>
+        <nav>
+            <ul>
+                <li><a href="#prequels">Precuelas</a></li>
+                <li><a href="#originals">Originales</a></li>
+                <li><a href="#sequels">Secuelas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <h1>LA SAGA SKYWALKER</h1>
+            <p>Accede a los registros holográficos de la historia de la galaxia. Explora la caída de la República, el auge del Imperio y el despertar definitivo de la Fuerza.</p>
+            <div class="scroll-indicator">↓</div>
+        </section>
+
+        <!-- TRILOGÍA PRECUELAS -->
+        <section id="prequels" class="trilogy-section">
+            <h2 class="section-title">LA CAÍDA DE LA REPÚBLICA</h2>
+            <div class="movies-grid">
+                <!-- Episodio I -->
+                <div class="movie-card fade-in-element">
+                    <!-- Usando imágenes de Unsplash como placeholders abstractos/espaciales estéticos -->
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/4/40/Star_Wars_Phantom_Menace_poster.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO I</span>
+                        <h3 class="movie-title">La Amenaza Fantasma</h3>
+                        <span class="movie-year">1999</span>
+                        <p class="movie-synopsis">Dos caballeros Jedi escapan de un bloqueo hostil para buscar aliados y se encuentran con un joven niño que puede traer equilibrio a la Fuerza.</p>
+                    </div>
+                </div>
+                <!-- Episodio II -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/3/32/Star_Wars_-_Episode_II_Attack_of_the_Clones_%28movie_poster%29.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO II</span>
+                        <h3 class="movie-title">El Ataque de los Clones</h3>
+                        <span class="movie-year">2002</span>
+                        <p class="movie-synopsis">Diez años después, la galaxia está al borde de una guerra civil mientras un joven aprendiz Jedi lucha con sus emociones y su destino.</p>
+                    </div>
+                </div>
+                <!-- Episodio III -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/9/93/Star_Wars_Episode_III_Revenge_of_the_Sith_poster.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO III</span>
+                        <h3 class="movie-title">La Venganza de los Sith</h3>
+                        <span class="movie-year">2005</span>
+                        <p class="movie-synopsis">Las Guerras Clon llegan a su fin mientras la oscuridad consume a la galaxia y un héroe cae al lado oscuro, naciendo el Imperio.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TRILOGÍA ORIGINAL -->
+        <section id="originals" class="trilogy-section">
+            <h2 class="section-title">LA ERA DE LA REBELIÓN</h2>
+            <div class="movies-grid">
+                <!-- Episodio IV -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/8/87/StarWarsMoviePoster1977.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO IV</span>
+                        <h3 class="movie-title">Una Nueva Esperanza</h3>
+                        <span class="movie-year">1977</span>
+                        <p class="movie-synopsis">Un joven granjero, junto a un variopinto grupo, se embarca en una misión para rescatar a una princesa y destruir una estación espacial letal.</p>
+                    </div>
+                </div>
+                <!-- Episodio V -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/3/3f/The_Empire_Strikes_Back_%281980_film%29.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO V</span>
+                        <h3 class="movie-title">El Imperio Contraataca</h3>
+                        <span class="movie-year">1980</span>
+                        <p class="movie-synopsis">Las fuerzas rebeldes son perseguidas por la galaxia, mientras un joven Jedi busca a un viejo maestro en un mundo pantanoso para su entrenamiento.</p>
+                    </div>
+                </div>
+                <!-- Episodio VI -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/b/b2/ReturnOfTheJediPoster1983.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO VI</span>
+                        <h3 class="movie-title">El Retorno del Jedi</h3>
+                        <span class="movie-year">1983</span>
+                        <p class="movie-synopsis">La batalla final por la libertad de la galaxia se desata en Endor, mientras padre e hijo se enfrentan en la sala del trono del Emperador.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TRILOGÍA SECUELAS -->
+        <section id="sequels" class="trilogy-section">
+            <h2 class="section-title">EL DESPERTAR</h2>
+            <div class="movies-grid">
+                <!-- Episodio VII -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a2/Star_Wars_The_Force_Awakens_Theatrical_Poster.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO VII</span>
+                        <h3 class="movie-title">El Despertar de la Fuerza</h3>
+                        <span class="movie-year">2015</span>
+                        <p class="movie-synopsis">Treinta años después de la caída del Imperio, una nueva amenaza surge (La Primera Orden), y una joven chatarrera descubre su poder latente.</p>
+                    </div>
+                </div>
+                <!-- Episodio VIII -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/7/7f/Star_Wars_The_Last_Jedi.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO VIII</span>
+                        <h3 class="movie-title">Los Últimos Jedi</h3>
+                        <span class="movie-year">2017</span>
+                        <p class="movie-synopsis">La Resistencia lucha por sobrevivir mientras antiguos mitos se desmoronan y una joven aprendiz busca respuestas en el último Jedi legendario.</p>
+                    </div>
+                </div>
+                <!-- Episodio IX -->
+                <div class="movie-card fade-in-element">
+                    <div class="movie-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/en/a/af/Star_Wars_The_Rise_of_Skywalker_poster.jpg'); background-position: top;"></div>
+                    <div class="movie-content">
+                        <span class="episode-badge">EPISODIO IX</span>
+                        <h3 class="movie-title">El Ascenso de Skywalker</h3>
+                        <span class="movie-year">2019</span>
+                        <p class="movie-synopsis">La confrontación final que definirá el destino de la galaxia. Los héroes se reúnen para una última batalla contra un antiguo mal renacido.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- WIDGET DE CHATBOT -->
+    <div id="chat-widget">
+        <div id="chat-window" class="hidden">
+            <div class="chat-header">
+                <h3>Droide de Archivo Imperial</h3>
+                <button id="close-chat" title="Cerrar terminal">×</button>
+            </div>
+            <div id="chat-messages">
+                <div class="chat-msg bot">Saludos, usuario. Soy la terminal de enlace del Archivo Holocrón. ¿Qué información deseas buscar en los registros históricos?</div>
+            </div>
+            <form id="chat-form">
+                <input type="text" id="chat-input" placeholder="Transmite tu consulta..." autocomplete="off">
+                <!-- Icono de enviar minimalista en lugar de texto -->
+                <button type="submit" id="send-btn" title="Enviar transmisión">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+        <button id="chat-button" title="Abrir terminal de enlace">
+            <!-- Icono abstracto sci-fi minimalista SVG -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="10" r="1.5" fill="currentColor"></circle>
+                <circle cx="8" cy="10" r="1.5" fill="currentColor"></circle>
+                <circle cx="16" cy="10" r="1.5" fill="currentColor"></circle>
+            </svg>
+        </button>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- 1. FONDO DE ESTRELLAS ANIMADO (CANVAS) ---
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+
+        function initStars() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            stars = [];
+            // Crear 200 estrellas de fondo sutiles
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.2,
+                    speed: Math.random() * 0.3 + 0.05
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let star of stars) {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mover estrella hacia arriba simulando movimiento espacial lento
+                star.y -= star.speed;
+                if (star.y < 0) {
+                    star.y = height;
+                    star.x = Math.random() * width;
+                }
+            }
+            requestAnimationFrame(animateStars);
+        }
+
+        window.addEventListener('resize', initStars);
+        initStars();
+        animateStars();
+
+        // --- 2. ANIMACIÓN FADE-IN DE TARJETAS AL HACER SCROLL ---
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    // Opcional: Dejar de observar una vez que ya apareció
+                    // observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-element').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Cambio visual del header al hacer scroll
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.style.background = 'rgba(5, 5, 5, 0.9)';
+                header.style.boxShadow = '0 5px 20px rgba(0,0,0,0.5)';
+            } else {
+                header.style.background = 'rgba(5, 5, 5, 0.7)';
+                header.style.boxShadow = 'none';
+            }
+        });
+
+        // --- 3. LÓGICA DEL CHATBOT INTEGRADO PARA MAKE/WEBHOOK ---
+        const chatButton = document.getElementById('chat-button');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChat = document.getElementById('close-chat');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        // Alternar visibilidad del chat
+        chatButton.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+            if(!chatWindow.classList.contains('hidden')){
+                chatInput.focus();
+            }
+        });
+
+        // Cerrar chat
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+        });
+
+        // Función para renderizar un mensaje en la UI
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-msg ${sender}`;
+            msgDiv.textContent = text;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll hacia el último mensaje
+        }
+
+        // Manejo del envío de mensajes
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userText = chatInput.value.trim();
+            if (!userText) return;
+
+            // 1. Mostrar el mensaje del usuario en la UI
+            appendMessage(userText, 'user');
+            chatInput.value = '';
+
+            /* 
+            ======================================================================
+            [INTEGRACIÓN DE MAKE / AUTOMATIZACIÓN EXTERNA]
+            ======================================================================
+            Para conectar con tu automatización en Make (Integromat), Zapier, etc.
+            Descomenta el bloque "try...catch" de abajo y pon tu URL de Webhook.
+            ======================================================================
+            */
+            
+            /*
+            try {
+                // Puedes agregar un indicador visual de "Procesando..." aquí
+                
+                const WEBHOOK_URL = 'https://hook.us1.make.com/TU_IDENTIFICADOR_AQUI';
+                
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userText }) 
+                });
+                
+                // Asumiendo que tu Webhook devuelve JSON, ej: { "respuesta": "El mensaje de tu bot" }
+                const data = await response.json();
+                
+                // 2. Mostrar la respuesta recibida del Webhook
+                appendMessage(data.respuesta, 'bot');
+
+            } catch (error) {
+                console.error('Error de conexión con el Webhook:', error);
+                appendMessage("[Error]: Conexión fallida con la Red HoloNet.", 'bot');
+            }
+            */
+
+            // ===================================================================
+            // [SIMULACIÓN TEMPORAL]
+            // Borra o comenta esta parte cuando conectes el bloque de arriba.
+            // ===================================================================
+            setTimeout(() => {
+                appendMessage("Accediendo a los registros... Simulación de respuesta completada. (Conecta la función fetch() a tu Webhook en el código fuente para habilitar el motor real).", 'bot');
+            }, 800);
+            
+        });
+    </script>
+</body>
+</html>
