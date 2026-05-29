@@ -797,16 +797,29 @@
         body: JSON.stringify({ message: userText }) 
     });
     
-   const text = await response.text();
-chatMessages.removeChild(chatMessages.lastChild);
-let respuesta;
-try {
-    const data = JSON.parse(text);
-    respuesta = data.respuesta || text;
-} catch {
-    respuesta = text;
-}
-appendMessage(respuesta, 'bot');
+   try {
+    appendMessage("⏳ Consultando registros...", 'bot');
+
+    const WEBHOOK_URL = 'https://hook.us2.make.com/cpxlo5ckl3ge4cjm5f7gjwemsaycnjsd';
+    
+    const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText }) 
+    });
+    
+    const text = await response.text();
+    chatMessages.removeChild(chatMessages.lastChild);
+    
+    let respuesta;
+    try {
+        const data = JSON.parse(text);
+        respuesta = data.respuesta || text;
+    } catch {
+        respuesta = text;
+    }
+    
+    appendMessage(respuesta, 'bot');
 
 } catch (error) {
     console.error('Error de conexión con el Webhook:', error);
