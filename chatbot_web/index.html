@@ -210,6 +210,20 @@
             background-position: center;
             position: relative;
             border-bottom: 1px solid var(--card-border);
+            overflow: hidden;
+        }
+
+        .movie-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .movie-card:hover .movie-image img {
+            transform: scale(1.05);
         }
 
         /* Gradiente sobre la imagen para fusionar con el texto */
@@ -657,42 +671,47 @@
         </button>
     </div>
 
-    <!-- CARGA DE PÓSTERS VÍA TMDB API -->
+    <!-- CARGA DE PÓSTERS — URLs directas TMDB CDN (sin API key) -->
     <script>
-        // TMDB API pública — los navegadores pueden acceder sin restricciones
-        const TMDB_KEY = '8265bd1679663a7ea12ac168da84d2e8'; // clave pública de ejemplo / demo
-        const TMDB_IMG = 'https://image.tmdb.org/t/p/w780';
+        // Paths de imagen directos del CDN de TMDB.
+        // image.tmdb.org es un CDN público accesible desde cualquier navegador sin autenticación.
+        const TMDB_BASE = 'https://image.tmdb.org/t/p/w780';
 
-        // IDs de TMDB para cada episodio de Star Wars
-        const movies = [
-            { id: 'img-ep1', tmdbId: 1893 },   // Ep I
-            { id: 'img-ep2', tmdbId: 1894 },   // Ep II
-            { id: 'img-ep3', tmdbId: 1895 },   // Ep III
-            { id: 'img-ep4', tmdbId: 11    },   // Ep IV
-            { id: 'img-ep5', tmdbId: 1891  },   // Ep V
-            { id: 'img-ep6', tmdbId: 1892  },   // Ep VI
-            { id: 'img-ep7', tmdbId: 140607},   // Ep VII
-            { id: 'img-ep8', tmdbId: 181808},   // Ep VIII
-            { id: 'img-ep9', tmdbId: 181812},   // Ep IX
-        ];
+        const posters = {
+            'img-ep1': '/6wkfovpn7Eq8dYNKaG5PY3q2oq6.jpg',   // Ep I  - La Amenaza Fantasma
+            'img-ep2': '/in5GnIgzGiTpUTMbLqCOvHfKjOM.jpg',   // Ep II - El Ataque de los Clones
+            'img-ep3': '/xfSAoBEm9MNBjmlNcDYLvLSMlnq.jpg',   // Ep III- La Venganza de los Sith
+            'img-ep4': '/6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg',   // Ep IV - Una Nueva Esperanza
+            'img-ep5': '/2l05cFWJacyIsTpsqSgH0wQXe4V.jpg',   // Ep V  - El Imperio Contraataca
+            'img-ep6': '/mDCBQNhR6R0PVFucJnelzLtWO4f.jpg',   // Ep VI - El Retorno del Jedi
+            'img-ep7': '/wqnLdwVXoBjKibFRR5U3y0aDUhs.jpg',   // Ep VII- El Despertar de la Fuerza
+            'img-ep8': '/kOVEVeg59E0wsnXmF9nrh6OmWII.jpg',   // Ep VIII-Los Últimos Jedi
+            'img-ep9': '/db32LaOibwEliAmSL2jjDF6oDdj.jpg',   // Ep IX - El Ascenso de Skywalker
+        };
 
-        async function loadPosters() {
-            for (const movie of movies) {
-                try {
-                    const res = await fetch(
-                        `https://api.themoviedb.org/3/movie/${movie.tmdbId}?api_key=${TMDB_KEY}&language=es`
-                    );
-                    const data = await res.json();
-                    if (data.poster_path) {
-                        const el = document.getElementById(movie.id);
-                        if (el) {
-                            el.style.backgroundImage = `url('${TMDB_IMG}${data.poster_path}')`;
-                            el.style.backgroundPosition = 'top center';
-                        }
-                    }
-                } catch (e) {
-                    console.warn(`No se pudo cargar póster para ${movie.id}:`, e);
-                }
+        // Usar <img> dentro del div para máxima compatibilidad y sin problemas de CORS
+        function loadPosters() {
+            for (const [id, path] of Object.entries(posters)) {
+                const el = document.getElementById(id);
+                if (!el) continue;
+
+                const img = document.createElement('img');
+                img.src = TMDB_BASE + path;
+                img.alt = '';
+                img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:top center;display:block;';
+
+                // Fallback: si la imagen falla, mostrar placeholder estilizado
+                img.onerror = function() {
+                    el.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)';
+                    el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;opacity:0.3;">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+                            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+                            <line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/>
+                            <line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/>
+                        </svg></div>`;
+                };
+
+                el.appendChild(img);
             }
         }
 
