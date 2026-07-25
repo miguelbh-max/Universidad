@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1.1 Características generales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Animated Gradients -->
+    <div class="bg-gradients">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <span class="logo">Sistemas Programables</span>
+            <ul class="nav-links">
+                <li><a href="#intro">Introducción</a></li>
+                <li><a href="#familias">Familias</a></li>
+                <li><a href="#buses">Buses</a></li>
+                <li><a href="#memoria">Memoria</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <div class="badge">Tema 1.1</div>
+                <h1>Características<br>Generales</h1>
+                <p>Explora los fundamentos de los microcontroladores: desde su introducción hasta la arquitectura interna de memoria y buses, con un diseño premium y de vanguardia.</p>
+                <a href="#intro" class="btn-primary">Descubrir Más</a>
+            </div>
+            <div class="hero-visual">
+                <div class="glass-chip">
+                    <div class="chip-inner">
+                        <span>MCU</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1.1.1 Introducción -->
+        <section class="content-section" id="intro">
+            <div class="glass-panel wide-panel reveal">
+                <div class="panel-header">
+                    <h2>Introducción</h2>
+                    <div class="icon-box">🧠</div>
+                </div>
+                <p>Un microcontrolador (MCU) es un circuito integrado programable, capaz de ejecutar las órdenes grabadas en su memoria. Está compuesto de varios bloques funcionales que cumplen tareas específicas. Un microcontrolador incluye en su interior las tres principales unidades funcionales de una computadora: <strong>unidad central de procesamiento (CPU)</strong>, <strong>memoria</strong> y <strong>periféricos de entrada/salida</strong>, todo contenido en un solo chip diseñado para sistemas embebidos.</p>
+            </div>
+        </section>
+
+        <!-- 1.1.2 Familias -->
+        <section class="content-section" id="familias">
+            <h2 class="section-title reveal">Familias de Microcontroladores</h2>
+            <div class="grid">
+                <div class="glass-panel card reveal">
+                    <div class="card-img-wrapper">
+                        <img src="images/avr.jpg" alt="Arduino UNO AVR" class="card-img">
+                    </div>
+                    <h3>AVR</h3>
+                    <p>Arquitectura RISC de 8 bits desarrollada originalmente por Atmel (ahora Microchip). Famosa por ser el corazón de las placas Arduino clásicas, destacando especialmente el <strong>Arduino UNO</strong> equipado con el chip ATmega328P. Es ideal para estudiantes, makers y proyectos de prototipado rápido debido a su enorme comunidad y simplicidad.</p>
+                </div>
+                <div class="glass-panel card reveal delay-1">
+                    <div class="card-img-wrapper">
+                        <img src="images/arm.jpg" alt="Arduino Due ARM" class="card-img">
+                    </div>
+                    <h3>ARM</h3>
+                    <p>Arquitectura líder global de 32 y 64 bits. La serie <strong>Cortex-M</strong> domina la industria de sistemas embebidos. Placas como el <strong>Arduino Due</strong> o Arduino Portenta H7 integran potentes procesadores ARM, brindando un balance perfecto entre altísimo poder computacional y muy bajo consumo energético, ideal para robótica avanzada y procesamiento de señales.</p>
+                </div>
+                <div class="glass-panel card reveal delay-2">
+                    <div class="card-img-wrapper">
+                        <img src="images/pic.jpg" alt="Microcontrolador PIC" class="card-img">
+                    </div>
+                    <h3>PIC</h3>
+                    <p>Familia creada por Microchip Technology. Los microcontroladores PIC son ampliamente utilizados en la industria automotriz y de automatización debido a su altísima robustez frente a ruido eléctrico, extenso catálogo y periféricos especializados. Han sido el estándar industrial por décadas.</p>
+                </div>
+                <div class="glass-panel card reveal delay-3">
+                    <div class="card-img-wrapper">
+                        <img src="images/esp.jpg" alt="ESP32 Board" class="card-img">
+                    </div>
+                    <h3>ESP</h3>
+                    <p>Chips desarrollados por Espressif Systems. Dispositivos como el <strong>ESP32</strong> (o ESP8266) han revolucionado el Internet de las Cosas (IoT) integrando conectividad nativa Wi-Fi y Bluetooth. Tienen arquitecturas muy potentes de doble núcleo a un costo increíblemente bajo, siendo la placa por defecto para domótica y web servers locales.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1.1.3 Ancho de Buses -->
+        <section class="content-section split" id="buses">
+            <div class="text-content reveal">
+                <h2 class="section-title">Ancho de Buses</h2>
+                <p>El ancho del bus de datos y direcciones determina la cantidad de información que el CPU puede procesar en una sola operación y cuánta memoria física puede direccionar.</p>
+                <ul class="styled-list">
+                    <li><strong>8 bits:</strong> Procesan información byte por byte. Ideales para tareas de control simples y de bajo costo. <em>(ej. AVR ATmega328P, PIC16)</em>.</li>
+                    <li><strong>16 bits:</strong> Ofrecen un balance perfecto entre costo y capacidad, utilizados comúnmente en aplicaciones de control industrial avanzado.</li>
+                    <li><strong>32 bits (o más):</strong> Alta capacidad de cómputo. Son fundamentales para correr sistemas operativos en tiempo real (RTOS), gráficos y procesamiento de señales complejas. <em>(ej. ARM Cortex-M, ESP32)</em>.</li>
+                </ul>
+            </div>
+            <div class="visual-content reveal delay-1">
+                <div class="glass-panel visual-panel">
+                    <div class="bus-animation">
+                        <div class="cpu-node">CPU</div>
+                        <div class="data-lines">
+                            <div class="line"></div>
+                            <div class="line"></div>
+                            <div class="line"></div>
+                        </div>
+                        <div class="mem-node">MEM</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1.1.4 Memoria -->
+        <section class="content-section" id="memoria">
+            <h2 class="section-title reveal">Organización de Memoria</h2>
+            <div class="grid">
+                <div class="glass-panel card reveal">
+                    <div class="card-icon">⚡</div>
+                    <h3>Memoria Flash</h3>
+                    <p>Memoria <strong>no volátil</strong> de lectura rápida donde se almacena el programa o firmware principal. Retiene los datos incluso al apagar el dispositivo y soporta miles de ciclos de escritura y borrado por sectores.</p>
+                </div>
+                <div class="glass-panel card reveal delay-1">
+                    <div class="card-icon">🚀</div>
+                    <h3>SRAM</h3>
+                    <p>Memoria Estática de Acceso Aleatorio. Es una memoria <strong>volátil</strong> y sumamente rápida utilizada para almacenar variables de forma temporal, el "Stack" y el "Heap" mientras el sistema está ejecutándose. Al perder energía, los datos se borran instantáneamente.</p>
+                </div>
+                <div class="glass-panel card reveal delay-2">
+                    <div class="card-icon">💾</div>
+                    <h3>EEPROM</h3>
+                    <p>Memoria <strong>no volátil</strong> orientada a persistir parámetros de configuración, calibraciones o pequeños registros de datos que deben conservarse entre reinicios. Permite lectura y escritura a nivel de bytes individuales, aunque es más lenta que la RAM o Flash.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 - Sistemas Programables | Tema 1.1 Características Generales</p>
+            <p>Diseño Web Premium UX/UI - Frontend Moderno</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
