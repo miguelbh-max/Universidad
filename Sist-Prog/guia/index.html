@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flujo de Trabajo: IA + GitHub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-glow glow-blue"></div>
+    <div class="bg-glow glow-purple"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar glass">
+        <div class="logo">
+            <span class="icon">🤖</span> AI<span class="highlight">Flow</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#modulo1">Generación IA</a></li>
+            <li><a href="#modulo2">Despliegue</a></li>
+            <li><a href="#modulo3">Lista de Cotejo</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content" data-animate="slide-up">
+                <div class="badge">Guía Definitiva 2026</div>
+                <h1>Flujo de Trabajo: <br><span class="text-gradient">Desarrollo Web con IA y GitHub</span></h1>
+                <p>Guía paso a paso para crear, publicar y desplegar tu sitio web utilizando herramientas de Inteligencia Artificial y todo el poder de GitHub Pages.</p>
+                <div class="hero-actions">
+                    <a href="#modulo1" class="btn btn-primary">Comenzar Guía</a>
+                </div>
+            </div>
+            <div class="hero-visual" data-animate="fade-in">
+                <div class="image-wrapper glass">
+                    <img src="assets/images/hero.jpg" alt="AI and GitHub Workflow">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Módulo 1: Generación de Código con IA -->
+    <section id="modulo1" class="section">
+        <div class="container">
+            <div class="section-header" data-animate="slide-up">
+                <h2><span class="number">01</span> Generación de Código con IA Generativa</h2>
+                <p>Aprende a comunicarte con la IA para obtener el código perfecto para tu proyecto web.</p>
+            </div>
+
+            <div class="module-content">
+                <div class="tools-card glass" data-animate="slide-right">
+                    <h3>🛠️ Herramientas Recomendadas</h3>
+                    <div class="tools-grid">
+                        <div class="tool"><span>✨</span> Gemini</div>
+                        <div class="tool"><span>🧠</span> Claude</div>
+                        <div class="tool"><span>💬</span> ChatGPT</div>
+                    </div>
+                </div>
+
+                <div class="instructions glass" data-animate="slide-left">
+                    <h3>📝 Instrucciones Clave para el Alumno</h3>
+                    <ul class="step-list">
+                        <li>
+                            <div class="step-number">1</div>
+                            <div class="step-text">
+                                <strong>Define claramente el propósito</strong>
+                                <p>Antes de redactar el <em>prompt</em>, ten claro de qué trata tu página y qué secciones tendrá.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">2</div>
+                            <div class="step-text">
+                                <strong>Solicita estructura y archivos separados</strong>
+                                <p>Pide a la IA que genere el HTML, los estilos CSS y la interacción en JavaScript en archivos separados (o integrados según el alcance del proyecto).</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">3</div>
+                            <div class="step-text">
+                                <strong>Revisa y prueba localmente</strong>
+                                <p>Abre el archivo <code>index.html</code> en tu navegador y comprueba que todo funcione correctamente antes de subirlo.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Módulo 2: Publicación y Despliegue -->
+    <section id="modulo2" class="section">
+        <div class="container">
+            <div class="section-header" data-animate="slide-up">
+                <h2><span class="number">02</span> Publicación y Despliegue en GitHub</h2>
+                <p>El proceso para alojar tu página y obtener una URL pública funcional.</p>
+            </div>
+
+            <div class="deployment-grid">
+                <div class="glass step-card" data-animate="slide-up" style="--delay: 0.1s">
+                    <div class="card-icon">📁</div>
+                    <h3>1. Crear Repositorio</h3>
+                    <p>Inicia sesión en GitHub y crea un nuevo repositorio público. Dale un nombre claro y descriptivo a tu proyecto.</p>
+                </div>
+                
+                <div class="glass step-card" data-animate="slide-up" style="--delay: 0.2s">
+                    <div class="card-icon">⬆️</div>
+                    <h3>2. Subir Archivos</h3>
+                    <p>Sube los archivos de tu proyecto al repositorio. <strong>Importante:</strong> asegúrate de que tu archivo principal se llame <code>index.html</code>.</p>
+                </div>
+
+                <div class="glass step-card" data-animate="slide-up" style="--delay: 0.3s">
+                    <div class="card-icon">🚀</div>
+                    <h3>3. Activar Pages</h3>
+                    <p>Ve a la pestaña <em>Settings</em> > <em>Pages</em>, selecciona la rama <code>main</code> (o master) como origen y guarda para desplegar.</p>
+                </div>
+            </div>
+
+            <div class="ai-integration glass mt-4" data-animate="fade-in">
+                <h3>🤖 Integración con IA en el despliegue</h3>
+                <p><strong>Tip pro:</strong> Indica a la IA la estructura de tu repositorio para que te ayude a configurar o verificar tu enlace público resultante.</p>
+                <div class="code-snippet">
+                    Ejemplo: <span>https://tu-usuario.github.io/nombre-del-repositorio/</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Módulo 3: Lista de Cotejo -->
+    <section id="modulo3" class="section checklist-section">
+        <div class="container">
+            <div class="glass checklist-container" data-animate="scale-in">
+                <h2>✅ Lista de Cotejo / Criterios de Entrega</h2>
+                <p class="subtitle">Verifica tu trabajo antes de enviarlo marcando las siguientes casillas:</p>
+                
+                <div class="checklist">
+                    <label class="check-item">
+                        <input type="checkbox" class="custom-checkbox">
+                        <span class="checkmark"></span>
+                        <span class="check-text">Código generado o asistido por IA funcional y sin errores.</span>
+                    </label>
+                    
+                    <label class="check-item">
+                        <input type="checkbox" class="custom-checkbox">
+                        <span class="checkmark"></span>
+                        <span class="check-text">Repositorio creado en GitHub con <em>commits</em> claros.</span>
+                    </label>
+                    
+                    <label class="check-item">
+                        <input type="checkbox" class="custom-checkbox">
+                        <span class="checkmark"></span>
+                        <span class="check-text">GitHub Pages activo y enlace público completamente funcional.</span>
+                    </label>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-text">Progreso: <span id="progress-percent">0%</span></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="success-message" id="success-message">
+                    🎉 ¡Todo listo! Has completado los criterios de entrega.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>Desarrollo Web con IA &copy; 2026. Material de estudio.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
