@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino - Innovación en Hardware Libre</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    colors: {
+                        arduino: {
+                            DEFAULT: '#00979D',
+                            dark: '#00878F',
+                            light: '#42BFC5',
+                            accent: '#E47128' // Arduino secondary orange
+                        },
+                        darkBg: '#0B1120',
+                        darkCard: '#1E293B',
+                        darkCardHover: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- PrismJS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css" rel="stylesheet" />
+    
+    <style>
+        /* Custom Styles & Scrollbar */
+        body { background-color: #0B1120; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0B1120; }
+        ::-webkit-scrollbar-thumb { background: #00979D; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00878F; }
+        
+        .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Smooth gradient text */
+        .text-gradient {
+            background: linear-gradient(90deg, #00979D, #42BFC5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Hover animations */
+        .hover-up { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .hover-up:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 151, 157, 0.3); }
+    </style>
+</head>
+<body class="text-slate-300 font-sans antialiased selection:bg-arduino selection:text-white">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 glass-effect transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <!-- Fake Arduino Logo -->
+                    <div class="w-8 h-8 rounded-full bg-arduino flex items-center justify-center text-white font-bold text-xl border-2 border-white/20 shadow-[0_0_10px_rgba(0,151,157,0.8)]">
+                        <span>-</span><span class="text-sm">+</span>
+                    </div>
+                    <span class="font-bold text-xl text-white tracking-tight">Arduino<span class="text-arduino">Next</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-6">
+                        <a href="#intro" class="hover:text-arduino transition-colors px-3 py-2 rounded-md text-sm font-medium">Introducción</a>
+                        <a href="#code" class="hover:text-arduino transition-colors px-3 py-2 rounded-md text-sm font-medium">Programación</a>
+                        <a href="#compare" class="hover:text-arduino transition-colors px-3 py-2 rounded-md text-sm font-medium">vs ESP32</a>
+                        <a href="#boards" class="hover:text-arduino transition-colors px-3 py-2 rounded-md text-sm font-medium">Placas</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu (hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-darkCard border-t border-slate-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#intro" class="block hover:bg-slate-700 px-3 py-2 rounded-md text-base font-medium">Introducción</a>
+                <a href="#code" class="block hover:bg-slate-700 px-3 py-2 rounded-md text-base font-medium">Programación</a>
+                <a href="#compare" class="block hover:bg-slate-700 px-3 py-2 rounded-md text-base font-medium">vs ESP32</a>
+                <a href="#boards" class="block hover:bg-slate-700 px-3 py-2 rounded-md text-base font-medium">Placas</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Background decorations -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-arduino rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div class="absolute top-40 right-10 w-72 h-72 bg-arduino-accent rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style="animation-delay: 2s;"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 drop-shadow-lg">
+                El Futuro del <span class="text-gradient">Hardware Libre</span>
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-400 mb-10">
+                Descubre la nueva generación de placas Arduino. Más potentes, con conectividad nativa y listas para la era del IoT y la IA en el borde.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#boards" class="bg-arduino hover:bg-arduino-dark text-white font-semibold py-3 px-8 rounded-full transition-all shadow-[0_0_20px_rgba(0,151,157,0.5)] hover:shadow-[0_0_30px_rgba(0,151,157,0.7)] text-center">
+                    Ver Nuevas Placas
+                </a>
+                <a href="#intro" class="glass-effect text-white font-semibold py-3 px-8 rounded-full hover:bg-white/10 transition-all text-center border-arduino/30">
+                    ¿Qué es Arduino?
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 1. Introducción a Arduino -->
+    <section id="intro" class="py-20 bg-darkCard/30 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">¿Qué es Arduino?</h2>
+                <p class="max-w-3xl mx-auto text-lg text-slate-400">
+                    Arduino es una plataforma de creación de electrónica de código abierto, basada en hardware y software fácil de usar. Está diseñado para que cualquier persona pueda crear proyectos interactivos.
+                </p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="glass-effect p-6 rounded-2xl hover-up border border-white/5 hover:border-arduino/30">
+                    <div class="w-12 h-12 bg-arduino/20 rounded-lg flex items-center justify-center mb-4 text-arduino">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Hardware Libre</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">Planos y esquemas disponibles para todos. Puedes modificar o crear tus propias versiones de las placas.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="glass-effect p-6 rounded-2xl hover-up border border-white/5 hover:border-arduino/30">
+                    <div class="w-12 h-12 bg-arduino/20 rounded-lg flex items-center justify-center mb-4 text-arduino">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Fácil de Usar</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">El software IDE de Arduino es fácil para principiantes, pero lo suficientemente flexible para usuarios avanzados.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="glass-effect p-6 rounded-2xl hover-up border border-white/5 hover:border-arduino/30">
+                    <div class="w-12 h-12 bg-arduino/20 rounded-lg flex items-center justify-center mb-4 text-arduino">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Gran Comunidad</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">Millones de usuarios comparten código, librerías y soluciones. Nunca estarás solo si tienes un problema.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="glass-effect p-6 rounded-2xl hover-up border border-white/5 hover:border-arduino/30">
+                    <div class="w-12 h-12 bg-arduino/20 rounded-lg flex items-center justify-center mb-4 text-arduino">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Multiplataforma</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">El entorno de desarrollo (IDE) funciona en Windows, macOS y Linux. Además de contar con un IDE en la nube.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programación y Estructura (Code & Pins) -->
+    <section id="code" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Left: Explicación y Acordeón -->
+                <div>
+                    <span class="text-arduino font-semibold tracking-wider uppercase text-sm">C/C++ Simplificado</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mt-2 mb-4">El Lenguaje de Arduino</h2>
+                    <p class="text-slate-400 mb-8 leading-relaxed">
+                        El código en Arduino (llamado Sketch) oculta los detalles complejos del microcontrolador. Todo programa requiere principalmente dos funciones: <strong>setup()</strong> y <strong>loop()</strong>.
+                    </p>
+                    
+                    <!-- Manejo de pines -->
+                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Manejo de Pines (I/O)
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Accordion Item 1 -->
+                        <div class="glass-effect rounded-xl overflow-hidden border border-white/5">
+                            <button class="w-full px-6 py-4 text-left flex justify-between items-center text-white font-medium focus:outline-none hover:bg-white/5 transition-colors" onclick="toggleAccordion('acc-digital')">
+                                <span>Pines Digitales (0 y 1)</span>
+                                <svg id="icon-digital" class="w-5 h-5 transform transition-transform text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div id="acc-digital" class="px-6 pb-4 hidden text-slate-400 text-sm">
+                                <ul class="list-none space-y-3 mt-2">
+                                    <li class="flex flex-col"><code class="text-arduino font-mono bg-darkBg px-2 py-1 rounded inline-block w-max mb-1">pinMode(pin, mode)</code> Configura el pin como entrada (INPUT) o salida (OUTPUT).</li>
+                                    <li class="flex flex-col"><code class="text-arduino font-mono bg-darkBg px-2 py-1 rounded inline-block w-max mb-1">digitalWrite(pin, val)</code> Escribe un valor ALTO (5V) o BAJO (0V) en el pin.</li>
+                                    <li class="flex flex-col"><code class="text-arduino font-mono bg-darkBg px-2 py-1 rounded inline-block w-max mb-1">digitalRead(pin)</code> Lee el estado actual del pin.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Accordion Item 2 -->
+                        <div class="glass-effect rounded-xl overflow-hidden border border-white/5">
+                            <button class="w-full px-6 py-4 text-left flex justify-between items-center text-white font-medium focus:outline-none hover:bg-white/5 transition-colors" onclick="toggleAccordion('acc-analog')">
+                                <span>Pines Analógicos (ADC y PWM)</span>
+                                <svg id="icon-analog" class="w-5 h-5 transform transition-transform text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div id="acc-analog" class="px-6 pb-4 hidden text-slate-400 text-sm">
+                                <ul class="list-none space-y-3 mt-2">
+                                    <li class="flex flex-col"><code class="text-arduino font-mono bg-darkBg px-2 py-1 rounded inline-block w-max mb-1">analogRead(pin)</code> Lee un voltaje y lo convierte en un número (ej. 0-1023 en placas de 10 bits de resolución ADC).</li>
+                                    <li class="flex flex-col"><code class="text-arduino font-mono bg-darkBg px-2 py-1 rounded inline-block w-max mb-1">analogWrite(pin, val)</code> Genera una onda PWM para simular valores analógicos (útil para variar el brillo de LEDs o la velocidad de motores).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Code Block -->
+                <div class="glass-effect rounded-2xl p-[1px] relative group hover-up bg-gradient-to-br from-arduino/50 to-transparent">
+                    <div class="bg-darkBg rounded-2xl overflow-hidden h-full">
+                        <div class="flex justify-between items-center px-4 py-2 bg-slate-800/50 border-b border-slate-700/50">
+                            <div class="flex gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <span class="text-xs text-slate-400 font-mono">Blink_Button.ino</span>
+                            <button onclick="copyCode()" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1 group/btn relative">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                <span id="copy-text" class="text-xs absolute -left-16 opacity-0 group-hover/btn:opacity-100 transition-opacity bg-darkBg px-2 py-1 rounded border border-slate-700">Copiar</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto p-4 text-sm font-mono max-h-[400px] overflow-y-auto">
+<pre><code class="language-cpp" id="arduino-code">// Ejemplo: Control de LED con botón y lectura serial
+
+const int ledPin = 13;   // Pin del LED integrado
+const int btnPin = 2;    // Pin de un botón
+
+void setup() {
+  // setup() se ejecuta UNA VEZ al iniciar
+  pinMode(ledPin, OUTPUT);
+  pinMode(btnPin, INPUT_PULLUP);
+  
+  // Iniciar comunicación serial
+  Serial.begin(9600);
+  Serial.println("Sistema iniciado.");
+}
+
+void loop() {
+  // loop() se ejecuta REPETIDAMENTE
+  int btnState = digitalRead(btnPin);
+  
+  if (btnState == LOW) { // Botón presionado (Pull-up)
+    digitalWrite(ledPin, HIGH);
+    Serial.println("LED Encendido");
+  } else {
+    digitalWrite(ledPin, LOW);
+  }
+  
+  delay(50); // Pequeña pausa anti-rebote
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Comparativa Arduino vs ESP32 -->
+    <section id="compare" class="py-20 bg-darkCard/30 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-arduino font-semibold tracking-wider uppercase text-sm">Versus</span>
+                <h2 class="text-3xl md:text-5xl font-bold text-white mt-2 mb-4">Arduino Clásico vs ESP32</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">¿Por qué el SoC ESP32 ha complementado tan bien al ecosistema Arduino para proyectos del Internet de las Cosas (IoT)?</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch max-w-5xl mx-auto">
+                <!-- Arduino UNO Card -->
+                <div class="glass-effect rounded-3xl p-8 relative border-t-4 border-t-blue-500 hover-up flex flex-col">
+                    <div class="mb-6 flex flex-col items-center">
+                        <div class="w-32 h-32 mb-4 rounded-full overflow-hidden border-2 border-blue-500/50 bg-white">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg" alt="Arduino UNO R3" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-2xl font-bold text-white text-center">Arduino UNO R3</h3>
+                        <p class="text-blue-400 text-center text-sm font-medium mt-1">El estándar clásico (Microcontrolador ATmega328P)</p>
+                    </div>
+                    
+                    <ul class="space-y-4 text-slate-300 flex-1">
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg> Arquitectura</span>
+                            <span class="font-semibold text-white">8-bit AVR</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Reloj</span>
+                            <span class="font-semibold text-white">16 MHz</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg> RAM / Flash</span>
+                            <span class="font-semibold text-white">2 KB / 32 KB</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg> Conectividad</span>
+                            <span class="font-semibold text-red-400">Ninguna</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> Lenguaje</span>
+                            <span class="font-semibold text-white">C/C++ (Arduino IDE)</span>
+                        </li>
+                        <li class="flex justify-between items-start pt-3">
+                            <span class="text-slate-400">Casos de Uso</span>
+                            <span class="text-right text-sm font-medium w-1/2">Robótica básica, aprendizaje escolar, sensores simples.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- ESP32 Card -->
+                <div class="glass-effect rounded-3xl p-8 relative border-t-4 border-t-arduino hover-up transform md:scale-105 z-10 shadow-[0_10px_40px_rgba(0,151,157,0.15)] flex flex-col">
+                    <div class="absolute -top-4 -right-4 bg-gradient-to-r from-arduino to-arduino-light text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">El Rey del IoT</div>
+                    <div class="mb-6 flex flex-col items-center">
+                        <div class="w-32 h-32 mb-4 rounded-full overflow-hidden border-2 border-arduino/50 bg-white">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/ESP32.jpg" alt="SoC ESP32" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-2xl font-bold text-white text-center">SoC ESP32</h3>
+                        <p class="text-arduino-light text-center text-sm font-medium mt-1">El estándar moderno (Tensilica Xtensa Dual-Core)</p>
+                    </div>
+                    
+                    <ul class="space-y-4 text-slate-300 flex-1">
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg> Arquitectura</span>
+                            <span class="font-bold text-arduino-light">32-bit Dual-Core</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Reloj</span>
+                            <span class="font-bold text-arduino-light">Hasta 240 MHz</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg> RAM / Flash</span>
+                            <span class="font-bold text-arduino-light">520 KB / 4 MB+</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg> Conectividad</span>
+                            <span class="font-bold text-arduino-light">WiFi & Bluetooth/BLE</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-slate-400 flex items-center gap-2"><svg class="w-4 h-4 text-arduino" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> Lenguaje</span>
+                            <span class="font-bold text-arduino-light text-right text-sm">C/C++, MicroPython, Lua</span>
+                        </li>
+                        <li class="flex justify-between items-start pt-3">
+                            <span class="text-slate-400">Casos de Uso</span>
+                            <span class="text-right text-sm font-medium w-1/2">Domótica, Web Servers, Smart Home, Edge AI.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center p-4 rounded-xl bg-arduino/5 border border-arduino/20 max-w-3xl mx-auto">
+                <p class="text-slate-300 text-sm">
+                    <span class="font-bold text-arduino">¡Atención!</span> La línea divisoria se ha difuminado. Arduino ha lanzado placas oficiales (como el Nano ESP32) que integran este potente chip, fusionando lo mejor de ambos mundos: el ecosistema Arduino y la potencia de Espressif.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Catálogo de placas (Última Generación) -->
+    <section id="boards" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mt-2 mb-4">Catálogo de Última Generación</h2>
+                <p class="max-w-2xl mx-auto text-slate-400">
+                    Descubre el hardware que está revolucionando la comunidad maker profesional. Arquitecturas de 32 bits, matrices LED y conectividad total.
+                </p>
+            </div>
+
+            <!-- Grid de Placas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- UNO R4 -->
+                <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
+                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                        <!-- Image from Wikimedia -->
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/90/Arduino_Uno_R4_WiFi.webp" alt="Arduino UNO R4 WiFi" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out">
+                        <div class="absolute top-3 right-3 bg-arduino text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">WiFi + Matrix</div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-arduino transition-colors">Arduino UNO R4</h3>
+                        <p class="text-slate-400 text-sm mb-6 flex-1">
+                            El clásico reinventado. Incorpora un microcontrolador <strong>ARM Cortex-M4 de 32 bits</strong> (Renesas RA4M1), conector USB-C y conectividad. <strong>Lenguaje:</strong> Se programa principalmente en C/C++ clásico.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono font-medium text-slate-300">
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-arduino-light">C/C++</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10">Cortex-M4</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10">USB-C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nano ESP32 -->
+                <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
+                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                        <img src="https://store.arduino.cc/cdn/shop/files/ABX00092_00.default_934x700.jpg?v=1727101612" alt="Arduino Nano ESP32" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino Nano ESP32">
+                            <rect width="600" height="400" fill="#0F172A"/>
+                            <rect x="230" y="50" width="140" height="300" fill="#1E293B" rx="8"/>
+                            <rect x="255" y="40" width="90" height="20" fill="#334155" rx="4"/>
+                            <circle cx="250" cy="90" r="6" fill="#00979D"/>
+                            <circle cx="250" cy="115" r="6" fill="#00979D"/>
+                            <circle cx="250" cy="140" r="6" fill="#00979D"/>
+                            <circle cx="250" cy="165" r="6" fill="#00979D"/>
+                            <circle cx="250" cy="190" r="6" fill="#00979D"/>
+                            <circle cx="250" cy="215" r="6" fill="#00979D"/>
+                            <circle cx="350" cy="90" r="6" fill="#00979D"/>
+                            <circle cx="350" cy="115" r="6" fill="#00979D"/>
+                            <circle cx="350" cy="140" r="6" fill="#00979D"/>
+                            <circle cx="350" cy="165" r="6" fill="#00979D"/>
+                            <circle cx="350" cy="190" r="6" fill="#00979D"/>
+                            <circle cx="350" cy="215" r="6" fill="#00979D"/>
+                            <rect x="270" y="250" width="60" height="40" fill="#475569" rx="4"/>
+                            <text x="300" y="150" fill="#fff" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle">ESP32-S3</text>
+                            <text x="300" y="340" fill="#cbd5e1" font-family="sans-serif" font-size="18" font-weight="bold" text-anchor="middle">Nano ESP32</text>
+                            <text x="300" y="365" fill="#94a3b8" font-family="sans-serif" font-size="13" text-anchor="middle">USB-C · WiFi/BT</text>
+                        </svg>
+                        <div class="absolute top-3 right-3 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">IoT Micro</div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-arduino transition-colors">Arduino Nano ESP32</h3>
+                        <p class="text-slate-400 text-sm mb-6 flex-1">
+                            El poder del chip <strong>ESP32-S3</strong> empaquetado en el formato Nano. Ideal para IoT. <strong>Lenguaje:</strong> Se programa de forma nativa en C/C++ (Arduino IDE) y MicroPython.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono font-medium text-slate-300">
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-arduino-light">C/C++</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-indigo-400">MicroPython</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10">Wi-Fi/BLE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GIGA R1 WiFi -->
+                <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
+                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                        <img src="https://store.arduino.cc/cdn/shop/files/ABX00063_00.default_934x700.jpg?v=1727101223" alt="Arduino GIGA R1 WiFi" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out"
+                             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/9/99/Arduino_Giga_R1_WiFi.png';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block';};">
+                        <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino GIGA R1 WiFi">
+                            <rect width="600" height="400" fill="#1E293B"/>
+                            <rect x="100" y="60" width="400" height="280" fill="#00979D" rx="12"/>
+                            <rect x="130" y="90" width="340" height="220" fill="#0F172A" rx="8"/>
+                            <text x="300" y="210" fill="#fff" font-family="sans-serif" font-size="26" font-weight="bold" text-anchor="middle">GIGA R1</text>
+                            <text x="300" y="240" fill="#cbd5e1" font-family="sans-serif" font-size="16" text-anchor="middle">STM32H747 · WiFi/BT</text>
+                        </svg>
+                        <div class="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">Pro Level</div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-arduino transition-colors">Arduino GIGA R1 WiFi</h3>
+                        <p class="text-slate-400 text-sm mb-6 flex-1">
+                            Alto rendimiento (Dual-Core Cortex-M7/M4) para proyectos pesados (cámara, audio). <strong>Lenguaje:</strong> C/C++ clásico y soporte oficial para MicroPython.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono font-medium text-slate-300">
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-arduino-light">C/C++</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-indigo-400">MicroPython</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10">Dual-Core</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proyectos UNO Avanzados (UNO Q/Opta) -->
+                <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
+                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                        <img src="https://store.arduino.cc/cdn/shop/files/AFX00001_01.iso_934x700.jpg?v=1744099181" alt="Arduino PRO / Opta" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino PRO / Opta">
+                            <rect width="600" height="400" fill="#1E293B"/>
+                            <rect x="200" y="50" width="200" height="300" fill="#334155" rx="10"/>
+                            <rect x="200" y="50" width="200" height="40" fill="#00979D" rx="5"/>
+                            <rect x="200" y="310" width="200" height="40" fill="#00979D" rx="5"/>
+                            <circle cx="230" cy="120" r="10" fill="#4ade80"/>
+                            <circle cx="230" cy="150" r="10" fill="#4ade80"/>
+                            <circle cx="230" cy="180" r="10" fill="#4ade80"/>
+                            <text x="300" y="220" fill="#fff" font-family="sans-serif" font-size="24" font-weight="bold" text-anchor="middle">OPTA</text>
+                            <text x="300" y="250" fill="#cbd5e1" font-family="sans-serif" font-size="16" text-anchor="middle">Micro PLC</text>
+                        </svg>
+                        <div class="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">Industry</div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-arduino transition-colors">Arduino PRO / Opta</h3>
+                        <p class="text-slate-400 text-sm mb-6 flex-1">
+                            Dispositivos para la industria (PLC modular). <strong>Lenguaje:</strong> Compatible con C/C++ y lenguajes estándar de PLC como IEC 61131-3 (Diagrama de Contactos / Ladder).
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono font-medium text-slate-300">
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-arduino-light">C/C++</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-green-400">PLC Ladder</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10">IEC 61131-3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arduino UNO Q -->
+                <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
+                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                        <img src="https://store.arduino.cc/cdn/shop/files/ABX00162_00.default_934x700.jpg?v=1759218128" alt="Arduino UNO Q Híbrido" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino UNO Q Híbrido">
+                            <rect width="600" height="400" fill="#0F172A"/>
+                            <rect x="150" y="100" width="300" height="200" fill="#00979D" rx="15"/>
+                            <rect x="250" y="150" width="100" height="100" fill="#1E293B" rx="10"/>
+                            <text x="300" y="195" fill="#fff" font-family="sans-serif" font-size="18" font-weight="bold" text-anchor="middle">Qualcomm</text>
+                            <text x="300" y="215" fill="#cbd5e1" font-family="sans-serif" font-size="14" text-anchor="middle">QRB2210</text>
+                            <rect x="130" y="120" width="20" height="60" fill="#cbd5e1"/>
+                            <circle cx="170" cy="120" r="8" fill="#fff"/>
+                            <circle cx="430" cy="120" r="8" fill="#fff"/>
+                            <circle cx="170" cy="280" r="8" fill="#fff"/>
+                            <circle cx="430" cy="280" r="8" fill="#fff"/>
+                            <text x="300" y="280" fill="#fff" font-family="sans-serif" font-size="24" font-weight="bold" text-anchor="middle">UNO Q</text>
+                        </svg>
+                        <div class="absolute top-3 right-3 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">AI & Linux</div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-arduino transition-colors">Arduino UNO Q</h3>
+                        <p class="text-slate-400 text-sm mb-6 flex-1">
+                            La bestia híbrida. Combina procesador <strong>Qualcomm (Linux/IA)</strong> y MCU <strong>STM32</strong>. <strong>Lenguaje:</strong> C/C++ (para MCU) y lenguajes Linux como Python, Node.js y Bash.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono font-medium text-slate-300">
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-arduino-light">C/C++</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10 text-purple-400">Python/Linux</span>
+                            <span class="bg-darkBg px-2 py-1 rounded border border-white/10">Edge AI</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-darkBg pt-16 pb-8 border-t border-white/5 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-arduino flex items-center justify-center text-white font-bold text-xs">
+                    <span>-</span>
+                </div>
+                <span class="font-bold text-lg text-white">Arduino<span class="text-arduino">Next</span></span>
+            </div>
+            <p class="text-slate-500 text-sm text-center md:text-right">
+                Diseñado como demostración de Frontend moderno (HTML5, Tailwind CSS y JS). <br>
+                <span class="text-slate-600">Totalmente responsivo y optimizado.</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- PrismJS Script for highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    
+    <!-- Custom Interactions -->
+    <script>
+        // Funcionalidad Menú Móvil
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Ocultar menú al hacer clic en un enlace (Móvil)
+        const mobileLinks = menu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // Funcionalidad Acordeón
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            const iconId = id === 'acc-digital' ? 'icon-digital' : 'icon-analog';
+            const icon = document.getElementById(iconId);
+            
+            // Cerrar el otro si está abierto (Opcional, pero da buen UX)
+            const otherId = id === 'acc-digital' ? 'acc-analog' : 'acc-digital';
+            const otherEl = document.getElementById(otherId);
+            const otherIcon = document.getElementById(otherId === 'acc-digital' ? 'icon-digital' : 'icon-analog');
+            
+            if (!otherEl.classList.contains('hidden')) {
+                otherEl.classList.add('hidden');
+                otherIcon.classList.remove('rotate-180');
+            }
+
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                el.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        // Copiar Código al portapapeles
+        function copyCode() {
+            const codeBlock = document.getElementById('arduino-code');
+            const textToCopy = codeBlock.innerText;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const copySpan = document.getElementById('copy-text');
+                copySpan.innerText = '¡Copiado!';
+                copySpan.classList.add('text-arduino');
+                setTimeout(() => {
+                    copySpan.innerText = 'Copiar';
+                    copySpan.classList.remove('text-arduino');
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
