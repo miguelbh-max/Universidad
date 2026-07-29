@@ -292,7 +292,7 @@ void loop() {
                 <!-- Arduino UNO Card -->
                 <div class="glass-effect rounded-3xl p-8 relative border-t-4 border-t-blue-500 hover-up flex flex-col">
                     <div class="mb-6 flex flex-col items-center">
-                        <div class="w-32 h-32 mb-4 rounded-full overflow-hidden border-2 border-blue-500/50 bg-white">
+                        <div class="w-32 h-32 mb-4 rounded-full overflow-hidden border-2 border-blue-500/50 bg-white cursor-pointer" onclick="openImageModal(this)" title="Clic para ampliar">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg" alt="Arduino UNO R3" class="w-full h-full object-cover">
                         </div>
                         <h3 class="text-2xl font-bold text-white text-center">Arduino UNO R3</h3>
@@ -331,7 +331,7 @@ void loop() {
                 <div class="glass-effect rounded-3xl p-8 relative border-t-4 border-t-arduino hover-up transform md:scale-105 z-10 shadow-[0_10px_40px_rgba(0,151,157,0.15)] flex flex-col">
                     <div class="absolute -top-4 -right-4 bg-gradient-to-r from-arduino to-arduino-light text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">El Rey del IoT</div>
                     <div class="mb-6 flex flex-col items-center">
-                        <div class="w-32 h-32 mb-4 rounded-full overflow-hidden border-2 border-arduino/50 bg-white">
+                        <div class="w-32 h-32 mb-4 rounded-full overflow-hidden border-2 border-arduino/50 bg-white cursor-pointer" onclick="openImageModal(this)" title="Clic para ampliar">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/ESP32.jpg" alt="SoC ESP32" class="w-full h-full object-cover">
                         </div>
                         <h3 class="text-2xl font-bold text-white text-center">SoC ESP32</h3>
@@ -390,7 +390,7 @@ void loop() {
                 
                 <!-- UNO R4 -->
                 <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
-                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                    <div class="h-48 overflow-hidden relative bg-slate-800 cursor-pointer" onclick="openImageModal(this)" title="Clic para ampliar">
                         <!-- Image from Wikimedia -->
                         <img src="https://upload.wikimedia.org/wikipedia/commons/9/90/Arduino_Uno_R4_WiFi.webp" alt="Arduino UNO R4 WiFi" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out">
                         <div class="absolute top-3 right-3 bg-arduino text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">WiFi + Matrix</div>
@@ -410,7 +410,7 @@ void loop() {
 
                 <!-- Nano ESP32 -->
                 <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
-                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                    <div class="h-48 overflow-hidden relative bg-slate-800 cursor-pointer" onclick="openImageModal(this)" title="Clic para ampliar">
                         <img src="https://store.arduino.cc/cdn/shop/files/ABX00092_00.default_934x700.jpg?v=1727101612" alt="Arduino Nano ESP32" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
                         <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino Nano ESP32">
                             <rect width="600" height="400" fill="#0F172A"/>
@@ -450,7 +450,7 @@ void loop() {
 
                 <!-- GIGA R1 WiFi -->
                 <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
-                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                    <div class="h-48 overflow-hidden relative bg-slate-800 cursor-pointer" onclick="openImageModal(this)" title="Clic para ampliar">
                         <img src="https://store.arduino.cc/cdn/shop/files/ABX00063_00.default_934x700.jpg?v=1727101223" alt="Arduino GIGA R1 WiFi" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out"
                              onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/9/99/Arduino_Giga_R1_WiFi.png';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block';};">
                         <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino GIGA R1 WiFi">
@@ -477,7 +477,7 @@ void loop() {
 
                 <!-- Proyectos UNO Avanzados (UNO Q/Opta) -->
                 <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
-                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                    <div class="h-48 overflow-hidden relative bg-slate-800 cursor-pointer" onclick="openImageModal(this)" title="Clic para ampliar">
                         <img src="https://store.arduino.cc/cdn/shop/files/AFX00001_01.iso_934x700.jpg?v=1744099181" alt="Arduino PRO / Opta" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
                         <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino PRO / Opta">
                             <rect width="600" height="400" fill="#1E293B"/>
@@ -507,7 +507,7 @@ void loop() {
 
                 <!-- Arduino UNO Q -->
                 <div class="glass-effect rounded-2xl overflow-hidden flex flex-col hover-up group border border-white/5 hover:border-arduino/30">
-                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                    <div class="h-48 overflow-hidden relative bg-slate-800 cursor-pointer" onclick="openImageModal(this)" title="Clic para ampliar">
                         <img src="https://store.arduino.cc/cdn/shop/files/ABX00162_00.default_934x700.jpg?v=1759218128" alt="Arduino UNO Q Híbrido" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
                         <svg viewBox="0 0 600 400" style="display:none" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arduino UNO Q Híbrido">
                             <rect width="600" height="400" fill="#0F172A"/>
@@ -557,6 +557,16 @@ void loop() {
         </div>
     </footer>
 
+    <!-- Modal de imagen ampliada -->
+    <div id="image-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-black/85 backdrop-blur-sm" onclick="if(event.target === this) closeImageModal()">
+        <div class="relative max-w-4xl w-full max-h-full flex items-center justify-center">
+            <button onclick="closeImageModal()" aria-label="Cerrar" class="absolute -top-4 -right-4 md:-top-5 md:-right-5 bg-white text-darkBg rounded-full w-11 h-11 flex items-center justify-center shadow-2xl hover:bg-arduino hover:text-white transition-colors z-10">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div id="image-modal-content" class="flex items-center justify-center w-full"></div>
+        </div>
+    </div>
+
     <!-- PrismJS Script for highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
@@ -604,6 +614,42 @@ void loop() {
                 icon.classList.remove('rotate-180');
             }
         }
+
+        // Modal de imagen ampliada
+        function openImageModal(container) {
+            const modal = document.getElementById('image-modal');
+            const modalContent = document.getElementById('image-modal-content');
+            modalContent.innerHTML = '';
+
+            // Encuentra el elemento visible dentro del contenedor (img o svg de respaldo)
+            const candidates = container.querySelectorAll('img, svg');
+            let visible = null;
+            candidates.forEach(el => {
+                if (window.getComputedStyle(el).display !== 'none') {
+                    visible = el;
+                }
+            });
+            if (!visible) return;
+
+            const clone = visible.cloneNode(true);
+            // Quitar clases de hover/recorte que no aplican en la vista ampliada
+            clone.classList.remove('opacity-90', 'group-hover:opacity-100', 'group-hover:scale-110', 'object-cover');
+            clone.classList.add('max-h-[80vh]', 'max-w-full', 'w-auto', 'h-auto', 'rounded-xl', 'shadow-2xl', 'object-contain');
+            if (clone.hasAttribute('style')) clone.removeAttribute('style');
+
+            modalContent.appendChild(clone);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeImageModal();
+        });
 
         // Copiar Código al portapapeles
         function copyCode() {
