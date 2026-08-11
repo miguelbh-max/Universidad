@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desarrollo Sustentable | Gobernanza Ambiental</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Animated Blobs -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+
+    <!-- Navegación Glassmorphism -->
+    <nav class="glass-panel main-nav fade-in">
+        <div class="logo">Gobernanza<span>Ambiental</span></div>
+        <ul class="nav-links">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#objetivo">Visión</a></li>
+            <li><a href="#temario">Unidades</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="inicio" class="hero section fade-in">
+        <div class="hero-content glass-panel">
+            <span class="badge">Desarrollo Sustentable</span>
+            <h1>Gobernanza Ambiental</h1>
+            <p class="subtitle">Descubre cómo los marcos políticos, sociales y económicos dan forma a nuestro ecosistema global y guían las decisiones sobre los recursos naturales.</p>
+            <a href="#temario" class="btn primary-btn">Explorar Temario</a>
+        </div>
+    </header>
+
+    <!-- Objetivo / Resumen -->
+    <section id="objetivo" class="objetivo section slide-up">
+        <div class="container">
+            <div class="glass-panel objective-card">
+                <div class="objective-text">
+                    <h2>Un Enfoque Sustentable</h2>
+                    <p>La Gobernanza Ambiental no es solo teoría; es la práctica de gestionar nuestro planeta. Nos enfocamos en las políticas y la acción ciudadana para un futuro equitativo.</p>
+                    <ul class="key-points">
+                        <li class="clickable-item" data-modal="modal-integral"><span class="icon">🌿</span> <strong>Sostenibilidad Integral:</strong> Equilibrio entre sociedad, economía y naturaleza.</li>
+                        <li class="clickable-item" data-modal="modal-legal"><span class="icon">⚖️</span> <strong>Marco Legal:</strong> Políticas públicas orientadas a la conservación ecológica.</li>
+                    </ul>
+                </div>
+                <div class="objective-image">
+                    <!-- Placeholder visual de Unsplash -->
+                    <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Naturaleza y Sustentabilidad" class="rounded-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Temario (Tarjetas Interactivas) -->
+    <section id="temario" class="temario section slide-up">
+        <div class="container">
+            
+
+            <div class="cards-grid">
+                <!-- Tarjeta 1 -->
+                <div class="glass-panel topic-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Conceptos Básicos">
+                    </div>
+                    <div class="card-content">
+                        <h3>1. Fundamentos</h3>
+                        <p class="card-desc">Bases teóricas, actores principales y la importancia vital de la participación ciudadana en el medio ambiente.</p>
+                        <button class="btn secondary-btn" data-modal="modal-fundamentos">Ver Detalles</button>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2 -->
+                <div class="glass-panel topic-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1518623489648-a173ef7824f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Marco Legal">
+                    </div>
+                    <div class="card-content">
+                        <h3>2. Leyes y Políticas</h3>
+                        <p class="card-desc">Legislación internacional y nacional que protege los ecosistemas y regula el uso responsable de recursos.</p>
+                        <button class="btn secondary-btn" data-modal="modal-leyes">Ver Detalles</button>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3 -->
+                <div class="glass-panel topic-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Casos de Estudio">
+                    </div>
+                    <div class="card-content">
+                        <h3>3. Retos Globales</h3>
+                        <p class="card-desc">Análisis profundo de casos reales sobre gestión de crisis ambientales y modelos de éxito en la conservación.</p>
+                        <button class="btn secondary-btn" data-modal="modal-retos">Ver Detalles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overlay para modales -->
+    <div class="modal-overlay" id="modal-overlay">
+        
+        <!-- Modal Sostenibilidad Integral -->
+        <div class="glass-panel modal-box" id="modal-integral">
+            <span class="close-modal">&times;</span>
+            <h3>Sostenibilidad Integral</h3>
+            <p><strong>Ejemplos Prácticos:</strong></p>
+            <ul>
+                <li>Empresas que adoptan modelos de economía circular (reducir, reutilizar, reciclar).</li>
+                <li>Proyectos comunitarios de agricultura ecológica y permacultura.</li>
+                <li>Uso de energías renovables en zonas urbanas para reducir la huella de carbono.</li>
+            </ul>
+        </div>
+
+        <!-- Modal Marco Legal -->
+        <div class="glass-panel modal-box" id="modal-legal">
+            <span class="close-modal">&times;</span>
+            <h3>Marco Legal</h3>
+            <p><strong>Ejemplos Prácticos:</strong></p>
+            <ul>
+                <li>Ley General del Equilibrio Ecológico y la Protección al Ambiente (LGEEPA).</li>
+                <li>Multas impuestas a industrias por exceder límites de emisiones tóxicas.</li>
+                <li>Creación de Áreas Naturales Protegidas respaldadas por decretos oficiales.</li>
+            </ul>
+        </div>
+
+        <!-- Modal Fundamentos -->
+        <div class="glass-panel modal-box" id="modal-fundamentos">
+            <span class="close-modal">&times;</span>
+            <h3>1. Fundamentos: Información Primordial</h3>
+            <p>Los fundamentos de la gobernanza ambiental se basan en comprender cómo interactúan las instituciones, el estado y la sociedad civil.</p>
+            <ul>
+                <li>La <strong>participación ciudadana</strong> es un pilar innegociable.</li>
+                <li>Los recursos naturales se conciben como <strong>bienes comunes</strong>, no solo como mercancía.</li>
+                <li>La toma de decisiones debe ser <strong>transparente e inclusiva</strong>.</li>
+            </ul>
+        </div>
+
+        <!-- Modal Leyes y Políticas -->
+        <div class="glass-panel modal-box" id="modal-leyes">
+            <span class="close-modal">&times;</span>
+            <h3>2. Leyes y Políticas: Lo Más Relevante</h3>
+            <p>Las leyes y políticas ambientales establecen las reglas del juego a nivel nacional e internacional.</p>
+            <ul>
+                <li><strong>Acuerdos Internacionales:</strong> Como el Acuerdo de París para reducir emisiones de GEI.</li>
+                <li><strong>Legislación Nacional:</strong> Evaluaciones de impacto ambiental para cualquier megaproyecto.</li>
+                <li>Normativas que penalizan el daño ecológico y promueven la <strong>justicia ambiental</strong>.</li>
+            </ul>
+        </div>
+
+        <!-- Modal Retos Globales -->
+        <div class="glass-panel modal-box" id="modal-retos">
+            <span class="close-modal">&times;</span>
+            <h3>3. Retos Globales en la Conservación</h3>
+            <p>Los retos actuales requieren cooperación sin fronteras, ya que los ecosistemas no conocen límites políticos.</p>
+            <ul>
+                <li>Afrontar el <strong>cambio climático</strong> y sus efectos en poblaciones vulnerables.</li>
+                <li>Frenar la <strong>pérdida acelerada de biodiversidad</strong> y la deforestación.</li>
+                <li>Transición hacia <strong>energías limpias</strong> y reducción de la contaminación plástica en los océanos.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer Glassmorphism -->
+    <footer class="glass-panel text-center footer fade-in">
+        <p>&copy; 2026 Materia: Desarrollo Sustentable | Gobernanza Ambiental</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
