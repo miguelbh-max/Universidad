@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desarrollo Sustentable · Chatbots en Telegram sin código</title>
+
+<!-- Google Fonts: Space Grotesk (display), Inter (body), JetBrains Mono (código/etiquetas) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   1. TOKENS — sistema de diseño
+   ============================================================ */
+:root{
+  --bg:            #0b0d0f;
+  --bg-elev-1:     #14171a;
+  --bg-elev-2:     #1b1f23;
+  --border:        #262b30;
+  --border-soft:   #1e2226;
+
+  --text-primary:  #f4f7f8;
+  --text-secondary:#9aa6ad;
+  --text-muted:    #5f6a70;
+
+  --cyan:          #00e5c7;
+  --cyan-soft:     rgba(0,229,199,.14);
+  --purple:        #9d7bff;
+  --purple-soft:   rgba(157,123,255,.14);
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+
+  --ease: cubic-bezier(.22,.85,.32,1);
+}
+
+/* ============================================================
+   2. RESET
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--bg);
+  color:var(--text-primary);
+  font-family:var(--font-body);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+ul{ list-style:none; }
+button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+
+body::before{
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    radial-gradient(circle at 15% 20%, var(--cyan-soft) 0%, transparent 35%),
+    radial-gradient(circle at 85% 75%, var(--purple-soft) 0%, transparent 40%);
+  pointer-events:none;
+  z-index:0;
+}
+
+::selection{ background:var(--cyan); color:#04140f; }
+
+a:focus-visible, button:focus-visible, summary:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* ============================================================
+   3. UTILIDADES DE LAYOUT / TIPOGRAFÍA
+   ============================================================ */
+.wrap{
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 24px;
+  position:relative;
+  z-index:1;
+}
+section{ padding:96px 0; position:relative; }
+
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:.78rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--cyan);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:18px;
+}
+.eyebrow::before{
+  content:'';
+  width:8px; height:8px;
+  background:var(--cyan);
+  border-radius:50%;
+  box-shadow:0 0 10px var(--cyan), 0 0 22px var(--cyan);
+  flex-shrink:0;
+}
+
+h1,h2,h3,h4{ font-family:var(--font-display); font-weight:700; letter-spacing:-.01em; }
+
+.section-title{
+  font-size:clamp(1.9rem, 4vw, 2.8rem);
+  margin-bottom:14px;
+}
+.section-sub{
+  color:var(--text-secondary);
+  max-width:600px;
+  font-size:1.02rem;
+}
+
+.reveal{
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
+}
+.reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+/* ============================================================
+   4. NAV
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0;
+  z-index:50;
+  backdrop-filter:blur(14px);
+  background:rgba(11,13,15,.7);
+  border-bottom:1px solid var(--border-soft);
+}
+.nav-inner{
+  max-width:1120px; margin:0 auto; padding:16px 24px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.brand{
+  font-family:var(--font-mono);
+  font-size:.92rem;
+  font-weight:600;
+  letter-spacing:.02em;
+  display:flex; align-items:center; gap:8px;
+}
+.brand .dot{ color:var(--cyan); }
+.nav-cta{
+  font-family:var(--font-mono);
+  font-size:.8rem;
+  padding:9px 16px;
+  border:1px solid var(--cyan);
+  border-radius:999px;
+  color:var(--cyan);
+  transition:background .3s var(--ease), color .3s var(--ease), box-shadow .3s var(--ease);
+}
+.nav-cta:hover{
+  background:var(--cyan);
+  color:#04140f;
+  box-shadow:0 0 24px var(--cyan-soft), 0 0 8px rgba(0,229,199,.5);
+}
+
+/* ============================================================
+   5. HERO
+   ============================================================ */
+.hero{
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  padding-top:120px;
+  padding-bottom:64px;
+}
+.hero-grid{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:56px;
+  align-items:center;
+}
+.hero h1{
+  font-size:clamp(2.5rem, 6vw, 4.4rem);
+  line-height:1.04;
+  margin-bottom:22px;
+}
+.hero h1 .accent{
+  background:linear-gradient(100deg, var(--cyan), var(--purple));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero-sub{
+  color:var(--text-secondary);
+  font-size:1.12rem;
+  max-width:480px;
+  margin-bottom:34px;
+}
+.hero-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+
+.btn{
+  font-family:var(--font-mono);
+  font-size:.86rem;
+  padding:14px 26px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease), background .3s var(--ease), border-color .3s var(--ease);
+}
+.btn-primary{
+  background:var(--cyan);
+  color:#04140f;
+  font-weight:600;
+  box-shadow:0 0 0 rgba(0,229,199,0);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px -6px rgba(0,229,199,.55), 0 0 18px rgba(0,229,199,.35);
+}
+.btn-ghost{
+  border:1px solid var(--border);
+  color:var(--text-primary);
+}
+.btn-ghost:hover{
+  border-color:var(--purple);
+  box-shadow:0 0 18px rgba(157,123,255,.28);
+  transform:translateY(-2px);
+}
+
+.chat-mock{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:20px 18px 26px;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.7);
+  position:relative;
+}
+.chat-mock::after{
+  content:'';
+  position:absolute; inset:-1px;
+  border-radius:var(--radius-lg);
+  padding:1px;
+  background:linear-gradient(135deg, rgba(0,229,199,.5), transparent 40%, rgba(157,123,255,.4));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.chat-head{
+  display:flex; align-items:center; gap:10px;
+  padding-bottom:16px;
+  margin-bottom:16px;
+  border-bottom:1px solid var(--border-soft);
+}
+.chat-avatar{
+  width:38px; height:38px;
+  border-radius:50%;
+  background:linear-gradient(135deg, var(--cyan), var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-weight:600; font-size:.8rem; color:#04140f;
+  flex-shrink:0;
+}
+.chat-head-name{ font-family:var(--font-display); font-weight:600; font-size:.95rem; }
+.chat-head-status{ font-size:.75rem; color:var(--cyan); font-family:var(--font-mono); }
+
+.bubble{
+  max-width:82%;
+  padding:11px 15px;
+  border-radius:16px;
+  font-size:.88rem;
+  margin-bottom:10px;
+  opacity:0;
+  animation:bubbleIn .5s var(--ease) forwards;
+}
+.bubble.in{
+  background:var(--bg-elev-2);
+  border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+}
+.bubble.out{
+  background:linear-gradient(135deg, rgba(0,229,199,.16), rgba(157,123,255,.16));
+  border:1px solid rgba(0,229,199,.3);
+  border-bottom-right-radius:4px;
+  margin-left:auto;
+}
+.bubble:nth-child(2){ animation-delay:.3s; }
+.bubble:nth-child(3){ animation-delay:.9s; }
+.bubble:nth-child(4){ animation-delay:1.5s; }
+.bubble:nth-child(5){ animation-delay:2.3s; }
+@keyframes bubbleIn{
+  from{ opacity:0; transform:translateY(10px) scale(.97); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+
+.typing-dots{ display:inline-flex; gap:4px; align-items:center; padding:4px 2px; }
+.typing-dots span{
+  width:6px; height:6px; border-radius:50%;
+  background:var(--text-muted);
+  animation:blink 1.3s infinite ease-in-out;
+}
+.typing-dots span:nth-child(2){ animation-delay:.18s; }
+.typing-dots span:nth-child(3){ animation-delay:.36s; }
+@keyframes blink{ 0%,80%,100%{ opacity:.25; } 40%{ opacity:1; } }
+
+.chip-row{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+.chip{
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  padding:7px 12px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--text-secondary);
+  transition:border-color .3s, color .3s, box-shadow .3s;
+}
+.chip:hover{ border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 14px var(--cyan-soft); }
+
+/* ============================================================
+   6. OBJETIVO
+   ============================================================ */
+.objetivo-grid{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:24px;
+  margin-top:44px;
+}
+.mini-card{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:28px;
+  transition:transform .35s var(--ease), border-color .35s var(--ease), box-shadow .35s var(--ease);
+}
+.mini-card:hover{
+  transform:translateY(-6px);
+  border-color:var(--cyan);
+  box-shadow:0 0 0 1px rgba(0,229,199,.25), 0 20px 45px -20px rgba(0,229,199,.3);
+}
+.mini-card .num{
+  font-family:var(--font-mono);
+  color:var(--purple);
+  font-size:.8rem;
+  margin-bottom:14px;
+  display:block;
+}
+.mini-card h3{ font-size:1.15rem; margin-bottom:10px; }
+.mini-card p{ color:var(--text-secondary); font-size:.92rem; }
+
+.objetivo-media{
+  margin-top:28px;
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  border:1px solid var(--border);
+  position:relative;
+  aspect-ratio:16/6;
+}
+.objetivo-media img{ width:100%; height:100%; object-fit:cover; transition:transform .6s var(--ease); }
+.objetivo-media:hover img{ transform:scale(1.04); }
+.objetivo-media .cap{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:14px 18px;
+  background:linear-gradient(to top, rgba(0,0,0,.85), transparent);
+  font-family:var(--font-mono);
+  font-size:.76rem;
+  color:var(--text-secondary);
+}
+
+/* ============================================================
+   7. TEMARIO — ACORDEÓN
+   ============================================================ */
+.temario-list{ margin-top:44px; display:flex; flex-direction:column; gap:14px; }
+
+.acc-item{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  overflow:hidden;
+  transition:border-color .35s var(--ease), box-shadow .35s var(--ease);
+}
+.acc-item.open{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 1px rgba(0,229,199,.2), 0 25px 60px -30px rgba(0,229,199,.35);
+}
+.acc-trigger{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:20px 22px;
+  text-align:left;
+  background:none;
+}
+.acc-index{
+  font-family:var(--font-mono);
+  font-size:.82rem;
+  color:var(--purple);
+  width:30px;
+  flex-shrink:0;
+}
+.acc-title-wrap{ flex:1; }
+.acc-title{ font-family:var(--font-display); font-weight:600; font-size:1.05rem; }
+.acc-desc{ font-size:.82rem; color:var(--text-muted); margin-top:2px; }
+.acc-icon{
+  width:30px; height:30px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+  position:relative;
+  transition:border-color .3s, transform .4s var(--ease);
+}
+.acc-item.open .acc-icon{ border-color:var(--cyan); transform:rotate(45deg); box-shadow:0 0 14px var(--cyan-soft); }
+.acc-icon::before, .acc-icon::after{
+  content:''; position:absolute;
+  background:var(--text-secondary);
+}
+.acc-icon::before{ width:12px; height:1.5px; }
+.acc-icon::after{ width:1.5px; height:12px; }
+.acc-item.open .acc-icon::before, .acc-item.open .acc-icon::after{ background:var(--cyan); }
+
+.acc-panel{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .5s var(--ease);
+}
+.acc-panel-inner{
+  padding:0 22px 26px 70px;
+  color:var(--text-secondary);
+  font-size:.92rem;
+  display:grid;
+  grid-template-columns:1fr 170px;
+  gap:20px;
+  align-items:start;
+}
+.acc-panel-text p{ margin-bottom:10px; }
+.acc-panel-text ul{ margin:10px 0 4px; display:flex; flex-direction:column; gap:8px; }
+.acc-panel-text li{
+  padding-left:18px;
+  position:relative;
+}
+.acc-panel-text li::before{
+  content:'▸';
+  position:absolute; left:0; top:0;
+  color:var(--cyan);
+}
+.code-tag{
+  display:inline-block;
+  font-family:var(--font-mono);
+  font-size:.78rem;
+  background:var(--bg-elev-2);
+  border:1px solid var(--border);
+  color:var(--cyan);
+  padding:2px 8px;
+  border-radius:6px;
+}
+.acc-img{
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+  border:1px solid var(--border);
+  aspect-ratio:4/5;
+  position:relative;
+}
+.acc-img img{ width:100%; height:100%; object-fit:cover; }
+.acc-img.icon-box{
+  background:
+    radial-gradient(circle at 30% 20%, rgba(157,123,255,.14), transparent 55%),
+    radial-gradient(circle at 80% 85%, rgba(0,229,199,.12), transparent 55%),
+    var(--bg-elev-1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.acc-img.icon-box svg{ width:72%; height:auto; }
+.acc-img span{
+  position:absolute; left:8px; bottom:8px; right:8px;
+  font-family:var(--font-mono);
+  font-size:.66rem;
+  color:var(--text-secondary);
+  background:rgba(11,13,15,.75);
+  padding:4px 7px;
+  border-radius:6px;
+  line-height:1.3;
+}
+
+/* ============================================================
+   8. GALERÍA DE APOYO VISUAL
+   ============================================================ */
+.gallery{
+  margin-top:60px;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:18px;
+}
+.gallery-item{
+  position:relative;
+  border-radius:var(--radius-md);
+  overflow:hidden;
+  border:1px solid var(--border);
+  aspect-ratio:4/5;
+  background:var(--bg-elev-1);
+  transition:border-color .35s var(--ease), box-shadow .35s var(--ease);
+}
+.gallery-item:hover{
+  border-color:var(--purple);
+  box-shadow:0 0 0 1px rgba(157,123,255,.3), 0 20px 50px -25px rgba(157,123,255,.45);
+}
+.gallery-item img{
+  width:100%; height:100%; object-fit:cover;
+  filter:brightness(.6) saturate(1.05);
+  transition:transform .6s var(--ease), filter .6s var(--ease);
+}
+.gallery-item:hover img{ transform:scale(1.06); filter:brightness(.75) saturate(1.15); }
+.gallery-item::after{
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(11,13,15,.05) 40%, rgba(11,13,15,.88) 100%);
+  pointer-events:none;
+  z-index:1;
+}
+.gallery-tag{
+  position:absolute; left:12px; bottom:12px;
+  z-index:2;
+  font-family:var(--font-mono);
+  font-size:.76rem;
+  font-weight:600;
+  color:#ffffff;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(6,7,8,.9);
+  backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.14);
+}
+
+/* ============================================================
+   9. CTA FINAL / FOOTER
+   ============================================================ */
+.cta-final{
+  text-align:center;
+  border-top:1px solid var(--border-soft);
+}
+.cta-final h2{ font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:16px; }
+.cta-final p{ color:var(--text-secondary); max-width:480px; margin:0 auto 32px; }
+
+footer{
+  border-top:1px solid var(--border-soft);
+  padding:32px 0;
+  font-family:var(--font-mono);
+  font-size:.78rem;
+  color:var(--text-muted);
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+/* ============================================================
+   10. RESPONSIVE — MOBILE FIRST OVERRIDES
+   ============================================================ */
+@media (max-width: 860px){
+  .hero-grid{ grid-template-columns:1fr; gap:44px; }
+  .hero{ padding-top:104px; text-align:left; }
+  .objetivo-grid{ grid-template-columns:1fr; }
+  .gallery{ grid-template-columns:repeat(2, 1fr); }
+  section{ padding:72px 0; }
+  .acc-panel-inner{ grid-template-columns:1fr; }
+  .acc-img{ aspect-ratio:16/8; order:-1; }
+}
+
+@media (max-width: 560px){
+  .wrap{ padding:0 18px; }
+  .nav-inner{ padding:14px 18px; }
+  .brand{ font-size:.8rem; }
+  .nav-cta{ padding:8px 12px; font-size:.72rem; }
+  .hero{ padding-top:92px; padding-bottom:40px; }
+  .hero h1{ font-size:clamp(2.1rem, 9vw, 2.6rem); }
+  .hero-sub{ font-size:1rem; }
+  .btn{ padding:12px 20px; font-size:.8rem; width:100%; justify-content:center; }
+  .hero-actions{ flex-direction:column; }
+  .chat-mock{ padding:16px 14px 20px; }
+  .gallery{ grid-template-columns:1fr 1fr; gap:12px; }
+  .acc-panel-inner{ padding-left:22px; }
+  .acc-trigger{ padding:16px; gap:12px; }
+  .acc-index{ width:22px; font-size:.74rem; }
+  footer{ flex-direction:column; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand"><span class="dot">●</span> Desarrollo&nbsp;Sustentable</div>
+    <a href="#temario" class="nav-cta">Ver temario</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal is-visible">
+      <h1>Construye un <span class="accent">chatbot</span> que hable de sustentabilidad</h1>
+      <p class="hero-sub">
+        Aprende a crear y configurar un bot de Telegram funcional usando únicamente
+        la app de Telegram — sin escribir una sola línea de código.
+      </p>
+      <div class="hero-actions">
+        <a href="#temario" class="btn btn-primary">Empezar el temario →</a>
+        <a href="#objetivo" class="btn btn-ghost">¿De qué trata?</a>
+      </div>
+    </div>
+
+    <div class="chat-mock reveal is-visible">
+      <div class="chat-head">
+        <div class="chat-avatar">EB</div>
+        <div>
+          <div class="chat-head-name">EcoBot_ITM</div>
+          <div class="chat-head-status">en línea</div>
+        </div>
+      </div>
+      <div class="bubble in">Hola 👋 Soy tu asistente de sustentabilidad. Usa el menú /</div>
+      <div class="bubble out">/tips</div>
+      <div class="bubble in">Aquí tienes tu tip del día: apaga los cargadores que no uses ♻️</div>
+      <div class="bubble in"><span class="typing-dots"><span></span><span></span><span></span></span></div>
+      <div class="chip-row">
+        <span class="chip">/huella</span>
+        <span class="chip">/tips</span>
+        <span class="chip">/reciclaje</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     OBJETIVO
+     ============================================================ -->
+<section id="objetivo">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Objetivo de la unidad</span>
+      <h2 class="section-title">Automatización sin programar</h2>
+      <p class="section-sub">Dos ideas clave antes de abrir Telegram.</p>
+    </div>
+
+    <div class="objetivo-grid">
+      <div class="mini-card reveal">
+        <span class="num">01</span>
+        <h3>Tecnología aplicada a la sustentabilidad</h3>
+        <p>Un chatbot no es solo un ejercicio técnico: es un canal directo para educar,
+           medir hábitos de consumo y motivar acciones sustentables desde el celular de cualquier persona.</p>
+      </div>
+      <div class="mini-card reveal">
+        <span class="num">02</span>
+        <h3>Todo desde la app de Telegram</h3>
+        <p>No necesitas saber programar. Con la propia app de Telegram — y su asistente
+           <span class="code-tag">@BotFather</span> — puedes registrar, personalizar y configurar
+           un bot completamente funcional.</p>
+      </div>
+    </div>
+
+    <div class="objetivo-media reveal">
+      <img src="https://placehold.co/1200x450/10221c/00e5c7?font=roboto&text=Sustentabilidad+sin+programar" alt="Concepto de sustentabilidad sin programación">
+      <div class="cap">// sin código, solo la app de Telegram</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TEMARIO — ACORDEÓN CRONOLÓGICO (SIN CÓDIGO)
+     ============================================================ -->
+<section id="temario">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Temario paso a paso · sin código</span>
+      <h2 class="section-title">Cómo crear tu chatbot solo con la app de Telegram</h2>
+      <p class="section-sub">Ocho pasos, en orden cronológico, usando exclusivamente las funciones nativas de Telegram. Haz clic en cada uno para desplegarlo.</p>
+    </div>
+
+    <div class="temario-list" id="accordion">
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">01</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Buscar y abrir @BotFather</span>
+            <span class="acc-desc">El asistente oficial de Telegram para crear bots</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <p>Todo bot de Telegram nace dentro de la propia app, hablando con otro bot oficial.</p>
+              <ul>
+                <li>Abre Telegram y toca la lupa de búsqueda.</li>
+                <li>Escribe <span class="code-tag">@BotFather</span> y entra a la cuenta con la insignia azul de verificado.</li>
+                <li>Toca <span class="code-tag">Iniciar</span> (Start) para abrir la conversación.</li>
+              </ul>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de una lupa buscando a BotFather">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="85" cy="85" r="46" fill="none" stroke="#00e5c7" stroke-width="4"/>
+                <line x1="118" y1="118" x2="166" y2="166" stroke="#00e5c7" stroke-width="6" stroke-linecap="round"/>
+                <text x="85" y="98" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="38" fill="#9d7bff">@</text>
+                <text x="100" y="200" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" fill="#f4f7f8">BotFather</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">02</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Crear el bot con /newbot</span>
+            <span class="acc-desc">Nombre, username y token — todo por chat</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <ul>
+                <li>Envía el comando <span class="code-tag">/newbot</span>.</li>
+                <li>BotFather te pedirá un <strong>nombre visible</strong>, por ejemplo "EcoBot ITM".</li>
+                <li>Luego te pedirá un <strong>username</strong> único, que debe terminar en <span class="code-tag">_bot</span> (ej. <span class="code-tag">ecobot_itm_bot</span>).</li>
+                <li>Al confirmarse, BotFather responde con un mensaje que incluye el <strong>token</strong> de tu bot — guárdalo, es la "llave" que lo identifica.</li>
+              </ul>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de una burbuja de chat con el comando /newbot y una llave de token">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <path d="M35 45 h100 a12 12 0 0 1 12 12 v46 a12 12 0 0 1 -12 12 h-46 l-24 22 v-22 h-30 a12 12 0 0 1 -12 -12 v-46 a12 12 0 0 1 12 -12 z"
+                      fill="rgba(157,123,255,.08)" stroke="#9d7bff" stroke-width="4"/>
+                <text x="85" y="84" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="15" fill="#f4f7f8">/newbot</text>
+                <g transform="translate(150,155)" stroke="#00e5c7" stroke-width="4" fill="none" stroke-linecap="round">
+                  <circle cx="0" cy="0" r="15"/>
+                  <circle cx="0" cy="0" r="4"/>
+                  <line x1="11" y1="11" x2="36" y2="36"/>
+                  <line x1="36" y1="36" x2="36" y2="48"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">03</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Personalizar el perfil del bot</span>
+            <span class="acc-desc">Foto, descripción y texto "acerca de"</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <p>Dale identidad a tu bot directamente desde el chat con BotFather:</p>
+              <ul>
+                <li><span class="code-tag">/setuserpic</span> — sube una foto de perfil.</li>
+                <li><span class="code-tag">/setdescription</span> — el texto que ve el usuario antes de tocar "Iniciar".</li>
+                <li><span class="code-tag">/setabouttext</span> — la frase corta que aparece en el perfil del bot.</li>
+              </ul>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de una tarjeta de perfil con avatar">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <rect x="35" y="35" width="130" height="150" rx="14" fill="none" stroke="#00e5c7" stroke-width="4"/>
+                <circle cx="100" cy="92" r="26" fill="none" stroke="#9d7bff" stroke-width="4"/>
+                <path d="M58 168 q42 -36 84 0" fill="none" stroke="#9d7bff" stroke-width="4" stroke-linecap="round"/>
+                <line x1="58" y1="150" x2="142" y2="150" stroke="#3a4046" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">04</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Definir el menú de comandos</span>
+            <span class="acc-desc">/setcommands — el botón de menú nativo</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <p>Envía <span class="code-tag">/setcommands</span> a BotFather y pega una lista así:</p>
+              <ul>
+                <li><span class="code-tag">tips</span> - Recibe un tip de ahorro energético</li>
+                <li><span class="code-tag">huella</span> - Calcula tu huella de carbono</li>
+                <li><span class="code-tag">reciclaje</span> - Consejos de reciclaje en Mazatlán</li>
+              </ul>
+              <p>Con esto, tu bot muestra un botón de menú nativo (ícono <span class="code-tag">/</span>) con todas las opciones, sin que el usuario tenga que recordarlas.</p>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de un menú de comandos con barras de lista">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="#00e5c7" stroke-width="4" stroke-linecap="round">
+                  <line x1="60" y1="72" x2="150" y2="72"/>
+                  <line x1="60" y1="107" x2="150" y2="107"/>
+                  <line x1="60" y1="142" x2="150" y2="142"/>
+                </g>
+                <g fill="#9d7bff">
+                  <circle cx="42" cy="72" r="5"/>
+                  <circle cx="42" cy="107" r="5"/>
+                  <circle cx="42" cy="142" r="5"/>
+                </g>
+                <circle cx="100" cy="188" r="16" fill="none" stroke="#9d7bff" stroke-width="3"/>
+                <text x="100" y="194" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="16" fill="#f4f7f8">/</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">05</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Conectar el bot a una plataforma sin código</span>
+            <span class="acc-desc">Make.com toma el lugar del "código"</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <p>Telegram por sí solo entrega el bot "vacío" (perfil y menú, pero sin respuestas automáticas). Para darle lógica sin programar, se conecta con una plataforma de automatización visual:</p>
+              <ul>
+                <li>Crea una cuenta gratuita en <strong>Make.com</strong>.</li>
+                <li>Agrega la conexión con Telegram usando el <strong>token</strong> que te dio BotFather en el paso 02 (se pega en un campo, sin código).</li>
+                <li>Make queda "escuchando" los mensajes que le lleguen a tu bot.</li>
+              </ul>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de dos nodos conectados representando Telegram y Make">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="55" cy="110" r="28" fill="rgba(0,229,199,.08)" stroke="#00e5c7" stroke-width="4"/>
+                <circle cx="145" cy="110" r="28" fill="rgba(157,123,255,.08)" stroke="#9d7bff" stroke-width="4"/>
+                <path d="M83 110 Q100 78 117 110 T151 110" fill="none" stroke="#f4f7f8" stroke-width="3" stroke-dasharray="6 6"/>
+                <text x="55" y="115" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" fill="#f4f7f8">TG</text>
+                <text x="145" y="115" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" fill="#f4f7f8">MK</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">06</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Obtener el Chat ID</span>
+            <span class="acc-desc">El identificador que usa Make para saber a quién responder</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <p>Cada conversación de Telegram (contigo, un grupo o un canal) tiene un número único llamado <span class="code-tag">chat_id</span>. Lo vas a necesitar para configurar a mano algunos módulos dentro del escenario de Make que armaste en el <strong>paso 05</strong>.</p>
+              <ul>
+                <li>Envía cualquier mensaje a tu bot (ej. "Hola") desde tu cuenta de Telegram.</li>
+                <li>Abre en el navegador: <span class="code-tag">api.telegram.org/bot&lt;TU_TOKEN&gt;/getUpdates</span> (usa el token que te dio BotFather en el paso 02).</li>
+                <li>Busca en el texto que aparece el bloque <span class="code-tag">"chat":{"id": ...}</span> — ese número es tu chat_id.</li>
+                <li>Alternativa sin navegador: busca en Telegram al bot <span class="code-tag">@userinfobot</span>, que te devuelve tu chat_id al instante.</li>
+              </ul>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de una credencial con el número de chat_id">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <rect x="35" y="65" width="130" height="80" rx="12" fill="none" stroke="#9d7bff" stroke-width="4"/>
+                <circle cx="68" cy="105" r="15" fill="none" stroke="#00e5c7" stroke-width="3"/>
+                <line x1="96" y1="94" x2="145" y2="94" stroke="#00e5c7" stroke-width="3" stroke-linecap="round"/>
+                <line x1="96" y1="114" x2="130" y2="114" stroke="#00e5c7" stroke-width="3" stroke-linecap="round"/>
+                <text x="100" y="180" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="15" fill="#f4f7f8">chat_id: #</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">07</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Conocer la API de Telegram (Bot API)</span>
+            <span class="acc-desc">Qué hace Make por detrás cuando conectaste el token</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <p>Aunque en el <strong>paso 05</strong> no escribiste código, ayuda entender qué usa Make por detrás: la <strong>Bot API</strong> de Telegram, un conjunto de métodos a los que cualquier programa puede llamar con tu token.</p>
+              <p>Ese token es exactamente el mismo que <strong>BotFather te entregó en el paso 02</strong>, justo al terminar de crear tu chatbot con <span class="code-tag">/newbot</span> — es la credencial que identifica a tu bot en cada llamada a la API, así que no necesitas generar uno nuevo.</p>
+              <ul>
+                <li>Toda petición sigue el mismo patrón: <span class="code-tag">api.telegram.org/bot&lt;TOKEN&gt;/NOMBRE_DEL_MÉTODO</span>.</li>
+                <li><span class="code-tag">getMe</span> — describe tu bot; pégalo en el navegador con tu token para confirmar que está activo.</li>
+                <li><span class="code-tag">sendMessage</span> — es el método que usa el módulo "Send a Text Message" de Make cuando responde.</li>
+                <li><span class="code-tag">getUpdates</span> — es el mismo método que usaste en el paso 06, y el que usa el módulo "Watch Updates" para detectar mensajes nuevos.</li>
+              </ul>
+              <p>En otras palabras: cada módulo que arrastraste en Make es una forma visual de llamar a esta API sin escribir la petición a mano.</p>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de un token de API entre llaves de código">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(70,66)" stroke="#9d7bff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="0" cy="0" r="22"/>
+                  <circle cx="0" cy="0" r="7"/>
+                  <line x1="16" y1="16" x2="64" y2="64"/>
+                  <line x1="64" y1="64" x2="64" y2="82"/>
+                  <line x1="50" y1="50" x2="50" y2="64"/>
+                </g>
+                <g stroke="#00e5c7" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M55 150 L44 158 L44 172 L34 180 L44 188 L44 202 L55 210"/>
+                  <path d="M145 150 L156 158 L156 172 L166 180 L156 188 L156 202 L145 210"/>
+                </g>
+                <text x="100" y="185" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" fill="#f4f7f8">token</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item reveal">
+        <button class="acc-trigger" aria-expanded="false">
+          <span class="acc-index">08</span>
+          <span class="acc-title-wrap">
+            <span class="acc-title">Activar, probar y compartir</span>
+            <span class="acc-desc">De la escena de prueba a un bot en vivo</span>
+          </span>
+          <span class="acc-icon"></span>
+        </button>
+        <div class="acc-panel">
+          <div class="acc-panel-inner">
+            <div class="acc-panel-text">
+              <ul>
+                <li><strong>Probar:</strong> corre el escenario en Make y escribe cada comando desde tu Telegram para verificar las respuestas.</li>
+                <li><strong>Activar:</strong> cambia el interruptor del escenario a "ON" para que el bot funcione todo el tiempo, sin que tengas la plataforma abierta.</li>
+                <li><strong>Compartir:</strong> envía el enlace <span class="code-tag">t.me/tu_bot</span> al grupo de la clase y revisa periódicamente que las respuestas sigan siendo correctas.</li>
+              </ul>
+            </div>
+            <div class="acc-img icon-box" role="img" aria-label="Ilustración de un interruptor activado y una flecha de compartir">
+              <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <rect x="45" y="76" width="90" height="42" rx="21" fill="none" stroke="#00e5c7" stroke-width="4"/>
+                <circle cx="114" cy="97" r="14" fill="#00e5c7"/>
+                <g stroke="#9d7bff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                  <line x1="100" y1="150" x2="100" y2="196"/>
+                  <path d="M78 172 L100 150 L122 172"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     GALERÍA DE APOYO VISUAL
+     ============================================================ -->
+<section id="galeria">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Contexto visual</span>
+      <h2 class="section-title">Sustentabilidad + automatización sin código</h2>
+    </div>
+    <div class="gallery">
+
+      <div class="gallery-item reveal">
+        <img src="https://images.pexels.com/photos/356049/pexels-photo-356049.jpeg?auto=compress&cs=tinysrgb&h=750&w=600&fit=crop" alt="Paneles solares captando energía renovable">
+        <span class="gallery-tag">Energía renovable</span>
+      </div>
+
+      <div class="gallery-item reveal">
+        <img src="https://images.pexels.com/photos/2182863/pexels-photo-2182863.jpeg?auto=compress&cs=tinysrgb&h=750&w=600&fit=crop" alt="Circuito electrónico representando automatización visual">
+        <span class="gallery-tag">Automatización visual</span>
+      </div>
+
+      <div class="gallery-item reveal">
+        <img src="https://images.pexels.com/photos/19037726/pexels-photo-19037726.jpeg?auto=compress&cs=tinysrgb&h=750&w=600&fit=crop" alt="Dispositivos electrónicos apilados para reciclaje">
+        <span class="gallery-tag">Reciclaje &amp; datos</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CTA FINAL
+     ============================================================ -->
+<section class="cta-final">
+  <div class="wrap reveal">
+    <h2>Tu bot, tu impacto</h2>
+    <p>Empieza por el paso 01: abre Telegram, busca a @BotFather y crea tu bot antes de la próxima sesión.</p>
+    <a href="#temario" class="btn btn-primary">Volver al temario ↑</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+    <span>Desarrollo Sustentable · ISC · TecNM Mazatlán</span>
+    <span>chatbot-telegram/sin-codigo</span>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const revealEls = document.querySelectorAll('.reveal:not(.is-visible)');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+  revealEls.forEach(el => observer.observe(el));
+
+  const items = document.querySelectorAll('.acc-item');
+  items.forEach(item => {
+    const trigger = item.querySelector('.acc-trigger');
+    const panel = item.querySelector('.acc-panel');
+
+    trigger.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+
+      items.forEach(other => {
+        if(other !== item){
+          other.classList.remove('open');
+          other.querySelector('.acc-trigger').setAttribute('aria-expanded','false');
+          other.querySelector('.acc-panel').style.maxHeight = null;
+        }
+      });
+
+      if(isOpen){
+        item.classList.remove('open');
+        trigger.setAttribute('aria-expanded','false');
+        panel.style.maxHeight = null;
+      } else {
+        item.classList.add('open');
+        trigger.setAttribute('aria-expanded','true');
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>
