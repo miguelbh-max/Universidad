@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistemas Operativos | Evolución</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero slide-up">
+        <div class="hero-content">
+            <h1 class="neon-text">Sistemas Operativos</h1>
+            <p class="subtitle">El motor invisible que da vida a la tecnología.</p>
+        </div>
+        <div class="hero-bg-overlay"></div>
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Tech Background" class="hero-bg">
+    </header>
+
+    <main class="container">
+        <!-- Resumen / Objetivo -->
+        <section class="summary fade-in">
+            <h2>¿Qué es y para qué sirve?</h2>
+            <div class="summary-cards">
+                <div class="card interactive-card">
+                    <img src="https://images.unsplash.com/photo-1629654297299-c8506221ca97?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Concepto SO">
+                    <h3>El Concepto</h3>
+                    <p>Un Sistema Operativo (SO) es el software principal que gestiona el hardware de la computadora. Actúa como intermediario entre el usuario y los componentes físicos.</p>
+                </div>
+                <div class="card interactive-card">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Utilidad SO">
+                    <h3>Su Utilidad</h3>
+                    <p>Administra la memoria, los procesos, los archivos y los periféricos. Sin él, cada programa tendría que manejar los detalles del hardware por sí mismo.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Evolución Histórica (Timeline Accordion) -->
+        <section class="history fade-in">
+            <h2>Evolución Histórica</h2>
+            <div class="accordion">
+                <!-- Años 40 -->
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <span class="year">1940s</span>
+                        <span class="title">La Primera Generación: Sin Sistema Operativo</span>
+                        <span class="icon">+</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Classic_shot_of_the_ENIAC.jpg?width=400" alt="Computadora ENIAC" class="historical-img">
+                            <p>En los inicios, las computadoras como la ENIAC no tenían sistemas operativos. Los programadores interactuaban directamente con el hardware usando lenguaje máquina y tarjetas perforadas. Solo se ejecutaba una tarea a la vez.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Años 50 -->
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <span class="year">1950s</span>
+                        <span class="title">Sistemas de Procesamiento por Lotes</span>
+                        <span class="icon">+</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/IBM_Electronic_Data_Processing_Machine_-_GPN-2000-001881.jpg?width=400" alt="Mainframe IBM 704" class="historical-img">
+                            <p>General Motors desarrolló el primer SO de la historia (GM-NAA I/O) para la IBM 704. Introdujo el procesamiento por lotes (batch processing), donde los trabajos similares se agrupaban y ejecutaban secuencialmente para ahorrar tiempo de configuración.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Años 60 -->
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <span class="year">1960s</span>
+                        <span class="title">Multiprogramación y Tiempo Compartido</span>
+                        <span class="icon">+</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Pdp7-oslo-2005.jpeg?width=400" alt="Minicomputadora PDP-7, donde nació UNIX" class="historical-img">
+                            <p>Nace Multics y posteriormente UNIX. Se introduce la multiprogramación, permitiendo que la memoria albergue múltiples programas a la vez, y el tiempo compartido, dando la ilusión de que varios usuarios interactúan con el sistema simultáneamente.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Años 70-80 -->
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <span class="year">1970s-1980s</span>
+                        <span class="title">El auge de la PC y la Interfaz Gráfica</span>
+                        <span class="icon">+</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/IBM_PC_5150.jpg?width=400" alt="IBM PC 5150 corriendo MS-DOS" class="historical-img">
+                            <p>Sistemas como MS-DOS dominan el mercado de las computadoras personales. Posteriormente, Apple (Lisa/Macintosh) y Microsoft (Windows) introducen la Interfaz Gráfica de Usuario (GUI), usando ventanas, íconos y ratón, revolucionando la accesibilidad.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Windows vs Ubuntu -->
+        <section class="os-comparison fade-in">
+            <h2>Sistemas Modernos</h2>
+            <div class="grid-2-col">
+                <div class="card interactive-card glow-blue">
+                    <div class="os-logo-container">
+                        <svg width="80" height="80" viewBox="0 0 88 88" class="os-logo-svg"><path fill="#0078D7" d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L0 75.43V46.126zm4.326-39.02L87.314 0v41.527l-47.318.376zm47.318 39.141L87.312 88l-47.318-6.685-.015-39.73z"/></svg>
+                    </div>
+                    <h3 class="neon-blue">Microsoft Windows</h3>
+                    <p>El sistema operativo comercial más utilizado en computadoras de escritorio a nivel mundial.</p>
+                    <ul>
+                        <li>Interfaz intuitiva y altamente estandarizada.</li>
+                        <li>Máxima compatibilidad con software comercial y videojuegos.</li>
+                        <li>Enfoque principal en la facilidad de uso para el usuario promedio.</li>
+                    </ul>
+                </div>
+                <div class="card interactive-card glow-orange">
+                    <div class="os-logo-container">
+                        <svg width="60" height="60" viewBox="0 0 16 16" class="os-logo-svg"><circle cx="8" cy="8" r="8" fill="#dd4814"/><g fill="#fff" transform="translate(0.25 0.25) scale(0.94)"><path d="M2.273 9.53a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.547Zm9.467-4.984a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546M7.4 13.108a5.54 5.54 0 0 1-3.775-2.88 3.27 3.27 0 0 1-1.944.24 7.4 7.4 0 0 0 5.328 4.465c.53.113 1.072.169 1.614.166a3.25 3.25 0 0 1-.666-1.9 6 6 0 0 1-.557-.091m3.828 2.285a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546m3.163-3.108a7.44 7.44 0 0 0 .373-8.726 3.3 3.3 0 0 1-1.278 1.498 5.57 5.57 0 0 1-.183 5.535 3.26 3.26 0 0 1 1.088 1.693M2.098 3.998a3.3 3.3 0 0 1 1.897.486 5.54 5.54 0 0 1 4.464-2.388c.037-.67.277-1.313.69-1.843a7.47 7.47 0 0 0-7.051 3.745"/></g></svg>
+                    </div>
+                    <h3 class="neon-orange">Ubuntu (Linux)</h3>
+                    <p>Una de las distribuciones de GNU/Linux más populares, basada en Debian y de código abierto.</p>
+                    <ul>
+                        <li>Alta seguridad y menor susceptibilidad a virus.</li>
+                        <li>Completamente gratuito y personalizable.</li>
+                        <li>Excelente rendimiento en desarrollo, servidores y sistemas de bajos recursos.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Versiones Destacadas -->
+        <section class="versions fade-in" style="margin-top: 6rem;">
+            <h2>Versiones Destacadas</h2>
+            <div class="grid-2-col">
+                <!-- Windows Versiones -->
+                <div class="versions-column">
+                    <h3 class="neon-blue" style="text-align: center; margin-bottom: 2rem;">Evolución Windows</h3>
+                    <div class="version-card glow-blue">
+                        <svg width="40" height="40" viewBox="0 0 88 88" class="version-logo-svg"><path fill="#0078D7" d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L0 75.43V46.126zm4.326-39.02L87.314 0v41.527l-47.318.376zm47.318 39.141L87.312 88l-47.318-6.685-.015-39.73z"/></svg>
+                        <div class="version-info">
+                            <h4>Windows XP (2001)</h4>
+                            <p>La revolución de la estabilidad y la interfaz gráfica amigable.</p>
+                        </div>
+                    </div>
+                    <div class="version-card glow-blue">
+                        <svg width="40" height="40" viewBox="0 0 88 88" class="version-logo-svg"><path fill="#0078D7" d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L0 75.43V46.126zm4.326-39.02L87.314 0v41.527l-47.318.376zm47.318 39.141L87.312 88l-47.318-6.685-.015-39.73z"/></svg>
+                        <div class="version-info">
+                            <h4>Windows 7 (2009)</h4>
+                            <p>El favorito clásico moderno, altamente estable y rápido.</p>
+                        </div>
+                    </div>
+                    <div class="version-card glow-blue">
+                        <svg width="40" height="40" viewBox="0 0 88 88" class="version-logo-svg"><path fill="#0078D7" d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L0 75.43V46.126zm4.326-39.02L87.314 0v41.527l-47.318.376zm47.318 39.141L87.312 88l-47.318-6.685-.015-39.73z"/></svg>
+                        <div class="version-info">
+                            <h4>Windows 10 (2015)</h4>
+                            <p>Unificación de plataformas y el concepto de "Windows como servicio".</p>
+                        </div>
+                    </div>
+                    <div class="version-card glow-blue">
+                        <svg width="40" height="40" viewBox="0 0 88 88" class="version-logo-svg"><path fill="#0078D7" d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L0 75.43V46.126zm4.326-39.02L87.314 0v41.527l-47.318.376zm47.318 39.141L87.312 88l-47.318-6.685-.015-39.73z"/></svg>
+                        <div class="version-info">
+                            <h4>Windows 11 (2021)</h4>
+                            <p>Rediseño centrado en la productividad y modernización visual.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ubuntu Versiones -->
+                <div class="versions-column">
+                    <h3 class="neon-orange" style="text-align: center; margin-bottom: 2rem;">Evolución Ubuntu</h3>
+                    <div class="version-card glow-orange">
+                        <svg width="40" height="40" viewBox="0 0 16 16" class="version-logo-svg"><circle cx="8" cy="8" r="8" fill="#dd4814"/><g fill="#fff" transform="translate(0.25 0.25) scale(0.94)"><path d="M2.273 9.53a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.547Zm9.467-4.984a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546M7.4 13.108a5.54 5.54 0 0 1-3.775-2.88 3.27 3.27 0 0 1-1.944.24 7.4 7.4 0 0 0 5.328 4.465c.53.113 1.072.169 1.614.166a3.25 3.25 0 0 1-.666-1.9 6 6 0 0 1-.557-.091m3.828 2.285a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546m3.163-3.108a7.44 7.44 0 0 0 .373-8.726 3.3 3.3 0 0 1-1.278 1.498 5.57 5.57 0 0 1-.183 5.535 3.26 3.26 0 0 1 1.088 1.693M2.098 3.998a3.3 3.3 0 0 1 1.897.486 5.54 5.54 0 0 1 4.464-2.388c.037-.67.277-1.313.69-1.843a7.47 7.47 0 0 0-7.051 3.745"/></g></svg>
+                        <div class="version-info">
+                            <h4>16.04 Xenial Xerus (2016)</h4>
+                            <p>Introducción de paquetes Snap para una instalación de software más segura.</p>
+                        </div>
+                    </div>
+                    <div class="version-card glow-orange">
+                        <svg width="40" height="40" viewBox="0 0 16 16" class="version-logo-svg"><circle cx="8" cy="8" r="8" fill="#dd4814"/><g fill="#fff" transform="translate(0.25 0.25) scale(0.94)"><path d="M2.273 9.53a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.547Zm9.467-4.984a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546M7.4 13.108a5.54 5.54 0 0 1-3.775-2.88 3.27 3.27 0 0 1-1.944.24 7.4 7.4 0 0 0 5.328 4.465c.53.113 1.072.169 1.614.166a3.25 3.25 0 0 1-.666-1.9 6 6 0 0 1-.557-.091m3.828 2.285a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546m3.163-3.108a7.44 7.44 0 0 0 .373-8.726 3.3 3.3 0 0 1-1.278 1.498 5.57 5.57 0 0 1-.183 5.535 3.26 3.26 0 0 1 1.088 1.693M2.098 3.998a3.3 3.3 0 0 1 1.897.486 5.54 5.54 0 0 1 4.464-2.388c.037-.67.277-1.313.69-1.843a7.47 7.47 0 0 0-7.051 3.745"/></g></svg>
+                        <div class="version-info">
+                            <h4>18.04 Bionic Beaver (2018)</h4>
+                            <p>Regreso a GNOME como entorno de escritorio principal.</p>
+                        </div>
+                    </div>
+                    <div class="version-card glow-orange">
+                        <svg width="40" height="40" viewBox="0 0 16 16" class="version-logo-svg"><circle cx="8" cy="8" r="8" fill="#dd4814"/><g fill="#fff" transform="translate(0.25 0.25) scale(0.94)"><path d="M2.273 9.53a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.547Zm9.467-4.984a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546M7.4 13.108a5.54 5.54 0 0 1-3.775-2.88 3.27 3.27 0 0 1-1.944.24 7.4 7.4 0 0 0 5.328 4.465c.53.113 1.072.169 1.614.166a3.25 3.25 0 0 1-.666-1.9 6 6 0 0 1-.557-.091m3.828 2.285a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546m3.163-3.108a7.44 7.44 0 0 0 .373-8.726 3.3 3.3 0 0 1-1.278 1.498 5.57 5.57 0 0 1-.183 5.535 3.26 3.26 0 0 1 1.088 1.693M2.098 3.998a3.3 3.3 0 0 1 1.897.486 5.54 5.54 0 0 1 4.464-2.388c.037-.67.277-1.313.69-1.843a7.47 7.47 0 0 0-7.051 3.745"/></g></svg>
+                        <div class="version-info">
+                            <h4>20.04 Focal Fossa (2020)</h4>
+                            <p>Gran salto en rendimiento, diseño oscuro nativo y mejoras en ZFS.</p>
+                        </div>
+                    </div>
+                    <div class="version-card glow-orange">
+                        <svg width="40" height="40" viewBox="0 0 16 16" class="version-logo-svg"><circle cx="8" cy="8" r="8" fill="#dd4814"/><g fill="#fff" transform="translate(0.25 0.25) scale(0.94)"><path d="M2.273 9.53a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.547Zm9.467-4.984a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546M7.4 13.108a5.54 5.54 0 0 1-3.775-2.88 3.27 3.27 0 0 1-1.944.24 7.4 7.4 0 0 0 5.328 4.465c.53.113 1.072.169 1.614.166a3.25 3.25 0 0 1-.666-1.9 6 6 0 0 1-.557-.091m3.828 2.285a2.273 2.273 0 1 0 0-4.546 2.273 2.273 0 0 0 0 4.546m3.163-3.108a7.44 7.44 0 0 0 .373-8.726 3.3 3.3 0 0 1-1.278 1.498 5.57 5.57 0 0 1-.183 5.535 3.26 3.26 0 0 1 1.088 1.693M2.098 3.998a3.3 3.3 0 0 1 1.897.486 5.54 5.54 0 0 1 4.464-2.388c.037-.67.277-1.313.69-1.843a7.47 7.47 0 0 0-7.051 3.745"/></g></svg>
+                        <div class="version-info">
+                            <h4>24.04 Noble Numbat (2024)</h4>
+                            <p>La última versión de soporte a largo plazo (LTS) con la última tecnología y GNOME 46.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
