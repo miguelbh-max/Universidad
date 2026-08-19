@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Principios de la Sustentabilidad</title>
+
+<!-- Google Fonts: Space Grotesk (display), Inter (cuerpo), IBM Plex Mono (etiquetas/datos) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================================
+     1. TOKENS — mismo sistema de diseño del sitio de la materia
+     ============================================================ */
+  :root{
+    --bg:            #0a0d0f;
+    --bg-alt:        #11161a;
+    --bg-alt-2:      #161d22;
+    --border:        #1f2a2c;
+    --border-soft:   #24302f;
+    --text:          #eef4f2;
+    --text-dim:      #9fb3ae;
+    --text-faint:    #6b7d79;
+    --accent:        #34f5c5;
+    --accent-soft:   rgba(52,245,197,.14);
+    --accent-2:      #8b7bff;
+    --glow:          0 0 0 1px rgba(52,245,197,.35), 0 0 34px rgba(52,245,197,.20);
+    --radius:        18px;
+    --maxw:          1180px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  img{ display:block; max-width:100%; }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-.02em; color:var(--text); }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent);
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,48px); }
+  ::selection{ background:var(--accent); color:#04120e; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:6px; }
+
+  /* ============================================================
+     2. NAV
+     ============================================================ */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    backdrop-filter:blur(14px);
+    background:rgba(10,13,15,.55);
+    border-bottom:1px solid transparent;
+    transition:border-color .3s ease, background .3s ease;
+  }
+  .nav.scrolled{ border-bottom-color:var(--border); background:rgba(10,13,15,.85); }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px clamp(20px,5vw,48px);
+    max-width:var(--maxw); margin:0 auto;
+  }
+  .brand{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.02rem; display:flex; align-items:center; gap:8px; }
+  .brand-dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent), 0 0 22px var(--accent); }
+  .nav-links{ display:flex; gap:clamp(16px,3vw,32px); font-size:.88rem; color:var(--text-dim); }
+  .nav-links a{ transition:color .2s ease; }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border-soft); color:var(--text); width:40px; height:40px; border-radius:10px; font-size:1.1rem; }
+
+  @media (max-width:720px){
+    .nav-links{
+      position:fixed; top:64px; left:0; right:0;
+      flex-direction:column; gap:0;
+      background:var(--bg-alt);
+      border-bottom:1px solid var(--border);
+      max-height:0; overflow:hidden;
+      transition:max-height .35s ease;
+    }
+    .nav-links.open{ max-height:220px; }
+    .nav-links a{ padding:16px clamp(20px,5vw,48px); border-top:1px solid var(--border); }
+    .nav-toggle{ display:block; }
+  }
+
+  /* ============================================================
+     3. HERO — elemento firma: brújula/nodo de equilibrio de 3 ejes
+     ============================================================ */
+  .hero{
+    position:relative; min-height:88svh;
+    display:flex; align-items:center;
+    padding-top:80px; overflow:hidden;
+  }
+  .hero-bg{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(180deg, rgba(10,13,15,.55) 0%, rgba(10,13,15,.8) 55%, var(--bg) 100%),
+      url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1800&q=80');
+    background-size:cover; background-position:center 40%;
+    filter:saturate(.85);
+  }
+  .hero-node{
+    position:absolute; right:-10%; top:50%; transform:translateY(-50%);
+    width:min(56vw, 600px); aspect-ratio:1/1; opacity:.6; pointer-events:none;
+  }
+  .hero-node svg{ width:100%; height:100%; }
+  .node-line{ stroke:var(--accent); stroke-opacity:.4; fill:none; }
+  .node-dot{ fill:var(--accent); }
+  .node-spin{ animation:spin 70s linear infinite; transform-origin:center; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes blink{ 0%,100%{ opacity:.3; } 50%{ opacity:1; } }
+
+  .hero-content{ position:relative; z-index:2; max-width:760px; }
+  .hero-eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:.75rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--accent-soft); background:var(--accent-soft);
+    padding:7px 14px; border-radius:999px; margin-bottom:22px;
+  }
+  .hero h1{ font-size:clamp(2.3rem, 6.4vw, 4.2rem); line-height:1.05; margin-bottom:20px; }
+  .hero h1 .accent-word{ color:var(--accent); }
+  .hero p.lead{ font-size:clamp(1rem, 2vw, 1.15rem); color:var(--text-dim); max-width:54ch; margin-bottom:34px; }
+
+  .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{
+    font-weight:600; font-size:.94rem; padding:14px 26px; border-radius:12px;
+    border:1px solid transparent; display:inline-flex; align-items:center; gap:8px;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease;
+    cursor:pointer;
+  }
+  .btn-primary{ background:var(--accent); color:#04120e; }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(52,245,197,.35); }
+  .btn-ghost{ background:transparent; color:var(--text); border-color:var(--border-soft); }
+  .btn-ghost:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-3px); }
+
+  /* ============================================================
+     4. SECCIONES + reveal on scroll
+     ============================================================ */
+  section{ padding:clamp(64px, 9vw, 116px) 0; position:relative; }
+  .section-head{ max-width:660px; margin-bottom:44px; }
+  .section-head h2{ font-size:clamp(1.7rem, 3.6vw, 2.4rem); margin-top:12px; }
+
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ============================================================
+     5. RESUMEN
+     ============================================================ */
+  .resumen{ border-top:1px solid var(--border); }
+  .resumen p{ color:var(--text-dim); max-width:70ch; margin-bottom:16px; font-size:1.02rem; }
+
+  .axis-row{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:30px;
+  }
+  .axis{
+    border:1px solid var(--border-soft); border-radius:14px; padding:20px 18px;
+    background:var(--bg-alt);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .axis:hover{ transform:translateY(-4px); border-color:var(--accent); box-shadow:var(--glow); }
+  .axis .a-num{ font-family:'IBM Plex Mono', monospace; font-size:.7rem; color:var(--accent); letter-spacing:.08em; }
+  .axis h3{ font-size:1rem; margin:8px 0 6px; }
+  .axis p{ font-size:.85rem; color:var(--text-dim); margin:0; }
+
+  @media (max-width:760px){ .axis-row{ grid-template-columns:1fr; } }
+
+  /* ============================================================
+     6. PRINCIPIOS — acordeón
+     ============================================================ */
+  .principios{ border-top:1px solid var(--border); }
+  .accordion{ display:flex; flex-direction:column; gap:14px; }
+
+  .acc-item{
+    border:1px solid var(--border-soft); border-radius:var(--radius);
+    background:var(--bg-alt); overflow:hidden;
+    transition:border-color .3s ease, box-shadow .3s ease, background .3s ease;
+  }
+  .acc-item.open, .acc-item:hover{ border-color:var(--accent); box-shadow:var(--glow); background:var(--bg-alt-2); }
+
+  .acc-trigger{
+    width:100%; text-align:left; display:flex; align-items:center; gap:18px;
+    background:none; border:none; color:var(--text);
+    padding:20px clamp(18px,3vw,26px); cursor:pointer; font-family:'Inter', sans-serif;
+  }
+  .acc-icon{
+    flex:none; width:42px; height:42px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--accent-soft); color:var(--accent);
+    transition:background .3s ease, transform .3s ease;
+  }
+  .acc-item.open .acc-icon{ background:var(--accent); color:#04120e; transform:rotate(-6deg); }
+  .acc-icon svg{ width:20px; height:20px; }
+
+  .acc-title-wrap{ flex:1; }
+  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; }
+  .acc-title-wrap h3{ font-size:clamp(.98rem, 1.9vw, 1.14rem); font-weight:600; line-height:1.35; }
+
+  .acc-chevron{ flex:none; width:20px; height:20px; color:var(--text-faint); transition:transform .35s ease, color .3s ease; }
+  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--accent); }
+
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .45s ease; }
+  .acc-panel-inner{ padding:0 clamp(18px,3vw,26px) 26px 80px; color:var(--text-dim); font-size:.95rem; }
+  .acc-panel-inner p{ margin-bottom:12px; }
+  .acc-panel-inner ul{ margin:10px 0 4px 20px; }
+  .acc-panel-inner li{ margin-bottom:8px; }
+  .acc-panel-inner strong{ color:var(--text); font-weight:600; }
+
+  @media (max-width:600px){
+    .acc-panel-inner{ padding-left:clamp(18px,3vw,26px); }
+    .acc-trigger{ gap:12px; padding:16px; }
+    .acc-icon{ width:36px; height:36px; }
+  }
+
+  /* ============================================================
+     7. CIERRE
+     ============================================================ */
+  .cta{
+    position:relative; border-radius:calc(var(--radius) + 6px); overflow:hidden;
+    border:1px solid var(--border-soft);
+    padding:clamp(44px,7vw,80px) clamp(24px,6vw,60px); text-align:center;
+  }
+  .cta-bg{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(180deg, rgba(10,13,15,.6), rgba(10,13,15,.92)),
+      url('https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1600&q=80');
+    background-size:cover; background-position:center;
+  }
+  .cta-inner{ position:relative; z-index:2; max-width:600px; margin:0 auto; }
+  .cta h2{ font-size:clamp(1.6rem, 3.6vw, 2.1rem); margin-bottom:14px; }
+  .cta p{ color:var(--text-dim); margin-bottom:28px; }
+
+  footer{ border-top:1px solid var(--border); padding:30px 0 56px; }
+  .footer-inner{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+    font-size:.82rem; color:var(--text-faint);
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV
+       ============================================================ -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <div class="brand"><span class="brand-dot"></span>Principios de la Sustentabilidad</div>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#resumen">Resumen</a>
+        <a href="#principios">Principios</a>
+        <a href="#cierre">Cierre</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+       ============================================================ -->
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+
+    <!-- elemento firma: nodo de tres ejes en equilibrio -->
+    <div class="hero-node" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <g class="node-spin">
+          <circle class="node-line" cx="200" cy="200" r="150" stroke-dasharray="1 8"/>
+          <line class="node-line" x1="200" y1="60" x2="200" y2="340"/>
+          <line class="node-line" x1="70" y1="270" x2="330" y2="270"/>
+          <line class="node-line" x1="70" y1="130" x2="330" y2="130"/>
+        </g>
+        <circle class="node-dot" cx="200" cy="200" r="7"/>
+        <circle class="node-dot" cx="200" cy="60" r="5" style="animation:blink 3s ease-in-out infinite;"/>
+        <circle class="node-dot" cx="70" cy="270" r="5" style="animation:blink 3.6s ease-in-out infinite .4s;"/>
+        <circle class="node-dot" cx="330" cy="130" r="5" style="animation:blink 4.2s ease-in-out infinite .8s;"/>
+      </svg>
+    </div>
+
+    <div class="wrap">
+      <div class="hero-content">
+        <span class="hero-eyebrow">Materia · Desarrollo Sustentable</span>
+        <h1>Principios de la <span class="accent-word">Sustentabilidad</span></h1>
+        <p class="lead">Las reglas no escritas que separan una buena intención ambiental de una decisión profesional realmente sustentable.</p>
+        <div class="btn-row">
+          <a href="#principios" class="btn btn-primary">Ver los principios</a>
+          <a href="#resumen" class="btn btn-ghost">Ver el enfoque</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================================================
+         RESUMEN
+         ============================================================ -->
+    <section class="resumen" id="resumen">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="eyebrow">Enfoque</span>
+          <h2 style="margin-top:10px; font-size:clamp(1.5rem,3vw,2rem);">Criterios, no solo buenas intenciones</h2>
+          <p>Cada principio de este bloque funciona como una prueba de consistencia: antes de llamar "sustentable" a una estrategia, un proyecto o una política, se contrasta contra estos criterios para verificar si realmente respeta los límites del planeta y a las personas que lo habitan, hoy y después.</p>
+          <p>Son la base que después se aplica en los escenarios natural, socio-cultural y económico del curso.</p>
+        </div>
+
+        <div class="axis-row">
+          <div class="axis reveal">
+            <span class="a-num">Eje 1</span>
+            <h3>Tiempo</h3>
+            <p>Equidad entre generaciones presentes y futuras.</p>
+          </div>
+          <div class="axis reveal">
+            <span class="a-num">Eje 2</span>
+            <h3>Espacio</h3>
+            <p>Equidad entre personas, comunidades y regiones de hoy.</p>
+          </div>
+          <div class="axis reveal">
+            <span class="a-num">Eje 3</span>
+            <h3>Sistema</h3>
+            <p>Interdependencia entre ambiente, sociedad y economía.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PRINCIPIOS — acordeón
+         ============================================================ -->
+    <section class="principios" id="principios">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Once criterios clave</span>
+          <h2>Los principios que sostienen cualquier estrategia sustentable</h2>
+        </div>
+
+        <div class="accordion">
+
+          <!-- 1 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M9.5 10.5L6.5 7M14.5 10.5l3-3.5M9.5 13.5L6.5 17M14.5 13.5l3 3.5"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Método de análisis</span>
+                <h3>El pensamiento sistémico como principio de la sustentabilidad</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>El pensamiento sistémico consiste en entender el ambiente, la sociedad y la economía como partes de <strong>un mismo sistema interconectado</strong>, no como compartimentos separados.</p>
+              <p>Bajo este principio, una decisión tomada en un ámbito —por ejemplo, económico— siempre genera efectos en los otros dos. Por eso ninguna estrategia se evalúa de forma aislada: se revisa su impacto en cadena.</p>
+            </div></div>
+          </div>
+
+          <!-- 2 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Aclarando conceptos</span>
+                <h3>Lo que NO es un principio de la sustentabilidad</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Es común confundir "sustentable" con ideas que en realidad contradicen sus principios. No forman parte de este marco, por ejemplo:</p>
+              <ul>
+                <li>Buscar el <strong>crecimiento económico ilimitado</strong> sin considerar los límites físicos del planeta.</li>
+                <li>Explotar un recurso natural más rápido de lo que tarda en regenerarse, aunque sea rentable a corto plazo.</li>
+                <li>Priorizar el beneficio de la generación actual sin considerar el impacto en las siguientes.</li>
+              </ul>
+              <p>Reconocer estas ideas ayuda a distinguir un discurso "verde" superficial de una estrategia sustentable real.</p>
+            </div></div>
+          </div>
+
+          <!-- 3 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M7 15l4-5 3 3 5-7"/><path d="M4 19V9M20 19V5"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Equidad en el tiempo</span>
+                <h3>El principio de equidad intergeneracional</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Establece que las generaciones futuras tienen el mismo derecho que la generación actual a heredar un planeta con recursos naturales y calidad ambiental suficientes para vivir bien.</p>
+              <p>En la práctica, obliga a preguntar antes de actuar: <strong>¿esta decisión le resta opciones a quienes vengan después?</strong></p>
+            </div></div>
+          </div>
+
+          <!-- 4 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20h18M6 20V10M12 20V4M18 20v13"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Límite ecológico</span>
+                <h3>El concepto de "Capacidad de Carga" del planeta</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Es el <strong>nivel máximo de población, consumo o explotación de recursos</strong> que un ecosistema puede sostener de forma indefinida, sin que su capacidad de regeneración colapse.</p>
+              <p>Superar la capacidad de carga no significa un daño inmediato y visible: puede degradarse el sistema de forma gradual hasta llegar a un punto de no retorno.</p>
+            </div></div>
+          </div>
+
+          <!-- 5 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Gestión de riesgo</span>
+                <h3>El principio de precaución</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Indica que cuando existe riesgo de <strong>daño grave o irreversible</strong> al ambiente, la falta de certeza científica absoluta no debe usarse como excusa para posponer medidas de prevención.</p>
+              <p>En otras palabras: no hay que esperar la prueba definitiva del daño para actuar, si la evidencia disponible ya sugiere un riesgo serio.</p>
+            </div></div>
+          </div>
+
+          <!-- 6 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="8" cy="16" r="3"/><circle cx="16" cy="16" r="3"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Equidad en el espacio</span>
+                <h3>El principio de equidad intrageneracional</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Se refiere a la <strong>distribución justa de recursos y oportunidades entre las personas de la generación actual</strong>, sin importar su nivel socioeconómico, región o país.</p>
+              <p>A diferencia de la equidad intergeneracional (que mira hacia el futuro), esta mira hacia los lados: busca reducir las brechas que hoy existen entre quienes más y quienes menos acceso tienen a los recursos.</p>
+            </div></div>
+          </div>
+
+          <!-- 7 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M6 8h12M6 8a3 3 0 006 0M18 8a3 3 0 01-6 0M6 16h12M6 16a3 3 0 006 0M18 16a3 3 0 01-6 0"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Responsabilidad económica</span>
+                <h3>El principio de "el que contamina paga"</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Busca que quien genera un daño o una contaminación ambiental <strong>asuma los costos</strong> de prevenirla, mitigarla o repararla, en lugar de trasladarlos a la sociedad o al ambiente sin costo alguno.</p>
+              <p>Es la forma en que este principio combate la externalización de costos: obliga a "internalizar" el daño ambiental como parte del costo real de producir un bien o servicio.</p>
+            </div></div>
+          </div>
+
+          <!-- 8 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Forma de mirar</span>
+                <h3>El enfoque holístico en el desarrollo sustentable</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Tener un enfoque holístico significa analizar un problema considerando <strong>la totalidad de los factores involucrados</strong> —ambientales, sociales, económicos y culturales— y cómo se relacionan entre sí, en lugar de estudiar cada uno por separado.</p>
+              <p>Es la aplicación práctica del pensamiento sistémico: ver el bosque completo, no solo el árbol que se está analizando en ese momento.</p>
+            </div></div>
+          </div>
+
+          <!-- 9 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 10h18M5 15h14M9 4a13 13 0 000 16M15 4a13 13 0 010 16"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Escala de acción</span>
+                <h3>"Pensar globalmente, actuar localmente"</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Esta premisa sugiere que, aunque los problemas ambientales —como el cambio climático o la pérdida de biodiversidad— son de <strong>escala planetaria</strong>, las soluciones efectivas empiezan con decisiones y acciones concretas a nivel comunidad, empresa o individuo.</p>
+              <p>Conecta la magnitud global del problema con la capacidad real de acción que sí está al alcance de una persona o una organización.</p>
+            </div></div>
+          </div>
+
+          <!-- 10 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3L4 14h7l-1 7 9-11h-7z"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Producción</span>
+                <h3>El principio de eficiencia ecológica (ecoeficiencia)</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>La ecoeficiencia promueve producir <strong>más bienes y servicios usando menos recursos naturales</strong> y generando la menor cantidad posible de residuos y contaminación por cada unidad producida.</p>
+              <p>No se trata de reducir la producción, sino de optimizar cómo se produce: hacer más con menos impacto.</p>
+            </div></div>
+          </div>
+
+          <!-- 11 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg></span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Recursos finitos</span>
+                <h3>El uso responsable de los recursos no renovables</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel"><div class="acc-panel-inner">
+              <p>Como los recursos no renovables (minerales, combustibles fósiles) tienen una tasa de regeneración nula o extremadamente lenta frente al ritmo de consumo humano, los principios de sustentabilidad establecen que su uso debe ser:</p>
+              <ul>
+                <li><strong>Racional y moderado</strong>, extendiendo al máximo su vida útil disponible.</li>
+                <li>Acompañado de la <strong>búsqueda activa de sustitutos renovables</strong> que puedan reemplazarlos progresivamente.</li>
+                <li>Evaluado según su verdadero costo ambiental, no solo el económico inmediato.</li>
+              </ul>
+            </div></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CIERRE
+         ============================================================ -->
+    <section id="cierre">
+      <div class="wrap">
+        <div class="cta reveal">
+          <div class="cta-bg" aria-hidden="true"></div>
+          <div class="cta-inner">
+            <span class="eyebrow">En síntesis</span>
+            <h2 style="margin-top:10px;">Once criterios, una sola prueba de consistencia</h2>
+            <p>Antes de calificar cualquier proyecto como sustentable, se contrasta contra estos principios. Si falla en alguno, probablemente no lo es —por buena que suene la intención detrás.</p>
+            <a href="#principios" class="btn btn-primary">Repasar los principios</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <span>Desarrollo Sustentable — Material de apoyo para clase</span>
+      <span>Principios de la Sustentabilidad</span>
+    </div>
+  </footer>
+
+  <script>
+    // NAV: fondo al hacer scroll + menú móvil
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 12));
+
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // ACORDEÓN
+    document.querySelectorAll('.acc-item').forEach(item => {
+      const trigger = item.querySelector('.acc-trigger');
+      const panel = item.querySelector('.acc-panel');
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        item.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        panel.style.maxHeight = !isOpen ? panel.scrollHeight + 'px' : null;
+      });
+    });
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.acc-item.open .acc-panel').forEach(panel => {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      });
+    });
+
+    // REVEAL ON SCROLL
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
