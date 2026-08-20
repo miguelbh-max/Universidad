@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conmutación · VLAN</title>
+
+<!-- ==========================================================
+     GOOGLE FONTS
+     Poppins  -> títulos (extra bold, para jerarquía visual fuerte)
+     Inter    -> texto de cuerpo (alta legibilidad)
+=========================================================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================
+   1. VARIABLES Y RESET
+=========================================================== */
+:root{
+  --yellow:#FFD400;
+  --pink:#FF3D9A;
+  --blue:#0057FF;
+  --white:#FFFFFF;
+  --black:#0A0A0A;
+
+  --border-w: 3px;
+  --shadow: 6px 6px 0px var(--black);
+  --shadow-sm: 4px 4px 0px var(--black);
+  --shadow-lg: 10px 10px 0px var(--black);
+}
+
+*, *::before, *::after{ box-sizing:border-box; margin:0; padding:0; }
+
+html{ scroll-behavior:smooth; }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+
+body{
+  font-family:'Inter', sans-serif;
+  color:var(--black);
+  background:var(--white);
+  overflow-x:hidden;
+}
+
+img{ max-width:100%; display:block; }
+
+h1, h2, h3, h4{
+  font-family:'Poppins', sans-serif;
+  font-weight:900;
+  line-height:1.05;
+}
+
+a{ color:inherit; text-decoration:none; }
+
+::selection{ background:var(--yellow); color:var(--black); }
+
+/* ==========================================================
+   2. UTILIDADES NEUBRUTALISM (bordes duros + sombras duras)
+=========================================================== */
+.b-border{ border:var(--border-w) solid var(--black); }
+.b-shadow{ box-shadow:var(--shadow); }
+.b-shadow-sm{ box-shadow:var(--shadow-sm); }
+.b-shadow-lg{ box-shadow:var(--shadow-lg); }
+
+/* Botones: al hover se "presionan" -> la sombra se reduce y el elemento
+   se desplaza hacia donde apuntaba la sombra */
+.btn{
+  display:inline-block;
+  font-family:'Poppins', sans-serif;
+  font-weight:800;
+  font-size:1rem;
+  padding:.9rem 1.6rem;
+  background:var(--white);
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease, background-color .2s ease;
+}
+.btn:hover{
+  transform:translate(3px,3px);
+  box-shadow:var(--shadow-sm);
+}
+.btn:active{
+  transform:translate(6px,6px);
+  box-shadow:0px 0px 0px var(--black);
+}
+.btn-blue{ background:var(--blue); color:var(--white); }
+.btn-blue:hover{ background:#0046CC; }
+.btn-yellow{ background:var(--yellow); color:var(--black); }
+.btn-yellow:hover{ background:#E6BF00; }
+
+/* Tarjetas: elevación suave al pasar el cursor */
+.card{
+  background:var(--white);
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow);
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.card:hover{
+  transform:translate(-4px,-4px);
+  box-shadow:var(--shadow-lg);
+}
+
+/* ==========================================================
+   3. ANIMACIONES DE ENTRADA (fade-in / slide-up al hacer scroll)
+=========================================================== */
+.reveal{
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity .6s ease, transform .6s ease;
+}
+.reveal.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+@keyframes bounce{
+  0%, 100%{ transform:translateY(0); }
+  50%{ transform:translateY(10px); }
+}
+.bounce{ animation:bounce 1.6s ease-in-out infinite; }
+
+/* ==========================================================
+   4. HEADER / NAV
+=========================================================== */
+.navbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:var(--white);
+  border-bottom:var(--border-w) solid var(--black);
+  padding:.9rem 1.2rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.navbar__logo{
+  font-family:'Poppins', sans-serif;
+  font-weight:900;
+  font-size:1.1rem;
+  background:var(--yellow);
+  padding:.3rem .7rem;
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow-sm);
+  transform:rotate(-2deg);
+}
+.navbar__link{
+  display:none; /* oculto en móvil, se muestra en escritorio (mobile-first) */
+}
+
+/* ==========================================================
+   5. HERO SECTION
+=========================================================== */
+.hero{
+  min-height:92vh;
+  background:var(--blue);
+  color:var(--white);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:2.5rem 1.2rem;
+  position:relative;
+  border-bottom:var(--border-w) solid var(--black);
+}
+.hero__tag{
+  font-family:'Poppins', sans-serif;
+  font-weight:800;
+  font-size:.75rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  background:var(--pink);
+  color:var(--white);
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow-sm);
+  padding:.5rem 1rem;
+  margin-bottom:1.6rem;
+  transform:rotate(-2deg);
+}
+.hero__title{
+  font-size:clamp(2.6rem, 12vw, 6.5rem);
+  color:var(--white);
+  -webkit-text-stroke:2px var(--black);
+  text-shadow:5px 5px 0px var(--black);
+  margin-bottom:1rem;
+}
+.hero__subtitle{
+  font-family:'Inter', sans-serif;
+  font-weight:600;
+  font-size:clamp(1rem, 3.2vw, 1.4rem);
+  max-width:38rem;
+  background:var(--white);
+  color:var(--black);
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow);
+  padding:1rem 1.3rem;
+  margin-bottom:2.2rem;
+}
+.hero__actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  justify-content:center;
+}
+.hero__scroll{
+  position:absolute;
+  bottom:1.6rem;
+  font-size:1.8rem;
+  color:var(--white);
+}
+
+/* ==========================================================
+   6. SECCIONES GENERALES
+=========================================================== */
+.section{
+  padding:4rem 1.2rem;
+  max-width:1100px;
+  margin:0 auto;
+}
+.section__eyebrow{
+  display:inline-block;
+  font-family:'Poppins', sans-serif;
+  font-weight:800;
+  font-size:.75rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  background:var(--black);
+  color:var(--white);
+  padding:.35rem .8rem;
+  margin-bottom:1rem;
+}
+.section__title{
+  font-size:clamp(1.9rem, 6vw, 3rem);
+  margin-bottom:1.5rem;
+}
+
+/* ==========================================================
+   7. RESUMEN / OBJETIVO
+=========================================================== */
+.resumen{ background:var(--yellow); border-bottom:var(--border-w) solid var(--black); }
+.resumen__grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1.5rem;
+  margin-top:2rem;
+}
+.resumen__card{
+  padding:1.6rem;
+  display:flex;
+  flex-direction:column;
+  gap:.8rem;
+}
+.resumen__icon{
+  width:3rem; height:3rem;
+  display:grid; place-items:center;
+  background:var(--pink);
+  border:var(--border-w) solid var(--black);
+  font-size:1.4rem;
+}
+.resumen__card p{ font-size:.98rem; line-height:1.5; font-weight:500; }
+
+/* ==========================================================
+   8. TEMAS -> ACORDEÓN
+=========================================================== */
+.temas{ background:var(--white); }
+.accordion{
+  display:flex;
+  flex-direction:column;
+  gap:1.2rem;
+  margin-top:2rem;
+}
+.accordion-item{
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  background:var(--white);
+}
+.accordion-header{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  padding:1.1rem 1.3rem;
+  background:var(--white);
+  border:none;
+  cursor:pointer;
+  font-family:'Poppins', sans-serif;
+  font-weight:800;
+  font-size:1.05rem;
+  text-align:left;
+  transition:background-color .15s ease;
+}
+.accordion-header:hover{ background:#f2f2f2; }
+.accordion-header .num{
+  flex-shrink:0;
+  width:2.2rem; height:2.2rem;
+  display:grid; place-items:center;
+  border:var(--border-w) solid var(--black);
+  font-family:'Poppins', sans-serif;
+  font-weight:900;
+}
+.accordion-header .num.n1{ background:var(--yellow); }
+.accordion-header .num.n2{ background:var(--pink); color:var(--white); }
+.accordion-header .num.n3{ background:var(--blue); color:var(--white); }
+.accordion-header .num.n4{ background:var(--black); color:var(--white); }
+
+.accordion-header__text{ flex:1; }
+.accordion-header__icon{
+  font-size:1.4rem;
+  font-weight:900;
+  transition:transform .25s ease;
+  flex-shrink:0;
+}
+.accordion-item[data-open="true"] .accordion-header__icon{ transform:rotate(45deg); }
+
+.accordion-panel{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .35s ease;
+  border-top:0 solid var(--black);
+}
+.accordion-item[data-open="true"] .accordion-panel{
+  border-top:var(--border-w) solid var(--black);
+}
+.accordion-panel__inner{
+  padding:1.3rem;
+  display:grid;
+  gap:1.2rem;
+}
+.accordion-panel img{
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow-sm);
+}
+.accordion-panel p{ font-size:.95rem; line-height:1.55; font-weight:500; }
+
+/* listas de pasos cronológicos */
+.steps{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:.7rem;
+}
+.steps li{
+  display:flex;
+  gap:.7rem;
+  align-items:flex-start;
+  font-size:.92rem;
+  font-weight:500;
+}
+.steps li .step-badge{
+  flex-shrink:0;
+  width:1.6rem; height:1.6rem;
+  display:grid; place-items:center;
+  background:var(--yellow);
+  border:2px solid var(--black);
+  font-family:'Poppins', sans-serif;
+  font-weight:900;
+  font-size:.75rem;
+}
+.steps code{
+  display:block;
+  background:var(--black);
+  color:var(--yellow);
+  font-family:'Inter', monospace;
+  font-size:.82rem;
+  padding:.15rem .5rem;
+  margin-top:.25rem;
+  width:fit-content;
+}
+
+/* ==========================================================
+   9. FOOTER
+=========================================================== */
+.footer{
+  background:var(--black);
+  color:var(--white);
+  text-align:center;
+  padding:1.6rem 1.2rem;
+  font-family:'Poppins', sans-serif;
+  font-weight:700;
+  font-size:.8rem;
+  letter-spacing:.03em;
+}
+
+/* ==========================================================
+   8b. EJERCICIOS PRÁCTICOS
+=========================================================== */
+.ejercicios{ background:var(--pink); border-bottom:var(--border-w) solid var(--black); }
+.ejercicios__grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1.5rem;
+  margin-top:2rem;
+}
+.ejercicio-card{
+  padding:1.5rem;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  background:var(--white);
+}
+.ejercicio-top{ display:flex; align-items:center; gap:.8rem; }
+.ejercicio-num{
+  flex-shrink:0;
+  width:3rem; height:3rem;
+  display:grid; place-items:center;
+  font-family:'Poppins', sans-serif;
+  font-weight:900;
+  font-size:1rem;
+  border:var(--border-w) solid var(--black);
+}
+.ejercicio-card:nth-child(1) .ejercicio-num{ background:var(--yellow); }
+.ejercicio-card:nth-child(2) .ejercicio-num{ background:var(--pink); color:var(--white); }
+.ejercicio-card:nth-child(3) .ejercicio-num{ background:var(--blue); color:var(--white); }
+.ejercicio-card h3{ font-size:1.15rem; }
+.ejercicio-card > p{ font-size:.92rem; font-weight:500; line-height:1.5; }
+
+.ejercicio-block h4{
+  font-family:'Poppins', sans-serif;
+  font-weight:800;
+  font-size:.8rem;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  margin-bottom:.5rem;
+}
+.ejercicio-block ul{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:.4rem;
+}
+.ejercicio-block ul li{
+  font-size:.85rem;
+  font-weight:500;
+  line-height:1.45;
+  padding-left:1.3rem;
+  position:relative;
+}
+.req-list li::before{
+  content:"▪";
+  position:absolute; left:0; top:0;
+  color:var(--black);
+  font-weight:900;
+}
+.test-list{ border-top:2px dashed #ccc; padding-top:.7rem; }
+.test-list li::before{
+  content:"✔";
+  position:absolute; left:0; top:0;
+  color:var(--blue);
+  font-weight:900;
+}
+.test-list code{
+  display:inline-block;
+  background:var(--black);
+  color:var(--yellow);
+  font-family:'Inter', monospace;
+  font-size:.78rem;
+  padding:.1rem .4rem;
+  margin:.15rem 0;
+}
+
+@media (min-width:700px){
+  .ejercicios__grid{ grid-template-columns:repeat(3, 1fr); }
+}
+
+/* ==========================================================
+   9b. MOCKUP INTERACTIVO "PACKET TRACER" (ventana Switch1 > Config)
+   Reproduce visualmente la interfaz real para crear VLANs.
+=========================================================== */
+.pt-caption{
+  font-size:.85rem;
+  font-weight:600;
+  margin-bottom:.6rem;
+}
+.pt-window{
+  grid-column:1 / -1;
+  border:var(--border-w) solid var(--black);
+  box-shadow:var(--shadow);
+  background:#ECECEC;
+  font-family:'Segoe UI', Tahoma, Arial, sans-serif;
+  overflow:hidden;
+}
+.pt-titlebar{
+  background:#F5F5F5;
+  border-bottom:1px solid #ccc;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:.5rem .8rem;
+}
+.pt-titlebar__title{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  font-weight:700;
+  font-size:.85rem;
+  color:#222;
+}
+.pt-titlebar__title .dot{
+  width:.7rem; height:.7rem; background:var(--blue); border-radius:2px; display:inline-block;
+}
+.pt-titlebar__controls{ display:flex; gap:.5rem; font-size:.85rem; color:#666; }
+
+.pt-tabs{
+  display:flex;
+  gap:1.4rem;
+  background:#fff;
+  padding:.6rem 1rem 0;
+  border-bottom:1px solid #ccc;
+  overflow-x:auto;
+}
+.pt-tab{
+  padding-bottom:.55rem;
+  font-size:.8rem;
+  font-weight:700;
+  color:#777;
+  border-bottom:3px solid transparent;
+  white-space:nowrap;
+}
+.pt-tab.active{ color:var(--blue); border-color:var(--blue); }
+
+.pt-body{ display:flex; flex-wrap:wrap; background:#fff; }
+.pt-sidebar{
+  width:100%;
+  max-width:100%;
+  border-right:1px solid #ddd;
+  padding:.6rem;
+  font-size:.7rem;
+  max-height:180px;
+  overflow-y:auto;
+  background:#fff;
+}
+.pt-sidebar h6{
+  font-size:.68rem;
+  font-weight:800;
+  margin:.5rem 0 .3rem;
+  color:#333;
+}
+.pt-sidebar .pt-item{
+  display:block;
+  padding:.3rem .4rem;
+  border:1px solid #ccc;
+  margin-bottom:.25rem;
+  background:#fff;
+  font-weight:600;
+  color:#333;
+}
+.pt-sidebar .pt-item.active{
+  background:#cfe8ff;
+  border-color:var(--blue);
+  color:var(--blue);
+}
+
+.pt-main{ flex:1; min-width:240px; padding:1rem; }
+.pt-main h5{
+  text-align:center;
+  font-weight:800;
+  font-size:.85rem;
+  margin-bottom:.9rem;
+  color:#222;
+}
+.pt-form-row{
+  display:grid;
+  grid-template-columns:7rem 1fr;
+  gap:.5rem;
+  align-items:center;
+  margin-bottom:.5rem;
+}
+.pt-form-row label{ font-size:.75rem; font-weight:700; color:#333; }
+.pt-input{
+  border:1px solid #999;
+  padding:.35rem .5rem;
+  font-size:.8rem;
+  font-family:inherit;
+  width:100%;
+}
+.pt-btn-row{ display:flex; gap:.6rem; justify-content:center; margin:.9rem 0; }
+.pt-btn{
+  background:#EDEDED;
+  border:1px solid #888;
+  border-radius:3px;
+  padding:.4rem 1.3rem;
+  font-size:.78rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:background-color .15s ease;
+}
+.pt-btn:hover{ background:#dcdcdc; }
+.pt-btn:active{ background:#cfcfcf; }
+
+.pt-table-wrap{ max-height:150px; overflow-y:auto; border:1px solid #ccc; }
+.pt-table{ width:100%; border-collapse:collapse; font-size:.75rem; }
+.pt-table th, .pt-table td{ border-bottom:1px solid #e2e2e2; padding:.35rem .5rem; text-align:left; }
+.pt-table th{ background:#f5f5f5; position:sticky; top:0; }
+
+.pt-console-label{
+  font-size:.75rem; font-weight:800; color:#333;
+  padding:.8rem 1rem 0;
+}
+.pt-console{
+  background:#fff;
+  border:1px solid #000;
+  margin:.4rem 1rem 1rem;
+  height:150px;
+  overflow-y:auto;
+  font-family:'Courier New', Courier, monospace;
+  font-size:.75rem;
+  line-height:1.5;
+  padding:.6rem .7rem;
+  white-space:pre-wrap;
+  color:#111;
+}
+
+@media (min-width:640px){
+  .pt-sidebar{ width:170px; max-height:320px; border-bottom:none; }
+  .pt-body{ flex-wrap:nowrap; }
+}
+
+/* ==========================================================
+   10. MEDIA QUERIES (mobile-first: base = móvil)
+=========================================================== */
+@media (min-width:600px){
+  .resumen__grid{ grid-template-columns:repeat(2, 1fr); }
+  .accordion-panel__inner{ grid-template-columns:1fr 1fr; align-items:center; }
+}
+
+@media (min-width:900px){
+  .navbar__link{
+    display:inline-block;
+    font-family:'Poppins', sans-serif;
+    font-weight:700;
+    font-size:.85rem;
+    padding:.5rem 1rem;
+    border:var(--border-w) solid var(--black);
+    margin-left:.6rem;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:3px 3px 0px var(--black);
+  }
+  .navbar__link:hover{
+    transform:translate(2px,2px);
+    box-shadow:0px 0px 0px var(--black);
+    background:var(--yellow);
+  }
+  .resumen__grid{ grid-template-columns:repeat(3, 1fr); }
+  .section{ padding:6rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==========================================================
+     NAVBAR
+=========================================================== -->
+<header class="navbar">
+  <span class="navbar__logo">CONMUTACIÓN</span>
+  <nav aria-label="Navegación principal">
+    <a class="navbar__link" href="#resumen">Objetivo</a>
+    <a class="navbar__link" href="#temas">Temas</a>
+    <a class="navbar__link" href="#ejercicios">Ejercicios</a>
+  </nav>
+</header>
+
+<!-- ==========================================================
+     HERO
+=========================================================== -->
+<section class="hero">
+  <span class="hero__tag">Redes de Datos · LAN</span>
+  <h1 class="hero__title">CONMUTACIÓN</h1>
+  <p class="hero__subtitle">Descubre cómo las VLAN dividen, organizan y protegen una red dentro de un mismo switch.</p>
+  <div class="hero__actions">
+    <a href="#temas" class="btn btn-yellow">Ver temas</a>
+    <a href="#resumen" class="btn btn-blue">¿Qué es esto?</a>
+  </div>
+  <span class="hero__scroll bounce" aria-hidden="true">↓</span>
+</section>
+
+<!-- ==========================================================
+     RESUMEN / OBJETIVO
+=========================================================== -->
+<section id="resumen" class="section resumen">
+  <div class="reveal">
+    <span class="section__eyebrow">Objetivo de la clase</span>
+    <h2 class="section__title">Una red, muchas redes</h2>
+  </div>
+
+  <div class="resumen__grid">
+    <div class="card resumen__card reveal">
+      <div class="resumen__icon">🧩</div>
+      <h3>¿De qué trata?</h3>
+      <p>Una VLAN (Red de Área Local Virtual) segmenta lógicamente los puertos de un switch en grupos independientes, sin necesidad de switches físicos adicionales.</p>
+    </div>
+    <div class="card resumen__card reveal">
+      <div class="resumen__icon">🎯</div>
+      <h3>Meta de la clase</h3>
+      <p>Que identifiques cuándo usar VLANs, sepas crearlas con comandos de Cisco IOS y las verifiques en Packet Tracer.</p>
+    </div>
+    <div class="card resumen__card reveal">
+      <div class="resumen__icon">🛠</div>
+      <h3>Herramienta</h3>
+      <p>Todas las prácticas se realizan en Cisco Packet Tracer, simulando switches reales sin necesidad de equipo físico.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     TEMAS -> ACORDEÓN
+=========================================================== -->
+<section id="temas" class="section temas">
+  <div class="reveal">
+    <span class="section__eyebrow">Temas de la clase</span>
+    <h2 class="section__title">Haz clic para explorar</h2>
+  </div>
+
+  <div class="accordion">
+
+    <!-- TEMA 1: ¿Qué es una VLAN? -->
+    <div class="accordion-item reveal" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <span class="num n1">1</span>
+        <span class="accordion-header__text">¿Qué es una VLAN?</span>
+        <span class="accordion-header__icon" aria-hidden="true">+</span>
+      </button>
+      <div class="accordion-panel">
+        <div class="accordion-panel__inner">
+          <img src="https://placehold.co/600x400/FFD400/0A0A0A?text=VLAN" alt="Diagrama conceptual de una VLAN dividiendo un switch en grupos lógicos" loading="lazy">
+          <div>
+            <p>Una <strong>VLAN (Virtual Local Area Network)</strong> agrupa puertos de uno o varios switches en un mismo dominio de broadcast lógico, sin importar su ubicación física.</p>
+            <p>Cada VLAN se comporta como si fuera una red independiente: los dispositivos de una VLAN no ven el tráfico de broadcast de otra, aunque compartan el mismo switch físico.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMA 2: ¿Para qué sirve? -->
+    <div class="accordion-item reveal" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <span class="num n2">2</span>
+        <span class="accordion-header__text">¿Para qué sirve una VLAN?</span>
+        <span class="accordion-header__icon" aria-hidden="true">+</span>
+      </button>
+      <div class="accordion-panel">
+        <div class="accordion-panel__inner">
+          <img src="https://placehold.co/600x400/FF3D9A/FFFFFF?text=Seguridad+%2B+Orden" alt="Ilustración de departamentos separados en distintas VLAN" loading="lazy">
+          <div>
+            <p><strong>Seguridad:</strong> aísla el tráfico entre departamentos (Ventas, Sistemas, Servidores), evitando accesos no autorizados entre grupos.</p>
+            <p><strong>Rendimiento:</strong> reduce el tamaño de cada dominio de broadcast, disminuyendo tráfico innecesario en la red.</p>
+            <p><strong>Organización:</strong> agrupa usuarios por función o proyecto, sin importar el piso o edificio donde estén conectados.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMA 3: Cómo se crea (pasos cronológicos) -->
+    <div class="accordion-item reveal" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <span class="num n3">3</span>
+        <span class="accordion-header__text">Cómo se crea una VLAN en Packet Tracer</span>
+        <span class="accordion-header__icon" aria-hidden="true">+</span>
+      </button>
+      <div class="accordion-panel">
+        <div class="accordion-panel__inner" style="grid-template-columns:1fr;">
+
+          <p class="pt-caption">👇 Así se ve la ventana de configuración de un switch en <strong>Packet Tracer</strong>. Escribe un número y nombre de VLAN y presiona <strong>Add</strong> para verlo en acción:</p>
+
+          <!-- ===================================================
+               MOCKUP INTERACTIVO: ventana "Switch1" > pestaña Config
+               Reproduce Physical/Config/CLI/Attributes, el panel
+               VLAN Database y la consola "Equivalent IOS Commands"
+          ==================================================== -->
+          <div class="pt-window">
+            <div class="pt-titlebar">
+              <span class="pt-titlebar__title"><span class="dot"></span> Switch1</span>
+              <span class="pt-titlebar__controls">─&nbsp;&nbsp;▢&nbsp;&nbsp;✕</span>
+            </div>
+            <div class="pt-tabs">
+              <span class="pt-tab">Physical</span>
+              <span class="pt-tab active">Config</span>
+              <span class="pt-tab">CLI</span>
+              <span class="pt-tab">Attributes</span>
+            </div>
+            <div class="pt-body">
+              <div class="pt-sidebar">
+                <h6>GLOBAL</h6>
+                <span class="pt-item">Settings</span>
+                <span class="pt-item">Algorithm Settings</span>
+                <h6>SWITCHING</h6>
+                <span class="pt-item active">VLAN Database</span>
+                <h6>INTERFACE</h6>
+                <span class="pt-item">FastEthernet0/1</span>
+                <span class="pt-item">FastEthernet0/2</span>
+                <span class="pt-item">FastEthernet0/3</span>
+                <span class="pt-item">FastEthernet0/4</span>
+                <span class="pt-item">FastEthernet0/5</span>
+              </div>
+              <div class="pt-main">
+                <h5>VLAN Configuration</h5>
+                <div class="pt-form-row">
+                  <label for="ptVlanNum">VLAN Number</label>
+                  <input id="ptVlanNum" class="pt-input" type="number" min="2" max="1001" placeholder="10">
+                </div>
+                <div class="pt-form-row">
+                  <label for="ptVlanName">VLAN Name</label>
+                  <input id="ptVlanName" class="pt-input" type="text" placeholder="VENTAS">
+                </div>
+                <div class="pt-btn-row">
+                  <button type="button" id="ptAddBtn" class="pt-btn">Add</button>
+                  <button type="button" id="ptRemoveBtn" class="pt-btn">Remove</button>
+                </div>
+                <div class="pt-table-wrap">
+                  <table class="pt-table">
+                    <thead><tr><th>VLAN No</th><th>VLAN Name</th></tr></thead>
+                    <tbody id="ptVlanTable">
+                      <tr data-fixed="true"><td>1</td><td>default</td></tr>
+                      <tr data-fixed="true"><td>1002</td><td>fddi-default</td></tr>
+                      <tr data-fixed="true"><td>1003</td><td>token-ring-default</td></tr>
+                      <tr data-fixed="true"><td>1004</td><td>fddinet-default</td></tr>
+                      <tr data-fixed="true"><td>1005</td><td>trnet-default</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <p class="pt-console-label">Equivalent IOS Commands</p>
+            <pre id="ptConsole" class="pt-console">Press RETURN to get started!
+
+Switch&gt;enable
+Switch#
+Switch#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#</pre>
+          </div>
+          <p id="ptFeedback" class="pt-caption" style="min-height:1.2rem;" aria-live="polite"></p>
+
+          <ol class="steps">
+            <li><span class="step-badge">1</span><div>Entrar a modo privilegiado en el switch.<code>Switch&gt; enable</code></div></li>
+            <li><span class="step-badge">2</span><div>Entrar a configuración global.<code>Switch# configure terminal</code></div></li>
+            <li><span class="step-badge">3</span><div>Crear la VLAN con un número de identificador.<code>Switch(config)# vlan 10</code></div></li>
+            <li><span class="step-badge">4</span><div>Asignarle un nombre descriptivo.<code>Switch(config-vlan)# name VENTAS</code></div></li>
+            <li><span class="step-badge">5</span><div>Salir del modo de configuración de VLAN.<code>Switch(config-vlan)# exit</code></div></li>
+            <li><span class="step-badge">6</span><div>Entrar a la interfaz que se asignará a la VLAN.<code>Switch(config)# interface fastEthernet0/1</code></div></li>
+            <li><span class="step-badge">7</span><div>Definir el puerto como modo acceso.<code>Switch(config-if)# switchport mode access</code></div></li>
+            <li><span class="step-badge">8</span><div>Asignar el puerto a la VLAN creada.<code>Switch(config-if)# switchport access vlan 10</code></div></li>
+            <li><span class="step-badge">9</span><div>Verificar la configuración.<code>Switch# show vlan brief</code></div></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMA 4: Ejemplo práctico en Packet Tracer -->
+    <div class="accordion-item reveal" data-open="false">
+      <button class="accordion-header" aria-expanded="false">
+        <span class="num n4">4</span>
+        <span class="accordion-header__text">Ejemplo práctico paso a paso</span>
+        <span class="accordion-header__icon" aria-hidden="true">+</span>
+      </button>
+      <div class="accordion-panel">
+        <div class="accordion-panel__inner">
+          <img src="https://placehold.co/600x400/0A0A0A/FFD400?text=Topolog%C3%ADa+PT" alt="Topología de ejemplo con dos VLAN y un enlace troncal entre switches" loading="lazy">
+          <ol class="steps">
+            <li><span class="step-badge">1</span><div>Crear dos VLANs en el switch: Ventas y Sistemas.<code>vlan 10 / name VENTAS<br>vlan 20 / name SISTEMAS</code></div></li>
+            <li><span class="step-badge">2</span><div>Asignar los puertos Fa0/1–Fa0/2 a VLAN 10 y Fa0/3–Fa0/4 a VLAN 20 (modo acceso).</div></li>
+            <li><span class="step-badge">3</span><div>Conectar las PCs y verificar que los equipos de la misma VLAN sí se hacen ping entre sí.</div></li>
+            <li><span class="step-badge">4</span><div>Verificar que un PC de VLAN 10 <strong>no</strong> puede hacer ping a un PC de VLAN 20 (dominios de broadcast separados).</div></li>
+            <li><span class="step-badge">5</span><div>Si hay un segundo switch, configurar el enlace entre ambos como troncal.<code>interface fastEthernet0/24<br>switchport mode trunk<br>switchport trunk allowed vlan 10,20</code></div></li>
+            <li><span class="step-badge">6</span><div>Confirmar el enlace troncal y las VLANs activas.<code>show interfaces trunk<br>show vlan brief</code></div></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==========================================================
+     EJERCICIOS PRÁCTICOS (Packet Tracer)
+=========================================================== -->
+<section id="ejercicios" class="section ejercicios">
+  <div class="reveal">
+    <span class="section__eyebrow">Manos a la obra</span>
+    <h2 class="section__title">3 ejercicios en Packet Tracer</h2>
+  </div>
+
+  <div class="ejercicios__grid">
+
+    <!-- EJERCICIO 1 -->
+    <div class="card ejercicio-card reveal">
+      <div class="ejercicio-top">
+        <span class="ejercicio-num">01</span>
+        <h3>VLANs en un solo switch</h3>
+      </div>
+      <p>Crea 2 VLANs en un mismo switch y comprueba que quedan aisladas entre sí.</p>
+
+      <div class="ejercicio-block">
+        <h4>🧰 Requisitos</h4>
+        <ul class="req-list">
+          <li>1 switch 2960</li>
+          <li>4 PCs de escritorio</li>
+          <li>VLAN 10 "VENTAS" (PC1, PC2) y VLAN 20 "SISTEMAS" (PC3, PC4)</li>
+        </ul>
+      </div>
+
+      <div class="ejercicio-block">
+        <h4>✅ Pruebas de funcionalidad</h4>
+        <ul class="test-list">
+          <li>Ejecuta <code>show vlan brief</code> en el switch y confirma que cada puerto quedó en su VLAN correcta.</li>
+          <li>Haz <code>ping</code> de PC1 a PC2 (misma VLAN) → <strong>debe responder</strong>.</li>
+          <li>Haz <code>ping</code> de PC1 a PC3 (VLAN distinta) → <strong>debe fallar</strong> (Request timed out), confirmando el aislamiento.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- EJERCICIO 2 -->
+    <div class="card ejercicio-card reveal">
+      <div class="ejercicio-top">
+        <span class="ejercicio-num">02</span>
+        <h3>Enlace troncal entre switches</h3>
+      </div>
+      <p>Extiende las mismas VLANs a un segundo switch mediante un enlace trunk.</p>
+
+      <div class="ejercicio-block">
+        <h4>🧰 Requisitos</h4>
+        <ul class="req-list">
+          <li>2 switches 2960 conectados entre sí</li>
+          <li>4 PCs (2 por switch), VLAN 10 y VLAN 20 repartidas en ambos</li>
+          <li>Puerto entre switches en <code>switchport mode trunk</code></li>
+        </ul>
+      </div>
+
+      <div class="ejercicio-block">
+        <h4>✅ Pruebas de funcionalidad</h4>
+        <ul class="test-list">
+          <li>Ejecuta <code>show interfaces trunk</code> en ambos switches y verifica que el enlace permite VLAN 10 y 20.</li>
+          <li>Haz <code>ping</code> entre un PC de VLAN 10 del switch 1 y un PC de VLAN 10 del switch 2 → <strong>debe responder</strong> aunque estén en switches distintos.</li>
+          <li>Haz <code>ping</code> cruzado entre VLAN 10 y VLAN 20 (en cualquier switch) → <strong>debe seguir fallando</strong>, sin enrutamiento aún.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- EJERCICIO 3 -->
+    <div class="card ejercicio-card reveal">
+      <div class="ejercicio-top">
+        <span class="ejercicio-num">03</span>
+        <h3>Enrutamiento entre VLANs</h3>
+      </div>
+      <p>Agrega un router con subinterfaces (router-on-a-stick) para permitir la comunicación entre VLAN 10 y VLAN 20.</p>
+
+      <div class="ejercicio-block">
+        <h4>🧰 Requisitos</h4>
+        <ul class="req-list">
+          <li>1 router conectado al switch por un enlace trunk</li>
+          <li>Subinterfaz Fa0/0.10 con <code>encapsulation dot1Q 10</code></li>
+          <li>Subinterfaz Fa0/0.20 con <code>encapsulation dot1Q 20</code></li>
+          <li>Gateway de cada PC apuntando a su subinterfaz correspondiente</li>
+        </ul>
+      </div>
+
+      <div class="ejercicio-block">
+        <h4>✅ Pruebas de funcionalidad</h4>
+        <ul class="test-list">
+          <li>Ejecuta <code>show ip interface brief</code> en el router y confirma que ambas subinterfaces están <strong>up/up</strong>.</li>
+          <li>Ejecuta <code>show ip route</code> y verifica que aparecen las redes de VLAN 10 y VLAN 20 como conectadas.</li>
+          <li>Haz <code>ping</code> de un PC de VLAN 10 a un PC de VLAN 20 → ahora <strong>debe responder</strong> (el router hace el enrutamiento entre VLANs).</li>
+          <li>Usa <code>tracert</code> desde un PC hacia el otro y confirma que el primer salto es la IP del router.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==========================================================
+     FOOTER
+=========================================================== -->
+<footer class="footer">
+  CONMUTACIÓN · VLAN — MATERIAL DE CLASE
+</footer>
+
+<script>
+/* ==========================================================
+   JS 1: ACORDEÓN
+   Abre/cierra paneles con transición de altura y actualiza
+   los atributos ARIA para accesibilidad.
+=========================================================== */
+document.querySelectorAll('.accordion-item').forEach((item) => {
+  const header = item.querySelector('.accordion-header');
+  const panel  = item.querySelector('.accordion-panel');
+
+  header.addEventListener('click', () => {
+    const isOpen = item.getAttribute('data-open') === 'true';
+
+    // cierra el panel actual o lo abre calculando su altura real
+    if (isOpen){
+      panel.style.maxHeight = null;
+      item.setAttribute('data-open', 'false');
+      header.setAttribute('aria-expanded', 'false');
+    } else {
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+      item.setAttribute('data-open', 'true');
+      header.setAttribute('aria-expanded', 'true');
+    }
+  });
+});
+
+/* ==========================================================
+   JS 2: ANIMACIONES DE ENTRADA AL HACER SCROLL
+   IntersectionObserver agrega la clase "visible" cuando el
+   elemento entra en el viewport (fade-in + slide-up vía CSS).
+=========================================================== */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting){
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+/* ==========================================================
+   JS 3: MOCKUP INTERACTIVO DE PACKET TRACER (VLAN Database)
+   Simula el comportamiento real de la ventana Switch1 > Config:
+   al presionar "Add" se crea la fila en la tabla y se imprimen
+   los comandos IOS equivalentes en la consola, tal como lo hace
+   el software real.
+=========================================================== */
+(() => {
+  const numInput   = document.getElementById('ptVlanNum');
+  const nameInput  = document.getElementById('ptVlanName');
+  const addBtn     = document.getElementById('ptAddBtn');
+  const removeBtn  = document.getElementById('ptRemoveBtn');
+  const tableBody  = document.getElementById('ptVlanTable');
+  const consoleBox = document.getElementById('ptConsole');
+  const feedback   = document.getElementById('ptFeedback');
+
+  if (!addBtn) return; // el mockup no está en esta página/tema
+
+  const RESERVED = [1, 1002, 1003, 1004, 1005];
+
+  function printLine(text){
+    consoleBox.textContent += '\n' + text;
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+  }
+
+  function vlanExists(num){
+    return Array.from(tableBody.querySelectorAll('tr')).some(
+      (row) => row.children[0].textContent.trim() === String(num)
+    );
+  }
+
+  addBtn.addEventListener('click', () => {
+    const num  = parseInt(numInput.value, 10);
+    const name = nameInput.value.trim();
+
+    feedback.textContent = '';
+
+    if (!num || num < 2 || num > 1001){
+      feedback.textContent = '⚠️ Ingresa un número de VLAN válido (2–1001).';
+      return;
+    }
+    if (RESERVED.includes(num) || vlanExists(num)){
+      feedback.textContent = '⚠️ Esa VLAN ya existe en la base de datos.';
+      return;
+    }
+
+    const finalName = name || ('VLAN' + String(num).padStart(4, '0'));
+
+    // 1. Agregar la fila a la tabla, como haría Packet Tracer
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${num}</td><td>${finalName}</td>`;
+    tableBody.appendChild(row);
+
+    // 2. Imprimir los comandos IOS equivalentes en la consola
+    printLine(`Switch(config)#vlan ${num}`);
+    printLine(`Switch(config-vlan)#name ${finalName}`);
+    printLine(`Switch(config-vlan)#exit`);
+    printLine(`Switch(config)#`);
+
+    feedback.textContent = `✅ VLAN ${num} (${finalName}) creada correctamente.`;
+    numInput.value = '';
+    nameInput.value = '';
+    numInput.focus();
+  });
+
+  removeBtn.addEventListener('click', () => {
+    const num = parseInt(numInput.value, 10);
+    feedback.textContent = '';
+
+    if (!num){
+      feedback.textContent = '⚠️ Escribe el número de VLAN que deseas eliminar.';
+      return;
+    }
+    if (RESERVED.includes(num)){
+      feedback.textContent = '⚠️ Las VLANs por defecto no se pueden eliminar.';
+      return;
+    }
+    const row = Array.from(tableBody.querySelectorAll('tr')).find(
+      (r) => r.children[0].textContent.trim() === String(num)
+    );
+    if (!row){
+      feedback.textContent = '⚠️ Esa VLAN no existe en la base de datos.';
+      return;
+    }
+
+    row.remove();
+    printLine(`Switch(config)#no vlan ${num}`);
+    printLine(`Switch(config)#`);
+    feedback.textContent = `🗑️ VLAN ${num} eliminada.`;
+    numInput.value = '';
+    nameInput.value = '';
+  });
+})();
+</script>
+</body>
+</html>
