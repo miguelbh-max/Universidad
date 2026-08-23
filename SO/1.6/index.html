@@ -1,1 +1,630 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.6 Núcleo — Linux Kernel vs NT Kernel | Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf9f5;
+    --ink:#14140f;
+    --ink-soft:#4a4a42;
+    --accent:#2f5d50;
+    --accent-soft:#e7efec;
+    --linux:#c97e3e;
+    --linux-soft:#f6e9d9;
+    --windows:#3e6b94;
+    --windows-soft:#e3ebf1;
+    --line:#e4e1d8;
+    --card:#ffffff;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Space Grotesk', sans-serif;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+  a{ color:inherit; }
+
+  /* ---------- NAV ---------- */
+  nav.top{
+    position:sticky; top:0; z-index:50;
+    background:rgba(250,249,245,0.9);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.top .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px;
+  }
+  .brand{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-soft);
+    text-decoration:none;
+  }
+  .brand b{ color:var(--accent); }
+  .back-link{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-decoration:none;
+    color:var(--ink);
+    border:1px solid var(--line);
+    padding:7px 12px;
+    border-radius:999px;
+    transition:all .2s ease;
+  }
+  .back-link:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:90px 0 60px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    margin-bottom:18px;
+    display:block;
+  }
+  .kinetic{
+    font-size:clamp(2.1rem, 6vw, 4.2rem);
+    font-weight:700;
+    line-height:1.05;
+    max-width:820px;
+  }
+  .kinetic span{
+    display:inline-block;
+    filter: blur(6px);
+    opacity:0;
+    font-variation-settings:'wght' 300;
+    transform: translateY(8px);
+    transition: filter .6s ease, opacity .6s ease, transform .6s ease, font-variation-settings .6s ease;
+  }
+  .kinetic span.in{
+    filter: blur(0);
+    opacity:1;
+    transform:translateY(0);
+    font-variation-settings:'wght' 700;
+  }
+  .kinetic .accent-word{ color:var(--accent); }
+  .hero p.lede{
+    max-width:640px;
+    margin-top:24px;
+    font-size:1.05rem;
+    color:var(--ink-soft);
+  }
+  .hero p.lede b{ color:var(--ink); }
+
+  /* ---------- SECTION LABELS ---------- */
+  .section{ padding:64px 0; border-top:1px solid var(--line); }
+  .section-head{ margin-bottom:34px; max-width:680px; }
+  .section-head .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:.1em;
+    margin-bottom:8px; display:block;
+  }
+  .section-head h2{ font-size:clamp(1.5rem,3.2vw,2.1rem); }
+  .section-head p{ color:var(--ink-soft); margin-top:10px; }
+
+  /* ---------- RACE / DIAGRAM ---------- */
+  .race-controls{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    margin-bottom:32px;
+  }
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    background:var(--ink);
+    color:var(--bg);
+    border:none;
+    padding:12px 22px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); background:var(--accent); }
+  .btn:active{ transform:translateY(0); }
+  .race-note{ font-size:13px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; }
+
+  .stacks{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+  }
+  @media (max-width:760px){ .stacks{ grid-template-columns:1fr; } }
+
+  .stack{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+    position:relative;
+  }
+  .stack-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .stack-head h3{ font-size:1.15rem; }
+  .os-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    padding:4px 10px;
+    border-radius:999px;
+  }
+  .stack.linux .os-tag{ background:var(--linux-soft); color:var(--linux); }
+  .stack.windows .os-tag{ background:var(--windows-soft); color:var(--windows); }
+
+  .layers{ display:flex; flex-direction:column; gap:8px; }
+  .layer{
+    border-radius:9px;
+    padding:11px 14px;
+    font-size:13px;
+    font-family:'IBM Plex Mono', monospace;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink-soft);
+    transition: background .35s ease, color .35s ease, border-color .35s ease, transform .35s ease;
+  }
+  .stack.linux .layer.active{
+    background:var(--linux); color:#fff; border-color:var(--linux);
+    transform:scale(1.02);
+  }
+  .stack.windows .layer.active{
+    background:var(--windows); color:#fff; border-color:var(--windows);
+    transform:scale(1.02);
+  }
+  .layer .l-label{ font-weight:500; }
+  .layer .l-desc{ display:block; font-family:'IBM Plex Sans', sans-serif; font-size:11.5px; margin-top:2px; opacity:.85; }
+
+  .stack-meta{
+    margin-top:16px;
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; color:var(--ink-soft);
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+  }
+  .stack-meta b{ color:var(--ink); }
+
+  .disclaimer{
+    font-size:12px; color:var(--ink-soft);
+    margin-top:18px; max-width:680px;
+  }
+
+  /* ---------- FACT CARDS ---------- */
+  .cards-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  @media (max-width:820px){ .cards-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .cards-grid{ grid-template-columns:1fr; } }
+
+  .fact-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .fact-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 14px 28px -18px rgba(20,20,15,0.28);
+  }
+  .fact-card .fc-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--ink-soft); margin-bottom:10px; display:block;
+  }
+  .fact-card .fc-row{ display:flex; justify-content:space-between; gap:10px; margin-bottom:8px; font-size:14px; }
+  .fact-card .fc-row:last-child{ margin-bottom:0; }
+  .fact-card .fc-row span:first-child{ color:var(--ink-soft); font-size:13px; }
+  .fact-card .fc-row .lx{ color:var(--linux); font-weight:600; font-family:'IBM Plex Mono',monospace; font-size:12.5px; }
+  .fact-card .fc-row .wn{ color:var(--windows); font-weight:600; font-family:'IBM Plex Mono',monospace; font-size:12.5px; }
+
+  /* ---------- ACCORDION ---------- */
+  .accordion{ border-top:1px solid var(--line); }
+  .acc-item{ border-bottom:1px solid var(--line); }
+  .acc-trigger{
+    width:100%;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px;
+    padding:20px 4px;
+    background:none; border:none;
+    cursor:pointer;
+    text-align:left;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.05rem;
+    color:var(--ink);
+  }
+  .acc-trigger .plus{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:20px;
+    color:var(--accent);
+    transition:transform .3s ease;
+    flex-shrink:0;
+  }
+  .acc-item.open .plus{ transform:rotate(45deg); }
+  .acc-panel{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .35s ease;
+  }
+  .acc-panel-inner{
+    padding:0 4px 22px;
+    color:var(--ink-soft);
+    font-size:14.5px;
+    max-width:760px;
+  }
+  .acc-panel-inner b{ color:var(--ink); }
+
+  /* ---------- TABLE ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    background:var(--card);
+    border-radius:var(--radius);
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    text-align:left;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    background:var(--ink);
+    color:var(--bg);
+    padding:13px 16px;
+  }
+  tbody td{
+    padding:13px 16px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){ background:var(--accent-soft); }
+  tbody td:first-child{ font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); white-space:nowrap; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:50px 0 70px;
+    border-top:1px solid var(--line);
+  }
+  .foot-nav{ display:flex; gap:14px; flex-wrap:wrap; margin-top:18px; }
+  .foot-nav a{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-decoration:none;
+    border:1px solid var(--line);
+    padding:9px 14px;
+    border-radius:999px;
+    transition:all .2s ease;
+  }
+  .foot-nav a:hover{ border-color:var(--accent); color:var(--accent); }
+  footer p{ color:var(--ink-soft); font-size:13px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+    .kinetic span{ opacity:1; filter:none; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><b>SO</b> · 1.6 Núcleo</a>
+    <a class="back-link" href="../1.4/index.html">&larr; Volver a la unidad</a>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <span class="eyebrow">Unidad 1 · Subtema 1.6</span>
+  <h1 class="kinetic" id="kinetic-title"></h1>
+  <p class="lede">Todo sistema operativo esconde la misma decisión de diseño: <b>qué tanto poder le das a una sola pieza de software.</b> Linux y Windows NT respondieron distinto — y esa respuesta define cómo se instala un driver, por qué un antivirus se comporta diferente en cada uno, y qué tan lejos llega un solo bug de kernel.</p>
+</header>
+
+<section class="section" id="race">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Simulación conceptual</span>
+      <h2>La misma llamada al sistema, dos caminos distintos</h2>
+      <p>Un programa pide leer un archivo (<span class="mono">open()</span>). Observa cuántas capas debe atravesar esa petición en cada arquitectura antes de tocar el hardware.</p>
+    </div>
+
+    <div class="race-controls">
+      <button class="btn" id="run-race">Ejecutar llamada al sistema</button>
+      <span class="race-note" id="race-status">listo para simular open()</span>
+    </div>
+
+    <div class="stacks">
+      <div class="stack linux" id="stack-linux">
+        <div class="stack-head">
+          <h3>Linux Kernel</h3>
+          <span class="os-tag">monolítico modular</span>
+        </div>
+        <div class="layers" id="layers-linux"></div>
+        <div class="stack-meta">
+          <span>capas atravesadas</span>
+          <b id="count-linux">0</b>
+        </div>
+      </div>
+
+      <div class="stack windows" id="stack-windows">
+        <div class="stack-head">
+          <h3>NT Kernel (Windows)</h3>
+          <span class="os-tag">híbrido</span>
+        </div>
+        <div class="layers" id="layers-windows"></div>
+        <div class="stack-meta">
+          <span>capas atravesadas</span>
+          <b id="count-windows">0</b>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">Nota: esta simulación es una representación conceptual de la arquitectura, no una medición real de tiempos ni de rendimiento. El número de capas es ilustrativo del diseño, no un dato de desempeño.</p>
+  </div>
+</section>
+
+<section class="section" id="facts">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Ficha técnica</span>
+      <h2>Comparación rápida</h2>
+    </div>
+    <div class="cards-grid" id="cards"></div>
+  </div>
+</section>
+
+<section class="section" id="deep">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">A fondo</span>
+      <h2>Por qué se diseñaron así</h2>
+    </div>
+    <div class="accordion" id="accordion"></div>
+  </div>
+</section>
+
+<section class="section" id="table-section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Referencia</span>
+      <h2>Tabla comparativa completa</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="compare-table"></table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Sigue explorando la Unidad 1</h3>
+    <div class="foot-nav">
+      <a href="../1.4/index.html">1.4 Clasificación de los SO</a>
+      <a href="../1.4/1.4.1/index.html">1.4.1 Clasificación (tipografía cinética)</a>
+    </div>
+    <p style="margin-top:26px;">Sistemas Operativos I · Material de apoyo — subtema 1.6 Núcleo</p>
+  </div>
+</footer>
+
+<script>
+/* ---------------- Kinetic title ---------------- */
+(function(){
+  const el = document.getElementById('kinetic-title');
+  const words = [
+    {t:"El", accent:false},{t:"núcleo", accent:true},{t:"decide", accent:false},
+    {t:"todo.", accent:false}
+  ];
+  el.innerHTML = words.map(w => `<span class="${w.accent ? 'accent-word':''}">${w.t}</span>`).join(' ');
+  const spans = el.querySelectorAll('span');
+  spans.forEach((s,i)=>{
+    setTimeout(()=> s.classList.add('in'), 120 + i*140);
+  });
+})();
+
+/* ---------------- Layer data ---------------- */
+const linuxLayers = [
+  {label:"Programa en espacio de usuario", desc:"Tu app llama a open()"},
+  {label:"Interfaz de llamadas al sistema (syscall)", desc:"Único punto de entrada al kernel"},
+  {label:"Kernel space: planificador · memoria · VFS · red", desc:"Un solo espacio de direcciones privilegiado"},
+  {label:"Módulo de sistema de archivos (ext4.ko)", desc:"Cargado en el propio kernel"},
+  {label:"Hardware (disco)", desc:"Se completa la operación"}
+];
+const windowsLayers = [
+  {label:"Programa Win32", desc:"Tu app llama a CreateFile()"},
+  {label:"Subsistema de entorno (kernel32.dll)", desc:"Traduce la API Win32"},
+  {label:"ntdll.dll — interfaz Nt*/Zw*", desc:"Puente hacia el modo kernel"},
+  {label:"Executive: Gestor de E/S, objetos, memoria", desc:"Capa de servicios del kernel"},
+  {label:"NT Kernel — planificación y sincronización", desc:"Núcleo puro de bajo nivel"},
+  {label:"HAL (Hardware Abstraction Layer)", desc:"Aísla al kernel del hardware específico"},
+  {label:"Hardware (disco)", desc:"Se completa la operación"}
+];
+
+function renderLayers(containerId, data){
+  const c = document.getElementById(containerId);
+  c.innerHTML = data.map(d => `
+    <div class="layer">
+      <span class="l-label">${d.label}</span>
+      <span class="l-desc">${d.desc}</span>
+    </div>
+  `).join('');
+}
+renderLayers('layers-linux', linuxLayers);
+renderLayers('layers-windows', windowsLayers);
+
+/* ---------------- Race animation ---------------- */
+const btn = document.getElementById('run-race');
+const status = document.getElementById('race-status');
+let running = false;
+
+function runStack(containerId, count, data, stepDelay, onDone){
+  const items = document.querySelectorAll('#'+containerId+' .layer');
+  const counter = document.getElementById(count);
+  let n = 0;
+  items.forEach(it => it.classList.remove('active'));
+  counter.textContent = '0';
+  data.forEach((_, i)=>{
+    setTimeout(()=>{
+      items.forEach(it=>it.classList.remove('active'));
+      items[i].classList.add('active');
+      n++;
+      counter.textContent = n;
+      if(i === data.length-1 && onDone) setTimeout(onDone, stepDelay);
+    }, i*stepDelay);
+  });
+}
+
+btn.addEventListener('click', ()=>{
+  if(running) return;
+  running = true;
+  status.textContent = 'ejecutando open() en ambos kernels…';
+  btn.disabled = true;
+
+  let doneCount = 0;
+  const finish = ()=>{
+    doneCount++;
+    if(doneCount === 2){
+      status.textContent = 'Linux: ' + linuxLayers.length + ' capas · Windows: ' + windowsLayers.length + ' capas — vuelve a ejecutar cuando quieras';
+      running = false;
+      btn.disabled = false;
+    }
+  };
+
+  runStack('layers-linux', 'count-linux', linuxLayers, 420, finish);
+  runStack('layers-windows', 'count-windows', windowsLayers, 420, finish);
+});
+
+/* ---------------- Fact cards ---------------- */
+const facts = [
+  {label:"Identidad", rows:[
+    {k:"Tipo de arquitectura", lx:"Monolítico modular", wn:"Híbrido"},
+    {k:"Primer lanzamiento", lx:"1991", wn:"1993 (NT 3.1)"},
+    {k:"Creador", lx:"Linus Torvalds", wn:"David Cutler"},
+  ]},
+  {label:"Código y licencia", rows:[
+    {k:"Licencia", lx:"GPL v2 · abierto", wn:"Propietario"},
+    {k:"Modularidad", lx:"Módulos cargables (.ko)", wn:"Drivers WDM/KMDF"},
+    {k:"Distribuciones", lx:"Ubuntu, Fedora, Debian…", wn:"Windows 10/11, Server"},
+  ]},
+  {label:"Funcionamiento interno", rows:[
+    {k:"Planificador", lx:"CFS / EEVDF", wn:"Basado en 32 prioridades"},
+    {k:"Sistema de archivos nativo", lx:"ext4 (vía VFS)", wn:"NTFS"},
+    {k:"Configuración", lx:"Archivos en /etc", wn:"Registro (Registry)"},
+  ]},
+];
+
+document.getElementById('cards').innerHTML = facts.map(f => `
+  <div class="fact-card">
+    <span class="fc-label">${f.label}</span>
+    ${f.rows.map(r => `
+      <div class="fc-row">
+        <span>${r.k}</span>
+      </div>
+      <div class="fc-row" style="margin-top:-4px;">
+        <span class="lx">🐧 ${r.lx}</span>
+        <span class="wn">🪟 ${r.wn}</span>
+      </div>
+    `).join('')}
+  </div>
+`).join('');
+
+/* ---------------- Accordion ---------------- */
+const accData = [
+  {
+    q:"¿Por qué Linux metió (casi) todo en un solo espacio privilegiado?",
+    a:"Cuando Torvalds diseñó Linux en 1991 priorizó el rendimiento y la simplicidad de un kernel Unix clásico: si el planificador, el sistema de archivos y los drivers viven en el mismo espacio de memoria, se comunican entre sí con llamadas de función directas — sin el costo de cambiar de contexto entre procesos. El riesgo es que un driver con errores puede tumbar todo el sistema, por eso hoy la mayoría del código vive en <b>módulos cargables</b> que se pueden insertar o quitar sin recompilar el kernel."
+  },
+  {
+    q:"¿Por qué Windows NT metió capas de por medio si eso es más lento?",
+    a:"David Cutler venía de diseñar sistemas para DEC (VMS) donde la portabilidad y la estabilidad eran prioridad sobre la velocidad máxima. El <b>HAL</b> existe para que el mismo kernel corra en distinto hardware sin reescribirse, y el <b>Executive</b> separa responsabilidades (memoria, objetos, E/S) en componentes independientes, más fáciles de mantener y depurar. Es la misma razón por la que NT nunca fue un derivado de MS-DOS: se construyó desde cero pensando en niveles bien definidos."
+  },
+  {
+    q:"¿Esto significa que uno es 'mejor' que el otro?",
+    a:"No — son decisiones de diseño con distintos objetivos. Linux favorece flexibilidad y rendimiento en espacio de kernel; NT favorece aislamiento entre capas y portabilidad de hardware. En la práctica, ambos evolucionaron: Linux ahora aísla mucho a través de módulos y namespaces, y Windows optimiza el paso entre capas con mecanismos como <b>syscalls rápidas</b>. La elección real casi siempre depende del ecosistema (drivers, software, licenciamiento), no solo de la arquitectura del núcleo."
+  },
+  {
+    q:"¿Dónde veo esto en la práctica, en la terminal?",
+    a:"En Ubuntu: <b>uname -r</b> muestra la versión del kernel, <b>lsmod</b> lista los módulos cargados en este momento, y <b>dmesg</b> muestra los mensajes que el kernel genera al detectar hardware. En Windows: <b>systeminfo</b> desde PowerShell o CMD muestra la versión de build de NT, y el Administrador de dispositivos muestra cómo el Executive organiza los drivers por categoría."
+  }
+];
+
+document.getElementById('accordion').innerHTML = accData.map((item,i)=>`
+  <div class="acc-item" id="acc-${i}">
+    <button class="acc-trigger" data-i="${i}">
+      <span>${item.q}</span>
+      <span class="plus">+</span>
+    </button>
+    <div class="acc-panel">
+      <div class="acc-panel-inner">${item.a}</div>
+    </div>
+  </div>
+`).join('');
+
+document.querySelectorAll('.acc-trigger').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const item = btn.closest('.acc-item');
+    const panel = item.querySelector('.acc-panel');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.acc-item.open').forEach(o=>{
+      o.classList.remove('open');
+      o.querySelector('.acc-panel').style.maxHeight = null;
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    }
+  });
+});
+
+/* ---------------- Comparison table ---------------- */
+const tableRows = [
+  ["Arquitectura", "Monolítico modular", "Híbrido (microkernel + Executive)"],
+  ["Código fuente", "Abierto — GPL v2", "Cerrado — propietario (Microsoft)"],
+  ["Primer lanzamiento", "1991", "1993 (Windows NT 3.1)"],
+  ["Modularidad", "Módulos cargables en caliente (insmod/rmmod)", "Drivers en modo kernel/usuario (WDM, KMDF)"],
+  ["Planificador", "CFS / EEVDF (desde kernel 6.6)", "Basado en 32 niveles de prioridad, apropiativo"],
+  ["Sistema de archivos nativo", "ext4 (y otros vía VFS: XFS, Btrfs…)", "NTFS (journaling, ACLs, cifrado EFS)"],
+  ["Configuración del sistema", "Archivos de texto plano en /etc", "Registro (Registry), base de datos centralizada"],
+  ["Comunicación con hardware", "Drivers dentro del propio kernel (mayoría)", "HAL + Executive + drivers WDM"],
+  ["Portabilidad", "x86, ARM, RISC-V y muchas más arquitecturas", "Diseñado para portabilidad; hoy x86/ARM"],
+  ["Modelo de distribución", "Múltiples distribuciones gratuitas", "Licencia comercial por versión"],
+];
+
+const table = document.getElementById('compare-table');
+table.innerHTML = `
+  <thead><tr><th>Característica</th><th>🐧 Linux Kernel</th><th>🪟 NT Kernel</th></tr></thead>
+  <tbody>
+    ${tableRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
+  </tbody>
+`;
+</script>
+
+</body>
+</html>
