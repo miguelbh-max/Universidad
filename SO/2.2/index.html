@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2.2 Estados y transiciones de los procesos (Windows) | Sistemas Operativos I</title>
+<title>2.2 Estados y transiciones de los procesos | Sistemas Operativos I</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -18,17 +18,19 @@
     --card:#ffffff;
     --radius:14px;
 
-    /* colores exactos tomados del diagrama original */
+    /* colores del diagrama original (Windows) */
     --zombie:#008381;
-    --zombie-soft:#e0f2f1;
     --ejec:#e695b5;
-    --ejec-soft:#fbeaf1;
     --espera:#ffcd1d;
-    --espera-soft:#fff8e0;
     --parado:#3332cc;
-    --parado-soft:#e8e8fb;
     --listo:#f80000;
-    --listo-soft:#fde3e3;
+
+    /* colores específicos del modo Linux */
+    --running:#d9622f;
+    --stopped:#56636b;
+
+    --linux-accent:#c97e3e;
+    --windows-accent:#3e6b94;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -81,6 +83,31 @@
   .section-head h2{ font-size:clamp(1.4rem,3vw,2rem); }
   .section-head p{ color:var(--ink-soft); margin-top:10px; }
 
+  /* ---------- TOGGLE ---------- */
+  .os-toggle{
+    display:inline-flex; background:var(--card); border:1px solid var(--line);
+    border-radius:999px; padding:4px; gap:4px; margin-bottom:22px;
+  }
+  .os-toggle button{
+    font-family:'IBM Plex Mono', monospace; font-size:13.5px; font-weight:500;
+    border:none; background:transparent; color:var(--ink-soft);
+    padding:10px 20px; border-radius:999px; cursor:pointer; transition:all .25s ease;
+    display:flex; align-items:center; gap:8px;
+  }
+  .os-toggle button .swatch{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .os-toggle button.active{ color:#fff; }
+  .os-toggle button[data-os="windows"].active{ background:var(--windows-accent); }
+  .os-toggle button[data-os="linux"].active{ background:var(--linux-accent); }
+  .os-toggle button:not(.active):hover{ color:var(--ink); }
+
+  .mode-note{
+    font-size:13.5px; color:var(--ink-soft); max-width:640px; margin-bottom:26px;
+    padding:12px 16px; border-left:3px solid var(--line); transition:border-color .3s ease;
+  }
+  .mode-note.windows{ border-color:var(--windows-accent); }
+  .mode-note.linux{ border-color:var(--linux-accent); }
+  .mode-note b{ color:var(--ink); }
+
   /* ---------- DIAGRAM ---------- */
   .diagram-shell{
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
@@ -89,9 +116,10 @@
   .diagram-shell svg{ width:100%; height:auto; display:block; }
 
   .node rect{ stroke:rgba(0,0,0,0.15); stroke-width:1.5; }
-  .node text{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:20px; }
+  .node .n-label{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:18px; }
+  .node .n-sub{ font-family:'IBM Plex Mono', monospace; font-weight:400; font-size:10.5px; opacity:.9; }
   .node{ cursor:default; transition:filter .3s ease; }
-  .node.active rect{ filter: drop-shadow(0 0 0 rgba(0,0,0,0)); stroke:var(--ink); stroke-width:3; }
+  .node.active rect{ stroke:var(--ink); stroke-width:3; }
   .node.active{ filter: drop-shadow(0 6px 14px rgba(20,20,15,0.25)); }
   .node.pulse rect{ animation: pulseNode 0.9s ease; }
   @keyframes pulseNode{
@@ -101,7 +129,7 @@
   .edge-line{ fill:none; stroke:#c9c6ba; stroke-width:2.5; }
   .edge-line.active{ stroke:var(--accent); stroke-width:3.5; }
   .edge-label{
-    font-family:'IBM Plex Mono', monospace; font-size:14px; fill:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace; font-size:13px; fill:var(--ink-soft);
     transition:fill .3s ease, font-weight .3s ease;
   }
   .edge-label.active{ fill:var(--accent); font-weight:600; }
@@ -125,9 +153,7 @@
   .status-line{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); }
   .status-line b{ color:var(--ink); }
 
-  .explorer{
-    margin-top:18px; padding-top:18px; border-top:1px dashed var(--line);
-  }
+  .explorer{ margin-top:18px; padding-top:18px; border-top:1px dashed var(--line); }
   .explorer-label{ font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin-bottom:10px; display:block; }
   .transition-options{ display:flex; gap:10px; flex-wrap:wrap; }
   .t-opt{
@@ -136,6 +162,16 @@
     padding:9px 16px; border-radius:999px; cursor:pointer; transition:all .2s ease;
   }
   .t-opt:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-1px); }
+
+  .check-box{
+    margin-top:18px; padding-top:18px; border-top:1px dashed var(--line);
+    font-size:13px; color:var(--ink-soft);
+  }
+  .check-box code{
+    display:block; margin-top:8px; background:var(--ink); color:var(--bg);
+    padding:12px 14px; border-radius:9px; font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+    overflow-x:auto; white-space:pre;
+  }
 
   /* ---------- CARDS ---------- */
   .cards-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; }
@@ -146,8 +182,8 @@
     padding:18px; transition:transform .2s ease, box-shadow .2s ease;
   }
   .state-card:hover{ transform:translateY(-4px); box-shadow:0 14px 28px -18px rgba(20,20,15,0.28); }
-  .state-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:8px; }
-  .state-card h4{ font-family:'IBM Plex Mono', monospace; font-size:14px; display:flex; align-items:center; margin-bottom:8px; }
+  .state-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:8px; flex-shrink:0; }
+  .state-card h4{ font-family:'IBM Plex Mono', monospace; font-size:13px; display:flex; align-items:center; margin-bottom:8px; }
   .state-card p{ font-size:13px; color:var(--ink-soft); margin:0; }
 
   /* ---------- ACCORDION ---------- */
@@ -202,9 +238,9 @@
 </nav>
 
 <header class="hero wrap">
-  <span class="eyebrow">Unidad 2 · Subtema 2.2 · Modelo de Windows</span>
+  <span class="eyebrow">Unidad 2 · Subtema 2.2</span>
   <h1 class="kinetic" id="kinetic-title"></h1>
-  <p class="lede">Un proceso en Windows no está "corriendo" todo el tiempo: <b>va y viene entre cinco estados</b> según lo que el planificador decide y lo que el propio proceso pide. Explora el diagrama: muévete estado por estado o corre el ciclo de vida completo.</p>
+  <p class="lede">El mismo concepto, visto desde dos sistemas operativos reales: <b>cambia la vista y observa qué se fusiona, qué se divide y qué cambia de nombre.</b> El diagrama, las tarjetas y la tabla se actualizan solos.</p>
 </header>
 
 <section class="section" id="diagram">
@@ -212,14 +248,21 @@
     <div class="section-head">
       <span class="tag">Diagrama interactivo</span>
       <h2>Estados y transiciones</h2>
-      <p>Basado en el diagrama clásico de estados de proceso en Windows. Los colores de los estados son los originales del diagrama de referencia.</p>
+      <p>Explora cómo cada sistema operativo modela el ciclo de vida de un proceso.</p>
     </div>
+
+    <div class="os-toggle" id="os-toggle">
+      <button data-os="windows" class="active"><span class="swatch" style="background:var(--windows-accent)"></span>Ver como Windows</button>
+      <button data-os="linux"><span class="swatch" style="background:var(--linux-accent)"></span>Ver como Ubuntu / Linux</button>
+    </div>
+
+    <div class="mode-note windows" id="mode-note"></div>
 
     <div class="diagram-shell">
       <div class="diagram-controls">
         <button class="btn" id="run-tour">Reproducir ciclo de vida completo</button>
-        <button class="btn ghost" id="reset-btn">Reiniciar en Listo</button>
-        <span class="status-line" id="status-line">estado actual: <b id="current-state-label">Listo</b></span>
+        <button class="btn ghost" id="reset-btn">Reiniciar</button>
+        <span class="status-line" id="status-line">estado actual: <b id="current-state-label">—</b></span>
       </div>
 
       <svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg">
@@ -232,62 +275,18 @@
           </marker>
         </defs>
 
-        <!-- edges -->
-        <g id="edges">
-          <path id="path-ejec-zombie" class="edge-line" marker-end="url(#arrow)" d="M450,190 L450,106"></path>
-          <path id="path-ejec-espera" class="edge-line" marker-end="url(#arrow)" d="M372,220 C 280,270 200,300 150,338"></path>
-          <path id="path-ejec-parado" class="edge-line" marker-end="url(#arrow)" d="M528,220 C 620,270 700,300 750,338"></path>
-          <path id="path-ejec-listo" class="edge-line" marker-end="url(#arrow)" d="M435,254 L435,478"></path>
-          <path id="path-listo-ejec" class="edge-line" marker-end="url(#arrow)" d="M465,478 L465,254"></path>
-          <path id="path-espera-listo" class="edge-line" marker-end="url(#arrow)" d="M175,398 C 260,440 340,470 385,494"></path>
-          <path id="path-parado-listo" class="edge-line" marker-end="url(#arrow)" d="M725,398 C 640,440 560,470 515,494"></path>
-        </g>
-
-        <!-- edge labels -->
-        <g id="edge-labels">
-          <text class="edge-label" data-edge="path-ejec-zombie" x="465" y="150">Finalizar</text>
-          <text class="edge-label" data-edge="path-ejec-espera" x="205" y="270" text-anchor="end">Dormir</text>
-          <text class="edge-label" data-edge="path-ejec-parado" x="695" y="270">Dormir</text>
-          <text class="edge-label" data-edge="path-ejec-listo" x="345" y="370" text-anchor="end">Desalojar</text>
-          <text class="edge-label" data-edge="path-listo-ejec" x="560" y="370">Despachar</text>
-          <text class="edge-label" data-edge="path-espera-listo" x="230" y="470">Despertar</text>
-          <text class="edge-label" data-edge="path-parado-listo" x="670" y="470" text-anchor="end">Despertar</text>
-        </g>
-
-        <!-- traveler dot -->
+        <g id="edges"></g>
+        <g id="edge-labels"></g>
         <circle id="traveler" class="traveler" r="9"></circle>
-
-        <!-- nodes -->
-        <g class="node" id="node-zombie" data-color="var(--zombie)">
-          <rect x="360" y="42" width="180" height="64" rx="12" fill="var(--zombie)"></rect>
-          <text x="450" y="82" text-anchor="middle" fill="#ffffff">Zombie</text>
-        </g>
-
-        <g class="node" id="node-ejecucion" data-color="var(--ejec)">
-          <rect x="360" y="192" width="180" height="64" rx="12" fill="var(--ejec)"></rect>
-          <text x="450" y="232" text-anchor="middle" fill="#3a1626">Ejecución</text>
-        </g>
-
-        <g class="node" id="node-espera" data-color="var(--espera)">
-          <rect x="60" y="340" width="170" height="64" rx="12" fill="var(--espera)"></rect>
-          <text x="145" y="380" text-anchor="middle" fill="#3a2c00">Espera</text>
-        </g>
-
-        <g class="node" id="node-parado" data-color="var(--parado)">
-          <rect x="670" y="340" width="170" height="64" rx="12" fill="var(--parado)"></rect>
-          <text x="755" y="380" text-anchor="middle" fill="#ffffff">Parado</text>
-        </g>
-
-        <g class="node" id="node-listo" data-color="var(--listo)">
-          <rect x="360" y="480" width="180" height="64" rx="12" fill="var(--listo)"></rect>
-          <text x="450" y="520" text-anchor="middle" fill="#ffffff">Listo</text>
-        </g>
+        <g id="nodes"></g>
       </svg>
 
       <div class="explorer">
         <span class="explorer-label">Transiciones disponibles desde el estado actual</span>
         <div class="transition-options" id="transition-options"></div>
       </div>
+
+      <div class="check-box" id="check-box"></div>
     </div>
   </div>
 </section>
@@ -306,7 +305,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="tag">A fondo</span>
-      <h2>Por qué un proceso necesita cinco estados</h2>
+      <h2>Por qué cada sistema lo modela distinto</h2>
     </div>
     <div class="accordion" id="accordion"></div>
   </div>
@@ -349,54 +348,142 @@
   spans.forEach((s,i)=>{ setTimeout(()=> s.classList.add('in'), 120 + i*110); });
 })();
 
-/* ---------------- Graph data ---------------- */
-const nodes = {
-  zombie:    { el:'node-zombie',    label:'Zombie' },
-  ejecucion: { el:'node-ejecucion', label:'Ejecución' },
-  espera:    { el:'node-espera',    label:'Espera' },
-  parado:    { el:'node-parado',    label:'Parado' },
-  listo:     { el:'node-listo',     label:'Listo' },
+/* ================= MODE DATA ================= */
+const MODES = {
+  windows: {
+    note: 'Modelo académico clásico de 5 estados (el que suele aparecer en libros de texto). No corresponde 1:1 al código fuente de ningún kernel, pero es el más usado para enseñar el concepto.',
+    startNode: 'listo',
+    check: 'PowerShell / CMD:\ntasklist\nGet-Process | Select-Object Name, Id, Responding',
+    nodes: {
+      zombie:    { x:360, y:42,  w:180, h:64, fill:'var(--zombie)', text:'#ffffff', label:'Zombie' },
+      ejecucion: { x:360, y:192, w:180, h:64, fill:'var(--ejec)',   text:'#3a1626', label:'Ejecución' },
+      espera:    { x:60,  y:340, w:170, h:64, fill:'var(--espera)', text:'#3a2c00', label:'Espera' },
+      parado:    { x:670, y:340, w:170, h:64, fill:'var(--parado)', text:'#ffffff', label:'Parado' },
+      listo:     { x:360, y:480, w:180, h:64, fill:'var(--listo)',  text:'#ffffff', label:'Listo' },
+    },
+    edges: [
+      { id:'e1', from:'ejecucion', to:'zombie',  label:'Finalizar', d:'M450,190 L450,106',                              lx:465, ly:150, anchor:'start' },
+      { id:'e2', from:'ejecucion', to:'espera',  label:'Dormir',    d:'M372,220 C 280,270 200,300 150,338',             lx:205, ly:270, anchor:'end' },
+      { id:'e3', from:'ejecucion', to:'parado',  label:'Dormir',    d:'M528,220 C 620,270 700,300 750,338',             lx:695, ly:270, anchor:'start' },
+      { id:'e4', from:'ejecucion', to:'listo',   label:'Desalojar', d:'M435,254 L435,478',                              lx:345, ly:370, anchor:'end' },
+      { id:'e5', from:'listo',     to:'ejecucion', label:'Despachar', d:'M465,478 L465,254',                            lx:560, ly:370, anchor:'start' },
+      { id:'e6', from:'espera',    to:'listo',   label:'Despertar', d:'M175,398 C 260,440 340,470 385,494',             lx:230, ly:470, anchor:'start' },
+      { id:'e7', from:'parado',    to:'listo',   label:'Despertar', d:'M725,398 C 640,440 560,470 515,494',             lx:670, ly:470, anchor:'end' },
+    ],
+    tour: ['e5','e4','e5','e2','e6','e5','e3','e7','e5','e1'],
+    stateInfo: [
+      { color:'var(--listo)', name:'Listo', desc:'El proceso tiene todo lo que necesita para ejecutarse y solo espera su turno de CPU.' },
+      { color:'var(--ejec)', name:'Ejecución', desc:'El proceso está usando la CPU en este instante. Solo uno por núcleo a la vez.' },
+      { color:'var(--espera)', name:'Espera', desc:'El proceso se bloqueó esperando un evento (E/S, un recurso, una señal) y no puede avanzar.' },
+      { color:'var(--parado)', name:'Parado', desc:'El proceso fue suspendido externamente (por ejemplo, el usuario o el sistema lo pausó).' },
+      { color:'var(--zombie)', name:'Zombie', desc:'El proceso terminó, pero su información sigue en la tabla de procesos hasta que el padre la recoja.' },
+    ],
+    tableRows: [
+      ["Listo &rarr; Ejecución", "Despachar", "El planificador elige este proceso y le asigna la CPU."],
+      ["Ejecución &rarr; Listo", "Desalojar", "Se le retira la CPU sin que el proceso lo pida (prioridad mayor o fin de quantum)."],
+      ["Ejecución &rarr; Espera", "Dormir", "El proceso pide un recurso o evento que no está disponible de inmediato."],
+      ["Ejecución &rarr; Parado", "Dormir", "El proceso es suspendido externamente mientras se ejecutaba."],
+      ["Espera &rarr; Listo", "Despertar", "El evento o recurso esperado ya está disponible."],
+      ["Parado &rarr; Listo", "Despertar", "El proceso suspendido se reanuda y vuelve a competir por CPU."],
+      ["Ejecución &rarr; Zombie", "Finalizar", "El proceso terminó y solo falta que el padre recoja su código de salida."],
+    ],
+  },
+
+  linux: {
+    note: 'Estados reales del planificador de Linux (campo state de task_struct en el kernel). Listo y Ejecución se fusionan en uno solo, y "Dormir" se divide en dos variantes según si la espera puede interrumpirse.',
+    startNode: 'running',
+    check: 'Ubuntu / bash:\nps -eo pid,stat,comm\ncat /proc/<PID>/status | grep State',
+    nodes: {
+      zombie:         { x:360, y:42,  w:180, h:64, fill:'var(--zombie)',   text:'#ffffff', label:'EXIT_ZOMBIE', sub:'código: Z' },
+      running:        { x:360, y:192, w:180, h:64, fill:'var(--running)',  text:'#ffffff', label:'TASK_RUNNING', sub:'Listo + Ejecución · R' },
+      interruptible:  { x:60,  y:340, w:170, h:64, fill:'var(--espera)',   text:'#3a2c00', label:'INTERRUPTIBLE', sub:'código: S' },
+      uninterruptible:{ x:670, y:340, w:170, h:64, fill:'var(--parado)',   text:'#ffffff', label:'UNINTERRUPTIBLE', sub:'código: D' },
+      stopped:        { x:360, y:480, w:180, h:64, fill:'var(--stopped)',  text:'#ffffff', label:'__TASK_STOPPED', sub:'código: T' },
+    },
+    edges: [
+      { id:'l1', from:'running', to:'zombie',          label:'exit()',              d:'M450,190 L450,106',                    lx:465, ly:150, anchor:'start' },
+      { id:'l2', from:'running', to:'interruptible',   label:'sleep interruptible', d:'M372,220 C 280,270 200,300 150,338',   lx:205, ly:262, anchor:'end' },
+      { id:'l3', from:'interruptible', to:'running',   label:'wake_up / señal',     d:'M170,368 C 250,330 320,290 380,248',   lx:245, ly:392, anchor:'end' },
+      { id:'l4', from:'running', to:'uninterruptible', label:'E/S bloqueante',      d:'M528,220 C 620,270 700,300 750,338',   lx:695, ly:262, anchor:'start' },
+      { id:'l5', from:'uninterruptible', to:'running', label:'E/S completa',        d:'M730,368 C 650,330 580,290 520,248',   lx:655, ly:392, anchor:'start' },
+      { id:'l6', from:'running', to:'stopped',         label:'SIGSTOP',             d:'M435,254 L435,478',                    lx:345, ly:370, anchor:'end' },
+      { id:'l7', from:'stopped', to:'running',         label:'SIGCONT',             d:'M465,478 L465,254',                    lx:560, ly:370, anchor:'start' },
+    ],
+    tour: ['l2','l3','l4','l5','l6','l7','l1'],
+    stateInfo: [
+      { color:'var(--running)', name:'TASK_RUNNING (R)', desc:'Listo y en ejecución son el mismo estado: el proceso puede estar usando la CPU o solo esperando su turno en la cola del planificador.' },
+      { color:'var(--espera)', name:'INTERRUPTIBLE (S)', desc:'Espera un evento (E/S, socket, semáforo) pero puede despertarse antes por una señal. Es el estado más común de espera.' },
+      { color:'var(--parado)', name:'UNINTERRUPTIBLE (D)', desc:'Espera una operación de bajo nivel (típicamente disco) que no se puede interrumpir ni con una señal.' },
+      { color:'var(--stopped)', name:'__TASK_STOPPED (T)', desc:'El proceso fue detenido explícitamente, normalmente por SIGSTOP o Ctrl+Z en una terminal.' },
+      { color:'var(--zombie)', name:'EXIT_ZOMBIE (Z)', desc:'El proceso terminó, pero su entrada sigue en la tabla de procesos hasta que el padre la recoja con wait().' },
+    ],
+    tableRows: [
+      ["Running &rarr; Interruptible", "sleep interruptible", "El proceso pide un recurso y puede ser interrumpido por una señal mientras espera."],
+      ["Interruptible &rarr; Running", "wake_up / señal", "El evento llega o el proceso recibe una señal."],
+      ["Running &rarr; Uninterruptible", "E/S bloqueante", "El proceso espera una operación de bajo nivel (disco) que no puede interrumpirse."],
+      ["Uninterruptible &rarr; Running", "E/S completa", "La operación de hardware termina."],
+      ["Running &rarr; Stopped", "SIGSTOP", "El proceso recibe la señal de detención (o Ctrl+Z)."],
+      ["Stopped &rarr; Running", "SIGCONT", "El proceso recibe la señal de continuar."],
+      ["Running &rarr; Zombie", "exit()", "El proceso termina; su información queda hasta que el padre llama wait()."],
+    ],
+  }
 };
 
-const edges = [
-  { id:'path-ejec-zombie',  from:'ejecucion', to:'zombie',    label:'Finalizar' },
-  { id:'path-ejec-espera',  from:'ejecucion', to:'espera',    label:'Dormir' },
-  { id:'path-ejec-parado',  from:'ejecucion', to:'parado',    label:'Dormir' },
-  { id:'path-ejec-listo',   from:'ejecucion', to:'listo',     label:'Desalojar' },
-  { id:'path-listo-ejec',   from:'listo',     to:'ejecucion', label:'Despachar' },
-  { id:'path-espera-listo', from:'espera',    to:'listo',     label:'Despertar' },
-  { id:'path-parado-listo', from:'parado',    to:'listo',     label:'Despertar' },
-];
+/* ================= STATE ================= */
+let currentOS = 'windows';
+let nodes, edges, current, animating = false;
 
-const tour = [
-  'path-listo-ejec', 'path-ejec-listo', 'path-listo-ejec',
-  'path-ejec-espera', 'path-espera-listo', 'path-listo-ejec',
-  'path-ejec-parado', 'path-parado-listo', 'path-listo-ejec',
-  'path-ejec-zombie'
-];
-
-let current = 'listo';
-let animating = false;
 const traveler = document.getElementById('traveler');
 const currentLabel = document.getElementById('current-state-label');
 const statusLine = document.getElementById('status-line');
 const runTourBtn = document.getElementById('run-tour');
 const resetBtn = document.getElementById('reset-btn');
+const nodesG = document.getElementById('nodes');
+const edgesG = document.getElementById('edges');
+const labelsG = document.getElementById('edge-labels');
 
+/* ================= RENDER DIAGRAM ================= */
+function renderDiagram(){
+  const data = MODES[currentOS];
+  nodes = data.nodes;
+  edges = data.edges;
+
+  edgesG.innerHTML = edges.map(e => `<path id="${e.id}" class="edge-line" marker-end="url(#arrow)" d="${e.d}"></path>`).join('');
+  labelsG.innerHTML = edges.map(e => `<text class="edge-label" data-edge="${e.id}" x="${e.lx}" y="${e.ly}" text-anchor="${e.anchor}">${e.label}</text>`).join('');
+
+  nodesG.innerHTML = Object.entries(nodes).map(([key, n]) => {
+    const cx = n.x + n.w/2;
+    const labelY = n.sub ? n.y + n.h/2 - 6 : n.y + n.h/2 + 6;
+    const subRow = n.sub ? `<text class="n-sub" x="${cx}" y="${n.y + n.h/2 + 16}" text-anchor="middle" fill="${n.text}">${n.sub}</text>` : '';
+    return `
+      <g class="node" id="node-${key}" data-key="${key}">
+        <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="12" fill="${n.fill}"></rect>
+        <text class="n-label" x="${cx}" y="${labelY}" text-anchor="middle" fill="${n.text}">${n.label}</text>
+        ${subRow}
+      </g>`;
+  }).join('');
+
+  current = data.startNode;
+  setActiveNode(current, true);
+}
+
+/* ================= INTERACTION ================= */
 function clearActive(){
   document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.edge-line').forEach(e => { e.classList.remove('active'); e.setAttribute('marker-end','url(#arrow)'); });
   document.querySelectorAll('.edge-label').forEach(l => l.classList.remove('active'));
 }
 
-function setActiveNode(nodeKey){
+function setActiveNode(nodeKey, silent){
   clearActive();
-  const nodeEl = document.getElementById(nodes[nodeKey].el);
+  const nodeEl = document.getElementById('node-' + nodeKey);
+  if(!nodeEl) return;
   nodeEl.classList.add('active');
   nodeEl.classList.remove('pulse'); void nodeEl.offsetWidth; nodeEl.classList.add('pulse');
   currentLabel.textContent = nodes[nodeKey].label;
   current = nodeKey;
   renderOptions();
+  if(silent) statusLine.innerHTML = 'estado actual: <b id="current-state-label">' + nodes[nodeKey].label + '</b>';
 }
 
 function renderOptions(){
@@ -421,11 +508,11 @@ function animateEdge(edge, onDone){
   runTourBtn.disabled = true; resetBtn.disabled = true;
   document.querySelectorAll('.t-opt').forEach(b => b.disabled = true);
 
-  const path = document.getElementById(edge.id);
-  const line = path;
+  const line = document.getElementById(edge.id);
   line.classList.add('active');
   line.setAttribute('marker-end','url(#arrow-active)');
-  document.querySelector(`.edge-label[data-edge="${edge.id}"]`).classList.add('active');
+  const labelEl = document.querySelector(`.edge-label[data-edge="${edge.id}"]`);
+  if(labelEl) labelEl.classList.add('active');
   statusLine.innerHTML = 'transición: <b>' + edge.label + '</b> (' + nodes[edge.from].label + ' &rarr; ' + nodes[edge.to].label + ')';
 
   const len = line.getTotalLength();
@@ -452,19 +539,19 @@ function animateEdge(edge, onDone){
 
 resetBtn.addEventListener('click', ()=>{
   if(animating) return;
-  setActiveNode('listo');
-  statusLine.innerHTML = 'estado actual: <b id="current-state-label">Listo</b>';
+  setActiveNode(MODES[currentOS].startNode, true);
 });
 
 runTourBtn.addEventListener('click', ()=>{
   if(animating) return;
-  setActiveNode('listo');
+  setActiveNode(MODES[currentOS].startNode, true);
+  const tour = MODES[currentOS].tour;
   let i = 0;
   runTourBtn.disabled = true;
   function step(){
     if(i >= tour.length){
       runTourBtn.disabled = false;
-      statusLine.innerHTML = 'recorrido completo — ciclo de vida terminado en <b>Zombie</b>';
+      statusLine.innerHTML = 'recorrido completo';
       return;
     }
     const edge = edges.find(e => e.id === tour[i]);
@@ -477,41 +564,80 @@ runTourBtn.addEventListener('click', ()=>{
   step();
 });
 
-setActiveNode('listo');
+/* ================= MODE-DEPENDENT SECTIONS ================= */
+function renderStateCards(){
+  document.getElementById('state-cards').innerHTML = MODES[currentOS].stateInfo.map(s => `
+    <div class="state-card">
+      <h4><span class="state-dot" style="background:${s.color}"></span>${s.name}</h4>
+      <p>${s.desc}</p>
+    </div>
+  `).join('');
+}
 
-/* ---------------- State cards ---------------- */
-const stateInfo = [
-  { key:'listo', color:'var(--listo)', name:'Listo', desc:'El proceso tiene todo lo que necesita para ejecutarse y solo espera su turno de CPU.' },
-  { key:'ejecucion', color:'var(--ejec)', name:'Ejecución', desc:'El proceso está usando la CPU en este instante. Solo uno por núcleo a la vez.' },
-  { key:'espera', color:'var(--espera)', name:'Espera', desc:'El proceso se bloqueó esperando un evento (E/S, un recurso, una señal) y no puede avanzar.' },
-  { key:'parado', color:'var(--parado)', name:'Parado', desc:'El proceso fue suspendido externamente (por ejemplo, el usuario o el sistema lo pausó).' },
-  { key:'zombie', color:'var(--zombie)', name:'Zombie', desc:'El proceso terminó su ejecución, pero su información sigue en la tabla de procesos hasta que el padre la recoja.' },
-];
+function renderTable(){
+  document.getElementById('compare-table').innerHTML = `
+    <thead><tr><th>Transición</th><th>Disparador</th><th>Qué ocurre</th></tr></thead>
+    <tbody>
+      ${MODES[currentOS].tableRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
+    </tbody>
+  `;
+}
 
-document.getElementById('state-cards').innerHTML = stateInfo.map(s => `
-  <div class="state-card">
-    <h4><span class="state-dot" style="background:${s.color}"></span>${s.name}</h4>
-    <p>${s.desc}</p>
-  </div>
-`).join('');
+function renderNote(){
+  const note = document.getElementById('mode-note');
+  note.textContent = MODES[currentOS].note;
+  note.classList.remove('windows','linux');
+  note.classList.add(currentOS);
+}
 
-/* ---------------- Accordion ---------------- */
+function renderCheckBox(){
+  document.getElementById('check-box').innerHTML =
+    'Cómpruebalo tú mismo:<code>' + MODES[currentOS].check + '</code>';
+}
+
+/* ================= TOGGLE ================= */
+document.querySelectorAll('#os-toggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(animating || btn.classList.contains('active')) return;
+    currentOS = btn.dataset.os;
+    document.querySelectorAll('#os-toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderDiagram();
+    renderStateCards();
+    renderTable();
+    renderNote();
+    renderCheckBox();
+  });
+});
+
+/* ================= INIT ================= */
+renderDiagram();
+renderStateCards();
+renderTable();
+renderNote();
+renderCheckBox();
+
+/* ---------------- Accordion (contenido general, aplica a ambos modos) ---------------- */
 const accData = [
   {
     q:"¿Por qué no basta con 'corriendo' y 'no corriendo'?",
-    a:"Porque un proceso puede estar detenido por razones muy distintas: a veces está listo pero esperando su turno (<b>Listo</b>), a veces está bloqueado porque necesita algo externo como un archivo o un dato de red (<b>Espera</b>), y a veces alguien lo pausó a propósito (<b>Parado</b>). Separar estos casos le permite al planificador tomar mejores decisiones: no tiene sentido darle CPU a un proceso que está esperando un disco lento."
+    a:"Porque un proceso puede estar detenido por razones muy distintas: a veces está listo pero esperando su turno, a veces está bloqueado porque necesita algo externo, y a veces alguien lo pausó a propósito. Separar estos casos le permite al planificador tomar mejores decisiones: no tiene sentido darle CPU a un proceso que está esperando un disco lento."
+  },
+  {
+    q:"¿Por qué Linux fusiona Listo y Ejecución en un solo estado?",
+    a:"Porque a nivel del kernel, la diferencia entre 'quiere correr y le toca' y 'quiere correr y espera su turno' no es una propiedad del proceso — es una decisión del planificador (scheduler), que mantiene su propia cola de ejecución (<b>runqueue</b>) por fuera del campo <b>state</b> del proceso. El proceso solo necesita saber 'quiero correr' (<b>TASK_RUNNING</b>); quién le toca ahora es un detalle interno del planificador, no un estado visible."
+  },
+  {
+    q:"¿Cuál es la diferencia real entre S (interruptible) y D (uninterruptible)?",
+    a:"Ambos son 'Espera', pero difieren en si el proceso puede reaccionar a una señal mientras espera. En <b>TASK_INTERRUPTIBLE (S)</b> —la mayoría de las esperas normales— el proceso puede despertarse antes por una señal, por ejemplo si el usuario lo mata con Ctrl+C. En <b>TASK_UNINTERRUPTIBLE (D)</b> el kernel considera que interrumpir la espera dejaría datos en un estado inconsistente (típico en operaciones directas de disco), así que ni siquiera <b>kill -9</b> puede sacarlo de ahí hasta que la operación de hardware termine."
   },
   {
     q:"¿Qué es exactamente un proceso 'Zombie'?",
-    a:"Cuando un proceso termina, el sistema operativo no borra inmediatamente todo rastro de él: guarda su código de salida y estadísticas básicas en la tabla de procesos hasta que el proceso padre los lea (por ejemplo con <b>wait()</b> en sistemas tipo Unix, o consultando el código de salida en Windows). Mientras eso no pase, el proceso existe como 'cascarón' — de ahí el nombre zombie."
+    a:"Cuando un proceso termina, el sistema operativo no borra inmediatamente todo rastro de él: guarda su código de salida en la tabla de procesos hasta que el proceso padre lo lea (con <b>wait()</b> en Linux, o consultando el código de salida en Windows). Mientras eso no pase, el proceso existe como 'cascarón' — de ahí el nombre zombie, que originalmente es terminología de Unix."
   },
   {
     q:"¿Despachar y Desalojar son lo mismo al revés?",
-    a:"Son opuestos, pero no simétricos en quién decide. <b>Despachar</b> ocurre cuando el planificador elige a un proceso Listo y le da la CPU. <b>Desalojar</b> ocurre cuando el planificador le quita la CPU a un proceso que sigue queriendo ejecutarse (por ejemplo, porque llegó uno de mayor prioridad o se acabó su quantum de tiempo) y lo regresa a Listo — el proceso no lo pidió."
-  },
-  {
-    q:"¿Linux tiene un modelo parecido?",
-    a:"Sí, aunque con nombres distintos en su código fuente: <b>TASK_RUNNING</b> (listo o ejecutando — Linux no los separa a nivel de estado del proceso), <b>TASK_INTERRUPTIBLE</b> y <b>TASK_UNINTERRUPTIBLE</b> (equivalentes a Espera), <b>TASK_STOPPED</b> (equivalente a Parado) y <b>EXIT_ZOMBIE</b> (idéntico en concepto al Zombie de este diagrama). La idea de fondo — separar 'quiere correr', 'está corriendo', 'está bloqueado' y 'ya terminó pero no se ha limpiado' — es universal en sistemas operativos modernos."
+    a:"Son opuestos, pero no simétricos en quién decide. <b>Despachar</b> ocurre cuando el planificador elige a un proceso Listo y le da la CPU. <b>Desalojar</b> ocurre cuando el planificador le quita la CPU a un proceso que sigue queriendo ejecutarse y lo regresa a Listo — el proceso no lo pidió. En Linux este vaivén ocurre todo el tiempo dentro del propio estado <b>TASK_RUNNING</b>, sin que el proceso 'salga' de él."
   }
 ];
 
@@ -542,24 +668,6 @@ document.querySelectorAll('.acc-trigger').forEach(btn=>{
     }
   });
 });
-
-/* ---------------- Table ---------------- */
-const tableRows = [
-  ["Listo &rarr; Ejecución", "Despachar", "El planificador elige este proceso y le asigna la CPU."],
-  ["Ejecución &rarr; Listo", "Desalojar", "Se le retira la CPU sin que el proceso lo pida (prioridad mayor o fin de quantum)."],
-  ["Ejecución &rarr; Espera", "Dormir", "El proceso pide un recurso o evento que no está disponible de inmediato."],
-  ["Ejecución &rarr; Parado", "Dormir", "El proceso es suspendido externamente mientras se ejecutaba."],
-  ["Espera &rarr; Listo", "Despertar", "El evento o recurso esperado ya está disponible."],
-  ["Parado &rarr; Listo", "Despertar", "El proceso suspendido se reanuda y vuelve a competir por CPU."],
-  ["Ejecución &rarr; Zombie", "Finalizar", "El proceso terminó su ejecución y solo falta que el padre recoja su código de salida."],
-];
-
-document.getElementById('compare-table').innerHTML = `
-  <thead><tr><th>Transición</th><th>Disparador</th><th>Qué ocurre</th></tr></thead>
-  <tbody>
-    ${tableRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
-  </tbody>
-`;
 </script>
 
 </body>
