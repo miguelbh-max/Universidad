@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.2 Estados y transiciones de los procesos (Windows) | Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf9f5;
+    --ink:#14140f;
+    --ink-soft:#4a4a42;
+    --accent:#2f5d50;
+    --accent-soft:#e7efec;
+    --line:#e4e1d8;
+    --card:#ffffff;
+    --radius:14px;
+
+    /* colores exactos tomados del diagrama original */
+    --zombie:#008381;
+    --zombie-soft:#e0f2f1;
+    --ejec:#e695b5;
+    --ejec-soft:#fbeaf1;
+    --espera:#ffcd1d;
+    --espera-soft:#fff8e0;
+    --parado:#3332cc;
+    --parado-soft:#e8e8fb;
+    --listo:#f80000;
+    --listo-soft:#fde3e3;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0; letter-spacing:-0.01em; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:0 24px; }
+  a{ color:inherit; }
+
+  nav.top{
+    position:sticky; top:0; z-index:50;
+    background:rgba(250,249,245,0.9); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.top .wrap{ display:flex; align-items:center; justify-content:space-between; padding:14px 24px; }
+  .brand{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); text-decoration:none; }
+  .brand b{ color:var(--accent); }
+  .back-link{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-decoration:none; color:var(--ink);
+    border:1px solid var(--line); padding:7px 12px; border-radius:999px; transition:all .2s ease;
+  }
+  .back-link:hover{ border-color:var(--accent); color:var(--accent); }
+
+  .hero{ padding:90px 0 50px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--accent);
+    text-transform:uppercase; letter-spacing:.12em; margin-bottom:18px; display:block;
+  }
+  .kinetic{ font-size:clamp(2rem, 5.6vw, 3.9rem); font-weight:700; line-height:1.08; max-width:820px; }
+  .kinetic span{
+    display:inline-block; filter: blur(6px); opacity:0;
+    font-variation-settings:'wght' 300; transform: translateY(8px);
+    transition: filter .6s ease, opacity .6s ease, transform .6s ease, font-variation-settings .6s ease;
+  }
+  .kinetic span.in{ filter: blur(0); opacity:1; transform:translateY(0); font-variation-settings:'wght' 700; }
+  .kinetic .accent-word{ color:var(--accent); }
+  .hero p.lede{ max-width:660px; margin-top:22px; font-size:1.05rem; color:var(--ink-soft); }
+  .hero p.lede b{ color:var(--ink); }
+
+  .section{ padding:60px 0; border-top:1px solid var(--line); }
+  .section-head{ margin-bottom:30px; max-width:700px; }
+  .section-head .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; display:block;
+  }
+  .section-head h2{ font-size:clamp(1.4rem,3vw,2rem); }
+  .section-head p{ color:var(--ink-soft); margin-top:10px; }
+
+  /* ---------- DIAGRAM ---------- */
+  .diagram-shell{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; overflow:hidden;
+  }
+  .diagram-shell svg{ width:100%; height:auto; display:block; }
+
+  .node rect{ stroke:rgba(0,0,0,0.15); stroke-width:1.5; }
+  .node text{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:20px; }
+  .node{ cursor:default; transition:filter .3s ease; }
+  .node.active rect{ filter: drop-shadow(0 0 0 rgba(0,0,0,0)); stroke:var(--ink); stroke-width:3; }
+  .node.active{ filter: drop-shadow(0 6px 14px rgba(20,20,15,0.25)); }
+  .node.pulse rect{ animation: pulseNode 0.9s ease; }
+  @keyframes pulseNode{
+    0%{ transform:scale(1); } 40%{ transform:scale(1.06); } 100%{ transform:scale(1); }
+  }
+
+  .edge-line{ fill:none; stroke:#c9c6ba; stroke-width:2.5; }
+  .edge-line.active{ stroke:var(--accent); stroke-width:3.5; }
+  .edge-label{
+    font-family:'IBM Plex Mono', monospace; font-size:14px; fill:var(--ink-soft);
+    transition:fill .3s ease, font-weight .3s ease;
+  }
+  .edge-label.active{ fill:var(--accent); font-weight:600; }
+  .traveler{ fill:var(--accent); opacity:0; }
+  .traveler.on{ opacity:1; }
+
+  .diagram-controls{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:20px;
+  }
+  .btn{
+    font-family:'IBM Plex Mono', monospace; font-size:13.5px; background:var(--ink); color:var(--bg);
+    border:none; padding:12px 22px; border-radius:999px; cursor:pointer;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); background:var(--accent); }
+  .btn:active{ transform:translateY(0); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+  .btn.ghost{ background:transparent; color:var(--ink); border:1px solid var(--line); }
+  .btn.ghost:hover{ background:var(--accent-soft); color:var(--accent); border-color:var(--accent); }
+
+  .status-line{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); }
+  .status-line b{ color:var(--ink); }
+
+  .explorer{
+    margin-top:18px; padding-top:18px; border-top:1px dashed var(--line);
+  }
+  .explorer-label{ font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin-bottom:10px; display:block; }
+  .transition-options{ display:flex; gap:10px; flex-wrap:wrap; }
+  .t-opt{
+    font-family:'IBM Plex Mono', monospace; font-size:13px;
+    border:1px solid var(--line); background:var(--bg); color:var(--ink);
+    padding:9px 16px; border-radius:999px; cursor:pointer; transition:all .2s ease;
+  }
+  .t-opt:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-1px); }
+
+  /* ---------- CARDS ---------- */
+  .cards-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; }
+  @media (max-width:920px){ .cards-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .cards-grid{ grid-template-columns:1fr; } }
+  .state-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .state-card:hover{ transform:translateY(-4px); box-shadow:0 14px 28px -18px rgba(20,20,15,0.28); }
+  .state-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:8px; }
+  .state-card h4{ font-family:'IBM Plex Mono', monospace; font-size:14px; display:flex; align-items:center; margin-bottom:8px; }
+  .state-card p{ font-size:13px; color:var(--ink-soft); margin:0; }
+
+  /* ---------- ACCORDION ---------- */
+  .accordion{ border-top:1px solid var(--line); }
+  .acc-item{ border-bottom:1px solid var(--line); }
+  .acc-trigger{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:20px;
+    padding:20px 4px; background:none; border:none; cursor:pointer; text-align:left;
+    font-family:'Space Grotesk', sans-serif; font-size:1.05rem; color:var(--ink);
+  }
+  .acc-trigger .plus{ font-family:'IBM Plex Mono', monospace; font-size:20px; color:var(--accent); transition:transform .3s ease; flex-shrink:0; }
+  .acc-item.open .plus{ transform:rotate(45deg); }
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .acc-panel-inner{ padding:0 4px 22px; color:var(--ink-soft); font-size:14.5px; max-width:760px; }
+  .acc-panel-inner b{ color:var(--ink); }
+
+  /* ---------- TABLE ---------- */
+  table{
+    width:100%; border-collapse:collapse; font-size:13.5px; background:var(--card);
+    border-radius:var(--radius); overflow:hidden; border:1px solid var(--line);
+  }
+  thead th{
+    text-align:left; font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase;
+    letter-spacing:.06em; background:var(--ink); color:var(--bg); padding:13px 16px;
+  }
+  tbody td{ padding:13px 16px; border-top:1px solid var(--line); vertical-align:top; }
+  tbody tr:nth-child(even){ background:var(--accent-soft); }
+  tbody td:first-child{ font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); white-space:nowrap; }
+
+  footer{ padding:50px 0 70px; border-top:1px solid var(--line); }
+  .foot-nav{ display:flex; gap:14px; flex-wrap:wrap; margin-top:18px; }
+  .foot-nav a{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-decoration:none;
+    border:1px solid var(--line); padding:9px 14px; border-radius:999px; transition:all .2s ease;
+  }
+  .foot-nav a:hover{ border-color:var(--accent); color:var(--accent); }
+  footer p{ color:var(--ink-soft); font-size:13px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+    .kinetic span{ opacity:1; filter:none; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><b>SO</b> · 2.2 Estados de procesos</a>
+    <a class="back-link" href="../../1.4/index.html">&larr; Ver Unidad 1</a>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <span class="eyebrow">Unidad 2 · Subtema 2.2 · Modelo de Windows</span>
+  <h1 class="kinetic" id="kinetic-title"></h1>
+  <p class="lede">Un proceso en Windows no está "corriendo" todo el tiempo: <b>va y viene entre cinco estados</b> según lo que el planificador decide y lo que el propio proceso pide. Explora el diagrama: muévete estado por estado o corre el ciclo de vida completo.</p>
+</header>
+
+<section class="section" id="diagram">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Diagrama interactivo</span>
+      <h2>Estados y transiciones</h2>
+      <p>Basado en el diagrama clásico de estados de proceso en Windows. Los colores de los estados son los originales del diagrama de referencia.</p>
+    </div>
+
+    <div class="diagram-shell">
+      <div class="diagram-controls">
+        <button class="btn" id="run-tour">Reproducir ciclo de vida completo</button>
+        <button class="btn ghost" id="reset-btn">Reiniciar en Listo</button>
+        <span class="status-line" id="status-line">estado actual: <b id="current-state-label">Listo</b></span>
+      </div>
+
+      <svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#c9c6ba"></path>
+          </marker>
+          <marker id="arrow-active" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#2f5d50"></path>
+          </marker>
+        </defs>
+
+        <!-- edges -->
+        <g id="edges">
+          <path id="path-ejec-zombie" class="edge-line" marker-end="url(#arrow)" d="M450,190 L450,106"></path>
+          <path id="path-ejec-espera" class="edge-line" marker-end="url(#arrow)" d="M372,220 C 280,270 200,300 150,338"></path>
+          <path id="path-ejec-parado" class="edge-line" marker-end="url(#arrow)" d="M528,220 C 620,270 700,300 750,338"></path>
+          <path id="path-ejec-listo" class="edge-line" marker-end="url(#arrow)" d="M435,254 L435,478"></path>
+          <path id="path-listo-ejec" class="edge-line" marker-end="url(#arrow)" d="M465,478 L465,254"></path>
+          <path id="path-espera-listo" class="edge-line" marker-end="url(#arrow)" d="M175,398 C 260,440 340,470 385,494"></path>
+          <path id="path-parado-listo" class="edge-line" marker-end="url(#arrow)" d="M725,398 C 640,440 560,470 515,494"></path>
+        </g>
+
+        <!-- edge labels -->
+        <g id="edge-labels">
+          <text class="edge-label" data-edge="path-ejec-zombie" x="465" y="150">Finalizar</text>
+          <text class="edge-label" data-edge="path-ejec-espera" x="205" y="270" text-anchor="end">Dormir</text>
+          <text class="edge-label" data-edge="path-ejec-parado" x="695" y="270">Dormir</text>
+          <text class="edge-label" data-edge="path-ejec-listo" x="345" y="370" text-anchor="end">Desalojar</text>
+          <text class="edge-label" data-edge="path-listo-ejec" x="560" y="370">Despachar</text>
+          <text class="edge-label" data-edge="path-espera-listo" x="230" y="470">Despertar</text>
+          <text class="edge-label" data-edge="path-parado-listo" x="670" y="470" text-anchor="end">Despertar</text>
+        </g>
+
+        <!-- traveler dot -->
+        <circle id="traveler" class="traveler" r="9"></circle>
+
+        <!-- nodes -->
+        <g class="node" id="node-zombie" data-color="var(--zombie)">
+          <rect x="360" y="42" width="180" height="64" rx="12" fill="var(--zombie)"></rect>
+          <text x="450" y="82" text-anchor="middle" fill="#ffffff">Zombie</text>
+        </g>
+
+        <g class="node" id="node-ejecucion" data-color="var(--ejec)">
+          <rect x="360" y="192" width="180" height="64" rx="12" fill="var(--ejec)"></rect>
+          <text x="450" y="232" text-anchor="middle" fill="#3a1626">Ejecución</text>
+        </g>
+
+        <g class="node" id="node-espera" data-color="var(--espera)">
+          <rect x="60" y="340" width="170" height="64" rx="12" fill="var(--espera)"></rect>
+          <text x="145" y="380" text-anchor="middle" fill="#3a2c00">Espera</text>
+        </g>
+
+        <g class="node" id="node-parado" data-color="var(--parado)">
+          <rect x="670" y="340" width="170" height="64" rx="12" fill="var(--parado)"></rect>
+          <text x="755" y="380" text-anchor="middle" fill="#ffffff">Parado</text>
+        </g>
+
+        <g class="node" id="node-listo" data-color="var(--listo)">
+          <rect x="360" y="480" width="180" height="64" rx="12" fill="var(--listo)"></rect>
+          <text x="450" y="520" text-anchor="middle" fill="#ffffff">Listo</text>
+        </g>
+      </svg>
+
+      <div class="explorer">
+        <span class="explorer-label">Transiciones disponibles desde el estado actual</span>
+        <div class="transition-options" id="transition-options"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="states">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Ficha de estados</span>
+      <h2>Qué significa cada estado</h2>
+    </div>
+    <div class="cards-grid" id="state-cards"></div>
+  </div>
+</section>
+
+<section class="section" id="deep">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">A fondo</span>
+      <h2>Por qué un proceso necesita cinco estados</h2>
+    </div>
+    <div class="accordion" id="accordion"></div>
+  </div>
+</section>
+
+<section class="section" id="table-section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Referencia</span>
+      <h2>Tabla de transiciones</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="compare-table"></table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Sigue explorando el curso</h3>
+    <div class="foot-nav">
+      <a href="../../1.4/index.html">1.4 Clasificación de los SO</a>
+      <a href="../../1.4/1.4.1/index.html">1.4.1 Clasificación (tipografía cinética)</a>
+      <a href="../../1.6/index.html">1.6 Núcleo: Linux vs NT Kernel</a>
+    </div>
+    <p style="margin-top:26px;">Sistemas Operativos I · Material de apoyo — subtema 2.2 Estados y transiciones de los procesos</p>
+  </div>
+</footer>
+
+<script>
+/* ---------------- Kinetic title ---------------- */
+(function(){
+  const el = document.getElementById('kinetic-title');
+  const words = [
+    {t:"Un", accent:false},{t:"proceso", accent:false},{t:"nunca", accent:false},
+    {t:"deja", accent:false},{t:"de", accent:false},{t:"moverse.", accent:true}
+  ];
+  el.innerHTML = words.map(w => `<span class="${w.accent ? 'accent-word':''}">${w.t}</span>`).join(' ');
+  const spans = el.querySelectorAll('span');
+  spans.forEach((s,i)=>{ setTimeout(()=> s.classList.add('in'), 120 + i*110); });
+})();
+
+/* ---------------- Graph data ---------------- */
+const nodes = {
+  zombie:    { el:'node-zombie',    label:'Zombie' },
+  ejecucion: { el:'node-ejecucion', label:'Ejecución' },
+  espera:    { el:'node-espera',    label:'Espera' },
+  parado:    { el:'node-parado',    label:'Parado' },
+  listo:     { el:'node-listo',     label:'Listo' },
+};
+
+const edges = [
+  { id:'path-ejec-zombie',  from:'ejecucion', to:'zombie',    label:'Finalizar' },
+  { id:'path-ejec-espera',  from:'ejecucion', to:'espera',    label:'Dormir' },
+  { id:'path-ejec-parado',  from:'ejecucion', to:'parado',    label:'Dormir' },
+  { id:'path-ejec-listo',   from:'ejecucion', to:'listo',     label:'Desalojar' },
+  { id:'path-listo-ejec',   from:'listo',     to:'ejecucion', label:'Despachar' },
+  { id:'path-espera-listo', from:'espera',    to:'listo',     label:'Despertar' },
+  { id:'path-parado-listo', from:'parado',    to:'listo',     label:'Despertar' },
+];
+
+const tour = [
+  'path-listo-ejec', 'path-ejec-listo', 'path-listo-ejec',
+  'path-ejec-espera', 'path-espera-listo', 'path-listo-ejec',
+  'path-ejec-parado', 'path-parado-listo', 'path-listo-ejec',
+  'path-ejec-zombie'
+];
+
+let current = 'listo';
+let animating = false;
+const traveler = document.getElementById('traveler');
+const currentLabel = document.getElementById('current-state-label');
+const statusLine = document.getElementById('status-line');
+const runTourBtn = document.getElementById('run-tour');
+const resetBtn = document.getElementById('reset-btn');
+
+function clearActive(){
+  document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.edge-line').forEach(e => { e.classList.remove('active'); e.setAttribute('marker-end','url(#arrow)'); });
+  document.querySelectorAll('.edge-label').forEach(l => l.classList.remove('active'));
+}
+
+function setActiveNode(nodeKey){
+  clearActive();
+  const nodeEl = document.getElementById(nodes[nodeKey].el);
+  nodeEl.classList.add('active');
+  nodeEl.classList.remove('pulse'); void nodeEl.offsetWidth; nodeEl.classList.add('pulse');
+  currentLabel.textContent = nodes[nodeKey].label;
+  current = nodeKey;
+  renderOptions();
+}
+
+function renderOptions(){
+  const box = document.getElementById('transition-options');
+  const avail = edges.filter(e => e.from === current);
+  if(avail.length === 0){
+    box.innerHTML = '<span class="status-line">este estado no tiene transiciones salientes en el diagrama</span>';
+    return;
+  }
+  box.innerHTML = avail.map(e => `<button class="t-opt" data-edge="${e.id}">${e.label} &rarr; ${nodes[e.to].label}</button>`).join('');
+  box.querySelectorAll('.t-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(animating) return;
+      const edge = edges.find(x => x.id === btn.dataset.edge);
+      animateEdge(edge, ()=> setActiveNode(edge.to));
+    });
+  });
+}
+
+function animateEdge(edge, onDone){
+  animating = true;
+  runTourBtn.disabled = true; resetBtn.disabled = true;
+  document.querySelectorAll('.t-opt').forEach(b => b.disabled = true);
+
+  const path = document.getElementById(edge.id);
+  const line = path;
+  line.classList.add('active');
+  line.setAttribute('marker-end','url(#arrow-active)');
+  document.querySelector(`.edge-label[data-edge="${edge.id}"]`).classList.add('active');
+  statusLine.innerHTML = 'transición: <b>' + edge.label + '</b> (' + nodes[edge.from].label + ' &rarr; ' + nodes[edge.to].label + ')';
+
+  const len = line.getTotalLength();
+  const duration = 700;
+  const start = performance.now();
+  traveler.classList.add('on');
+
+  function frame(t){
+    const p = Math.min((t - start) / duration, 1);
+    const pt = line.getPointAtLength(p * len);
+    traveler.setAttribute('cx', pt.x);
+    traveler.setAttribute('cy', pt.y);
+    if(p < 1){
+      requestAnimationFrame(frame);
+    } else {
+      traveler.classList.remove('on');
+      runTourBtn.disabled = false; resetBtn.disabled = false;
+      animating = false;
+      if(onDone) onDone();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+resetBtn.addEventListener('click', ()=>{
+  if(animating) return;
+  setActiveNode('listo');
+  statusLine.innerHTML = 'estado actual: <b id="current-state-label">Listo</b>';
+});
+
+runTourBtn.addEventListener('click', ()=>{
+  if(animating) return;
+  setActiveNode('listo');
+  let i = 0;
+  runTourBtn.disabled = true;
+  function step(){
+    if(i >= tour.length){
+      runTourBtn.disabled = false;
+      statusLine.innerHTML = 'recorrido completo — ciclo de vida terminado en <b>Zombie</b>';
+      return;
+    }
+    const edge = edges.find(e => e.id === tour[i]);
+    animateEdge(edge, ()=>{
+      setActiveNode(edge.to);
+      i++;
+      setTimeout(step, 260);
+    });
+  }
+  step();
+});
+
+setActiveNode('listo');
+
+/* ---------------- State cards ---------------- */
+const stateInfo = [
+  { key:'listo', color:'var(--listo)', name:'Listo', desc:'El proceso tiene todo lo que necesita para ejecutarse y solo espera su turno de CPU.' },
+  { key:'ejecucion', color:'var(--ejec)', name:'Ejecución', desc:'El proceso está usando la CPU en este instante. Solo uno por núcleo a la vez.' },
+  { key:'espera', color:'var(--espera)', name:'Espera', desc:'El proceso se bloqueó esperando un evento (E/S, un recurso, una señal) y no puede avanzar.' },
+  { key:'parado', color:'var(--parado)', name:'Parado', desc:'El proceso fue suspendido externamente (por ejemplo, el usuario o el sistema lo pausó).' },
+  { key:'zombie', color:'var(--zombie)', name:'Zombie', desc:'El proceso terminó su ejecución, pero su información sigue en la tabla de procesos hasta que el padre la recoja.' },
+];
+
+document.getElementById('state-cards').innerHTML = stateInfo.map(s => `
+  <div class="state-card">
+    <h4><span class="state-dot" style="background:${s.color}"></span>${s.name}</h4>
+    <p>${s.desc}</p>
+  </div>
+`).join('');
+
+/* ---------------- Accordion ---------------- */
+const accData = [
+  {
+    q:"¿Por qué no basta con 'corriendo' y 'no corriendo'?",
+    a:"Porque un proceso puede estar detenido por razones muy distintas: a veces está listo pero esperando su turno (<b>Listo</b>), a veces está bloqueado porque necesita algo externo como un archivo o un dato de red (<b>Espera</b>), y a veces alguien lo pausó a propósito (<b>Parado</b>). Separar estos casos le permite al planificador tomar mejores decisiones: no tiene sentido darle CPU a un proceso que está esperando un disco lento."
+  },
+  {
+    q:"¿Qué es exactamente un proceso 'Zombie'?",
+    a:"Cuando un proceso termina, el sistema operativo no borra inmediatamente todo rastro de él: guarda su código de salida y estadísticas básicas en la tabla de procesos hasta que el proceso padre los lea (por ejemplo con <b>wait()</b> en sistemas tipo Unix, o consultando el código de salida en Windows). Mientras eso no pase, el proceso existe como 'cascarón' — de ahí el nombre zombie."
+  },
+  {
+    q:"¿Despachar y Desalojar son lo mismo al revés?",
+    a:"Son opuestos, pero no simétricos en quién decide. <b>Despachar</b> ocurre cuando el planificador elige a un proceso Listo y le da la CPU. <b>Desalojar</b> ocurre cuando el planificador le quita la CPU a un proceso que sigue queriendo ejecutarse (por ejemplo, porque llegó uno de mayor prioridad o se acabó su quantum de tiempo) y lo regresa a Listo — el proceso no lo pidió."
+  },
+  {
+    q:"¿Linux tiene un modelo parecido?",
+    a:"Sí, aunque con nombres distintos en su código fuente: <b>TASK_RUNNING</b> (listo o ejecutando — Linux no los separa a nivel de estado del proceso), <b>TASK_INTERRUPTIBLE</b> y <b>TASK_UNINTERRUPTIBLE</b> (equivalentes a Espera), <b>TASK_STOPPED</b> (equivalente a Parado) y <b>EXIT_ZOMBIE</b> (idéntico en concepto al Zombie de este diagrama). La idea de fondo — separar 'quiere correr', 'está corriendo', 'está bloqueado' y 'ya terminó pero no se ha limpiado' — es universal en sistemas operativos modernos."
+  }
+];
+
+document.getElementById('accordion').innerHTML = accData.map((item,i)=>`
+  <div class="acc-item" id="acc-${i}">
+    <button class="acc-trigger" data-i="${i}">
+      <span>${item.q}</span>
+      <span class="plus">+</span>
+    </button>
+    <div class="acc-panel">
+      <div class="acc-panel-inner">${item.a}</div>
+    </div>
+  </div>
+`).join('');
+
+document.querySelectorAll('.acc-trigger').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const item = btn.closest('.acc-item');
+    const panel = item.querySelector('.acc-panel');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.acc-item.open').forEach(o=>{
+      o.classList.remove('open');
+      o.querySelector('.acc-panel').style.maxHeight = null;
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    }
+  });
+});
+
+/* ---------------- Table ---------------- */
+const tableRows = [
+  ["Listo &rarr; Ejecución", "Despachar", "El planificador elige este proceso y le asigna la CPU."],
+  ["Ejecución &rarr; Listo", "Desalojar", "Se le retira la CPU sin que el proceso lo pida (prioridad mayor o fin de quantum)."],
+  ["Ejecución &rarr; Espera", "Dormir", "El proceso pide un recurso o evento que no está disponible de inmediato."],
+  ["Ejecución &rarr; Parado", "Dormir", "El proceso es suspendido externamente mientras se ejecutaba."],
+  ["Espera &rarr; Listo", "Despertar", "El evento o recurso esperado ya está disponible."],
+  ["Parado &rarr; Listo", "Despertar", "El proceso suspendido se reanuda y vuelve a competir por CPU."],
+  ["Ejecución &rarr; Zombie", "Finalizar", "El proceso terminó su ejecución y solo falta que el padre recoja su código de salida."],
+];
+
+document.getElementById('compare-table').innerHTML = `
+  <thead><tr><th>Transición</th><th>Disparador</th><th>Qué ocurre</th></tr></thead>
+  <tbody>
+    ${tableRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
+  </tbody>
+`;
+</script>
+
+</body>
+</html>
