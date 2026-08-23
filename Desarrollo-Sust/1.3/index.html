@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimensiones de la sustentabilidad</title>
+
+<!-- Fraunces (display, orgánica), Plus Jakarta Sans (cuerpo), JetBrains Mono (etiquetas/datos) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* Paleta — cada color mapea a una dimensión */
+    --amb:        #16d69a;   /* ambiental — esmeralda */
+    --soc:        #38bdf8;   /* social — cielo */
+    --eco:        #f5a623;   /* económica — ámbar/tierra */
+    --violet:     #7c6cf0;   /* acento de apoyo */
+
+    --ink:        #0b1520;
+    --ink-soft:   rgba(11,21,32,.68);
+    --white:      #ffffff;
+
+    --glass-bg:      rgba(255,255,255,.14);
+    --glass-bg-2:    rgba(255,255,255,.22);
+    --glass-border:  rgba(255,255,255,.38);
+    --glass-blur:    18px;
+
+    --radius: 22px;
+    --maxw: 1180px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+
+  body{
+    font-family:'Plus Jakarta Sans', sans-serif;
+    color:var(--white);
+    line-height:1.6;
+    overflow-x:hidden;
+    background:#0d2a3d;
+  }
+
+  img{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; letter-spacing:-.01em; }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+  }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,48px); }
+
+  ::selection{ background:var(--amb); color:#04120e; }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--white);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  /* ===== Fondo animado: gradiente ambiental/social/económico ===== */
+  .aurora-bg{
+    position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(circle at 15% 20%, var(--amb) 0%, transparent 42%),
+      radial-gradient(circle at 85% 15%, var(--soc) 0%, transparent 46%),
+      radial-gradient(circle at 50% 90%, var(--eco) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, var(--violet) 0%, transparent 40%),
+      #0d2a3d;
+    background-size:200% 200%;
+    animation:drift 26s ease-in-out infinite;
+    filter:blur(60px) saturate(1.15);
+    opacity:.85;
+  }
+  @keyframes drift{
+    0%,100%{ background-position:0% 0%, 100% 0%, 50% 100%, 100% 100%; }
+    50%{ background-position:20% 30%, 80% 20%, 40% 70%, 80% 90%; }
+  }
+
+  /* ===== Nav ===== */
+  .nav{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    z-index:100; width:min(94%, 1120px);
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border-radius:999px;
+    box-shadow:0 8px 32px rgba(0,0,0,.18);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 22px;
+  }
+  .brand{
+    font-family:'Fraunces', serif; font-weight:600; font-size:1.02rem;
+    display:flex; align-items:center; gap:9px;
+  }
+  .brand-dot{
+    width:10px; height:10px; border-radius:50%;
+    background:conic-gradient(var(--amb), var(--soc), var(--eco), var(--amb));
+  }
+  .nav-links{ display:flex; gap:clamp(14px,3vw,28px); font-size:.86rem; }
+  .nav-links a{ opacity:.85; transition:opacity .2s ease; }
+  .nav-links a:hover{ opacity:1; }
+  .nav-toggle{
+    display:none; background:none; border:1px solid var(--glass-border); color:var(--white);
+    width:38px; height:38px; border-radius:50%; font-size:1rem;
+  }
+
+  @media (max-width:720px){
+    .nav-links{
+      position:fixed; top:70px; left:50%; transform:translateX(-50%);
+      width:min(94%,1120px);
+      flex-direction:column; gap:0;
+      background:var(--glass-bg-2);
+      backdrop-filter:blur(var(--glass-blur));
+      border:1px solid var(--glass-border);
+      border-radius:20px;
+      max-height:0; overflow:hidden;
+      transition:max-height .35s ease;
+    }
+    .nav-links.open{ max-height:260px; }
+    .nav-links a{ padding:14px 22px; display:block; border-top:1px solid var(--glass-border); }
+    .nav-toggle{ display:block; }
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    position:relative; min-height:100svh;
+    display:flex; align-items:center; padding-top:110px;
+  }
+  .hero-content{ max-width:780px; }
+  .hero-eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:.74rem;
+    letter-spacing:.12em; text-transform:uppercase;
+    background:var(--glass-bg); border:1px solid var(--glass-border);
+    backdrop-filter:blur(var(--glass-blur));
+    padding:8px 16px; border-radius:999px; margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:clamp(2.5rem, 7vw, 4.4rem); line-height:1.05; margin-bottom:22px;
+  }
+  .hero h1 .word-amb{ color:var(--amb); }
+  .hero h1 .word-soc{ color:var(--soc); }
+  .hero h1 .word-eco{ color:var(--eco); }
+  .hero p.lead{
+    font-size:clamp(1rem, 2vw, 1.18rem);
+    color:rgba(255,255,255,.86);
+    max-width:56ch; margin-bottom:36px;
+  }
+  .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{
+    font-weight:600; font-size:.94rem;
+    padding:15px 28px; border-radius:999px;
+    border:1px solid var(--glass-border);
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+    cursor:pointer;
+  }
+  .btn-primary{
+    background:var(--white); color:var(--ink); border-color:var(--white);
+  }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 14px 32px rgba(255,255,255,.28); }
+  .btn-ghost{
+    background:var(--glass-bg); color:var(--white);
+    backdrop-filter:blur(var(--glass-blur));
+  }
+  .btn-ghost:hover{ transform:translateY(-3px); background:var(--glass-bg-2); }
+
+  .scroll-cue{
+    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:.66rem;
+    letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6);
+  }
+  .scroll-cue .line{ width:1px; height:32px; background:linear-gradient(rgba(255,255,255,.8), transparent); animation:cue 2s ease-in-out infinite; }
+  @keyframes cue{ 0%,100%{ transform:scaleY(1); opacity:.8;} 50%{ transform:scaleY(.5); opacity:.3;} }
+
+  section{ padding:clamp(70px,10vw,120px) 0; position:relative; }
+  .section-head{ max-width:640px; margin-bottom:44px; }
+  .section-head h2{ font-size:clamp(1.8rem,4vw,2.5rem); margin-top:10px; }
+
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ===== Panel de vidrio genérico ===== */
+  .glass-panel{
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border-radius:var(--radius);
+    box-shadow:0 10px 40px rgba(0,0,0,.16);
+  }
+
+  /* ===== Resumen ===== */
+  .resumen-grid{
+    display:grid; grid-template-columns:1.05fr .95fr; gap:52px; align-items:center;
+  }
+  .resumen-text p{ color:rgba(255,255,255,.86); margin-bottom:16px; font-size:1.02rem; }
+  .resumen-media{
+    position:relative; border-radius:var(--radius); overflow:hidden;
+    aspect-ratio:4/5; border:1px solid var(--glass-border);
+  }
+  .resumen-media img{ width:100%; height:100%; object-fit:cover; }
+  .resumen-media::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 50%, rgba(6,20,26,.7) 100%);
+  }
+  .resumen-tag{
+    position:absolute; left:16px; bottom:16px; z-index:2;
+    font-family:'JetBrains Mono', monospace; font-size:.7rem; letter-spacing:.06em;
+  }
+
+  .pillars{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:30px; }
+  .pillar{
+    padding:20px 18px; text-align:left;
+    transition:transform .25s ease, background .25s ease;
+    border-radius:18px;
+  }
+  .pillar:hover{ transform:translateY(-5px); background:var(--glass-bg-2); }
+  .pillar-dot{ width:10px; height:10px; border-radius:50%; margin-bottom:10px; }
+  .pillar.amb .pillar-dot{ background:var(--amb); box-shadow:0 0 14px var(--amb); }
+  .pillar.soc .pillar-dot{ background:var(--soc); box-shadow:0 0 14px var(--soc); }
+  .pillar.eco .pillar-dot{ background:var(--eco); box-shadow:0 0 14px var(--eco); }
+  .pillar .p-label{ font-family:'JetBrains Mono', monospace; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.9); }
+  .pillar p.p-desc{ font-size:.86rem; color:rgba(255,255,255,.78); margin-top:8px; }
+
+  @media (max-width:860px){
+    .resumen-grid{ grid-template-columns:1fr; }
+    .resumen-media{ order:-1; aspect-ratio:16/9; }
+    .pillars{ grid-template-columns:1fr; }
+  }
+
+  /* ===== Acordeón ===== */
+  .accordion{ display:flex; flex-direction:column; gap:14px; }
+
+  .acc-item{
+    overflow:hidden;
+    transition:background .3s ease, transform .2s ease;
+  }
+  .acc-item:hover{ background:var(--glass-bg-2); }
+
+  .acc-trigger{
+    width:100%; text-align:left;
+    display:flex; align-items:center; gap:18px;
+    background:none; border:none; color:var(--white);
+    padding:22px clamp(18px,3vw,26px);
+    cursor:pointer; font-family:'Plus Jakarta Sans', sans-serif;
+  }
+  .acc-icon{
+    flex:none; width:44px; height:44px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.18); border:1px solid var(--glass-border);
+    transition:background .3s ease, transform .3s ease;
+  }
+  .acc-item.open .acc-icon{ background:var(--white); color:var(--ink); transform:rotate(-6deg); }
+  .acc-icon svg{ width:22px; height:22px; }
+
+  .acc-title-wrap{ flex:1; }
+  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; color:rgba(255,255,255,.7); }
+  .acc-title-wrap h3{ font-size:clamp(1.02rem,2vw,1.2rem); font-weight:600; line-height:1.35; }
+
+  .acc-chevron{
+    flex:none; width:20px; height:20px; color:rgba(255,255,255,.6);
+    transition:transform .35s ease;
+  }
+  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--white); }
+
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .45s ease; }
+  .acc-panel-inner{
+    padding:0 clamp(18px,3vw,26px) 26px 86px;
+    color:rgba(255,255,255,.84); font-size:.96rem;
+  }
+  .acc-panel-inner p{ margin-bottom:12px; }
+  .acc-panel-inner ul{ margin:10px 0 4px 20px; }
+  .acc-panel-inner li{ margin-bottom:8px; }
+  .acc-panel-inner strong{ color:var(--white); font-weight:700; }
+
+  @media (max-width:600px){
+    .acc-panel-inner{ padding-left:clamp(18px,3vw,26px); }
+    .acc-trigger{ gap:12px; padding:18px 16px; }
+    .acc-icon{ width:38px; height:38px; }
+  }
+
+  /* ===== CTA ===== */
+  .cta{
+    position:relative; text-align:center;
+    padding:clamp(48px,8vw,86px) clamp(24px,6vw,60px);
+  }
+  .cta h2{ font-size:clamp(1.7rem,4vw,2.25rem); margin-bottom:14px; }
+  .cta p{ color:rgba(255,255,255,.85); margin-bottom:28px; max-width:52ch; margin-left:auto; margin-right:auto; }
+
+  footer{ padding:30px 0 60px; }
+  .footer-inner{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+    font-size:.82rem; color:rgba(255,255,255,.6);
+    padding:18px 22px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="aurora-bg" aria-hidden="true"></div>
+
+  <nav class="nav glass-panel" id="nav">
+    <div class="nav-inner">
+      <div class="brand"><span class="brand-dot"></span>Dimensiones de la sustentabilidad</div>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#resumen">Resumen</a>
+        <a href="#dimensiones">Preguntas clave</a>
+        <a href="#cierre">Cierre</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="hero-content">
+        <span class="hero-eyebrow">Materia · Desarrollo Sustentable · Tema 1.3</span>
+        <h1>Dimensiones de la <span class="word-amb">Sustentabilidad</span></h1>
+        <p class="lead">Ambiental, social y económica: tres lentes que deben mirar la misma realidad al mismo tiempo para que una solución sea realmente sustentable.</p>
+        <div class="btn-row">
+          <a href="#dimensiones" class="btn btn-primary">Explorar las 9 preguntas clave</a>
+          <a href="#resumen" class="btn btn-ghost">Ver el panorama</a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><span class="line"></span></div>
+  </header>
+
+  <main>
+    <section id="resumen">
+      <div class="wrap">
+        <div class="resumen-grid">
+
+          <div class="resumen-text reveal">
+            <span class="eyebrow" style="color:rgba(255,255,255,.7)">Panorama general</span>
+            <h2 style="margin-top:10px; font-size:clamp(1.6rem,3.4vw,2.2rem);">Ninguna dimensión funciona por separado</h2>
+            <p>Hablar de sustentabilidad sin nombrar sus tres dimensiones es hablar a medias. Una estrategia que cuida el ambiente pero empobrece a una comunidad no es sustentable; tampoco lo es una que genera riqueza destruyendo el entorno que la sostiene.</p>
+            <p>Por eso cada decisión —personal, empresarial o de gobierno— debe evaluarse desde los tres frentes a la vez: lo que le pasa a la naturaleza, lo que le pasa a las personas y lo que le pasa a la economía.</p>
+
+            <div class="pillars">
+              <div class="pillar glass-panel amb">
+                <span class="pillar-dot"></span>
+                <span class="p-label">Ambiental</span>
+                <p class="p-desc">Cuidar ecosistemas y recursos naturales sin superar su capacidad de regeneración.</p>
+              </div>
+              <div class="pillar glass-panel soc">
+                <span class="pillar-dot"></span>
+                <span class="p-label">Social</span>
+                <p class="p-desc">Garantizar equidad, justicia social y calidad de vida para toda la comunidad.</p>
+              </div>
+              <div class="pillar glass-panel eco">
+                <span class="pillar-dot"></span>
+                <span class="p-label">Económico</span>
+                <p class="p-desc">Producir y consumir de forma que no comprometa los recursos del futuro.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-media reveal glass-panel">
+            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=80" alt="Bosque visto desde arriba, representando el equilibrio entre naturaleza y comunidad" loading="lazy">
+            <span class="resumen-tag">Las tres dimensiones, en equilibrio</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section id="dimensiones">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow" style="color:rgba(255,255,255,.7)">Preguntas clave</span>
+          <h2>Nueve ideas para entender las dimensiones a fondo</h2>
+        </div>
+
+        <div class="accordion">
+
+          <!-- 1 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="5.5"/><circle cx="15" cy="9" r="5.5"/><circle cx="12" cy="15" r="5.5"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Fundamentos</span>
+                <h3>Las tres dimensiones fundamentales de la sustentabilidad</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La sustentabilidad se sostiene sobre tres dimensiones que deben analizarse siempre juntas: la <strong>ambiental (ecológica)</strong>, la <strong>social</strong> y la <strong>económica</strong>.</p>
+                <ul>
+                  <li>Ninguna dimensión es más importante que las otras dos.</li>
+                  <li>Una solución solo es sustentable cuando funciona al mismo tiempo en los tres frentes, no solo en uno.</li>
+                  <li>Por eso el enfoque se describe como sistémico y holístico: mira el todo, no partes aisladas.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3 2.5-5 6-5s6 2 6 5M13 20c0-2.5 2-4.5 5-4.5s5 2 5 4.5"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Dimensión social</span>
+                <h3>El objetivo social del desarrollo sustentable</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Desde lo social, el objetivo principal es garantizar <strong>justicia social, equidad y una buena calidad de vida</strong> para toda la población, sin exclusión.</p>
+                <ul>
+                  <li>Que las personas accedan a recursos, servicios y oportunidades con un sentido de justicia y equidad.</li>
+                  <li>Que se respete la diversidad cultural y las distintas formas de organización social de una comunidad.</li>
+                  <li>Que el desarrollo no beneficie solo a unos cuantos, sino que reduzca brechas sociales.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20c8 0 12-4 14-12 1-3.5-2.5-6-6-5-8 2-10 8-10 12 0 3 1 5 2 5z"/><path d="M8 20c0-5 3-9 8-11"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Dimensión ambiental</span>
+                <h3>El enfoque de la dimensión ecológica (ambiental)</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La dimensión ecológica se enfoca en <strong>conservar los ecosistemas, la biodiversidad y los ciclos naturales</strong>, usando los recursos sin superar su capacidad de regeneración.</p>
+                <ul>
+                  <li>Cuidar hidrósfera, litósfera, atmósfera y biodiversidad como partes de un mismo sistema.</li>
+                  <li>Prevenir la degradación ambiental antes que solo corregirla una vez ocurrida.</li>
+                  <li>Reconocer que el planeta tiene una capacidad limitada de dar recursos y absorber residuos.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.3 9.3c0-1.2 1.2-1.8 2.7-1.8s2.7.7 2.7 1.8-1.2 1.6-2.7 1.6-2.7.5-2.7 1.7 1.2 1.8 2.7 1.8 2.7-.6 2.7-1.8"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Dimensión económica</span>
+                <h3>A qué se refiere la dimensión económica de la sustentabilidad</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Se refiere a que los <strong>sistemas de producción y consumo generen riqueza sin agotar recursos ni trasladar sus costos al ambiente o a la sociedad</strong> (externalización de costos).</p>
+                <ul>
+                  <li>Buscar procesos más limpios y ecoeficientes en lugar de solo maximizar producción.</li>
+                  <li>Valorar económicamente los servicios ambientales, para que su costo real se refleje en las decisiones.</li>
+                  <li>Evitar la obsolescencia planificada y percibida, que fuerza un consumo innecesario.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v7"/><path d="M7 8l5 2 5-2"/><circle cx="12" cy="16" r="5"/><path d="M12 13.5v5M9.8 16h4.4"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Participación</span>
+                <h3>Por qué es fundamental la participación ciudadana</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Las decisiones sobre desarrollo sustentable afectan directamente a las comunidades, así que sin su participación las soluciones pierden legitimidad y viabilidad real.</p>
+                <ul>
+                  <li>Quien vive el problema conoce mejor su contexto y sus necesidades reales.</li>
+                  <li>La participación genera corresponsabilidad: la comunidad se apropia de la solución en vez de solo recibirla.</li>
+                  <li>Fortalece valores como la democracia, la equidad y la ciudadanía activa.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5c-.8 0-1.5-.7-1.5-1.5z"/><path d="M20 5.5C20 4.7 19.3 4 18.5 4H12v16h6.5c.8 0 1.5-.7 1.5-1.5z"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Educación</span>
+                <h3>El rol de la educación ambiental en el desarrollo sustentable</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La educación ambiental forma los <strong>valores, actitudes y conocimientos</strong> necesarios para que una persona tome decisiones responsables frente al entorno.</p>
+                <ul>
+                  <li>Genera conciencia sobre el impacto real de acciones cotidianas, muchas veces invisibles.</li>
+                  <li>Es la base que sostiene en el tiempo cualquier estrategia de sustentabilidad; sin ella, las medidas técnicas no se mantienen.</li>
+                  <li>Ayuda a transferir la cultura de la sustentabilidad de la escuela hacia la sociedad.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10a8 8 0 0114-5M20 14a8 8 0 01-14 5"/><path d="M14 3l4 2-2 4M10 21l-4-2 2-4"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">De la teoría a la práctica</span>
+                <h3>Un ejemplo de acción diaria orientada al desarrollo sustentable</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Las tres dimensiones se pueden vivir en gestos pequeños pero constantes, por ejemplo:</p>
+                <ul>
+                  <li><strong>Separar y reducir residuos sólidos</strong> (como papel) en casa o en la escuela, calculando el ahorro económico y el impacto ambiental que genera.</li>
+                  <li>Ahorrar agua y energía de forma consciente, no solo cuando escasean.</li>
+                  <li>Elegir consumo responsable frente al ciclo de "comprar, usar y desechar" que caracteriza la obsolescencia planificada.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M12 18v3"/><path d="M4 9h16M4 9l3 7h-6zM20 9l3 7h-6z"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Desigualdad</span>
+                <h3>Por qué la pobreza es un obstáculo para la sustentabilidad</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La pobreza empuja a las comunidades a <strong>sobreexplotar los recursos naturales disponibles</strong> como única vía de supervivencia inmediata, aunque eso comprometa el entorno a largo plazo.</p>
+                <ul>
+                  <li>Limita el acceso a educación, tecnología y salud, lo que reduce las capacidades de la dimensión social.</li>
+                  <li>Perpetúa la inseguridad alimentaria y la desigualdad en la distribución de la riqueza.</li>
+                  <li>Sin reducir la pobreza no es posible sostener al mismo tiempo equilibrio ambiental, social y económico.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.7 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.7-4-9s1.5-6.5 4-9z"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Indicador internacional</span>
+                <h3>La Huella Ecológica: el indicador del impacto humano en la Tierra</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La <strong>Huella Ecológica</strong> es el indicador internacional que mide la superficie de tierra y agua biológicamente productiva necesaria para generar los recursos que una población consume y absorber los residuos que genera.</p>
+                <ul>
+                  <li>Se compara contra la biocapacidad del planeta: la cantidad de recursos que la Tierra puede reponer en un año.</li>
+                  <li>Cuando la huella supera la biocapacidad disponible, existe un déficit ecológico: se está consumiendo más rápido de lo que el planeta se regenera.</li>
+                  <li>Sirve para medir de forma comparable el impacto de una persona, una ciudad o un país.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section id="cierre">
+      <div class="wrap">
+        <div class="cta reveal glass-panel">
+          <span class="eyebrow" style="color:rgba(255,255,255,.7)">Cierre</span>
+          <h2 style="margin-top:10px;">Tres dimensiones, una sola decisión</h2>
+          <p>Antes de proponer una solución sustentable, revísala desde los tres frentes: ¿qué le pasa al ambiente, a la sociedad y a la economía? Si falla en uno, la solución todavía no está completa.</p>
+          <a href="#dimensiones" class="btn btn-primary">Repasar las 9 preguntas</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-inner glass-panel">
+        <span>Desarrollo Sustentable — Material de apoyo para clase</span>
+        <span>Dimensiones: Ambiental · Social · Económica</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    document.querySelectorAll('.acc-item').forEach(item => {
+      const trigger = item.querySelector('.acc-trigger');
+      const panel = item.querySelector('.acc-panel');
+
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+
+        item.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        panel.style.maxHeight = !isOpen ? panel.scrollHeight + 'px' : null;
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.acc-item.open .acc-panel').forEach(panel => {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      });
+    });
+
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    revealEls.forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
