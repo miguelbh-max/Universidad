@@ -1,1 +1,557 @@
-DUMMY
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.5 Estructura: niveles o estratos de diseño | Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf9f5;
+    --ink:#14140f;
+    --ink-soft:#4a4a42;
+    --accent:#2f5d50;
+    --accent-soft:#e7efec;
+    --line:#e4e1d8;
+    --card:#ffffffee;
+    --radius:20px;
+
+    /* aurora palette */
+    --a-violet:#7c5cff;
+    --a-cyan:#22d3ee;
+    --a-emerald:#34d399;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif; line-height:1.55;
+    -webkit-font-smoothing:antialiased; position:relative; overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0; letter-spacing:-0.01em; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:0 24px; position:relative; z-index:2; }
+  a{ color:inherit; }
+
+  /* ---------- AURORA BACKGROUND ---------- */
+  .aurora-layer{
+    position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+  }
+  .aurora-blob{
+    position:absolute; border-radius:50%; filter:blur(90px); opacity:.55;
+    will-change:transform;
+  }
+  .b1{ width:640px; height:640px; background:var(--a-violet); top:-220px; left:-160px; animation:driftA 26s ease-in-out infinite; }
+  .b2{ width:560px; height:560px; background:var(--a-cyan); top:120px; right:-200px; animation:driftB 32s ease-in-out infinite; }
+  .b3{ width:600px; height:600px; background:var(--a-emerald); bottom:-260px; left:20%; animation:driftC 30s ease-in-out infinite; }
+  @keyframes driftA{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(80px,60px) scale(1.12); }
+  }
+  @keyframes driftB{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(-70px,90px) scale(1.08); }
+  }
+  @keyframes driftC{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(60px,-70px) scale(1.1); }
+  }
+
+  nav.top{
+    position:sticky; top:0; z-index:50;
+    background:rgba(250,249,245,0.82); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.top .wrap{ display:flex; align-items:center; justify-content:space-between; padding:14px 24px; }
+  .brand{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); text-decoration:none; }
+  .brand b{ color:var(--accent); }
+  .back-link{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-decoration:none; color:var(--ink);
+    border:1px solid var(--line); padding:7px 12px; border-radius:999px; transition:all .2s ease;
+    background:rgba(255,255,255,.6);
+  }
+  .back-link:hover{ border-color:var(--accent); color:var(--accent); }
+
+  .hero{ padding:90px 0 50px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--a-violet);
+    text-transform:uppercase; letter-spacing:.12em; margin-bottom:18px; display:block;
+  }
+  .kinetic{ font-size:clamp(2rem, 5.6vw, 3.9rem); font-weight:700; line-height:1.08; max-width:840px; }
+  .kinetic span{
+    display:inline-block; filter: blur(6px); opacity:0;
+    font-variation-settings:'wght' 300; transform: translateY(8px);
+    transition: filter .6s ease, opacity .6s ease, transform .6s ease, font-variation-settings .6s ease;
+  }
+  .kinetic span.in{ filter: blur(0); opacity:1; transform:translateY(0); font-variation-settings:'wght' 700; }
+  .kinetic .accent-word{
+    background:linear-gradient(90deg, var(--a-violet), var(--a-cyan), var(--a-emerald));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p.lede{ max-width:660px; margin-top:22px; font-size:1.05rem; color:var(--ink-soft); }
+  .hero p.lede b{ color:var(--ink); }
+
+  .section{ padding:60px 0; }
+  .section-head{ margin-bottom:30px; max-width:700px; }
+  .section-head .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; display:block;
+  }
+  .section-head h2{ font-size:clamp(1.4rem,3vw,2rem); }
+  .section-head p{ color:var(--ink-soft); margin-top:10px; }
+
+  /* ---------- AURORA CARD ---------- */
+  .aurora-card{
+    background:var(--card); border-radius:var(--radius);
+    box-shadow:0 30px 70px -40px rgba(60,40,120,.35), 0 2px 0 rgba(255,255,255,.6) inset;
+    padding:26px;
+  }
+
+  /* ---------- INTRO STACK (concept) ---------- */
+  .intro-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:stretch; }
+  @media (max-width:820px){ .intro-grid{ grid-template-columns:1fr; } }
+  .intro-text p{ color:var(--ink-soft); margin:0 0 14px; }
+  .intro-text b{ color:var(--ink); }
+  .mini-stack{ display:flex; flex-direction:column; gap:8px; }
+  .mini-layer{
+    padding:14px 16px; border-radius:12px; font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+    color:#fff; opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease;
+  }
+  .mini-layer.in{ opacity:1; transform:translateY(0); }
+  .mini-layer.l0{ background:var(--a-violet); }
+  .mini-layer.l1{ background:#8f6bff; }
+  .mini-layer.l2{ background:var(--a-cyan); color:#04303a; }
+  .mini-layer.l3{ background:var(--a-emerald); color:#04302a; }
+  .mini-layer.l4{ background:var(--accent); }
+  .mini-note{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:6px; }
+
+  /* ---------- MODEL SELECTOR ---------- */
+  .model-toggle{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
+  .model-toggle button{
+    font-family:'IBM Plex Mono', monospace; font-size:12.8px; font-weight:500;
+    border:1px solid var(--line); background:rgba(255,255,255,.65); color:var(--ink-soft);
+    padding:10px 16px; border-radius:999px; cursor:pointer; transition:all .25s ease;
+  }
+  .model-toggle button.active{
+    color:#fff; border-color:transparent;
+    background:linear-gradient(90deg, var(--a-violet), var(--a-cyan));
+  }
+  .model-toggle button:not(.active):hover{ color:var(--ink); border-color:var(--a-violet); }
+
+  .model-panel{ display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
+  @media (max-width:900px){ .model-panel{ grid-template-columns:1fr; } }
+
+  .model-info h3{ font-size:1.3rem; margin-bottom:6px; }
+  .model-info .subtitle{ color:var(--ink-soft); font-size:14.5px; margin-bottom:16px; }
+  .model-examples{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft);
+    padding:12px 14px; border-left:3px solid var(--a-cyan); background:rgba(34,211,238,.08);
+    border-radius:0 10px 10px 0; margin-bottom:18px;
+  }
+  .model-examples b{ color:var(--ink); }
+  .pc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:560px){ .pc-grid{ grid-template-columns:1fr; } }
+  .pc-box{ border-radius:14px; padding:14px 16px; font-size:13px; }
+  .pc-box.pro{ background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.35); }
+  .pc-box.con{ background:rgba(124,92,255,.10); border:1px solid rgba(124,92,255,.3); }
+  .pc-box h5{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px; }
+  .pc-box.pro h5{ color:#0d8f61; }
+  .pc-box.con h5{ color:#5b3fd9; }
+  .pc-box ul{ margin:0; padding-left:16px; color:var(--ink-soft); }
+  .pc-box li{ margin-bottom:5px; }
+
+  .stack-wrap{
+    background:rgba(255,255,255,.5); border-radius:16px; padding:18px; min-height:260px;
+    display:flex; flex-direction:column; justify-content:center; gap:8px;
+  }
+  .layer{
+    padding:14px 16px; border-radius:12px; color:#fff; font-size:13px;
+    opacity:0; transform:translateX(-14px); transition:opacity .45s ease, transform .45s ease;
+    cursor:default; position:relative;
+  }
+  .layer.in{ opacity:1; transform:translateX(0); }
+  .layer .l-name{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12.5px; }
+  .layer .l-desc{ font-size:12px; opacity:.9; margin-top:4px; display:none; }
+  .layer.show-desc .l-desc{ display:block; }
+  .layer:hover{ filter:brightness(1.06); }
+
+  /* ---------- TABLE ---------- */
+  table{
+    width:100%; border-collapse:collapse; font-size:13.5px; background:var(--card);
+    border-radius:var(--radius); overflow:hidden; box-shadow:0 30px 70px -40px rgba(60,40,120,.3);
+  }
+  thead th{
+    text-align:left; font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase;
+    letter-spacing:.06em; background:var(--ink); color:var(--bg); padding:13px 16px;
+  }
+  tbody td{ padding:13px 16px; border-top:1px solid var(--line); vertical-align:top; }
+  tbody tr:nth-child(even){ background:rgba(124,92,255,.05); }
+  tbody td:first-child{ font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); white-space:nowrap; }
+
+  /* ---------- ACCORDION ---------- */
+  .accordion{ }
+  .acc-item{ border-bottom:1px solid var(--line); }
+  .acc-item:first-child{ border-top:1px solid var(--line); }
+  .acc-trigger{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:20px;
+    padding:20px 4px; background:none; border:none; cursor:pointer; text-align:left;
+    font-family:'Space Grotesk', sans-serif; font-size:1.05rem; color:var(--ink);
+  }
+  .acc-trigger .plus{ font-family:'IBM Plex Mono', monospace; font-size:20px; color:var(--a-violet); transition:transform .3s ease; flex-shrink:0; }
+  .acc-item.open .plus{ transform:rotate(45deg); }
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .acc-panel-inner{ padding:0 4px 22px; color:var(--ink-soft); font-size:14.5px; max-width:760px; }
+  .acc-panel-inner b{ color:var(--ink); }
+
+  footer{ padding:50px 0 70px; border-top:1px solid var(--line); }
+  .foot-nav{ display:flex; gap:14px; flex-wrap:wrap; margin-top:18px; }
+  .foot-nav a{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-decoration:none;
+    border:1px solid var(--line); padding:9px 14px; border-radius:999px; transition:all .2s ease;
+    background:rgba(255,255,255,.5);
+  }
+  .foot-nav a:hover{ border-color:var(--a-violet); color:var(--a-violet); }
+  footer p{ color:var(--ink-soft); font-size:13px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+    .kinetic span{ opacity:1; filter:none; transform:none; }
+    .layer, .mini-layer{ opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora-layer">
+  <div class="aurora-blob b1"></div>
+  <div class="aurora-blob b2"></div>
+  <div class="aurora-blob b3"></div>
+</div>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><b>SO</b> · 1.5 Estructura por niveles</a>
+    <a class="back-link" href="../1.4/index.html">&larr; Ver Unidad 1</a>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <span class="eyebrow">Unidad 1 · Subtema 1.5</span>
+  <h1 class="kinetic" id="kinetic-title"></h1>
+  <p class="lede">Ningún sistema operativo real se escribe como un solo bloque de código. <b>Se diseña por niveles</b>: cada capa ofrece servicios a la que está encima y consume servicios de la que está debajo. La forma en que se organizan esos niveles define el <b>modelo de estructura</b> del sistema.</p>
+</header>
+
+<section class="section" id="concepto">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">El concepto</span>
+      <h2>¿Qué es una estructura por estratos?</h2>
+      <p>Antes de comparar modelos, vale la pena ver el patrón general que todos comparten.</p>
+    </div>
+
+    <div class="intro-grid">
+      <div class="aurora-card intro-text">
+        <p><b>Estratificar</b> un sistema operativo significa dividirlo en niveles apilados, donde cada nivel se construye sobre servicios ya resueltos por el nivel anterior, en vez de manejar directamente el hardware o toda la complejidad del sistema de una sola vez.</p>
+        <p>El ejemplo histórico de referencia es el sistema <b>THE</b>, diseñado por Edsger Dijkstra en 1968: fue de los primeros en demostrar que un sistema operativo podía diseñarse, probarse y verificarse capa por capa, en vez de como un solo programa monolítico difícil de razonar.</p>
+        <p>Esta idea — <b>ocultar la complejidad de un nivel detrás de una interfaz simple para el nivel de arriba</b> — es la misma que hoy separa al hardware, del núcleo, de las bibliotecas del sistema y de las aplicaciones del usuario. Lo que cambia entre sistemas operativos reales es <b>qué tan estrictas son esas capas</b> y <b>qué se le permite hacer a cada una</b>, y de ahí surgen los distintos modelos de estructura que vas a explorar abajo.</p>
+      </div>
+      <div class="aurora-card">
+        <div class="mini-stack" id="mini-stack"></div>
+        <p class="mini-note">Idea general: de abajo hacia arriba, cada capa esconde complejidad y expone una interfaz más simple.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="modelos">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Explorador interactivo</span>
+      <h2>Modelos de estructura de un sistema operativo</h2>
+      <p>Cambia de modelo y observa cómo se reorganizan los niveles, quién habla con quién, y qué sistemas operativos reales lo usan.</p>
+    </div>
+
+    <div class="model-toggle" id="model-toggle"></div>
+
+    <div class="aurora-card">
+      <div class="model-panel">
+        <div class="model-info">
+          <h3 id="m-title"></h3>
+          <p class="subtitle" id="m-subtitle"></p>
+          <div class="model-examples" id="m-examples"></div>
+          <div class="pc-grid">
+            <div class="pc-box pro">
+              <h5>Ventajas</h5>
+              <ul id="m-pros"></ul>
+            </div>
+            <div class="pc-box con">
+              <h5>Desventajas</h5>
+              <ul id="m-cons"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="stack-wrap" id="m-stack"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tabla">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Referencia rápida</span>
+      <h2>Comparación entre modelos</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="compare-table"></table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="fondo">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">A fondo</span>
+      <h2>Preguntas frecuentes sobre la estructura del SO</h2>
+    </div>
+    <div class="accordion" id="accordion"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Sigue explorando el curso</h3>
+    <div class="foot-nav">
+      <a href="../1.4/index.html">1.4 Clasificación de los SO</a>
+      <a href="../1.4/1.4.1/index.html">1.4.1 Clasificación (tipografía cinética)</a>
+      <a href="../1.6/index.html">1.6 Núcleo: Linux vs NT Kernel</a>
+      <a href="../2.2/index.html">2.2 Estados de procesos</a>
+    </div>
+    <p style="margin-top:26px;">Sistemas Operativos I · Material de apoyo — subtema 1.5 Estructura: niveles o estratos de diseño</p>
+  </div>
+</footer>
+
+<script>
+/* ---------------- Kinetic title ---------------- */
+(function(){
+  const el = document.getElementById('kinetic-title');
+  const words = [
+    {t:"Capa", accent:false},{t:"sobre", accent:false},{t:"capa,", accent:false},
+    {t:"nunca", accent:false},{t:"un", accent:false},{t:"solo", accent:false},{t:"bloque.", accent:true}
+  ];
+  el.innerHTML = words.map(w => `<span class="${w.accent ? 'accent-word':''}">${w.t}</span>`).join(' ');
+  const spans = el.querySelectorAll('span');
+  spans.forEach((s,i)=>{ setTimeout(()=> s.classList.add('in'), 120 + i*110); });
+})();
+
+/* ---------------- Mini intro stack ---------------- */
+(function(){
+  const layers = [
+    {t:'Hardware (CPU, memoria, dispositivos)', c:'l0'},
+    {t:'Núcleo: procesos, memoria, E/S', c:'l1'},
+    {t:'Bibliotecas y servicios del sistema', c:'l2'},
+    {t:'Shell / entorno gráfico', c:'l3'},
+    {t:'Aplicaciones del usuario', c:'l4'},
+  ];
+  const box = document.getElementById('mini-stack');
+  box.innerHTML = layers.map(l => `<div class="mini-layer ${l.c}">${l.t}</div>`).join('');
+  const items = box.querySelectorAll('.mini-layer');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        items.forEach((it,i)=> setTimeout(()=> it.classList.add('in'), i*140));
+        io.disconnect();
+      }
+    });
+  }, {threshold:.3});
+  io.observe(box);
+})();
+
+/* ================= MODELS DATA ================= */
+const MODELS = {
+  monolitico: {
+    label: 'Monolítico',
+    title: 'Estructura monolítica',
+    subtitle: 'Todo el sistema operativo corre como un único programa en modo kernel: los módulos se comunican con llamadas a función directas.',
+    examples: 'Ejemplos reales: <b>Linux</b> (núcleo tradicional), Unix clásico, MS-DOS.',
+    pros: ['Comunicación entre módulos muy rápida (llamadas a función directas)', 'Buen rendimiento general', 'Acceso directo y simple al hardware'],
+    cons: ['Un error en cualquier módulo puede tumbar todo el sistema', 'Difícil de mantener y depurar cuando crece', 'Poco aislamiento entre componentes internos'],
+    layers: [
+      {name:'Aplicaciones de usuario', c:'#8f6bff'},
+      {name:'Interfaz de llamadas al sistema (syscalls)', c:'#7c5cff', desc:'Único punto de entrada controlado hacia el kernel.'},
+      {name:'Núcleo monolítico — procesos, memoria, archivos, E/S y red, todo junto', c:'#5b3fd9', desc:'Todos los servicios comparten el mismo espacio de direcciones y se llaman entre sí directamente.'},
+      {name:'Hardware', c:'#2f5d50'},
+    ],
+    table: ['Monolítico', 'Linux (núcleo tradicional), Unix', 'Rendimiento: llamadas directas entre módulos', 'Baja tolerancia a fallos: un módulo caído afecta a todo el sistema'],
+  },
+  capas: {
+    label: 'Por capas',
+    title: 'Estructura por capas (Dijkstra, THE — 1968)',
+    subtitle: 'El sistema se divide en niveles apilados; cada capa solo puede usar servicios de la capa inmediatamente inferior.',
+    examples: 'Referencia histórica: <b>THE</b> (Dijkstra, 1968) — pocas implementaciones comerciales puras hoy en día.',
+    pros: ['Diseño y verificación más simples: cada capa se prueba por separado', 'Fuerte modularidad y separación clara de responsabilidades'],
+    cons: ['Definir los límites de cada capa correctamente es difícil', 'Cada operación puede atravesar muchas capas → más lento', 'Rara vez se implementa de forma estrictamente pura'],
+    layers: [
+      {name:'Capa 5 — Operador / programas de usuario', c:'#8f6bff'},
+      {name:'Capa 4 — Programas de usuario', c:'#7c5cff'},
+      {name:'Capa 3 — Gestión de entrada/salida de dispositivos', c:'#5f4fd0', desc:'Traduce operaciones lógicas de E/S a acciones concretas.'},
+      {name:'Capa 2 — Comunicación consola-proceso', c:'#4a63c9'},
+      {name:'Capa 1 — Gestión de memoria', c:'#2f8ab8'},
+      {name:'Capa 0 — Asignación del procesador y multiprogramación', c:'#2f5d50', desc:'La capa más cercana al hardware; decide qué proceso corre.'},
+    ],
+    table: ['Por capas', 'THE (Dijkstra) — modelo académico de referencia', 'Verificación y modularidad estrictas', 'Más lento por atravesar varias capas; difícil de definir en la práctica'],
+  },
+  microkernel: {
+    label: 'Microkernel',
+    title: 'Microkernel',
+    subtitle: 'El núcleo hace solo lo mínimo indispensable; casi todo lo demás corre como procesos de usuario independientes.',
+    examples: 'Ejemplos reales: <b>MINIX</b>, QNX, L4 — y raíces híbridas en macOS/iOS (kernel Mach).',
+    pros: ['Muy confiable: un driver o servicio que falla no tumba el sistema', 'Fácil de extender y mantener', 'Mejor aislamiento y seguridad entre componentes'],
+    cons: ['Más lento: los servicios se comunican por paso de mensajes, no llamadas directas', 'Mayor complejidad de coordinación entre procesos'],
+    layers: [
+      {name:'Servidores de usuario — sistema de archivos, drivers, red (procesos independientes)', c:'#8f6bff'},
+      {name:'Interfaz de paso de mensajes (IPC)', c:'#22a7c4', desc:'Todos los servicios se comunican mandándose mensajes, no llamando funciones directamente.'},
+      {name:'Microkernel — IPC, gestión básica de memoria y planificación', c:'#0f7a91'},
+      {name:'Hardware', c:'#2f5d50'},
+    ],
+    table: ['Microkernel', 'MINIX, QNX, L4', 'Aislamiento y confiabilidad: fallos contenidos', 'Rendimiento menor por el costo del paso de mensajes'],
+  },
+  hibrido: {
+    label: 'Híbrido',
+    title: 'Estructura híbrida',
+    subtitle: 'Combina un núcleo monolítico con ideas modulares del microkernel: ciertos servicios corren en espacio de kernel por rendimiento.',
+    examples: 'Ejemplos reales: <b>Windows NT/10/11</b>, macOS (XNU), Linux moderno con módulos cargables (LKM).',
+    pros: ['Balance entre rendimiento y modularidad', 'Permite cargar o descargar módulos sin recompilar todo el núcleo'],
+    cons: ['Más complejo de diseñar que un modelo puro', 'La frontera entre "núcleo" y "módulo" puede volverse difusa'],
+    layers: [
+      {name:'Aplicaciones de usuario', c:'#8f6bff'},
+      {name:'Subsistemas de entorno / API (Win32, POSIX)', c:'#6f5fd6'},
+      {name:'Ejecutivo — gestor de objetos, E/S, memoria, procesos', c:'#3e6b94', desc:'Analogía directa con el "Ejecutivo NT" visto en el subtema 1.6.'},
+      {name:'HAL + módulos cargables', c:'#2f5d50'},
+      {name:'Hardware', c:'#1f4238'},
+    ],
+    table: ['Híbrido', 'Windows NT, macOS (XNU), Linux con módulos', 'Balance entre rendimiento y modularidad', 'Diseño más complejo; límites internos poco claros'],
+  },
+  maquinavirtual: {
+    label: 'Máquina virtual',
+    title: 'Máquina virtual / Exokernel',
+    subtitle: 'En vez de un solo SO, una capa delgada (hipervisor) multiplexa el hardware entre varios sistemas operativos completos.',
+    examples: 'Ejemplos reales: <b>VMware ESXi</b>, Xen, Hyper-V, KVM. (Exokernel: proyectos académicos como MIT Exokernel).',
+    pros: ['Aislamiento total entre sistemas operativos invitados', 'Permite correr varios SO distintos sobre el mismo hardware físico'],
+    cons: ['Overhead adicional por la capa de virtualización', 'El hipervisor es un punto crítico de fallo y de seguridad'],
+    layers: [
+      {name:'SO invitado 1', c:'#8f6bff'},
+      {name:'SO invitado 2', c:'#7c5cff'},
+      {name:'SO invitado 3', c:'#5b3fd9'},
+      {name:'Hipervisor / Monitor de máquina virtual (VMM)', c:'#22a7c4', desc:'Reparte CPU, memoria y dispositivos entre los sistemas invitados.'},
+      {name:'Hardware', c:'#2f5d50'},
+    ],
+    table: ['Máquina virtual', 'VMware ESXi, Xen, Hyper-V, KVM', 'Aislamiento total; varios SO en el mismo hardware', 'Overhead de virtualización; el hipervisor es punto crítico'],
+  },
+};
+
+const ORDER = ['monolitico','capas','microkernel','hibrido','maquinavirtual'];
+
+/* ---------------- Toggle ---------------- */
+const toggleBox = document.getElementById('model-toggle');
+toggleBox.innerHTML = ORDER.map((key,i) =>
+  `<button data-key="${key}" class="${i===0?'active':''}">${MODELS[key].label}</button>`
+).join('');
+
+function renderModel(key){
+  const m = MODELS[key];
+  document.getElementById('m-title').textContent = m.title;
+  document.getElementById('m-subtitle').textContent = m.subtitle;
+  document.getElementById('m-examples').innerHTML = m.examples;
+  document.getElementById('m-pros').innerHTML = m.pros.map(p => `<li>${p}</li>`).join('');
+  document.getElementById('m-cons').innerHTML = m.cons.map(p => `<li>${p}</li>`).join('');
+
+  const stack = document.getElementById('m-stack');
+  stack.innerHTML = m.layers.map(l => `
+    <div class="layer${l.desc ? ' has-desc' : ''}" style="background:${l.c}">
+      <div class="l-name">${l.name}</div>
+      ${l.desc ? `<div class="l-desc">${l.desc}</div>` : ''}
+    </div>
+  `).join('');
+
+  const layerEls = stack.querySelectorAll('.layer');
+  layerEls.forEach((el,i) => setTimeout(()=> el.classList.add('in'), i*90));
+  layerEls.forEach(el => {
+    if(el.classList.contains('has-desc')){
+      el.addEventListener('click', ()=> el.classList.toggle('show-desc'));
+      el.style.cursor = 'pointer';
+    }
+  });
+}
+
+toggleBox.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    toggleBox.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderModel(btn.dataset.key);
+  });
+});
+
+renderModel(ORDER[0]);
+
+/* ---------------- Table ---------------- */
+document.getElementById('compare-table').innerHTML = `
+  <thead><tr><th>Modelo</th><th>Ejemplo real</th><th>Ventaja principal</th><th>Desventaja principal</th></tr></thead>
+  <tbody>
+    ${ORDER.map(k => { const r = MODELS[k].table; return `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`; }).join('')}
+  </tbody>
+`;
+
+/* ---------------- Accordion ---------------- */
+const accData = [
+  {
+    q:'¿Por qué casi ningún sistema operativo moderno es 100% monolítico ni 100% microkernel?',
+    a:'Porque cada modelo puro tiene un costo claro: lo monolítico gana velocidad pero pierde aislamiento, y el microkernel gana aislamiento pero pierde velocidad por el paso de mensajes. Los sistemas comerciales reales negocian entre ambos extremos — por eso terminan siendo <b>híbridos</b>: mantienen en el núcleo lo que necesita máximo rendimiento (planificación, memoria) y sacan a espacio de usuario lo que puede tolerar algo más de latencia a cambio de estabilidad (muchos drivers, servicios).'
+  },
+  {
+    q:'¿Qué relación tiene esto con el núcleo (subtema 1.6)?',
+    a:'La <b>estructura</b> es el plano arquitectónico completo del sistema operativo (cómo se organizan todas sus capas, desde el hardware hasta el usuario). El <b>núcleo</b> es una de esas capas: la más privilegiada. Por eso, cuando se compara Linux (núcleo monolítico modular) contra Windows NT (núcleo híbrido) en el subtema 1.6, en realidad se está hablando de un caso particular de los modelos de estructura que ves aquí — 1.5 da el panorama general y 1.6 profundiza en un nivel específico de esa estructura.'
+  },
+  {
+    q:'¿Qué fue el sistema THE de Dijkstra y por qué es importante históricamente?',
+    a:'THE (<i>Technische Hogeschool Eindhoven</i>) fue un sistema operativo experimental de 1968, diseñado por <b>Edsger Dijkstra</b> con un objetivo muy concreto: demostrar que un sistema operativo se podía construir como una jerarquía de capas verificables una por una, en vez de como un solo programa monolítico imposible de razonar en su totalidad. Es la primera implementación documentada del principio de <b>estratificación estricta</b>, y sentó las bases conceptuales de la modularidad que hoy se ve — de forma menos rígida — en prácticamente todo sistema operativo moderno.'
+  },
+  {
+    q:'¿Cómo afecta el modelo de estructura al rendimiento y a la seguridad?',
+    a:'En general hay una tensión directa entre ambos: entre más capas o fronteras estrictas tenga que atravesar una operación (como en el microkernel o el modelo por capas), <b>más segura y aislada</b> es, pero también <b>más lenta</b>, porque cada cruce de frontera cuesta tiempo (cambios de contexto, paso de mensajes, validaciones). Los modelos monolíticos e híbridos aceptan algo de riesgo adicional a cambio de evitar esos cruces constantes, por eso dominan en sistemas de propósito general donde el rendimiento importa tanto como la estabilidad.'
+  },
+];
+
+document.getElementById('accordion').innerHTML = accData.map((item,i)=>`
+  <div class="acc-item" id="acc-${i}">
+    <button class="acc-trigger" data-i="${i}">
+      <span>${item.q}</span>
+      <span class="plus">+</span>
+    </button>
+    <div class="acc-panel">
+      <div class="acc-panel-inner">${item.a}</div>
+    </div>
+  </div>
+`).join('');
+
+document.querySelectorAll('.acc-trigger').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const item = btn.closest('.acc-item');
+    const panel = item.querySelector('.acc-panel');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.acc-item.open').forEach(o=>{
+      o.classList.remove('open');
+      o.querySelector('.acc-panel').style.maxHeight = null;
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    }
+  });
+});
+</script>
+
+</body>
+</html>
