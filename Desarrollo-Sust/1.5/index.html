@@ -5,33 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Limpiador de Promociones y Spam Digital</title>
 
-<!-- Fraunces (display, orgánica), Plus Jakarta Sans (cuerpo), JetBrains Mono (etiquetas/datos) -->
+<!-- Google Fonts: Space Grotesk (display), Inter (cuerpo), IBM Plex Mono (etiquetas/datos) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    /* Paleta — cada color mapea a un problema de la huella digital */
-    --amb:        #16d69a;   /* almacenamiento permanente — esmeralda */
-    --soc:        #38bdf8;   /* efecto de escala — cielo */
-    --eco:        #f5a623;   /* infraestructura desperdiciada — ámbar */
-    --violet:     #7c6cf0;   /* acento de apoyo */
-
-    --ink:        #0b1520;
-    --ink-soft:   rgba(11,21,32,.68);
-    --white:      #ffffff;
-
-    --glass-bg:      rgba(255,255,255,.14);
-    --glass-bg-2:    rgba(255,255,255,.22);
-    --glass-border:  rgba(255,255,255,.38);
-    --glass-blur:    18px;
-
-    --radius: 22px;
-    --maxw: 1180px;
+    --bg:            #0a0d0f;
+    --bg-alt:        #11161a;
+    --bg-alt-2:      #161d22;
+    --border:        #1f2a2c;
+    --border-soft:   #24302f;
+    --text:          #eef4f2;
+    --text-dim:      #9fb3ae;
+    --text-faint:    #6b7d79;
+    --accent:        #34f5c5;
+    --accent-soft:   rgba(52,245,197,.14);
+    --accent-2:      #8b7bff;
+    --glow:          0 0 0 1px rgba(52,245,197,.35), 0 0 34px rgba(52,245,197,.20);
+    --glow-strong:   0 0 0 1px rgba(52,245,197,.55), 0 0 55px rgba(52,245,197,.30);
+    --radius:        18px;
+    --maxw:          1180px;
   }
 
   *{ margin:0; padding:0; box-sizing:border-box; }
+
   html{ scroll-behavior:smooth; }
 
   @media (prefers-reduced-motion: reduce){
@@ -40,208 +39,222 @@
   }
 
   body{
-    font-family:'Plus Jakarta Sans', sans-serif;
-    color:var(--white);
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
     line-height:1.6;
     overflow-x:hidden;
-    background:#0d2a3d;
   }
 
   img{ display:block; max-width:100%; }
-  a{ color:inherit; text-decoration:none; }
 
-  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; letter-spacing:-.01em; }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-.02em; color:var(--text); }
 
   .eyebrow{
-    font-family:'JetBrains Mono', monospace;
-    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
   }
 
-  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,48px); }
+  a{ color:inherit; text-decoration:none; }
 
-  ::selection{ background:var(--amb); color:#04120e; }
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 clamp(20px,5vw,48px);
+  }
+
+  ::selection{ background:var(--accent); color:#04120e; }
 
   a:focus-visible, button:focus-visible{
-    outline:2px solid var(--white);
+    outline:2px solid var(--accent);
     outline-offset:3px;
     border-radius:6px;
   }
 
-  /* ===== Fondo animado ===== */
-  .aurora-bg{
-    position:fixed; inset:0; z-index:-1;
-    background:
-      radial-gradient(circle at 15% 20%, var(--amb) 0%, transparent 42%),
-      radial-gradient(circle at 85% 15%, var(--soc) 0%, transparent 46%),
-      radial-gradient(circle at 50% 90%, var(--eco) 0%, transparent 50%),
-      radial-gradient(circle at 90% 80%, var(--violet) 0%, transparent 40%),
-      #0d2a3d;
-    background-size:200% 200%;
-    animation:drift 26s ease-in-out infinite;
-    filter:blur(60px) saturate(1.15);
-    opacity:.85;
-  }
-  @keyframes drift{
-    0%,100%{ background-position:0% 0%, 100% 0%, 50% 100%, 100% 100%; }
-    50%{ background-position:20% 30%, 80% 20%, 40% 70%, 80% 90%; }
-  }
-
-  /* ===== Nav ===== */
   .nav{
-    position:fixed; top:16px; left:50%; transform:translateX(-50%);
-    z-index:100; width:min(94%, 1120px);
-    background:var(--glass-bg);
-    border:1px solid var(--glass-border);
-    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
-    border-radius:999px;
-    box-shadow:0 8px 32px rgba(0,0,0,.18);
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    backdrop-filter:blur(14px);
+    background:rgba(10,13,15,.55);
+    border-bottom:1px solid transparent;
+    transition:border-color .3s ease, background .3s ease;
   }
+  .nav.scrolled{ border-bottom-color:var(--border); background:rgba(10,13,15,.85); }
   .nav-inner{
     display:flex; align-items:center; justify-content:space-between;
-    padding:12px 22px;
+    padding:16px clamp(20px,5vw,48px);
+    max-width:var(--maxw); margin:0 auto;
   }
   .brand{
-    font-family:'Fraunces', serif; font-weight:600; font-size:1.02rem;
-    display:flex; align-items:center; gap:9px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700; font-size:1.05rem;
+    display:flex; align-items:center; gap:8px;
   }
   .brand-dot{
-    width:10px; height:10px; border-radius:50%;
-    background:conic-gradient(var(--amb), var(--soc), var(--eco), var(--amb));
+    width:9px; height:9px; border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 10px var(--accent), 0 0 22px var(--accent);
   }
-  .nav-links{ display:flex; gap:clamp(14px,3vw,28px); font-size:.86rem; }
-  .nav-links a{ opacity:.85; transition:opacity .2s ease; }
-  .nav-links a:hover{ opacity:1; }
-  .nav-toggle{
-    display:none; background:none; border:1px solid var(--glass-border); color:var(--white);
-    width:38px; height:38px; border-radius:50%; font-size:1rem;
-  }
+  .nav-links{ display:flex; gap:clamp(16px,3vw,32px); font-size:.88rem; color:var(--text-dim); }
+  .nav-links a{ transition:color .2s ease; position:relative; }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border-soft); color:var(--text); width:40px; height:40px; border-radius:10px; font-size:1.1rem; }
 
   @media (max-width:720px){
     .nav-links{
-      position:fixed; top:70px; left:50%; transform:translateX(-50%);
-      width:min(94%,1120px);
+      position:fixed; top:64px; left:0; right:0;
       flex-direction:column; gap:0;
-      background:var(--glass-bg-2);
-      backdrop-filter:blur(var(--glass-blur));
-      border:1px solid var(--glass-border);
-      border-radius:20px;
+      background:var(--bg-alt);
+      border-bottom:1px solid var(--border);
       max-height:0; overflow:hidden;
       transition:max-height .35s ease;
     }
-    .nav-links.open{ max-height:300px; }
-    .nav-links a{ padding:14px 22px; display:block; border-top:1px solid var(--glass-border); }
+    .nav-links.open{ max-height:320px; }
+    .nav-links a{ padding:16px clamp(20px,5vw,48px); border-top:1px solid var(--border); }
     .nav-toggle{ display:block; }
   }
 
-  /* ===== Hero ===== */
   .hero{
-    position:relative; min-height:100svh;
-    display:flex; align-items:center; padding-top:110px;
+    position:relative;
+    min-height:100svh;
+    display:flex; align-items:center;
+    padding-top:80px;
+    overflow:hidden;
   }
-  .hero-content{ max-width:800px; }
+  .hero-bg{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(180deg, rgba(10,13,15,.55) 0%, rgba(10,13,15,.8) 55%, var(--bg) 100%),
+      url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1800&q=80');
+    background-size:cover;
+    background-position:center 40%;
+    filter:saturate(.85);
+  }
+  .hero-rings{
+    position:absolute;
+    right:-14%; top:50%; transform:translateY(-50%);
+    width:min(60vw, 640px); aspect-ratio:1/1;
+    opacity:.55;
+    pointer-events:none;
+  }
+  .hero-rings svg{ width:100%; height:100%; }
+  .ring{ fill:none; stroke:var(--accent); stroke-opacity:.35; }
+  .ring-spin{ animation:spin 60s linear infinite; transform-origin:center; }
+  .ring-spin-rev{ animation:spin 90s linear infinite reverse; transform-origin:center; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes pulse{
+    0%,100%{ opacity:.15; r:70; }
+    50%{ opacity:.5; r:78; }
+  }
+
+  .hero-content{ position:relative; z-index:2; max-width:780px; }
   .hero-eyebrow{
     display:inline-flex; align-items:center; gap:8px;
-    font-family:'JetBrains Mono', monospace; font-size:.74rem;
-    letter-spacing:.12em; text-transform:uppercase;
-    background:var(--glass-bg); border:1px solid var(--glass-border);
-    backdrop-filter:blur(var(--glass-blur));
-    padding:8px 16px; border-radius:999px; margin-bottom:24px;
+    font-family:'IBM Plex Mono', monospace; font-size:.75rem;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--accent-soft);
+    background:var(--accent-soft);
+    padding:7px 14px; border-radius:999px;
+    margin-bottom:22px;
   }
   .hero h1{
-    font-size:clamp(2.4rem, 6.6vw, 4.1rem); line-height:1.06; margin-bottom:22px;
+    font-size:clamp(2.3rem, 6.6vw, 4.2rem);
+    line-height:1.05;
+    margin-bottom:20px;
   }
-  .hero h1 .word-amb{ color:var(--amb); }
-  .hero h1 .word-soc{ color:var(--soc); }
-  .hero h1 .word-eco{ color:var(--eco); }
+  .hero h1 .accent-word{ color:var(--accent); }
+  .hero h1 .accent-word-2{ color:var(--accent-2); }
   .hero p.lead{
-    font-size:clamp(1rem, 2vw, 1.18rem);
-    color:rgba(255,255,255,.86);
-    max-width:58ch; margin-bottom:30px;
+    font-size:clamp(1rem, 2vw, 1.2rem);
+    color:var(--text-dim);
+    max-width:56ch;
+    margin-bottom:28px;
   }
   .hero-note{
     display:flex; gap:12px; align-items:flex-start;
-    padding:16px 18px; border-radius:16px; max-width:58ch; margin-bottom:36px;
+    border:1px solid var(--border-soft); background:var(--bg-alt);
+    padding:16px 18px; border-radius:14px; max-width:56ch; margin-bottom:34px;
   }
-  .hero-note svg{ flex:none; width:20px; height:20px; margin-top:2px; color:var(--eco); }
-  .hero-note p{ font-size:.9rem; color:rgba(255,255,255,.82); }
+  .hero-note svg{ flex:none; width:20px; height:20px; margin-top:2px; color:var(--accent-2); }
+  .hero-note p{ font-size:.9rem; color:var(--text-dim); }
   .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
   .btn{
-    font-weight:600; font-size:.94rem;
-    padding:15px 28px; border-radius:999px;
-    border:1px solid var(--glass-border);
+    font-family:'Inter', sans-serif; font-weight:600; font-size:.94rem;
+    padding:14px 26px; border-radius:12px;
+    border:1px solid transparent;
     display:inline-flex; align-items:center; gap:8px;
-    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
     cursor:pointer;
   }
   .btn-primary{
-    background:var(--white); color:var(--ink); border-color:var(--white);
+    background:var(--accent); color:#04120e;
   }
-  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 14px 32px rgba(255,255,255,.28); }
+  .btn-primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 30px rgba(52,245,197,.35);
+  }
   .btn-ghost{
-    background:var(--glass-bg); color:var(--white);
-    backdrop-filter:blur(var(--glass-blur));
+    background:transparent; color:var(--text); border-color:var(--border-soft);
   }
-  .btn-ghost:hover{ transform:translateY(-3px); background:var(--glass-bg-2); }
+  .btn-ghost:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:translateY(-3px);
+  }
 
   .scroll-cue{
-    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
     display:flex; flex-direction:column; align-items:center; gap:8px;
-    font-family:'JetBrains Mono', monospace; font-size:.66rem;
-    letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6);
+    color:var(--text-faint); font-family:'IBM Plex Mono', monospace; font-size:.68rem;
+    letter-spacing:.1em; text-transform:uppercase;
+    z-index:2;
   }
-  .scroll-cue .line{ width:1px; height:32px; background:linear-gradient(rgba(255,255,255,.8), transparent); animation:cue 2s ease-in-out infinite; }
+  .scroll-cue .line{ width:1px; height:34px; background:linear-gradient(var(--accent), transparent); animation:cue 2s ease-in-out infinite; }
   @keyframes cue{ 0%,100%{ transform:scaleY(1); opacity:.8;} 50%{ transform:scaleY(.5); opacity:.3;} }
 
-  section{ padding:clamp(70px,10vw,120px) 0; position:relative; }
-  .section-head{ max-width:660px; margin-bottom:44px; }
-  .section-head h2{ font-size:clamp(1.8rem,4vw,2.5rem); margin-top:10px; }
-  .section-head p.sub{ margin-top:14px; color:rgba(255,255,255,.8); font-size:1rem; max-width:60ch; }
+  section{ padding:clamp(70px, 10vw, 128px) 0; position:relative; }
+  .section-head{ max-width:660px; margin-bottom:48px; }
+  .section-head h2{ font-size:clamp(1.8rem, 4vw, 2.6rem); margin-top:12px; }
+  .section-head p.sub{ margin-top:14px; color:var(--text-dim); font-size:1rem; max-width:60ch; }
 
-  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
   .reveal.in{ opacity:1; transform:translateY(0); }
 
-  /* ===== Panel de vidrio genérico ===== */
-  .glass-panel{
-    background:var(--glass-bg);
-    border:1px solid var(--glass-border);
-    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
-    border-radius:var(--radius);
-    box-shadow:0 10px 40px rgba(0,0,0,.16);
-  }
-
-  /* ===== Resumen / Problemática ===== */
+  .resumen{ border-top:1px solid var(--border); }
   .resumen-grid{
-    display:grid; grid-template-columns:1.05fr .95fr; gap:52px; align-items:center;
+    display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center;
   }
-  .resumen-text p{ color:rgba(255,255,255,.86); margin-bottom:16px; font-size:1.02rem; }
+  .resumen-text p{ color:var(--text-dim); margin-bottom:18px; font-size:1.02rem; }
   .resumen-media{
     position:relative; border-radius:var(--radius); overflow:hidden;
-    aspect-ratio:4/5; border:1px solid var(--glass-border);
+    border:1px solid var(--border-soft);
+    aspect-ratio:4/5;
   }
-  .resumen-media img{ width:100%; height:100%; object-fit:cover; }
+  .resumen-media img{ width:100%; height:100%; object-fit:cover; filter:saturate(.9) contrast(1.02); }
   .resumen-media::after{
     content:""; position:absolute; inset:0;
-    background:linear-gradient(180deg, transparent 50%, rgba(6,20,26,.7) 100%);
+    background:linear-gradient(180deg, transparent 55%, rgba(10,13,15,.85) 100%);
   }
   .resumen-tag{
-    position:absolute; left:16px; bottom:16px; z-index:2;
-    font-family:'JetBrains Mono', monospace; font-size:.7rem; letter-spacing:.06em;
+    position:absolute; left:18px; bottom:18px; z-index:2;
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--text-dim);
+    letter-spacing:.06em;
   }
 
-  .pillars{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:30px; }
-  .pillar{
-    padding:20px 18px; text-align:left;
-    transition:transform .25s ease, background .25s ease;
-    border-radius:18px;
+  .pillars{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:34px;
   }
-  .pillar:hover{ transform:translateY(-5px); background:var(--glass-bg-2); }
-  .pillar-dot{ width:10px; height:10px; border-radius:50%; margin-bottom:10px; }
-  .pillar.amb .pillar-dot{ background:var(--amb); box-shadow:0 0 14px var(--amb); }
-  .pillar.soc .pillar-dot{ background:var(--soc); box-shadow:0 0 14px var(--soc); }
-  .pillar.eco .pillar-dot{ background:var(--eco); box-shadow:0 0 14px var(--eco); }
-  .pillar .p-label{ font-family:'JetBrains Mono', monospace; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.9); }
-  .pillar .p-stat{ font-family:'Fraunces', serif; font-size:1.5rem; font-weight:600; margin-top:6px; }
-  .pillar p.p-desc{ font-size:.86rem; color:rgba(255,255,255,.78); margin-top:8px; }
+  .pillar{
+    border:1px solid var(--border-soft); border-radius:14px; padding:18px 16px;
+    background:var(--bg-alt);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .pillar:hover{ transform:translateY(-4px); border-color:var(--accent); box-shadow:var(--glow); }
+  .pillar .p-label{ font-family:'IBM Plex Mono', monospace; font-size:.68rem; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; }
+  .pillar .p-stat{ font-family:'Space Grotesk', sans-serif; font-size:1.5rem; font-weight:700; margin-top:8px; color:var(--text); }
+  .pillar p{ font-size:.86rem; color:var(--text-dim); margin-top:8px; }
 
   @media (max-width:860px){
     .resumen-grid{ grid-template-columns:1fr; }
@@ -249,98 +262,124 @@
     .pillars{ grid-template-columns:1fr; }
   }
 
-  /* ===== Acordeón ===== */
+  .temas{ border-top:1px solid var(--border); }
+
   .accordion{ display:flex; flex-direction:column; gap:14px; }
 
   .acc-item{
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius);
+    background:var(--bg-alt);
     overflow:hidden;
-    transition:background .3s ease, transform .2s ease;
+    transition:border-color .3s ease, box-shadow .3s ease, background .3s ease;
   }
-  .acc-item:hover{ background:var(--glass-bg-2); }
+  .acc-item.open, .acc-item:hover{
+    border-color:var(--accent);
+    box-shadow:var(--glow);
+    background:var(--bg-alt-2);
+  }
 
   .acc-trigger{
     width:100%; text-align:left;
     display:flex; align-items:center; gap:18px;
-    background:none; border:none; color:var(--white);
-    padding:22px clamp(18px,3vw,26px);
-    cursor:pointer; font-family:'Plus Jakarta Sans', sans-serif;
+    background:none; border:none; color:var(--text);
+    padding:22px clamp(18px,3vw,28px);
+    cursor:pointer;
+    font-family:'Inter', sans-serif;
   }
   .acc-icon{
-    flex:none; width:44px; height:44px; border-radius:14px;
+    flex:none; width:44px; height:44px; border-radius:12px;
     display:flex; align-items:center; justify-content:center;
-    background:rgba(255,255,255,.18); border:1px solid var(--glass-border);
+    background:var(--accent-soft); color:var(--accent);
     transition:background .3s ease, transform .3s ease;
   }
-  .acc-item.open .acc-icon{ background:var(--white); color:var(--ink); transform:rotate(-6deg); }
+  .acc-item.open .acc-icon{ background:var(--accent); color:#04120e; transform:rotate(-6deg); }
   .acc-icon svg{ width:22px; height:22px; }
 
   .acc-title-wrap{ flex:1; }
-  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; color:rgba(255,255,255,.7); }
-  .acc-title-wrap h3{ font-size:clamp(1.02rem,2vw,1.2rem); font-weight:600; line-height:1.35; }
+  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; }
+  .acc-title-wrap h3{ font-size:clamp(1.02rem, 2vw, 1.22rem); font-weight:600; line-height:1.35; }
 
   .acc-chevron{
-    flex:none; width:20px; height:20px; color:rgba(255,255,255,.6);
-    transition:transform .35s ease;
+    flex:none; width:22px; height:22px; color:var(--text-faint);
+    transition:transform .35s ease, color .3s ease;
   }
-  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--white); }
+  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--accent); }
 
-  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .45s ease; }
+  .acc-panel{
+    max-height:0; overflow:hidden;
+    transition:max-height .45s ease;
+  }
   .acc-panel-inner{
-    padding:0 clamp(18px,3vw,26px) 26px 86px;
-    color:rgba(255,255,255,.84); font-size:.96rem;
+    padding:0 clamp(18px,3vw,28px) 28px 86px;
+    color:var(--text-dim); font-size:.96rem;
   }
   .acc-panel-inner p{ margin-bottom:12px; }
   .acc-panel-inner ul{ margin:10px 0 4px 20px; }
   .acc-panel-inner li{ margin-bottom:8px; }
-  .acc-panel-inner strong{ color:var(--white); font-weight:700; }
+  .acc-panel-inner strong{ color:var(--text); font-weight:600; }
 
   @media (max-width:600px){
-    .acc-panel-inner{ padding-left:clamp(18px,3vw,26px); }
+    .acc-panel-inner{ padding-left:clamp(18px,3vw,28px); }
     .acc-trigger{ gap:12px; padding:18px 16px; }
     .acc-icon{ width:38px; height:38px; }
   }
 
-  /* ===== Flujo Make ===== */
+  .flujo{ border-top:1px solid var(--border); }
   .flow{
     display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; align-items:center;
   }
   .flow-step{
     display:flex; flex-direction:column; gap:6px;
     padding:18px 20px; min-width:160px; flex:1;
+    border:1px solid var(--border-soft); border-radius:14px; background:var(--bg-alt);
+    transition:border-color .3s ease, box-shadow .3s ease;
   }
-  .flow-step .eyebrow{ color:rgba(255,255,255,.7); }
-  .flow-step strong{ font-family:'Fraunces', serif; font-size:1.02rem; }
-  .flow-arrow{ flex:none; width:22px; height:22px; color:rgba(255,255,255,.55); }
+  .flow-step:hover{ border-color:var(--accent); box-shadow:var(--glow); }
+  .flow-step strong{ font-family:'Space Grotesk', sans-serif; font-size:1.02rem; }
+  .flow-step span.desc{ font-size:.86rem; color:var(--text-dim); }
+  .flow-arrow{ flex:none; width:22px; height:22px; color:var(--text-faint); }
   @media (max-width:760px){
     .flow{ flex-direction:column; align-items:stretch; }
     .flow-arrow{ transform:rotate(90deg); align-self:center; }
   }
 
-  /* ===== CTA ===== */
   .cta{
-    position:relative; text-align:center;
-    padding:clamp(48px,8vw,86px) clamp(24px,6vw,60px);
+    position:relative;
+    border-radius:calc(var(--radius) + 6px);
+    overflow:hidden;
+    border:1px solid var(--border-soft);
+    padding:clamp(48px,8vw,90px) clamp(24px,6vw,64px);
+    text-align:center;
   }
-  .cta h2{ font-size:clamp(1.7rem,4vw,2.25rem); margin-bottom:14px; }
-  .cta p{ color:rgba(255,255,255,.85); margin-bottom:28px; max-width:56ch; margin-left:auto; margin-right:auto; }
+  .cta-bg{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(180deg, rgba(10,13,15,.6), rgba(10,13,15,.92)),
+      url('https://images.unsplash.com/photo-1591238372338-22a2a9f4f0e2?auto=format&fit=crop&w=1600&q=80');
+    background-size:cover; background-position:center;
+  }
+  .cta-inner{ position:relative; z-index:2; max-width:640px; margin:0 auto; }
   .cta .quote{
-    font-family:'Fraunces', serif; font-size:clamp(1.3rem,2.6vw,1.7rem);
-    font-weight:600; margin-bottom:18px; color:var(--amb);
+    font-family:'Space Grotesk', sans-serif; font-size:clamp(1.3rem,2.6vw,1.7rem);
+    font-weight:700; margin-bottom:16px; color:var(--accent);
   }
+  .cta h2{ font-size:clamp(1.7rem, 4vw, 2.3rem); margin-bottom:14px; }
+  .cta p{ color:var(--text-dim); margin-bottom:30px; }
 
-  footer{ padding:30px 0 60px; }
+  footer{
+    border-top:1px solid var(--border);
+    padding:32px 0 60px;
+  }
   .footer-inner{
     display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
-    font-size:.82rem; color:rgba(255,255,255,.6);
-    padding:18px 22px;
+    font-size:.82rem; color:var(--text-faint);
   }
 </style>
 </head>
 <body>
 
-  <div class="aurora-bg" aria-hidden="true"></div>
-
-  <nav class="nav glass-panel" id="nav">
+  <nav class="nav" id="nav">
     <div class="nav-inner">
       <div class="brand"><span class="brand-dot"></span>Limpiador de Spam Digital</div>
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
@@ -354,13 +393,28 @@
   </nav>
 
   <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+
+    <div class="hero-rings" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <g class="ring-spin">
+          <circle class="ring" cx="200" cy="200" r="180" stroke-dasharray="2 10"/>
+          <circle class="ring" cx="200" cy="200" r="140" stroke-dasharray="1 6"/>
+        </g>
+        <g class="ring-spin-rev">
+          <circle class="ring" cx="200" cy="200" r="100"/>
+        </g>
+        <circle class="ring" cx="200" cy="200" r="70" style="animation:pulse 4s ease-in-out infinite;"/>
+      </svg>
+    </div>
+
     <div class="wrap">
       <div class="hero-content">
         <span class="hero-eyebrow">Práctica · Make.com · Green IT y centros de datos</span>
-        <h1>Limpiador de <span class="word-amb">Promociones</span> y <span class="word-eco">Spam</span> Digital</h1>
+        <h1>Limpiador de <span class="accent-word">Promociones</span> y <span class="accent-word-2">Spam</span> Digital</h1>
         <p class="lead">Acumular miles de correos de promociones no leídos en la bandeja de entrada obliga a los data centers a mantener servidores encendidos para almacenar basura digital.</p>
 
-        <div class="hero-note glass-panel">
+        <div class="hero-note">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4.3 2.8 17.5c-.5.9.1 2 1.2 2h16c1.1 0 1.7-1.1 1.2-2L13.7 4.3c-.6-1-2-1-2.6 0z"/></svg>
           <p>La nube no es un concepto abstracto: cada correo no leído vive físicamente en un disco duro dentro de un centro de datos, encendido las 24 horas para que puedas abrirlo en cualquier momento.</p>
         </div>
@@ -371,44 +425,42 @@
         </div>
       </div>
     </div>
+
     <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><span class="line"></span></div>
   </header>
 
   <main>
 
     <!-- ===== PROBLEMÁTICA ===== -->
-    <section id="problema">
+    <section class="resumen" id="problema">
       <div class="wrap">
         <div class="resumen-grid">
 
           <div class="resumen-text reveal">
-            <span class="eyebrow" style="color:rgba(255,255,255,.7)">El enfoque de la huella ecológica</span>
+            <span class="eyebrow">El enfoque de la huella ecológica</span>
             <h2 style="margin-top:10px; font-size:clamp(1.6rem,3.4vw,2.2rem);">La problemática detrás de la bandeja llena</h2>
             <p>Existe la falsa creencia de que la nube es un concepto abstracto e inmaterial. En realidad, cada correo no leído, suscripción abandonada o boletín promocional guardado vive físicamente en un disco duro dentro de un Centro de Datos.</p>
             <p>Para que puedas abrir un correo promocional de hace tres años en cualquier segundo, los servidores de almacenamiento y las bases de datos del proveedor de correo deben mantenerse encendidos, energizados y refrigerados las 24 horas del día, los 365 días del año.</p>
 
             <div class="pillars">
-              <div class="pillar glass-panel amb">
-                <span class="pillar-dot"></span>
+              <div class="pillar">
                 <span class="p-label">Almacenamiento 24/7</span>
-                <p class="p-desc">Los servidores de correo permanecen encendidos y refrigerados sin descanso, solo para guardar mensajes que quizá nadie vuelva a abrir.</p>
+                <p>Los servidores de correo permanecen encendidos y refrigerados sin descanso, solo para guardar mensajes que quizá nadie vuelva a abrir.</p>
               </div>
-              <div class="pillar glass-panel soc">
-                <span class="pillar-dot"></span>
+              <div class="pillar">
                 <span class="p-label">Efecto de escala</span>
                 <span class="p-stat">300 mil M</span>
-                <p class="p-desc">Correos que se envían al día en el mundo. Cada uno emite entre 0.3 g y 4 g de CO₂: la escala convierte lo pequeño en masivo.</p>
+                <p>Correos que se envían al día en el mundo. Cada uno emite entre 0.3 g y 4 g de CO₂: la escala convierte lo pequeño en masivo.</p>
               </div>
-              <div class="pillar glass-panel eco">
-                <span class="pillar-dot"></span>
+              <div class="pillar">
                 <span class="p-label">Infraestructura desperdiciada</span>
-                <p class="p-desc">Guardar basura digital obliga a construir más centros de datos y fabricar más discos duros, extrayendo minerales y consumiendo agua y electricidad.</p>
+                <p>Guardar basura digital obliga a construir más centros de datos y fabricar más discos duros, extrayendo minerales y consumiendo agua y electricidad.</p>
               </div>
             </div>
           </div>
 
-          <div class="resumen-media reveal glass-panel">
-            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80" alt="Pasillo de servidores encendidos en un centro de datos" loading="lazy">
+          <div class="resumen-media reveal">
+            <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=900&q=80" alt="Pasillo de servidores encendidos en un centro de datos" loading="lazy">
             <span class="resumen-tag">Un centro de datos nunca duerme</span>
           </div>
 
@@ -417,10 +469,10 @@
     </section>
 
     <!-- ===== BENEFICIOS / ACORDEÓN ===== -->
-    <section id="beneficios">
+    <section class="temas" id="beneficios">
       <div class="wrap">
         <div class="section-head reveal">
-          <span class="eyebrow" style="color:rgba(255,255,255,.7)">El beneficio práctico</span>
+          <span class="eyebrow">El beneficio práctico</span>
           <h2>Lo que aporta automatizar la limpieza del correo</h2>
           <p class="sub">Al construir este flujo en Make, no solo se ordena la bandeja de entrada: se aplica la automatización como una herramienta de mitigación ecológica digital.</p>
         </div>
@@ -428,7 +480,7 @@
         <div class="accordion">
 
           <!-- 1 -->
-          <div class="acc-item reveal glass-panel">
+          <div class="acc-item reveal">
             <button class="acc-trigger" aria-expanded="false">
               <span class="acc-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2.4"/></svg>
@@ -452,7 +504,7 @@
           </div>
 
           <!-- 2 -->
-          <div class="acc-item reveal glass-panel">
+          <div class="acc-item reveal">
             <button class="acc-trigger" aria-expanded="false">
               <span class="acc-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><circle cx="7.5" cy="7" r=".6" fill="currentColor"/><circle cx="7.5" cy="17" r=".6" fill="currentColor"/></svg>
@@ -475,7 +527,7 @@
           </div>
 
           <!-- 3 -->
-          <div class="acc-item reveal glass-panel">
+          <div class="acc-item reveal">
             <button class="acc-trigger" aria-expanded="false">
               <span class="acc-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg>
@@ -498,7 +550,7 @@
           </div>
 
           <!-- 4 -->
-          <div class="acc-item reveal glass-panel">
+          <div class="acc-item reveal">
             <button class="acc-trigger" aria-expanded="false">
               <span class="acc-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>
@@ -521,7 +573,7 @@
           </div>
 
           <!-- 5 -->
-          <div class="acc-item reveal glass-panel">
+          <div class="acc-item reveal">
             <button class="acc-trigger" aria-expanded="false">
               <span class="acc-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/><path d="M12 8v4l2.5 2.5"/></svg>
@@ -544,7 +596,7 @@
           </div>
 
           <!-- 6 -->
-          <div class="acc-item reveal glass-panel">
+          <div class="acc-item reveal">
             <button class="acc-trigger" aria-expanded="false">
               <span class="acc-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3 21 21"/></svg>
@@ -566,7 +618,7 @@
           </div>
 
           <!-- 7 -->
-          <div class="acc-item reveal glass-panel">
+          <div class="acc-item reveal">
             <button class="acc-trigger" aria-expanded="false">
               <span class="acc-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.2 6h7.6M6 8.2v7.6M18 8.2v7.6M8.2 18h7.6"/></svg>
@@ -592,31 +644,31 @@
     </section>
 
     <!-- ===== FLUJO MAKE ===== -->
-    <section id="flujo">
+    <section class="flujo" id="flujo">
       <div class="wrap">
         <div class="section-head reveal">
-          <span class="eyebrow" style="color:rgba(255,255,255,.7)">Lógica del flujo</span>
+          <span class="eyebrow">Lógica del flujo</span>
           <h2>Cómo se automatiza en Make</h2>
           <p class="sub">El mismo patrón de automatización usado en otras prácticas del curso, aplicado ahora a la bandeja de entrada.</p>
         </div>
 
         <div class="flow reveal">
-          <div class="flow-step glass-panel">
+          <div class="flow-step">
             <span class="eyebrow">1 · Trigger</span>
             <strong>Nuevo correo</strong>
-            <span style="font-size:.86rem; color:rgba(255,255,255,.78);">Watch Emails detecta un mensaje entrante en la bandeja.</span>
+            <span class="desc">Watch Emails detecta un mensaje entrante en la bandeja.</span>
           </div>
           <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          <div class="flow-step glass-panel">
+          <div class="flow-step">
             <span class="eyebrow">2 · Router</span>
             <strong>¿Es promoción o spam?</strong>
-            <span style="font-size:.86rem; color:rgba(255,255,255,.78);">Filtra por remitente, palabras clave o etiqueta "Promociones".</span>
+            <span class="desc">Filtra por remitente, palabras clave o etiqueta "Promociones".</span>
           </div>
           <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          <div class="flow-step glass-panel">
+          <div class="flow-step">
             <span class="eyebrow">3 · Acción</span>
             <strong>Archivar o eliminar</strong>
-            <span style="font-size:.86rem; color:rgba(255,255,255,.78);">El correo se mueve a papelera o carpeta antes de ocupar almacenamiento activo.</span>
+            <span class="desc">El correo se mueve a papelera o carpeta antes de ocupar almacenamiento activo.</span>
           </div>
         </div>
       </div>
@@ -625,12 +677,15 @@
     <!-- ===== CIERRE ===== -->
     <section id="cierre">
       <div class="wrap">
-        <div class="cta reveal glass-panel">
-          <span class="eyebrow" style="color:rgba(255,255,255,.7)">Resumen</span>
-          <p class="quote">"Un correo que no existe no consume energía."</p>
-          <h2>Limpiar es también una acción ecológica</h2>
-          <p>El objetivo del ejercicio es demostrar que limpiar y automatizar el flujo de datos no solo mejora la productividad personal, sino que reduce la carga operativa sobre los centros de datos, disminuyendo la energía necesaria para mantener discos encendidos con datos que no aportan valor.</p>
-          <a href="#problema" class="btn btn-primary">Repasar la problemática</a>
+        <div class="cta reveal">
+          <div class="cta-bg" aria-hidden="true"></div>
+          <div class="cta-inner">
+            <span class="eyebrow">Resumen</span>
+            <p class="quote">"Un correo que no existe no consume energía."</p>
+            <h2>Limpiar es también una acción ecológica</h2>
+            <p>El objetivo del ejercicio es demostrar que limpiar y automatizar el flujo de datos no solo mejora la productividad personal, sino que reduce la carga operativa sobre los centros de datos, disminuyendo la energía necesaria para mantener discos encendidos con datos que no aportan valor.</p>
+            <a href="#problema" class="btn btn-primary">Repasar la problemática</a>
+          </div>
         </div>
       </div>
     </section>
@@ -638,15 +693,18 @@
   </main>
 
   <footer>
-    <div class="wrap">
-      <div class="footer-inner glass-panel">
-        <span>Desarrollo Sustentable — Práctica de automatización con Make</span>
-        <span>Green IT · Centros de datos · Huella ecológica digital</span>
-      </div>
+    <div class="wrap footer-inner">
+      <span>Desarrollo Sustentable — Práctica de automatización con Make</span>
+      <span>Green IT · Centros de datos · Huella ecológica digital</span>
     </div>
   </footer>
 
   <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 12);
+    });
+
     const navToggle = document.getElementById('navToggle');
     const navLinks = document.getElementById('navLinks');
     navToggle.addEventListener('click', () => {
