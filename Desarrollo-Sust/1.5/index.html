@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limpiador de Promociones y Spam Digital</title>
+
+<!-- Fraunces (display, orgánica), Plus Jakarta Sans (cuerpo), JetBrains Mono (etiquetas/datos) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* Paleta — cada color mapea a un problema de la huella digital */
+    --amb:        #16d69a;   /* almacenamiento permanente — esmeralda */
+    --soc:        #38bdf8;   /* efecto de escala — cielo */
+    --eco:        #f5a623;   /* infraestructura desperdiciada — ámbar */
+    --violet:     #7c6cf0;   /* acento de apoyo */
+
+    --ink:        #0b1520;
+    --ink-soft:   rgba(11,21,32,.68);
+    --white:      #ffffff;
+
+    --glass-bg:      rgba(255,255,255,.14);
+    --glass-bg-2:    rgba(255,255,255,.22);
+    --glass-border:  rgba(255,255,255,.38);
+    --glass-blur:    18px;
+
+    --radius: 22px;
+    --maxw: 1180px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+
+  body{
+    font-family:'Plus Jakarta Sans', sans-serif;
+    color:var(--white);
+    line-height:1.6;
+    overflow-x:hidden;
+    background:#0d2a3d;
+  }
+
+  img{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; letter-spacing:-.01em; }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+  }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,48px); }
+
+  ::selection{ background:var(--amb); color:#04120e; }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--white);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  /* ===== Fondo animado ===== */
+  .aurora-bg{
+    position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(circle at 15% 20%, var(--amb) 0%, transparent 42%),
+      radial-gradient(circle at 85% 15%, var(--soc) 0%, transparent 46%),
+      radial-gradient(circle at 50% 90%, var(--eco) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, var(--violet) 0%, transparent 40%),
+      #0d2a3d;
+    background-size:200% 200%;
+    animation:drift 26s ease-in-out infinite;
+    filter:blur(60px) saturate(1.15);
+    opacity:.85;
+  }
+  @keyframes drift{
+    0%,100%{ background-position:0% 0%, 100% 0%, 50% 100%, 100% 100%; }
+    50%{ background-position:20% 30%, 80% 20%, 40% 70%, 80% 90%; }
+  }
+
+  /* ===== Nav ===== */
+  .nav{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    z-index:100; width:min(94%, 1120px);
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border-radius:999px;
+    box-shadow:0 8px 32px rgba(0,0,0,.18);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 22px;
+  }
+  .brand{
+    font-family:'Fraunces', serif; font-weight:600; font-size:1.02rem;
+    display:flex; align-items:center; gap:9px;
+  }
+  .brand-dot{
+    width:10px; height:10px; border-radius:50%;
+    background:conic-gradient(var(--amb), var(--soc), var(--eco), var(--amb));
+  }
+  .nav-links{ display:flex; gap:clamp(14px,3vw,28px); font-size:.86rem; }
+  .nav-links a{ opacity:.85; transition:opacity .2s ease; }
+  .nav-links a:hover{ opacity:1; }
+  .nav-toggle{
+    display:none; background:none; border:1px solid var(--glass-border); color:var(--white);
+    width:38px; height:38px; border-radius:50%; font-size:1rem;
+  }
+
+  @media (max-width:720px){
+    .nav-links{
+      position:fixed; top:70px; left:50%; transform:translateX(-50%);
+      width:min(94%,1120px);
+      flex-direction:column; gap:0;
+      background:var(--glass-bg-2);
+      backdrop-filter:blur(var(--glass-blur));
+      border:1px solid var(--glass-border);
+      border-radius:20px;
+      max-height:0; overflow:hidden;
+      transition:max-height .35s ease;
+    }
+    .nav-links.open{ max-height:300px; }
+    .nav-links a{ padding:14px 22px; display:block; border-top:1px solid var(--glass-border); }
+    .nav-toggle{ display:block; }
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    position:relative; min-height:100svh;
+    display:flex; align-items:center; padding-top:110px;
+  }
+  .hero-content{ max-width:800px; }
+  .hero-eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:.74rem;
+    letter-spacing:.12em; text-transform:uppercase;
+    background:var(--glass-bg); border:1px solid var(--glass-border);
+    backdrop-filter:blur(var(--glass-blur));
+    padding:8px 16px; border-radius:999px; margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem, 6.6vw, 4.1rem); line-height:1.06; margin-bottom:22px;
+  }
+  .hero h1 .word-amb{ color:var(--amb); }
+  .hero h1 .word-soc{ color:var(--soc); }
+  .hero h1 .word-eco{ color:var(--eco); }
+  .hero p.lead{
+    font-size:clamp(1rem, 2vw, 1.18rem);
+    color:rgba(255,255,255,.86);
+    max-width:58ch; margin-bottom:30px;
+  }
+  .hero-note{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:16px 18px; border-radius:16px; max-width:58ch; margin-bottom:36px;
+  }
+  .hero-note svg{ flex:none; width:20px; height:20px; margin-top:2px; color:var(--eco); }
+  .hero-note p{ font-size:.9rem; color:rgba(255,255,255,.82); }
+  .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{
+    font-weight:600; font-size:.94rem;
+    padding:15px 28px; border-radius:999px;
+    border:1px solid var(--glass-border);
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+    cursor:pointer;
+  }
+  .btn-primary{
+    background:var(--white); color:var(--ink); border-color:var(--white);
+  }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 14px 32px rgba(255,255,255,.28); }
+  .btn-ghost{
+    background:var(--glass-bg); color:var(--white);
+    backdrop-filter:blur(var(--glass-blur));
+  }
+  .btn-ghost:hover{ transform:translateY(-3px); background:var(--glass-bg-2); }
+
+  .scroll-cue{
+    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:.66rem;
+    letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6);
+  }
+  .scroll-cue .line{ width:1px; height:32px; background:linear-gradient(rgba(255,255,255,.8), transparent); animation:cue 2s ease-in-out infinite; }
+  @keyframes cue{ 0%,100%{ transform:scaleY(1); opacity:.8;} 50%{ transform:scaleY(.5); opacity:.3;} }
+
+  section{ padding:clamp(70px,10vw,120px) 0; position:relative; }
+  .section-head{ max-width:660px; margin-bottom:44px; }
+  .section-head h2{ font-size:clamp(1.8rem,4vw,2.5rem); margin-top:10px; }
+  .section-head p.sub{ margin-top:14px; color:rgba(255,255,255,.8); font-size:1rem; max-width:60ch; }
+
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ===== Panel de vidrio genérico ===== */
+  .glass-panel{
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border-radius:var(--radius);
+    box-shadow:0 10px 40px rgba(0,0,0,.16);
+  }
+
+  /* ===== Resumen / Problemática ===== */
+  .resumen-grid{
+    display:grid; grid-template-columns:1.05fr .95fr; gap:52px; align-items:center;
+  }
+  .resumen-text p{ color:rgba(255,255,255,.86); margin-bottom:16px; font-size:1.02rem; }
+  .resumen-media{
+    position:relative; border-radius:var(--radius); overflow:hidden;
+    aspect-ratio:4/5; border:1px solid var(--glass-border);
+  }
+  .resumen-media img{ width:100%; height:100%; object-fit:cover; }
+  .resumen-media::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 50%, rgba(6,20,26,.7) 100%);
+  }
+  .resumen-tag{
+    position:absolute; left:16px; bottom:16px; z-index:2;
+    font-family:'JetBrains Mono', monospace; font-size:.7rem; letter-spacing:.06em;
+  }
+
+  .pillars{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:30px; }
+  .pillar{
+    padding:20px 18px; text-align:left;
+    transition:transform .25s ease, background .25s ease;
+    border-radius:18px;
+  }
+  .pillar:hover{ transform:translateY(-5px); background:var(--glass-bg-2); }
+  .pillar-dot{ width:10px; height:10px; border-radius:50%; margin-bottom:10px; }
+  .pillar.amb .pillar-dot{ background:var(--amb); box-shadow:0 0 14px var(--amb); }
+  .pillar.soc .pillar-dot{ background:var(--soc); box-shadow:0 0 14px var(--soc); }
+  .pillar.eco .pillar-dot{ background:var(--eco); box-shadow:0 0 14px var(--eco); }
+  .pillar .p-label{ font-family:'JetBrains Mono', monospace; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.9); }
+  .pillar .p-stat{ font-family:'Fraunces', serif; font-size:1.5rem; font-weight:600; margin-top:6px; }
+  .pillar p.p-desc{ font-size:.86rem; color:rgba(255,255,255,.78); margin-top:8px; }
+
+  @media (max-width:860px){
+    .resumen-grid{ grid-template-columns:1fr; }
+    .resumen-media{ order:-1; aspect-ratio:16/9; }
+    .pillars{ grid-template-columns:1fr; }
+  }
+
+  /* ===== Acordeón ===== */
+  .accordion{ display:flex; flex-direction:column; gap:14px; }
+
+  .acc-item{
+    overflow:hidden;
+    transition:background .3s ease, transform .2s ease;
+  }
+  .acc-item:hover{ background:var(--glass-bg-2); }
+
+  .acc-trigger{
+    width:100%; text-align:left;
+    display:flex; align-items:center; gap:18px;
+    background:none; border:none; color:var(--white);
+    padding:22px clamp(18px,3vw,26px);
+    cursor:pointer; font-family:'Plus Jakarta Sans', sans-serif;
+  }
+  .acc-icon{
+    flex:none; width:44px; height:44px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.18); border:1px solid var(--glass-border);
+    transition:background .3s ease, transform .3s ease;
+  }
+  .acc-item.open .acc-icon{ background:var(--white); color:var(--ink); transform:rotate(-6deg); }
+  .acc-icon svg{ width:22px; height:22px; }
+
+  .acc-title-wrap{ flex:1; }
+  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; color:rgba(255,255,255,.7); }
+  .acc-title-wrap h3{ font-size:clamp(1.02rem,2vw,1.2rem); font-weight:600; line-height:1.35; }
+
+  .acc-chevron{
+    flex:none; width:20px; height:20px; color:rgba(255,255,255,.6);
+    transition:transform .35s ease;
+  }
+  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--white); }
+
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .45s ease; }
+  .acc-panel-inner{
+    padding:0 clamp(18px,3vw,26px) 26px 86px;
+    color:rgba(255,255,255,.84); font-size:.96rem;
+  }
+  .acc-panel-inner p{ margin-bottom:12px; }
+  .acc-panel-inner ul{ margin:10px 0 4px 20px; }
+  .acc-panel-inner li{ margin-bottom:8px; }
+  .acc-panel-inner strong{ color:var(--white); font-weight:700; }
+
+  @media (max-width:600px){
+    .acc-panel-inner{ padding-left:clamp(18px,3vw,26px); }
+    .acc-trigger{ gap:12px; padding:18px 16px; }
+    .acc-icon{ width:38px; height:38px; }
+  }
+
+  /* ===== Flujo Make ===== */
+  .flow{
+    display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; align-items:center;
+  }
+  .flow-step{
+    display:flex; flex-direction:column; gap:6px;
+    padding:18px 20px; min-width:160px; flex:1;
+  }
+  .flow-step .eyebrow{ color:rgba(255,255,255,.7); }
+  .flow-step strong{ font-family:'Fraunces', serif; font-size:1.02rem; }
+  .flow-arrow{ flex:none; width:22px; height:22px; color:rgba(255,255,255,.55); }
+  @media (max-width:760px){
+    .flow{ flex-direction:column; align-items:stretch; }
+    .flow-arrow{ transform:rotate(90deg); align-self:center; }
+  }
+
+  /* ===== CTA ===== */
+  .cta{
+    position:relative; text-align:center;
+    padding:clamp(48px,8vw,86px) clamp(24px,6vw,60px);
+  }
+  .cta h2{ font-size:clamp(1.7rem,4vw,2.25rem); margin-bottom:14px; }
+  .cta p{ color:rgba(255,255,255,.85); margin-bottom:28px; max-width:56ch; margin-left:auto; margin-right:auto; }
+  .cta .quote{
+    font-family:'Fraunces', serif; font-size:clamp(1.3rem,2.6vw,1.7rem);
+    font-weight:600; margin-bottom:18px; color:var(--amb);
+  }
+
+  footer{ padding:30px 0 60px; }
+  .footer-inner{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+    font-size:.82rem; color:rgba(255,255,255,.6);
+    padding:18px 22px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="aurora-bg" aria-hidden="true"></div>
+
+  <nav class="nav glass-panel" id="nav">
+    <div class="nav-inner">
+      <div class="brand"><span class="brand-dot"></span>Limpiador de Spam Digital</div>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#problema">La problemática</a>
+        <a href="#beneficios">Beneficios</a>
+        <a href="#flujo">Cómo se automatiza</a>
+        <a href="#cierre">Cierre</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="hero-content">
+        <span class="hero-eyebrow">Práctica · Make.com · Green IT y centros de datos</span>
+        <h1>Limpiador de <span class="word-amb">Promociones</span> y <span class="word-eco">Spam</span> Digital</h1>
+        <p class="lead">Acumular miles de correos de promociones no leídos en la bandeja de entrada obliga a los data centers a mantener servidores encendidos para almacenar basura digital.</p>
+
+        <div class="hero-note glass-panel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4.3 2.8 17.5c-.5.9.1 2 1.2 2h16c1.1 0 1.7-1.1 1.2-2L13.7 4.3c-.6-1-2-1-2.6 0z"/></svg>
+          <p>La nube no es un concepto abstracto: cada correo no leído vive físicamente en un disco duro dentro de un centro de datos, encendido las 24 horas para que puedas abrirlo en cualquier momento.</p>
+        </div>
+
+        <div class="btn-row">
+          <a href="#problema" class="btn btn-primary">Ver la huella ecológica</a>
+          <a href="#flujo" class="btn btn-ghost">Ver el flujo en Make</a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><span class="line"></span></div>
+  </header>
+
+  <main>
+
+    <!-- ===== PROBLEMÁTICA ===== -->
+    <section id="problema">
+      <div class="wrap">
+        <div class="resumen-grid">
+
+          <div class="resumen-text reveal">
+            <span class="eyebrow" style="color:rgba(255,255,255,.7)">El enfoque de la huella ecológica</span>
+            <h2 style="margin-top:10px; font-size:clamp(1.6rem,3.4vw,2.2rem);">La problemática detrás de la bandeja llena</h2>
+            <p>Existe la falsa creencia de que la nube es un concepto abstracto e inmaterial. En realidad, cada correo no leído, suscripción abandonada o boletín promocional guardado vive físicamente en un disco duro dentro de un Centro de Datos.</p>
+            <p>Para que puedas abrir un correo promocional de hace tres años en cualquier segundo, los servidores de almacenamiento y las bases de datos del proveedor de correo deben mantenerse encendidos, energizados y refrigerados las 24 horas del día, los 365 días del año.</p>
+
+            <div class="pillars">
+              <div class="pillar glass-panel amb">
+                <span class="pillar-dot"></span>
+                <span class="p-label">Almacenamiento 24/7</span>
+                <p class="p-desc">Los servidores de correo permanecen encendidos y refrigerados sin descanso, solo para guardar mensajes que quizá nadie vuelva a abrir.</p>
+              </div>
+              <div class="pillar glass-panel soc">
+                <span class="pillar-dot"></span>
+                <span class="p-label">Efecto de escala</span>
+                <span class="p-stat">300 mil M</span>
+                <p class="p-desc">Correos que se envían al día en el mundo. Cada uno emite entre 0.3 g y 4 g de CO₂: la escala convierte lo pequeño en masivo.</p>
+              </div>
+              <div class="pillar glass-panel eco">
+                <span class="pillar-dot"></span>
+                <span class="p-label">Infraestructura desperdiciada</span>
+                <p class="p-desc">Guardar basura digital obliga a construir más centros de datos y fabricar más discos duros, extrayendo minerales y consumiendo agua y electricidad.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-media reveal glass-panel">
+            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80" alt="Pasillo de servidores encendidos en un centro de datos" loading="lazy">
+            <span class="resumen-tag">Un centro de datos nunca duerme</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BENEFICIOS / ACORDEÓN ===== -->
+    <section id="beneficios">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow" style="color:rgba(255,255,255,.7)">El beneficio práctico</span>
+          <h2>Lo que aporta automatizar la limpieza del correo</h2>
+          <p class="sub">Al construir este flujo en Make, no solo se ordena la bandeja de entrada: se aplica la automatización como una herramienta de mitigación ecológica digital.</p>
+        </div>
+
+        <div class="accordion">
+
+          <!-- 1 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2.4"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Concepto</span>
+                <h3>Acumular correos no leídos mantiene servidores encendidos</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Miles de correos de promociones acumulados en la bandeja de entrada no son "espacio gratis en la nube": son datos reales que un data center debe mantener disponibles en todo momento.</p>
+                <ul>
+                  <li>Cada correo ocupa espacio físico en un disco duro dentro de un servidor.</li>
+                  <li>Ese servidor permanece encendido para que el mensaje pueda abrirse al instante, aunque nunca se abra.</li>
+                  <li>El resultado es basura digital que consume energía de forma silenciosa y constante.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><circle cx="7.5" cy="7" r=".6" fill="currentColor"/><circle cx="7.5" cy="17" r=".6" fill="currentColor"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Almacenamiento permanente</span>
+                <h3>Servidores encendidos 24/7 solo para guardar publicidad</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Los <strong>storage arrays</strong> y bases de datos de proveedores como Gmail u Outlook se mantienen energizados y refrigerados todo el año, sin importar si el contenido que guardan tiene valor o no.</p>
+                <ul>
+                  <li>La disponibilidad instantánea tiene un costo energético constante, invisible para el usuario.</li>
+                  <li>Millones de terabytes en centros de datos están ocupados únicamente guardando publicidad que nadie volverá a abrir.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Efecto de escala</span>
+                <h3>Lo pequeño multiplicado por miles de millones</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Un solo correo de spam genera apenas entre <strong>0.3 g y 4 g de CO₂</strong>. Sin embargo, se envían más de <strong>300 mil millones de correos al día</strong> a nivel mundial.</p>
+                <ul>
+                  <li>Una cantidad insignificante, multiplicada a escala global, se vuelve un impacto ambiental medible.</li>
+                  <li>Es el mismo principio que aplica a cualquier hábito digital: lo que parece mínimo por persona, no lo es por población.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Infraestructura desperdiciada</span>
+                <h3>Guardar basura digital obliga a construir más data centers</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Acumular datos sin valor obliga a las empresas tecnológicas a <strong>construir más centros de datos y fabricar más discos duros</strong>, extrayendo minerales raros y consumiendo agua y electricidad solo para guardar información inservible.</p>
+                <ul>
+                  <li>Cada gigabyte de espacio disponible tiene detrás una cadena física: minería, fabricación, energía y refrigeración.</li>
+                  <li>El crecimiento del almacenamiento no es infinito ni gratuito, aunque se sienta así desde la pantalla.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/><path d="M12 8v4l2.5 2.5"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Beneficio 1</span>
+                <h3>Reducción del almacenamiento pasivo</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Al purgar correos irrelevantes en tiempo real o de forma programada, se evita el crecimiento innecesario del volumen de datos almacenados (data footprint).</p>
+                <ul>
+                  <li>Menos datos inactivos significa menos disco duro reservado sin motivo.</li>
+                  <li>Un flujo automatizado hace esta limpieza sin depender de la disciplina manual del usuario.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3 21 21"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Beneficio 2</span>
+                <h3>Ahorro de ancho de banda e indexación</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Evita que los motores de búsqueda internos de las plataformas de correo gasten ciclos de procesamiento (CPU) indexando texto publicitario cada vez que el usuario busca un correo importante.</p>
+                <ul>
+                  <li>Menos correos indexados = búsquedas más rápidas y menos carga de cómputo en el proveedor.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7 -->
+          <div class="acc-item reveal glass-panel">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.2 6h7.6M6 8.2v7.6M18 8.2v7.6M8.2 18h7.6"/></svg>
+              </span>
+              <span class="acc-title-wrap">
+                <span class="eyebrow">Beneficio 3</span>
+                <h3>Eficiencia en la red</h3>
+              </span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Si el flujo identifica el spam en la entrada y lo elimina o evita su descarga completa hacia múltiples dispositivos sincronizados (laptop, smartphone, tablet), se reduce el tráfico de red en los nodos de comunicación.</p>
+                <ul>
+                  <li>Un correo eliminado a tiempo no viaja ni se replica en cada dispositivo conectado a la cuenta.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FLUJO MAKE ===== -->
+    <section id="flujo">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow" style="color:rgba(255,255,255,.7)">Lógica del flujo</span>
+          <h2>Cómo se automatiza en Make</h2>
+          <p class="sub">El mismo patrón de automatización usado en otras prácticas del curso, aplicado ahora a la bandeja de entrada.</p>
+        </div>
+
+        <div class="flow reveal">
+          <div class="flow-step glass-panel">
+            <span class="eyebrow">1 · Trigger</span>
+            <strong>Nuevo correo</strong>
+            <span style="font-size:.86rem; color:rgba(255,255,255,.78);">Watch Emails detecta un mensaje entrante en la bandeja.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step glass-panel">
+            <span class="eyebrow">2 · Router</span>
+            <strong>¿Es promoción o spam?</strong>
+            <span style="font-size:.86rem; color:rgba(255,255,255,.78);">Filtra por remitente, palabras clave o etiqueta "Promociones".</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step glass-panel">
+            <span class="eyebrow">3 · Acción</span>
+            <strong>Archivar o eliminar</strong>
+            <span style="font-size:.86rem; color:rgba(255,255,255,.78);">El correo se mueve a papelera o carpeta antes de ocupar almacenamiento activo.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CIERRE ===== -->
+    <section id="cierre">
+      <div class="wrap">
+        <div class="cta reveal glass-panel">
+          <span class="eyebrow" style="color:rgba(255,255,255,.7)">Resumen</span>
+          <p class="quote">"Un correo que no existe no consume energía."</p>
+          <h2>Limpiar es también una acción ecológica</h2>
+          <p>El objetivo del ejercicio es demostrar que limpiar y automatizar el flujo de datos no solo mejora la productividad personal, sino que reduce la carga operativa sobre los centros de datos, disminuyendo la energía necesaria para mantener discos encendidos con datos que no aportan valor.</p>
+          <a href="#problema" class="btn btn-primary">Repasar la problemática</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-inner glass-panel">
+        <span>Desarrollo Sustentable — Práctica de automatización con Make</span>
+        <span>Green IT · Centros de datos · Huella ecológica digital</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    document.querySelectorAll('.acc-item').forEach(item => {
+      const trigger = item.querySelector('.acc-trigger');
+      const panel = item.querySelector('.acc-panel');
+
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+
+        item.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        panel.style.maxHeight = !isOpen ? panel.scrollHeight + 'px' : null;
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.acc-item.open .acc-panel').forEach(panel => {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      });
+    });
+
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    revealEls.forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
