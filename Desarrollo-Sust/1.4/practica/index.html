@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computación Verde: El Costo Ambiental de la Nube</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:            #0a0d0f;
+    --bg-alt:        #11161a;
+    --bg-alt-2:      #161d22;
+    --border:        #1f2a2c;
+    --border-soft:   #24302f;
+    --text:          #eef4f2;
+    --text-dim:      #9fb3ae;
+    --text-faint:    #6b7d79;
+    --accent:        #34f5c5;
+    --accent-soft:   rgba(52,245,197,.14);
+    --accent-2:      #8b7bff;
+    --glow:          0 0 0 1px rgba(52,245,197,.35), 0 0 34px rgba(52,245,197,.20);
+    --radius:        18px;
+    --maxw:          860px;
+    --error:         #ff6b6b;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    min-height:100svh;
+    padding:clamp(28px,6vw,64px) 0 80px;
+  }
+
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-.02em; color:var(--text); }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(18px,5vw,32px); }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent);
+  }
+
+  ::selection{ background:var(--accent); color:#04120e; }
+
+  /* HERO */
+  .hero{ text-align:center; margin-bottom:52px; }
+  .hero-eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:.75rem;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--accent-soft);
+    background:var(--accent-soft);
+    padding:7px 14px; border-radius:999px;
+    margin-bottom:22px;
+  }
+  .hero h1{
+    font-size:clamp(1.8rem, 5vw, 2.7rem);
+    line-height:1.1;
+    margin-bottom:16px;
+  }
+  .hero h1 .accent-word{ color:var(--accent); }
+  .hero p.lead{
+    font-size:clamp(.98rem, 2vw, 1.08rem);
+    color:var(--text-dim);
+    max-width:60ch;
+    margin:0 auto;
+  }
+
+  /* PASOS */
+  .steps{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;
+    margin-bottom:52px;
+  }
+  .step{
+    border:1px solid var(--border-soft); border-radius:14px; padding:20px 18px;
+    background:var(--bg-alt);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .step:hover{ transform:translateY(-4px); border-color:var(--accent); box-shadow:var(--glow); }
+  .step .step-num{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.3rem;
+    color:var(--accent); margin-bottom:8px; display:block;
+  }
+  .step p{ font-size:.88rem; color:var(--text-dim); }
+  .step strong{ color:var(--text); }
+
+  @media (max-width:720px){
+    .steps{ grid-template-columns:1fr; }
+  }
+
+  /* FORM */
+  .form-card{
+    border:1px solid var(--border-soft); border-radius:var(--radius);
+    background:var(--bg-alt);
+    padding:clamp(24px,5vw,40px);
+  }
+  .form-card h2{ font-size:clamp(1.3rem, 3vw, 1.6rem); margin-bottom:8px; }
+  .form-card > p{ color:var(--text-dim); font-size:.92rem; margin-bottom:28px; }
+
+  .field{ margin-bottom:20px; }
+  .field label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:.72rem;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  .field input, .field textarea{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--border-soft);
+    border-radius:10px;
+    padding:13px 15px;
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    font-size:.96rem;
+    transition:border-color .25s ease, box-shadow .25s ease;
+  }
+  .field input:focus, .field textarea:focus{
+    outline:none; border-color:var(--accent); box-shadow:var(--glow);
+  }
+  .field textarea{ min-height:150px; resize:vertical; line-height:1.5; }
+  .field .hint{ font-size:.78rem; color:var(--text-faint); margin-top:6px; }
+  .field .err{ font-size:.78rem; color:var(--error); margin-top:6px; display:none; }
+  .field.invalid input, .field.invalid textarea{ border-color:var(--error); }
+  .field.invalid .err{ display:block; }
+
+  .btn{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:.96rem;
+    padding:15px 28px; border-radius:12px;
+    border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--accent); color:#04120e;
+    transition:transform .25s ease, box-shadow .25s ease, opacity .25s ease;
+    cursor:pointer; width:100%; justify-content:center;
+  }
+  .btn:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(52,245,197,.35); }
+  .btn:disabled{ opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  .status{
+    margin-top:20px; padding:16px 18px; border-radius:12px;
+    font-size:.92rem; display:none; align-items:flex-start; gap:10px;
+  }
+  .status.show{ display:flex; }
+  .status.ok{ background:var(--accent-soft); border:1px solid var(--accent); color:var(--text); }
+  .status.fail{ background:rgba(255,107,107,.1); border:1px solid var(--error); color:var(--text); }
+  .status svg{ flex:none; width:20px; height:20px; margin-top:1px; }
+  .status.ok svg{ color:var(--accent); }
+  .status.fail svg{ color:var(--error); }
+
+  footer{
+    text-align:center; margin-top:44px;
+    font-size:.8rem; color:var(--text-faint);
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <div class="hero">
+      <span class="hero-eyebrow">Práctica 1.1 · Investigación con IA generativa</span>
+      <h1>Computación <span class="accent-word">Verde</span>: el costo ambiental de la nube</h1>
+      <p class="lead">Cada archivo guardado en la nube vive físicamente en un centro de datos, encendido y refrigerado sin descanso. Investiga con una IA generativa y comparte tu opinión sobre cómo reducir ese impacto.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01</span>
+        <p><strong>Abre tu IA generativa favorita</strong> (ChatGPT, Gemini, Copilot o Claude).</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <p><strong>Pídele que te explique</strong> el impacto ambiental de los centros de datos y 3 principios de "computación verde" (green computing).</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <p><strong>Escribe tu propia opinión</strong> con esa información. No copies y pegues la respuesta de la IA tal cual.</p>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Registra tu opinión</h2>
+      <p>Completa los siguientes campos. Solo se envía una vez por alumno.</p>
+
+      <form id="opinionForm" novalidate>
+        <div class="field" id="fieldNombre">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej. Ana López Martínez" autocomplete="name">
+          <span class="err">Escribe tu nombre completo.</span>
+        </div>
+
+        <div class="field" id="fieldCorreo">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+          <span class="hint">Recibirás un correo de confirmación al enviar.</span>
+          <span class="err">Escribe un correo válido.</span>
+        </div>
+
+        <div class="field" id="fieldOpinion">
+          <label for="opinion">Tu opinión</label>
+          <textarea id="opinion" name="opinion" placeholder="¿Qué te pareció el impacto ambiental de la nube? ¿Qué principio de computación verde aplicarías tú?"></textarea>
+          <span class="err">Escribe al menos unas líneas con tu opinión.</span>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">Guardar respuesta</button>
+
+        <div class="status ok" id="statusOk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+          <span id="statusOkText">¡Gracias! Tu opinión fue registrada. Revisa tu correo.</span>
+        </div>
+
+        <div class="status fail" id="statusFail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+          <span>No se pudo enviar tu respuesta. Inténtalo de nuevo o avisa a tu profesor.</span>
+        </div>
+      </form>
+    </div>
+
+    <footer>Desarrollo Sustentable · ACD-0908 · Práctica Green IT</footer>
+
+  </div>
+
+  <script>
+    // ⚠️ Reemplazar por la URL real del webhook de Make.com al crear el escenario.
+    const WEBHOOK_URL = "https://hook.us1.make.com/REEMPLAZAR_CON_TU_WEBHOOK";
+
+    const form = document.getElementById('opinionForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusOk = document.getElementById('statusOk');
+    const statusFail = document.getElementById('statusFail');
+
+    function setInvalid(fieldId, invalid){
+      document.getElementById(fieldId).classList.toggle('invalid', invalid);
+    }
+
+    function isValidEmail(v){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusOk.classList.remove('show');
+      statusFail.classList.remove('show');
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const correo = document.getElementById('correo').value.trim();
+      const opinion = document.getElementById('opinion').value.trim();
+
+      let valid = true;
+      setInvalid('fieldNombre', nombre.length < 3); if (nombre.length < 3) valid = false;
+      setInvalid('fieldCorreo', !isValidEmail(correo)); if (!isValidEmail(correo)) valid = false;
+      setInvalid('fieldOpinion', opinion.length < 15); if (opinion.length < 15) valid = false;
+
+      if (!valid) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, correo, opinion })
+        });
+
+        if (!res.ok) throw new Error('Respuesta no OK');
+
+        document.getElementById('statusOkText').textContent = `¡Gracias, ${nombre}! Tu opinión fue registrada. Revisa tu correo.`;
+        statusOk.classList.add('show');
+        form.reset();
+      } catch (err) {
+        statusFail.classList.add('show');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar respuesta';
+      }
+    });
+  </script>
+
+</body>
+</html>
