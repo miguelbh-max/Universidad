@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flujo de Energía en los Ecosistemas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:            #0a0d0f;
+    --bg-alt:        #11161a;
+    --bg-alt-2:      #161d22;
+    --border:        #1f2a2c;
+    --border-soft:   #24302f;
+    --text:          #eef4f2;
+    --text-dim:      #9fb3ae;
+    --text-faint:    #6b7d79;
+    --accent:        #34f5c5;
+    --accent-soft:   rgba(52,245,197,.14);
+    --accent-2:      #8b7bff;
+    --glow:          0 0 0 1px rgba(52,245,197,.35), 0 0 34px rgba(52,245,197,.20);
+    --glow-strong:   0 0 0 1px rgba(52,245,197,.55), 0 0 55px rgba(52,245,197,.30);
+    --radius:        18px;
+    --maxw:          1180px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
+  body{ background:var(--bg); color:var(--text); font-family:'Inter', sans-serif; line-height:1.6; overflow-x:hidden; }
+  img{ display:block; max-width:100%; }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-.02em; color:var(--text); }
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,48px); }
+  ::selection{ background:var(--accent); color:#04120e; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:6px; }
+
+  .nav{ position:fixed; top:0; left:0; right:0; z-index:100; backdrop-filter:blur(14px); background:rgba(10,13,15,.55); border-bottom:1px solid transparent; transition:border-color .3s ease, background .3s ease; }
+  .nav.scrolled{ border-bottom-color:var(--border); background:rgba(10,13,15,.85); }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:16px clamp(20px,5vw,48px); max-width:var(--maxw); margin:0 auto; }
+  .brand{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.05rem; display:flex; align-items:center; gap:8px; }
+  .brand-dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent), 0 0 22px var(--accent); }
+  .nav-links{ display:flex; gap:clamp(16px,3vw,32px); font-size:.88rem; color:var(--text-dim); }
+  .nav-links a{ transition:color .2s ease; position:relative; }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border-soft); color:var(--text); width:40px; height:40px; border-radius:10px; font-size:1.1rem; }
+  @media (max-width:720px){ .nav-links{ position:fixed; top:64px; left:0; right:0; flex-direction:column; gap:0; background:var(--bg-alt); border-bottom:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .35s ease; } .nav-links.open{ max-height:320px; } .nav-links a{ padding:16px clamp(20px,5vw,48px); border-top:1px solid var(--border); } .nav-toggle{ display:block; } }
+
+  .hero{ position:relative; min-height:100svh; display:flex; align-items:center; padding-top:80px; overflow:hidden; }
+  .hero-bg{ position:absolute; inset:0; background-image: linear-gradient(180deg, rgba(10,13,15,.55) 0%, rgba(10,13,15,.8) 55%, var(--bg) 100%), url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1800&q=80'); background-size:cover; background-position:center 40%; filter:saturate(.85); }
+  .hero-rings{ position:absolute; right:-14%; top:50%; transform:translateY(-50%); width:min(60vw, 640px); aspect-ratio:1/1; opacity:.55; pointer-events:none; }
+  .hero-rings svg{ width:100%; height:100%; }
+  .ring{ fill:none; stroke:var(--accent); stroke-opacity:.35; }
+  .ring-spin{ animation:spin 60s linear infinite; transform-origin:center; }
+  .ring-spin-rev{ animation:spin 90s linear infinite reverse; transform-origin:center; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes pulse{ 0%,100%{ opacity:.15; r:70; } 50%{ opacity:.5; r:78; } }
+
+  .hero-content{ position:relative; z-index:2; max-width:780px; }
+  .hero-eyebrow{ display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); border:1px solid var(--accent-soft); background:var(--accent-soft); padding:7px 14px; border-radius:999px; margin-bottom:22px; }
+  .hero h1{ font-size:clamp(2.3rem, 6.6vw, 4.2rem); line-height:1.05; margin-bottom:20px; }
+  .hero h1 .accent-word{ color:var(--accent); }
+  .hero h1 .accent-word-2{ color:var(--accent-2); }
+  .hero p.lead{ font-size:clamp(1rem, 2vw, 1.2rem); color:var(--text-dim); max-width:56ch; margin-bottom:28px; }
+  .hero-note{ display:flex; gap:12px; align-items:flex-start; border:1px solid var(--border-soft); background:var(--bg-alt); padding:16px 18px; border-radius:14px; max-width:56ch; margin-bottom:34px; }
+  .hero-note svg{ flex:none; width:20px; height:20px; margin-top:2px; color:var(--accent-2); }
+  .hero-note p{ font-size:.9rem; color:var(--text-dim); }
+  .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{ font-family:'Inter', sans-serif; font-weight:600; font-size:.94rem; padding:14px 26px; border-radius:12px; border:1px solid transparent; display:inline-flex; align-items:center; gap:8px; transition:transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease; cursor:pointer; }
+  .btn-primary{ background:var(--accent); color:#04120e; }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(52,245,197,.35); }
+  .btn-ghost{ background:transparent; color:var(--text); border-color:var(--border-soft); }
+  .btn-ghost:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-3px); }
+
+  .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-faint); font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; z-index:2; }
+  .scroll-cue .line{ width:1px; height:34px; background:linear-gradient(var(--accent), transparent); animation:cue 2s ease-in-out infinite; }
+  @keyframes cue{ 0%,100%{ transform:scaleY(1); opacity:.8;} 50%{ transform:scaleY(.5); opacity:.3;} }
+
+  section{ padding:clamp(70px, 10vw, 128px) 0; position:relative; }
+  .section-head{ max-width:660px; margin-bottom:48px; }
+  .section-head h2{ font-size:clamp(1.8rem, 4vw, 2.6rem); margin-top:12px; }
+  .section-head p.sub{ margin-top:14px; color:var(--text-dim); font-size:1rem; max-width:60ch; }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  .resumen{ border-top:1px solid var(--border); }
+  .resumen-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; }
+  .resumen-text p{ color:var(--text-dim); margin-bottom:18px; font-size:1.02rem; }
+  .resumen-media{ position:relative; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border-soft); aspect-ratio:4/5; }
+  .resumen-media img{ width:100%; height:100%; object-fit:cover; filter:saturate(.9) contrast(1.02); }
+  .resumen-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 55%, rgba(10,13,15,.85) 100%); }
+  .resumen-tag{ position:absolute; left:18px; bottom:18px; z-index:2; font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--text-dim); letter-spacing:.06em; }
+
+  .pillars{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:34px; }
+  .pillar{ border:1px solid var(--border-soft); border-radius:14px; padding:18px 16px; background:var(--bg-alt); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .pillar:hover{ transform:translateY(-4px); border-color:var(--accent); box-shadow:var(--glow); }
+  .pillar .p-label{ font-family:'IBM Plex Mono', monospace; font-size:.68rem; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; }
+  .pillar .p-stat{ font-family:'Space Grotesk', sans-serif; font-size:1.5rem; font-weight:700; margin-top:8px; color:var(--text); }
+  .pillar p{ font-size:.86rem; color:var(--text-dim); margin-top:8px; }
+  @media (max-width:860px){ .resumen-grid{ grid-template-columns:1fr; } .resumen-media{ order:-1; aspect-ratio:16/9; } .pillars{ grid-template-columns:1fr; } }
+
+  .temas{ border-top:1px solid var(--border); }
+  .accordion{ display:flex; flex-direction:column; gap:14px; }
+  .acc-item{ border:1px solid var(--border-soft); border-radius:var(--radius); background:var(--bg-alt); overflow:hidden; transition:border-color .3s ease, box-shadow .3s ease, background .3s ease; }
+  .acc-item.open, .acc-item:hover{ border-color:var(--accent); box-shadow:var(--glow); background:var(--bg-alt-2); }
+  .acc-trigger{ width:100%; text-align:left; display:flex; align-items:center; gap:18px; background:none; border:none; color:var(--text); padding:22px clamp(18px,3vw,28px); cursor:pointer; font-family:'Inter', sans-serif; }
+  .acc-icon{ flex:none; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:var(--accent-soft); color:var(--accent); transition:background .3s ease, transform .3s ease; }
+  .acc-item.open .acc-icon{ background:var(--accent); color:#04120e; transform:rotate(-6deg); }
+  .acc-icon svg{ width:22px; height:22px; }
+  .acc-title-wrap{ flex:1; }
+  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; }
+  .acc-title-wrap h3{ font-size:clamp(1.02rem, 2vw, 1.22rem); font-weight:600; line-height:1.35; }
+  .acc-chevron{ flex:none; width:22px; height:22px; color:var(--text-faint); transition:transform .35s ease, color .3s ease; }
+  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--accent); }
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .45s ease; }
+  .acc-panel-inner{ padding:0 clamp(18px,3vw,28px) 28px 86px; color:var(--text-dim); font-size:.96rem; }
+  .acc-panel-inner p{ margin-bottom:12px; }
+  .acc-panel-inner ul{ margin:10px 0 4px 20px; }
+  .acc-panel-inner li{ margin-bottom:8px; }
+  .acc-panel-inner strong{ color:var(--text); font-weight:600; }
+  @media (max-width:600px){ .acc-panel-inner{ padding-left:clamp(18px,3vw,28px); } .acc-trigger{ gap:12px; padding:18px 16px; } .acc-icon{ width:38px; height:38px; } }
+
+  .flujo{ border-top:1px solid var(--border); }
+  .flow{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; align-items:center; }
+  .flow-step{ display:flex; flex-direction:column; gap:6px; padding:18px 20px; min-width:160px; flex:1; border:1px solid var(--border-soft); border-radius:14px; background:var(--bg-alt); transition:border-color .3s ease, box-shadow .3s ease; }
+  .flow-step:hover{ border-color:var(--accent); box-shadow:var(--glow); }
+  .flow-step strong{ font-family:'Space Grotesk', sans-serif; font-size:1.02rem; }
+  .flow-step span.desc{ font-size:.86rem; color:var(--text-dim); }
+  .flow-arrow{ flex:none; width:22px; height:22px; color:var(--text-faint); }
+  @media (max-width:760px){ .flow{ flex-direction:column; align-items:stretch; } .flow-arrow{ transform:rotate(90deg); align-self:center; } }
+
+  .cta{ position:relative; border-radius:calc(var(--radius) + 6px); overflow:hidden; border:1px solid var(--border-soft); padding:clamp(48px,8vw,90px) clamp(24px,6vw,64px); text-align:center; }
+  .cta-bg{ position:absolute; inset:0; background-image: linear-gradient(180deg, rgba(10,13,15,.6), rgba(10,13,15,.92)), url('https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1600&q=80'); background-size:cover; background-position:center; }
+  .cta-inner{ position:relative; z-index:2; max-width:640px; margin:0 auto; }
+  .cta .quote{ font-family:'Space Grotesk', sans-serif; font-size:clamp(1.3rem,2.6vw,1.7rem); font-weight:700; margin-bottom:16px; color:var(--accent); }
+  .cta h2{ font-size:clamp(1.7rem, 4vw, 2.3rem); margin-bottom:14px; }
+  .cta p{ color:var(--text-dim); margin-bottom:30px; }
+
+  footer{ border-top:1px solid var(--border); padding:32px 0 60px; }
+  .footer-inner{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; font-size:.82rem; color:var(--text-faint); }
+</style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <div class="brand"><span class="brand-dot"></span>2.2 Flujo de Energía</div>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#caracteristicas">Características</a>
+        <a href="#niveles">Niveles tróficos</a>
+        <a href="#piramide">Pirámide</a>
+        <a href="#cierre">Cierre</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-rings" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <g class="ring-spin"><circle class="ring" cx="200" cy="200" r="180" stroke-dasharray="2 10"/><circle class="ring" cx="200" cy="200" r="140" stroke-dasharray="1 6"/></g>
+        <g class="ring-spin-rev"><circle class="ring" cx="200" cy="200" r="100"/></g>
+        <circle class="ring" cx="200" cy="200" r="70" style="animation:pulse 4s ease-in-out infinite;"/>
+      </svg>
+    </div>
+
+    <div class="wrap">
+      <div class="hero-content">
+        <span class="hero-eyebrow">Escenario Natural · 2.2 Flujo de Energía</span>
+        <h1>El <span class="accent-word">Flujo</span> de <span class="accent-word-2">Energía</span> en los Ecosistemas</h1>
+        <p class="lead">La energía entra al ecosistema por una sola fuente, viaja en una sola dirección y se pierde en cada paso. Entender esa ruta explica por qué la vida se organiza en niveles.</p>
+
+        <div class="hero-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4.3 2.8 17.5c-.5.9.1 2 1.2 2h16c1.1 0 1.7-1.1 1.2-2L13.7 4.3c-.6-1-2-1-2.6 0z"/></svg>
+          <p>A diferencia de la materia, que se recicla en ciclos, la energía en un ecosistema <strong>no regresa</strong>: fluye una sola vez y se disipa como calor.</p>
+        </div>
+
+        <div class="btn-row">
+          <a href="#caracteristicas" class="btn btn-primary">Ver características</a>
+          <a href="#piramide" class="btn btn-ghost">Ver la pirámide trófica</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><span class="line"></span></div>
+  </header>
+
+  <main>
+
+    <!-- ===== CARACTERÍSTICAS ===== -->
+    <section class="resumen" id="caracteristicas">
+      <div class="wrap">
+        <div class="resumen-grid">
+
+          <div class="resumen-text reveal">
+            <span class="eyebrow">Naturaleza del flujo</span>
+            <h2 style="margin-top:10px; font-size:clamp(1.6rem,3.4vw,2.2rem);">Características del Flujo de Energía en los Ecosistemas</h2>
+            <p>El flujo de energía en un ecosistema se caracteriza principalmente por ser <strong>unidireccional y decreciente</strong>: entra al sistema en un solo sentido (del Sol hacia los productores y de ahí hacia los consumidores) y disminuye en cada paso, ya que buena parte se pierde como calor en cada transformación.</p>
+            <p>A diferencia de elementos como el carbono o el nitrógeno, la energía no se recicla dentro del ecosistema: cada nivel trófico solo puede aprovechar una fracción de la energía que recibió del nivel anterior.</p>
+
+            <div class="pillars">
+              <div class="pillar">
+                <span class="p-label">Sentido</span>
+                <span class="p-stat">Unidireccional</span>
+                <p>La energía fluye en una sola dirección, del Sol hacia los niveles tróficos superiores.</p>
+              </div>
+              <div class="pillar">
+                <span class="p-label">Ley del 10%</span>
+                <span class="p-stat">~90% se pierde</span>
+                <p>En cada nivel trófico, solo cerca del 10% de la energía pasa al siguiente nivel; el resto se disipa como calor.</p>
+              </div>
+              <div class="pillar">
+                <span class="p-label">Fuente</span>
+                <p>El Sol es prácticamente la única fuente original de energía que sostiene la vida en la biósfera.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-media reveal">
+            <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80" alt="Luz solar atravesando un dosel de hojas" loading="lazy">
+            <span class="resumen-tag">El Sol: origen del flujo de energía</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NIVELES TRÓFICOS / ACORDEÓN ===== -->
+    <section class="temas" id="niveles">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Descripción detallada</span>
+          <h2>El Sol, los Productores y los Niveles Tróficos</h2>
+          <p class="sub">Tres piezas clave para entender cómo se organiza la energía dentro de un ecosistema.</p>
+        </div>
+
+        <div class="accordion">
+
+          <!-- 1 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Motor energético</span><h3>El Sol como Motor Energético de la Biósfera</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>El principal motor energético que impulsa tanto el ciclo hidrológico como el flujo de energía en la biósfera es <strong>el Sol</strong>.</p>
+                <ul>
+                  <li>Su radiación calienta océanos y superficies, provocando la evaporación que alimenta el ciclo del agua.</li>
+                  <li>Esa misma radiación es capturada por los productores mediante la fotosíntesis, dando inicio al flujo de energía en las cadenas alimenticias.</li>
+                  <li>Sin el Sol, no habría ni ciclo hidrológico ni vida basada en fotosíntesis.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M5 8c0 4 3 5 7 5s7-1 7-5"/><circle cx="12" cy="4" r="1.2" fill="currentColor"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Base de la cadena</span><h3>La Función de los Productores (Autótrofos) en el Ecosistema</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Los organismos productores (autótrofos), como las plantas, algas y algunas bacterias, se encargan de <strong>captar la energía solar y transformarla en energía química</strong> mediante la fotosíntesis, almacenándola en forma de materia orgánica.</p>
+                <ul>
+                  <li>Son la base de toda cadena alimenticia: ningún otro nivel trófico existe sin ellos.</li>
+                  <li>Convierten dióxido de carbono y agua en azúcares, liberando oxígeno como subproducto.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h16M6 20V13l4-3v10M14 20v-6l4-2v8"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Estructura jerárquica</span><h3>Los Niveles Tróficos como Estructura de un Ecosistema</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Los "niveles tróficos" representan la posición que ocupa cada organismo dentro de la cadena alimenticia, según su fuente de energía y alimento.</p>
+                <ul>
+                  <li><strong>Productores:</strong> capturan energía solar directamente.</li>
+                  <li><strong>Consumidores primarios:</strong> se alimentan de productores (herbívoros).</li>
+                  <li><strong>Consumidores secundarios y terciarios:</strong> se alimentan de otros consumidores (carnívoros).</li>
+                  <li><strong>Descomponedores:</strong> reciclan la materia orgánica de todos los niveles anteriores.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PIRÁMIDE / FLUJO ===== -->
+    <section class="flujo" id="piramide">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">De un nivel a otro</span>
+          <h2>La Pirámide Trófica: la Energía Disminuye en Cada Paso</h2>
+          <p class="sub">Cada flecha representa una pérdida de aproximadamente el 90% de la energía disponible, en forma de calor.</p>
+        </div>
+
+        <div class="flow reveal">
+          <div class="flow-step">
+            <span class="eyebrow">1 · Productores</span>
+            <strong>Plantas y algas</strong>
+            <span class="desc">Capturan energía solar mediante fotosíntesis.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">2 · Consumidores primarios</span>
+            <strong>Herbívoros</strong>
+            <span class="desc">Se alimentan directamente de los productores.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">3 · Consumidores secundarios</span>
+            <strong>Carnívoros</strong>
+            <span class="desc">Se alimentan de los consumidores primarios.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">4 · Descomponedores</span>
+            <strong>Hongos y bacterias</strong>
+            <span class="desc">Reciclan la materia orgánica de todos los niveles.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CIERRE ===== -->
+    <section id="cierre">
+      <div class="wrap">
+        <div class="cta reveal">
+          <div class="cta-bg" aria-hidden="true"></div>
+          <div class="cta-inner">
+            <span class="eyebrow">Idea clave</span>
+            <p class="quote">"La materia se recicla; la energía, no."</p>
+            <h2>Un flujo que empieza en el Sol y termina en calor</h2>
+            <p>Comprender el flujo de energía explica por qué las cadenas alimenticias tienen pocos niveles y por qué los productores son indispensables: sin ellos, no hay energía disponible para el resto del ecosistema.</p>
+            <a href="#caracteristicas" class="btn btn-primary">Repasar las características</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <span>Desarrollo Sustentable — 2.2 Flujo de Energía</span>
+      <a href="../2.1/index.html" style="color:var(--accent);">← Tema anterior: 2.1 El Ecosistema</a>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 12); });
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => { const isOpen = navLinks.classList.toggle('open'); navToggle.setAttribute('aria-expanded', String(isOpen)); });
+    navLinks.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { navLinks.classList.remove('open'); navToggle.setAttribute('aria-expanded', 'false'); }); });
+
+    document.querySelectorAll('.acc-item').forEach(item => {
+      const trigger = item.querySelector('.acc-trigger');
+      const panel = item.querySelector('.acc-panel');
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        item.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        panel.style.maxHeight = !isOpen ? panel.scrollHeight + 'px' : null;
+      });
+    });
+    window.addEventListener('resize', () => { document.querySelectorAll('.acc-item.open .acc-panel').forEach(panel => { panel.style.maxHeight = panel.scrollHeight + 'px'; }); });
+
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); } }); }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
