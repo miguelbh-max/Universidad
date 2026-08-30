@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.1 Concepto de proceso | Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0f11;
+    --bg-alt:#141618;
+    --ink:#eef1f0;
+    --ink-soft:#9aa3a0;
+    --accent:#39ffb0;
+    --accent-dim:#1c8a63;
+    --accent-glow: rgba(57,255,176,0.35);
+    --line:#26292b;
+    --card:#16181a;
+    --radius:14px;
+
+    --proc-color:#39ffb0;
+    --prog-color:#5fb4ff;
+    --pcb-color:#ffcf5c;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(57,255,176,0.06), transparent 45%),
+      radial-gradient(circle at 90% 20%, rgba(95,180,255,0.05), transparent 40%);
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0; letter-spacing:-0.01em; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:0 24px; }
+  a{ color:inherit; }
+
+  nav.top{
+    position:sticky; top:0; z-index:50;
+    background:rgba(14,15,17,0.85); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.top .wrap{ display:flex; align-items:center; justify-content:space-between; padding:14px 24px; }
+  .brand{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); text-decoration:none; }
+  .brand b{ color:var(--accent); text-shadow:0 0 12px var(--accent-glow); }
+  .back-link{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-decoration:none; color:var(--ink);
+    border:1px solid var(--line); padding:7px 12px; border-radius:999px; transition:all .2s ease;
+  }
+  .back-link:hover{ border-color:var(--accent); color:var(--accent); box-shadow:0 0 14px var(--accent-glow); }
+
+  .hero{ padding:100px 0 56px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--accent);
+    text-transform:uppercase; letter-spacing:.14em; margin-bottom:18px; display:block;
+    text-shadow:0 0 10px var(--accent-glow);
+  }
+  .hero h1{ font-size:clamp(2.1rem, 5.6vw, 3.9rem); font-weight:700; line-height:1.1; max-width:840px; }
+  .hero h1 .accent{ color:var(--accent); text-shadow:0 0 20px var(--accent-glow); }
+  .hero p.lede{ max-width:660px; margin-top:22px; font-size:1.05rem; color:var(--ink-soft); }
+  .hero p.lede b{ color:var(--ink); }
+
+  .section{ padding:64px 0; border-top:1px solid var(--line); }
+  .section-head{ margin-bottom:34px; max-width:720px; }
+  .section-head .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--accent);
+    text-transform:uppercase; letter-spacing:.12em; margin-bottom:8px; display:block;
+  }
+  .section-head h2{ font-size:clamp(1.4rem,3vw,2rem); }
+  .section-head p{ color:var(--ink-soft); margin-top:10px; }
+
+  /* ---------- VS COMPARISON ---------- */
+  .vs-grid{ display:grid; grid-template-columns:1fr auto 1fr; gap:22px; align-items:stretch; }
+  @media (max-width:760px){ .vs-grid{ grid-template-columns:1fr; } .vs-badge{ margin:6px auto; } }
+  .vs-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .vs-card:hover{ transform:translateY(-4px); }
+  .vs-card.proc{ border-color:rgba(57,255,176,0.25); }
+  .vs-card.proc:hover{ box-shadow:0 0 30px rgba(57,255,176,0.12); border-color:var(--proc-color); }
+  .vs-card.prog{ border-color:rgba(95,180,255,0.25); }
+  .vs-card.prog:hover{ box-shadow:0 0 30px rgba(95,180,255,0.12); border-color:var(--prog-color); }
+  .vs-card .chip{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
+    padding:4px 10px; border-radius:999px; display:inline-block; margin-bottom:14px;
+  }
+  .vs-card.proc .chip{ background:rgba(57,255,176,0.1); color:var(--proc-color); }
+  .vs-card.prog .chip{ background:rgba(95,180,255,0.1); color:var(--prog-color); }
+  .vs-card h3{ font-size:1.3rem; margin-bottom:10px; }
+  .vs-card p{ color:var(--ink-soft); font-size:14.5px; margin:0 0 14px; }
+  .vs-card ul{ margin:0; padding-left:18px; color:var(--ink-soft); font-size:13.5px; }
+  .vs-card ul li{ margin-bottom:6px; }
+  .vs-card ul li b{ color:var(--ink); }
+  .vs-badge{
+    align-self:center; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft);
+    border:1px solid var(--line); border-radius:50%; width:46px; height:46px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- ANALOGY BAR ---------- */
+  .analogy{
+    background:var(--bg-alt); border:1px dashed var(--line); border-radius:var(--radius);
+    padding:20px 22px; margin-top:26px; font-size:14px; color:var(--ink-soft);
+  }
+  .analogy b{ color:var(--accent); }
+
+  /* ---------- PCB EXPLORER ---------- */
+  .pcb-shell{
+    display:grid; grid-template-columns:280px 1fr; gap:0;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden;
+  }
+  @media (max-width:760px){ .pcb-shell{ grid-template-columns:1fr; } }
+  .pcb-list{ border-right:1px solid var(--line); padding:10px; }
+  @media (max-width:760px){ .pcb-list{ border-right:none; border-bottom:1px solid var(--line); display:flex; overflow-x:auto; gap:4px; } }
+  .pcb-item{
+    width:100%; text-align:left; background:none; border:none; color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:13px 14px; border-radius:8px;
+    cursor:pointer; display:flex; align-items:center; gap:10px; white-space:nowrap;
+  }
+  .pcb-item .dot{ width:7px; height:7px; border-radius:50%; background:var(--line); flex-shrink:0; }
+  .pcb-item:hover{ background:var(--bg-alt); color:var(--ink); }
+  .pcb-item.active{ background:rgba(255,207,92,0.08); color:var(--pcb-color); }
+  .pcb-item.active .dot{ background:var(--pcb-color); box-shadow:0 0 8px var(--pcb-color); }
+  .pcb-detail{ padding:30px 32px; }
+  .pcb-detail .field-name{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--pcb-color); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; display:block; }
+  .pcb-detail h3{ font-size:1.4rem; margin-bottom:12px; }
+  .pcb-detail p{ color:var(--ink-soft); font-size:14.5px; max-width:600px; }
+  .pcb-detail .example{
+    margin-top:16px; padding:12px 14px; background:var(--bg); border-left:3px solid var(--pcb-color);
+    border-radius:0 8px 8px 0; font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft);
+  }
+
+  /* ---------- CONTEXT SWITCH STRIP ---------- */
+  .switch-strip{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:26px;
+  }
+  .switch-track{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .switch-node{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; padding:10px 16px; border-radius:999px;
+    border:1px solid var(--line); background:var(--bg); color:var(--ink-soft); transition:all .3s ease;
+  }
+  .switch-node.on{ color:var(--bg); background:var(--accent); border-color:var(--accent); box-shadow:0 0 16px var(--accent-glow); }
+  .switch-arrow{ color:var(--ink-soft); font-size:14px; }
+  .btn{
+    font-family:'IBM Plex Mono', monospace; font-size:13.5px; background:var(--accent); color:#06120c;
+    border:none; padding:12px 22px; border-radius:999px; cursor:pointer; font-weight:600;
+    transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 0 22px var(--accent-glow); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+  .switch-note{ font-size:13.5px; color:var(--ink-soft); min-height:22px; }
+  .switch-note b{ color:var(--ink); }
+
+  /* ---------- ACCORDION ---------- */
+  .accordion{ border-top:1px solid var(--line); }
+  .acc-item{ border-bottom:1px solid var(--line); }
+  .acc-trigger{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:20px;
+    padding:20px 4px; background:none; border:none; cursor:pointer; text-align:left;
+    font-family:'Space Grotesk', sans-serif; font-size:1.05rem; color:var(--ink);
+  }
+  .acc-trigger:hover{ color:var(--accent); }
+  .acc-trigger .plus{ font-family:'IBM Plex Mono', monospace; font-size:20px; color:var(--accent); transition:transform .3s ease; flex-shrink:0; }
+  .acc-item.open .plus{ transform:rotate(45deg); }
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .acc-panel-inner{ padding:0 4px 22px; color:var(--ink-soft); font-size:14.5px; max-width:760px; }
+  .acc-panel-inner b{ color:var(--ink); }
+
+  footer{ padding:50px 0 70px; border-top:1px solid var(--line); }
+  .foot-nav{ display:flex; gap:14px; flex-wrap:wrap; margin-top:18px; }
+  .foot-nav a{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-decoration:none;
+    border:1px solid var(--line); padding:9px 14px; border-radius:999px; transition:all .2s ease;
+  }
+  .foot-nav a:hover{ border-color:var(--accent); color:var(--accent); box-shadow:0 0 14px var(--accent-glow); }
+  .foot-nav a.next{ border-color:var(--accent-dim); color:var(--accent); }
+  footer p{ color:var(--ink-soft); font-size:13px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><b>SO</b> · 2.1 Concepto de proceso</a>
+    <a class="back-link" href="../2.2/index.html">Ver 2.2 Estados de procesos &rarr;</a>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <span class="eyebrow">Unidad 2 · Subtema 2.1</span>
+  <h1>Un programa guardado no hace nada. <span class="accent">Un proceso, sí.</span></h1>
+  <p class="lede">Antes de hablar de estados, planificación o hilos, hay que fijar la diferencia más importante de toda la Unidad 2: <b>qué es exactamente un proceso</b> y qué información necesita el sistema operativo para llevarle la cuenta.</p>
+</header>
+
+<section class="section" id="vs">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Punto de partida</span>
+      <h2>Programa vs. Proceso</h2>
+      <p>Son la confusión número uno del tema. Un programa es información pasiva; un proceso es esa información puesta en marcha.</p>
+    </div>
+
+    <div class="vs-grid">
+      <div class="vs-card prog">
+        <span class="chip">Entidad pasiva</span>
+        <h3>Programa</h3>
+        <p>Un conjunto de instrucciones y datos guardado como archivo en disco. No hace nada por sí solo.</p>
+        <ul>
+          <li><b>Es código</b> — texto o binario almacenado.</li>
+          <li><b>Es estático</b> — no cambia mientras nadie lo ejecuta.</li>
+          <li><b>Puede tener muchas copias</b> en ejecución al mismo tiempo.</li>
+        </ul>
+      </div>
+
+      <div class="vs-badge">vs</div>
+
+      <div class="vs-card proc">
+        <span class="chip">Entidad activa</span>
+        <h3>Proceso</h3>
+        <p>Un programa en ejecución: el código, más su contador de programa, su pila, sus registros y sus recursos asignados en un instante dado.</p>
+        <ul>
+          <li><b>Es actividad</b> — cambia a cada instrucción ejecutada.</li>
+          <li><b>Es dinámico</b> — nace, cambia de estado y termina.</li>
+          <li><b>Es único</b> — cada instancia tiene su propio espacio y su propio PID.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="analogy">
+      <b>Analogía rápida:</b> el programa es la receta de cocina; el proceso es el momento en que alguien realmente está cocinando con esa receta — con ingredientes concretos, un punto exacto de avance y utensilios ocupados en ese momento. Puedes abrir la misma receta dos veces y tener dos cocineros distintos cocinando a la vez: dos procesos, un solo programa.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pcb">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Explorador interactivo</span>
+      <h2>El PCB: la ficha de identidad del proceso</h2>
+      <p>El sistema operativo necesita recordar todo sobre cada proceso para poder pausarlo y reanudarlo sin perder nada. Esa información vive en el <b class="mono" style="color:var(--pcb-color)">Process Control Block (PCB)</b>. Toca cada campo:</p>
+    </div>
+
+    <div class="pcb-shell">
+      <div class="pcb-list" id="pcb-list"></div>
+      <div class="pcb-detail" id="pcb-detail"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="switch">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Por qué importa</span>
+      <h2>Contexto de ejecución</h2>
+      <p>Gracias al PCB, el sistema operativo puede quitarle la CPU a un proceso y dársela a otro sin que ninguno "olvide" en qué iba. A esto se le llama <b class="mono" style="color:var(--accent)">cambio de contexto</b>.</p>
+    </div>
+
+    <div class="switch-strip">
+      <div class="switch-track" id="switch-track"></div>
+      <button class="btn" id="switch-btn">Simular cambio de contexto</button>
+      <p class="switch-note" id="switch-note">Presiona el botón para ver cómo el SO guarda el contexto de un proceso y carga el de otro.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">A fondo</span>
+      <h2>Preguntas que suelen surgir</h2>
+    </div>
+    <div class="accordion" id="accordion"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Sigue explorando el curso</h3>
+    <div class="foot-nav">
+      <a href="../1.4/index.html">1.4 Clasificación de los SO</a>
+      <a href="../1.4/1.4.1/index.html">1.4.1 Clasificación (tipografía cinética)</a>
+      <a href="../1.5/index.html">1.5 Estructura: niveles o estratos de diseño</a>
+      <a href="../1.6/index.html">1.6 Núcleo: Linux vs NT Kernel</a>
+      <a href="../1.7/index.html">1.7 Interfaces de usuario: CLI vs GUI</a>
+      <a href="../1.8/index.html">1.8 Virtualización y entornos de prueba</a>
+      <a class="next" href="../2.2/index.html">2.2 Estados y transiciones de procesos &rarr;</a>
+    </div>
+    <p style="margin-top:26px;">Sistemas Operativos I · Material de apoyo — subtema 2.1 Concepto de proceso</p>
+  </div>
+</footer>
+
+<script>
+/* ================= PCB DATA ================= */
+const PCB_FIELDS = [
+  {
+    key:'pid',
+    label:'Identificador (PID)',
+    title:'Identificador de proceso (PID)',
+    desc:'Número único que el sistema operativo asigna a cada proceso al crearlo. Es la forma en que el SO —y tú, desde la terminal— se refiere a ese proceso específico, sin ambigüedad, aunque haya varias copias del mismo programa corriendo.',
+    example:'Ubuntu: ps -e   →   PID  TTY   TIME CMD\nWindows: Get-Process | Select Id, Name'
+  },
+  {
+    key:'state',
+    label:'Estado del proceso',
+    title:'Estado actual',
+    desc:'Indica en qué fase de su ciclo de vida está el proceso ahora mismo: listo, en ejecución, en espera, etc. Este campo es justamente el protagonista del siguiente subtema (2.2).',
+    example:'Ejemplos de estado: Listo · Ejecución · Espera · Zombie'
+  },
+  {
+    key:'pc',
+    label:'Contador de programa',
+    title:'Contador de programa (PC)',
+    desc:'Guarda la dirección de la siguiente instrucción que el proceso debe ejecutar. Cuando el SO le quita la CPU al proceso, este valor se guarda en el PCB; cuando se la regresa, se restaura — así el proceso continúa exactamente donde se quedó.',
+    example:'PC = 0x0040132A  (siguiente instrucción a ejecutar)'
+  },
+  {
+    key:'regs',
+    label:'Registros de CPU',
+    title:'Registros del procesador',
+    desc:'Copia de los valores que tenían los registros del CPU (acumuladores, índices, banderas) en el instante exacto en que el proceso fue interrumpido. Sin esto, restaurar el proceso sería imposible.',
+    example:'EAX, EBX, ECX... (x86)  ·  x0–x30 (ARM)'
+  },
+  {
+    key:'mem',
+    label:'Información de memoria',
+    title:'Límites y mapa de memoria',
+    desc:'Qué zonas de memoria tiene asignadas el proceso: base y límite, tablas de páginas, segmentos de código/datos/pila. Evita que un proceso lea o escriba memoria que no le pertenece.',
+    example:'Base: 0x1000_0000   Límite: 0x1000_FFFF'
+  },
+  {
+    key:'io',
+    label:'Recursos de E/S',
+    title:'Archivos y dispositivos abiertos',
+    desc:'Lista de archivos abiertos, sockets de red, o dispositivos que el proceso está usando en ese momento, junto con su estado (por ejemplo, la posición actual dentro de un archivo).',
+    example:'fd 0: stdin · fd 1: stdout · fd 3: config.json'
+  },
+  {
+    key:'sched',
+    label:'Info. de planificación',
+    title:'Prioridad y datos del planificador',
+    desc:'Prioridad del proceso, cuánto tiempo de CPU lleva usando, y otros datos que el planificador (subtemas 2.5–2.6) usa para decidir a quién le toca correr después.',
+    example:'niceness: 0 (Linux)  ·  Base Priority: 8 (Windows)'
+  },
+];
+
+const pcbList = document.getElementById('pcb-list');
+const pcbDetail = document.getElementById('pcb-detail');
+
+function renderPCBList(){
+  pcbList.innerHTML = PCB_FIELDS.map((f,i)=>`
+    <button class="pcb-item${i===0?' active':''}" data-key="${f.key}">
+      <span class="dot"></span>${f.label}
+    </button>`).join('');
+  pcbList.querySelectorAll('.pcb-item').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      pcbList.querySelectorAll('.pcb-item').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderPCBDetail(btn.dataset.key);
+    });
+  });
+}
+
+function renderPCBDetail(key){
+  const f = PCB_FIELDS.find(x=>x.key===key);
+  pcbDetail.innerHTML = `
+    <span class="field-name">Campo del PCB</span>
+    <h3>${f.title}</h3>
+    <p>${f.desc}</p>
+    <div class="example">${f.example.replace(/\n/g,'<br>')}</div>
+  `;
+}
+
+renderPCBList();
+renderPCBDetail(PCB_FIELDS[0].key);
+
+/* ================= CONTEXT SWITCH SIMULATION ================= */
+const track = document.getElementById('switch-track');
+const switchBtn = document.getElementById('switch-btn');
+const switchNote = document.getElementById('switch-note');
+
+const STEPS = [
+  { nodes:['Proceso A: Ejecución','Proceso B: Listo'], note:'Estado inicial: <b>Proceso A</b> usa la CPU, <b>Proceso B</b> espera su turno.' },
+  { nodes:['Guardar contexto de A','Proceso B: Listo'], note:'El SO copia PC, registros y estado de <b>A</b> a su PCB antes de quitarle la CPU.' },
+  { nodes:['A: Listo (en PCB)','Cargar contexto de B'], note:'El SO toma el PCB de <b>B</b> y restaura su PC y registros en el CPU.' },
+  { nodes:['A: Listo (en PCB)','Proceso B: Ejecución'], note:'<b>B</b> continúa exactamente donde se había quedado. <b>A</b> espera su próximo turno, intacto.' },
+];
+
+let stepIndex = 0;
+
+function renderSwitch(){
+  const s = STEPS[stepIndex];
+  track.innerHTML = s.nodes.map((n,i)=>
+    `<span class="switch-node on">${n}</span>${i===0?'<span class="switch-arrow">&rarr;</span>':''}`
+  ).join('');
+  switchNote.innerHTML = s.note;
+}
+
+switchBtn.addEventListener('click', ()=>{
+  stepIndex = (stepIndex + 1) % STEPS.length;
+  renderSwitch();
+  if(stepIndex === STEPS.length - 1){
+    switchBtn.textContent = 'Reiniciar simulación';
+  } else if (stepIndex === 0){
+    switchBtn.textContent = 'Simular cambio de contexto';
+  }
+});
+
+renderSwitch();
+
+/* ================= ACCORDION ================= */
+const accData = [
+  {
+    q:'¿Un proceso y una aplicación son lo mismo?',
+    a:'No necesariamente. Una aplicación que el usuario percibe como "una sola cosa" (por ejemplo, un navegador) puede estar compuesta de varios procesos trabajando juntos —uno por pestaña, uno para extensiones, uno principal— cada uno con su propio PID y su propio PCB.'
+  },
+  {
+    q:'¿Puede un mismo programa generar varios procesos?',
+    a:'Sí, y es algo muy común. Cada vez que abres una nueva terminal y ejecutas el mismo comando, o cuando un navegador abre otra pestaña, el sistema operativo crea un <b>proceso nuevo e independiente</b> a partir del mismo archivo de programa en disco. Comparten el código, pero no el PCB ni el espacio de memoria en ejecución.'
+  },
+  {
+    q:'¿Qué pasa si el PCB de un proceso se corrompe o se pierde?',
+    a:'El sistema operativo perdería la capacidad de restaurar ese proceso correctamente: no sabría qué instrucción seguía, qué memoria le pertenecía o qué archivos tenía abiertos. En la práctica, el SO protege esta estructura fuertemente en espacio de kernel, fuera del alcance directo de los procesos de usuario.'
+  },
+  {
+    q:'¿Dónde vive físicamente el PCB?',
+    a:'En una tabla de procesos que el kernel mantiene en memoria protegida. En Linux, por ejemplo, cada proceso tiene una estructura <b>task_struct</b> que cumple este rol; en Windows existe el <b>EPROCESS</b>. Ambos guardan, en esencia, la misma clase de información descrita arriba, aunque con nombres y organización distintos.'
+  },
+  {
+    q:'¿Por qué es tan importante entender esto antes de ver estados y planificación?',
+    a:'Porque los subtemas 2.2 (estados), 2.5 y 2.6 (planificación) describen <b>qué le pasa</b> a la información del PCB con el tiempo: cómo cambia el campo de estado, cómo el planificador decide a quién darle la CPU usando el campo de prioridad, etc. Sin tener claro qué es un proceso y qué guarda su PCB, esos temas se quedan en abstracto.'
+  }
+];
+
+document.getElementById('accordion').innerHTML = accData.map((item,i)=>`
+  <div class="acc-item" id="acc-${i}">
+    <button class="acc-trigger" data-i="${i}">
+      <span>${item.q}</span>
+      <span class="plus">+</span>
+    </button>
+    <div class="acc-panel">
+      <div class="acc-panel-inner">${item.a}</div>
+    </div>
+  </div>
+`).join('');
+
+document.querySelectorAll('.acc-trigger').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const item = btn.closest('.acc-item');
+    const panel = item.querySelector('.acc-panel');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.acc-item.open').forEach(o=>{
+      o.classList.remove('open');
+      o.querySelector('.acc-panel').style.maxHeight = null;
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    }
+  });
+});
+</script>
+
+</body>
+</html>
