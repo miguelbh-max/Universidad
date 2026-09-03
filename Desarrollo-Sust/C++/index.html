@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER_CORE // Fundamentos de Programación C++</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0f;
+            --card-bg: rgba(14, 15, 23, 0.85);
+            --card-bg-hover: rgba(20, 22, 35, 0.95);
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #ffe600;
+            --neon-green: #00ff66;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-glow-cyan: 0 0 15px rgba(0, 255, 255, 0.35);
+            --border-glow-magenta: 0 0 15px rgba(255, 0, 255, 0.35);
+            --font-display: 'Orbitron', sans-serif;
+            --font-ui: 'Rajdhani', sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 1.15rem;
+            line-height: 1.6;
+            background-image: 
+                linear-gradient(to right, rgba(0, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 35px 35px;
+            background-attachment: fixed;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            z-index: 999;
+            background-size: 100% 3px, 4px 100%;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* Ambient Glow Blobs */
+        .ambient-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(140px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+        }
+        .glow-1 { top: 10%; left: -100px; background: var(--neon-cyan); }
+        .glow-2 { top: 60%; right: -100px; background: var(--neon-magenta); }
+
+        /* Navigation Header */
+        header {
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(15px);
+            background: rgba(10, 10, 15, 0.85);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.15);
+            z-index: 100;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo span {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 10px var(--neon-magenta);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.08);
+            box-shadow: var(--border-glow-cyan);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 5rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hero Banner */
+        .hero {
+            text-align: center;
+            padding: 3.5rem 1.5rem 4rem 1.5rem;
+            margin-bottom: 3.5rem;
+            background: linear-gradient(180deg, rgba(255, 0, 255, 0.06) 0%, rgba(0, 255, 255, 0.06) 100%);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 255, 255, 0.05);
+            clip-path: polygon(0 0, calc(100% - 25px) 0, 100% 25px, 100% 100%, 25px 100%, 0 calc(100% - 25px));
+        }
+
+        .badge-prof {
+            display: inline-block;
+            background: rgba(255, 0, 255, 0.15);
+            color: var(--neon-magenta);
+            border: 1px solid var(--neon-magenta);
+            padding: 0.3rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.2rem;
+            border-radius: 20px;
+            box-shadow: var(--border-glow-magenta);
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+        }
+
+        .hero p.lead {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 1.5rem auto;
+            font-weight: 500;
+        }
+
+        .pedagogy-alert {
+            background: rgba(0, 255, 255, 0.08);
+            border-left: 4px solid var(--neon-cyan);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 2rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+        }
+
+        .pedagogy-alert .icon {
+            font-size: 2rem;
+            color: var(--neon-cyan);
+        }
+
+        /* Modules & Cards */
+        .module {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            border-radius: 8px;
+            padding: 2.5rem;
+            margin-bottom: 3.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .module:hover {
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: var(--border-glow-cyan);
+        }
+
+        .module.magenta-theme {
+            border-color: rgba(255, 0, 255, 0.25);
+        }
+        .module.magenta-theme:hover {
+            border-color: rgba(255, 0, 255, 0.5);
+            box-shadow: var(--border-glow-magenta);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .module-number {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+        .magenta-theme .module-number {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 10px var(--neon-magenta);
+        }
+
+        .module-title {
+            font-family: var(--font-display);
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        /* Professor's Voice / Analogy Box */
+        .analogy-box {
+            background: rgba(255, 230, 0, 0.05);
+            border: 1px solid rgba(255, 230, 0, 0.3);
+            border-left: 5px solid var(--neon-yellow);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+            box-shadow: 0 0 15px rgba(255, 230, 0, 0.08);
+        }
+
+        .analogy-title {
+            font-family: var(--font-display);
+            color: var(--neon-yellow);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* Concept Breakdown Blocks */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+            margin: 1.8rem 0;
+        }
+
+        .concept-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1.2rem;
+            border-radius: 6px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(0, 255, 255, 0.3);
+        }
+
+        .concept-card h4 {
+            font-family: var(--font-code);
+            color: var(--neon-cyan);
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Neon Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.8rem 0;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-family: var(--font-ui);
+            font-size: 1.1rem;
+        }
+
+        th {
+            background: rgba(0, 255, 255, 0.12);
+            color: var(--neon-cyan);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            padding: 1rem 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        td {
+            padding: 0.9rem 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background: rgba(0, 255, 255, 0.03);
+        }
+
+        td code {
+            font-family: var(--font-code);
+            color: var(--neon-magenta);
+            background: rgba(255, 0, 255, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* DETAILS / SUMMARY - MANDATORY HIDDEN CODE ACCORDION */
+        details.cyber-code-block {
+            margin: 1.8rem 0;
+            border: 1px solid rgba(0, 255, 255, 0.35);
+            background: #090a10;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
+        }
+
+        details.cyber-code-block[open] {
+            border-color: var(--neon-cyan);
+            box-shadow: var(--border-glow-cyan);
+        }
+
+        details.solution-block {
+            border-color: rgba(255, 0, 255, 0.35);
+            margin-top: 1.2rem;
+        }
+
+        details.solution-block[open] {
+            border-color: var(--neon-magenta);
+            box-shadow: var(--border-glow-magenta);
+        }
+
+        summary {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 255, 255, 0.06);
+            color: var(--neon-cyan);
+            user-select: none;
+            transition: background-color 0.3s, color 0.3s;
+            outline: none;
+        }
+
+        details.solution-block summary {
+            background: rgba(255, 0, 255, 0.08);
+            color: var(--neon-magenta);
+        }
+
+        summary:hover {
+            background: rgba(0, 255, 255, 0.15);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        details.solution-block summary:hover {
+            background: rgba(255, 0, 255, 0.18);
+            text-shadow: 0 0 10px var(--neon-magenta);
+        }
+
+        summary::marker, summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::after {
+            content: "▶ [DESPLEGAR CÓDIGO C++]";
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        details[open] summary::after {
+            content: "▼ [OCULTAR CÓDIGO C++]";
+        }
+
+        .code-wrapper {
+            padding: 1.2rem;
+            position: relative;
+            background: #06070a;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        pre {
+            margin: 0;
+            overflow-x: auto;
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d1d5db;
+        }
+
+        /* Syntax Highlight Aesthetics */
+        .token-keyword { color: #ff00ff; font-weight: 600; }
+        .token-directive { color: #00ffff; font-weight: 600; }
+        .token-header { color: #ffe600; }
+        .token-string { color: #00ff66; }
+        .token-comment { color: #6b7280; font-style: italic; }
+        .token-func { color: #38bdf8; font-weight: 600; }
+        .token-var { color: #f3f4f6; }
+        .token-op { color: #ff80df; }
+
+        /* Copy Button */
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Lab Exercise Card */
+        .lab-exercise {
+            background: rgba(255, 0, 255, 0.03);
+            border: 1px dashed rgba(255, 0, 255, 0.4);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .lab-title {
+            font-family: var(--font-display);
+            color: var(--neon-magenta);
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        /* Status Terminal Component */
+        .status-terminal {
+            background: rgba(0,0,0,0.85);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 6px;
+            padding: 0.8rem 1.2rem;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 1.5rem;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.15);
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: #050508;
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-size: 1rem;
+        }
+
+        footer strong {
+            color: var(--neon-cyan);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .module {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Neon FX -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="logo">
+            CYBER<span>//</span>CORE <span style="font-size: 0.8rem; border: 1px solid var(--neon-cyan); padding: 2px 6px; border-radius: 4px; color: var(--neon-cyan);">C++ v1.0</span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#mod1">1. Estructura</a></li>
+                <li><a href="#mod2">2. Variables</a></li>
+                <li><a href="#mod3">3. Operaciones</a></li>
+                <li><a href="#mod4">4. Control Flujo</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Hero Intro Section -->
+        <section class="hero">
+            <div class="badge-prof">🎓 Terminal Docente // Ingeniería de Software</div>
+            <h1>FUNDAMENTOS DE C++</h1>
+            <p class="lead">Bienvenido al ciberespacio de la programación. Aquí transformarás la lógica pura en instrucciones ejecutables de alto rendimiento para controlar el hardware.</p>
+            
+            <div class="pedagogy-alert">
+                <div class="icon">💡</div>
+                <div>
+                    <strong>METODOLOGÍA DE APRENDIZAJE ACTIVO:</strong><br>
+                    Para desarrollar tu pensamiento computacional, el código no está visible de inmediato. Lee primero la teoría y la analogía, reflexiona sobre cómo construirías la solución y luego despliega el botón interactivo para analizar el código fuente comentado.
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             MÓDULO 1: ESTRUCTURA BÁSICA DE UN PROGRAMA
+             ========================================== -->
+        <section id="mod1" class="module">
+            <div class="module-header">
+                <span class="module-number">01</span>
+                <h2 class="module-title">ESTRUCTURA BÁSICA DE UN PROGRAMA EN C++</h2>
+            </div>
+
+            <p>Todo programa en C++ es como una <strong>receta de cocina o un manual de ensamblaje</strong>: necesita herramientas iniciales para trabajar, un punto de partida exacto y una confirmación al terminar la tarea.</p>
+
+            <div class="analogy-box">
+                <div class="analogy-title">🧠 Analogía de la vida cotidiana: El Taller Mecánico</div>
+                <p>Imagina que abres un taller de robótica. Antes de empezar a armar piezas, sacas tu caja de herramientas esenciales (<code>#include</code>). Luego, tu puerta principal de entrada se abre (<code>main()</code>) y comienzas a seguir las instrucciones paso a paso. Cuando terminas todo con éxito, apagas las luces y colocas el letrero de "0 fallos" (<code>return 0;</code>).</p>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>#include &lt;iostream&gt;</h4>
+                    <p>Es la <strong>biblioteca de entrada y salida</strong> (<em>Input/Output Stream</em>). Le enseña al compilador cómo leer datos del teclado y cómo proyectar texto en la pantalla.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>using namespace std;</h4>
+                    <p>Nos ahorra escribir <code>std::</code> antes de cada orden. Es como decirle al sistema: <em>"vamos a usar el diccionario estándar por defecto"</em>.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>int main() { ... }</h4>
+                    <p>Es el <strong>cerebro y punto de arranque</strong> de todo programa. Sin <code>main</code>, la computadora no sabe dónde empezar a ejecutar tus instrucciones.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>return 0;</h4>
+                    <p>Le envía una señal de estado al sistema operativo diciendo: <em>"¡Misión cumplida con cero errores!"</em>. Cada instrucción en C++ finaliza con un punto y coma (<code>;</code>).</p>
+                </div>
+            </div>
+
+            <!-- BOTÓN DESPLEGABLE OBLIGATORIO: HOLA MUNDO -->
+            <details class="cyber-code-block">
+                <summary>Haz clic aquí para ver el código: "Hola Mundo"</summary>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                    <pre><code><span class="token-comment">// =======================================================</span>
+<span class="token-comment">// PROGRAMA 01: Hola Mundo - El primer contacto en C++</span>
+<span class="token-comment">// =======================================================</span>
+<span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>  <span class="token-comment">// Incluimos la herramienta para escribir en consola</span>
+
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;  <span class="token-comment">// Espacio de nombres estándar (facilita usar cout)</span>
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-comment">// 'cout' (Console Output) envía texto hacia la pantalla.</span>
+    <span class="token-comment">// '&lt;&lt;' es el operador de inserción (flujo de datos hacia la salida).</span>
+    <span class="token-comment">// 'endl' (End Line) inserta un salto de línea y vacía el búfer.</span>
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"¡Hola Mundo, bienvenidos al Cyber-Core de C++!"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Iniciando secuencia de entrenamiento..."</span> &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>; <span class="token-comment">// Indica al Sistema Operativo que todo finalizó correctamente</span>
+}</code></pre>
+                </div>
+            </details>
+
+            <!-- EJERCICIO DE LABORATORIO 1 -->
+            <div class="lab-exercise">
+                <div class="lab-title">⚡ Desafío de Laboratorio 1.1: Tu Credencial Cyberpunk</div>
+                <p><strong>Problema propuesto:</strong> Diseña un programa en C++ que imprima en líneas separadas tu nombre, tu carrera y tu primera meta en la universidad utilizando múltiples llamadas a <code>cout</code>.</p>
+                
+                <details class="cyber-code-block solution-block">
+                    <summary>Haz clic aquí para ver la solución propuesta</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Solución</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"================================="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"CREDENTIAL SYSTEM // ESTUDIANTE"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"================================="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Nombre: Alex Morgan"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Carrera: Ingeniería en Software"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Meta: Dominar algoritmos y construir software seguro."</span> &lt;&lt; <span class="token-var">endl</span>;
+    
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             MÓDULO 2: TIPOS DE VARIABLES Y DECLARACIÓN
+             ========================================== -->
+        <section id="mod2" class="module magenta-theme">
+            <div class="module-header">
+                <span class="module-number">02</span>
+                <h2 class="module-title">TIPOS DE VARIABLES Y DECLARACIÓN</h2>
+            </div>
+
+            <p>Una <strong>variable</strong> es un espacio reservado en la memoria RAM de la computadora con un nombre específico para almacenar información que puede cambiar a lo largo del tiempo.</p>
+
+            <div class="analogy-box">
+                <div class="analogy-title">🧠 Analogía de la vida cotidiana: Cajas Organizadoras Etiquetadas</div>
+                <p>Imagina que tienes cajas transparentes en tu habitación. Si tienes una caja para zapatos, no puedes meter ahí un litro de leche. En C++, cada caja debe tener una <strong>etiqueta con su tipo</strong> (¿es número entero? ¿es texto? ¿es un decimal?) y un <strong>nombre único</strong> antes de poder guardar algo en ella.</p>
+            </div>
+
+            <h3>Sintaxis de Declaración e Inicialización</h3>
+            <p style="margin-bottom: 1rem;">Para crear una variable en C++, primero escribes el <strong>tipo de dato</strong>, luego su <strong>identificador (nombre)</strong> y opcionalmente le asignas un <strong>valor inicial</strong> usando el signo <code>=</code>.</p>
+
+            <!-- TABLA COMPARATIVA -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo de Dato</th>
+                            <th>Descripción Simple</th>
+                            <th>Tamaño Típico</th>
+                            <th>Ejemplo de Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>int</code></td>
+                            <td>Números enteros (positivos y negativos, sin decimales)</td>
+                            <td>4 bytes (32 bits)</td>
+                            <td><code>25</code>, <code>-10</code>, <code>2026</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>float</code></td>
+                            <td>Números con punto decimal (precisión simple, ~6-7 dígitos)</td>
+                            <td>4 bytes (32 bits)</td>
+                            <td><code>3.1415f</code>, <code>-0.5f</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>double</code></td>
+                            <td>Decimales de alta precisión (precisión doble, ~15 dígitos)</td>
+                            <td>8 bytes (64 bits)</td>
+                            <td><code>199.9999</code>, <code>0.000045</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>char</code></td>
+                            <td>Un solo carácter o símbolo (entre comillas simples <code>''</code>)</td>
+                            <td>1 byte (8 bits)</td>
+                            <td><code>'A'</code>, <code>'#'</code>, <code>'9'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>bool</code></td>
+                            <td>Valores lógicos de verdad (solo dos estados: verdadero o falso)</td>
+                            <td>1 byte</td>
+                            <td><code>true</code> (1) o <code>false</code> (0)</td>
+                        </tr>
+                        <tr>
+                            <td><code>string</code></td>
+                            <td>Cadenas de texto o frases (requiere <code>#include &lt;string&gt;</code>)</td>
+                            <td>Dinámico (~24B)</td>
+                            <td><code>"Cyberpunk 2077"</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BOTÓN DESPLEGABLE OBLIGATORIO: VARIABLES -->
+            <details class="cyber-code-block solution-block">
+                <summary>Haz clic aquí para ver el código: Declaración y uso de variables</summary>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                    <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-directive">#include</span> <span class="token-header">&lt;string&gt;</span> <span class="token-comment">// Necesario para usar texto (string)</span>
+
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-comment">// 1. Declaración e inicialización de variables primitivas</span>
+    <span class="token-keyword">int</span> nivelAcceso = <span class="token-op">5</span>;
+    <span class="token-keyword">double</span> creditosDigitales = <span class="token-op">1450.75</span>;
+    <span class="token-keyword">char</span> rangoAgente = <span class="token-string">'S'</span>;
+    <span class="token-keyword">bool</span> sistemaActivo = <span class="token-keyword">true</span>;
+    <span class="token-keyword">string</span> aliasUsuario = <span class="token-string">"Neo_Viper"</span>;
+
+    <span class="token-comment">// 2. Mostrando los valores en consola</span>
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== PERFIL DEL USUARIO ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Alias: "</span> &lt;&lt; aliasUsuario &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Nivel de Seguridad: "</span> &lt;&lt; nivelAcceso &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Saldo de Créditos: $"</span> &lt;&lt; creditosDigitales &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Rango Operativo: "</span> &lt;&lt; rangoAgente &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"¿Conectado al servidor?: "</span> &lt;&lt; sistemaActivo &lt;&lt; <span class="token-string">" (1=Si, 0=No)"</span> &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                </div>
+            </details>
+
+            <!-- EJERCICIO DE LABORATORIO 2 -->
+            <div class="lab-exercise">
+                <div class="lab-title">⚡ Desafío de Laboratorio 2.1: Registro de un Dron de Exploración</div>
+                <p><strong>Problema propuesto:</strong> Declara variables para almacenar los datos de un dron: modelo (<code>string</code>), batería restante en porcentaje decimal (<code>double</code>), número de propulsores (<code>int</code>), categoría de vuelo (<code>char</code>) y estado de los sensores (<code>bool</code>). Luego, imprime una ficha técnica clara.</p>
+                
+                <details class="cyber-code-block solution-block">
+                    <summary>Haz clic aquí para ver la solución propuesta</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Solución</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-directive">#include</span> <span class="token-header">&lt;string&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">string</span> modelo = <span class="token-string">"CyberDrone-X4"</span>;
+    <span class="token-keyword">double</span> bateria = <span class="token-op">87.5</span>;
+    <span class="token-keyword">int</span> propulsores = <span class="token-op">4</span>;
+    <span class="token-keyword">char</span> categoria = <span class="token-string">'A'</span>;
+    <span class="token-keyword">bool</span> sensoresCalibrados = <span class="token-keyword">true</span>;
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"--- TELEMETRIA DEL DRON ---"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Modelo: "</span> &lt;&lt; modelo &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Bateria: "</span> &lt;&lt; bateria &lt;&lt; <span class="token-string">"%"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Propulsores: "</span> &lt;&lt; propulsores &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Categoria: "</span> &lt;&lt; categoria &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Sensores OK: "</span> &lt;&lt; (sensoresCalibrados ? <span class="token-string">"EN LINEA"</span> : <span class="token-string">"FALLA"</span>) &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             MÓDULO 3: OPERACIONES ARITMÉTICAS BÁSICAS
+             ========================================== -->
+        <section id="mod3" class="module">
+            <div class="module-header">
+                <span class="module-number">03</span>
+                <h2 class="module-title">OPERACIONES ARITMÉTICAS Y ENTRADA DE DATOS</h2>
+            </div>
+
+            <p>Las computadoras son calculadoras ultrasónicas. En C++ disponemos de operadores matemáticos para manipular variables y la herramienta <code>cin</code> para capturar datos ingresados por el usuario desde el teclado.</p>
+
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h4>Suma (+) y Resta (-)</h4>
+                    <p>Adiciona o sustrae valores numéricos directos o variables.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Multiplicación (*)</h4>
+                    <p>Calcula el producto entre dos expresiones numéricas.</p>
+                </div>
+                <div class="concept-card">
+                    <h4>División (/)</h4>
+                    <p><strong>¡Atención especial para principiantes!</strong> La división entre dos enteros trunca el resultado (<code>5 / 2 = 2</code>). Para obtener <code>2.5</code>, al menos un número debe ser decimal (<code>5.0 / 2.0</code>).</p>
+                </div>
+                <div class="concept-card">
+                    <h4>Módulo (%)</h4>
+                    <p>Calcula el <strong>residuo o sobrante</strong> de una división entera. Solo funciona con números enteros (<code>7 % 3 = 1</code>, porque 3 cabe 2 veces y sobra 1).</p>
+                </div>
+            </div>
+
+            <div class="analogy-box">
+                <div class="analogy-title">🧠 Analogía del Operador Módulo (%): Repartiendo Galletas</div>
+                <p>Tienes <strong>10 galletas</strong> y <strong>3 amigos</strong>. Si le das la misma cantidad exacta de galletas enteras a cada uno, le corresponden 3 a cada amigo (9 en total) y <strong>te sobra 1 galleta</strong> en el paquete. Ese sobrante es exactamente lo que calcula el módulo: <code>10 % 3 = 1</code>.</p>
+            </div>
+
+            <!-- BOTÓN DESPLEGABLE OBLIGATORIO: CALCULADORA INTERACTIVA -->
+            <details class="cyber-code-block">
+                <summary>Haz clic aquí para ver el código: Calculadora interactiva con cin y cout</summary>
+                <div class="code-wrapper">
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                    <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">int</span> numA, numB;
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== CYBER CALCULADORA ARITMETICA ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa el primer numero entero: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; numA; <span class="token-comment">// Captura el valor del teclado</span>
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa el segundo numero entero: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; numB;
+
+    <span class="token-comment">// Operaciones</span>
+    <span class="token-keyword">int</span> suma = numA + numB;
+    <span class="token-keyword">int</span> resta = numA - numB;
+    <span class="token-keyword">int</span> multiplicacion = numA * numB;
+    <span class="token-keyword">int</span> divisionEntera = numA / numB;
+    <span class="token-keyword">double</span> divisionReal = (<span class="token-keyword">double</span>)numA / numB; <span class="token-comment">// Conversión explícita (Casting)</span>
+    <span class="token-keyword">int</span> residuo = numA % numB;
+
+    <span class="token-comment">// Resultados</span>
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"\n--- RESULTADOS DEL ANALISIS ---"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Suma ("</span> &lt;&lt; numA &lt;&lt; <span class="token-string">" + "</span> &lt;&lt; numB &lt;&lt; <span class="token-string">"): "</span> &lt;&lt; suma &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Resta ("</span> &lt;&lt; numA &lt;&lt; <span class="token-string">" - "</span> &lt;&lt; numB &lt;&lt; <span class="token-string">"): "</span> &lt;&lt; resta &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Multiplicacion ("</span> &lt;&lt; numA &lt;&lt; <span class="token-string">" * "</span> &lt;&lt; numB &lt;&lt; <span class="token-string">"): "</span> &lt;&lt; multiplicacion &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Division Entera ("</span> &lt;&lt; numA &lt;&lt; <span class="token-string">" / "</span> &lt;&lt; numB &lt;&lt; <span class="token-string">"): "</span> &lt;&lt; divisionEntera &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Division Decimal Precisa: "</span> &lt;&lt; divisionReal &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Modulo/Residuo ("</span> &lt;&lt; numA &lt;&lt; <span class="token-string">" % "</span> &lt;&lt; numB &lt;&lt; <span class="token-string">"): "</span> &lt;&lt; residuo &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                </div>
+            </details>
+
+            <!-- EJERCICIO DE LABORATORIO 3 -->
+            <div class="lab-exercise">
+                <div class="lab-title">⚡ Desafío de Laboratorio 3.1: Conversor de Horas y Minutos</div>
+                <p><strong>Problema propuesto:</strong> Pide al usuario que ingrese una cantidad total de minutos (ejemplo: <code>135</code>). Usando los operadores <code>/</code> y <code>%</code>, calcula y muestra a cuántas horas completas y minutos sobrantes equivale (ejemplo: <em>"2 horas y 15 minutos"</em>).</p>
+                
+                <details class="cyber-code-block solution-block">
+                    <summary>Haz clic aquí para ver la solución propuesta</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Solución</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">int</span> totalMinutos;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa la cantidad total de minutos: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; totalMinutos;
+
+    <span class="token-keyword">int</span> horas = totalMinutos / <span class="token-op">60</span>;      <span class="token-comment">// Division entera</span>
+    <span class="token-keyword">int</span> minutosResto = totalMinutos % <span class="token-op">60</span>; <span class="token-comment">// Residuo sobrante</span>
+
+    <span class="token-func">cout</span> &lt;&lt; totalMinutos &lt;&lt; <span class="token-string">" minutos equivalen a: "</span> 
+         &lt;&lt; horas &lt;&lt; <span class="token-string">" hora(s) y "</span> &lt;&lt; minutosResto &lt;&lt; <span class="token-string">" minuto(s)."</span> &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             MÓDULO 4: ESTRUCTURAS DE CONTROL DE FLUJO
+             ========================================== -->
+        <section id="mod4" class="module magenta-theme">
+            <div class="module-header">
+                <span class="module-number">04</span>
+                <h2 class="module-title">ESTRUCTURAS DE CONTROL DE FLUJO</h2>
+            </div>
+
+            <p>Por defecto, un programa lee las instrucciones de arriba hacia abajo secuencialmente. Las <strong>estructuras de control</strong> nos dan superpoderes para tomar bifurcaciones lógicas (decisiones) o repetir tareas de forma automatizada (ciclos).</p>
+
+            <!-- 4.1 CONDICIONALES -->
+            <div style="margin-top: 2rem;">
+                <h3 style="color: var(--neon-cyan); font-family: var(--font-display);">4.1 CONDICIONAL IF / ELSE IF / ELSE (Toma de Decisiones)</h3>
+                <p>Permite ejecutar un bloque de código <em>únicamente</em> si se cumple una condición lógica verdadera.</p>
+
+                <div class="analogy-box">
+                    <div class="analogy-title">🧠 Analogía: El Semáforo Inteligente</div>
+                    <p>Si la luz es verde (<code>if</code>), avanza. Si es amarilla (<code>else if</code>), disminuye la velocidad y prepárate. Si no es ninguna de las anteriores (<code>else</code>), frena por completo. El programa evalúa en orden y solo entra al camino que sea verdadero.</p>
+                </div>
+
+                <!-- EJEMPLO 1: EVALUADOR DE CALIFICACIONES -->
+                <details class="cyber-code-block">
+                    <summary>Haz clic aquí para ver el código: Ejemplo 1 - Evaluador Académico</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">double</span> calificacion;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== EVALUADOR ACADEMICO CYBER-CORE ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa la calificacion final (0 a 100): "</span>;
+    <span class="token-func">cin</span> &gt;&gt; calificacion;
+
+    <span class="token-keyword">if</span> (calificacion &gt;= <span class="token-op">90.0</span>) {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"¡Excelente desempeño! Grado: Aprobado con Honores."</span> &lt;&lt; <span class="token-var">endl</span>;
+    } 
+    <span class="token-keyword">else if</span> (calificacion &gt;= <span class="token-op">70.0</span>) {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"¡Aprobado! Competencias de software adquiridas."</span> &lt;&lt; <span class="token-var">endl</span>;
+    } 
+    <span class="token-keyword">else</span> {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"No acreditado. Requiere repasar fundamentos de algoritmo."</span> &lt;&lt; <span class="token-var">endl</span>;
+    }
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+
+                <!-- NUEVO: COMPARAR DOS NÚMEROS (MAYOR / MENOR / IGUAL) -->
+                <details class="cyber-code-block">
+                    <summary>Haz clic aquí para ver el código: Ejemplo 2 - Comparar DOS Números (Mayor / Menor / Iguales)</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">double</span> num1, num2;
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== COMPARADOR BINARIO DE DOS NUMEROS ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa el primer numero: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; num1;
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa el segundo numero: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; num2;
+
+    <span class="token-comment">// Evaluamos los 3 posibles escenarios lógicos</span>
+    <span class="token-keyword">if</span> (num1 &gt; num2) {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; El Mayor es el primero: "</span> &lt;&lt; num1 &lt;&lt; <span class="token-var">endl</span>;
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; El Menor es el segundo: "</span> &lt;&lt; num2 &lt;&lt; <span class="token-var">endl</span>;
+    } 
+    <span class="token-keyword">else if</span> (num2 &gt; num1) {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; El Mayor es el segundo: "</span> &lt;&lt; num2 &lt;&lt; <span class="token-var">endl</span>;
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; El Menor es el primero: "</span> &lt;&lt; num1 &lt;&lt; <span class="token-var">endl</span>;
+    } 
+    <span class="token-keyword">else</span> {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; Ambos numeros son EXACTAMENTE IGUALES ("</span> &lt;&lt; num1 &lt;&lt; <span class="token-string">")."</span> &lt;&lt; <span class="token-var">endl</span>;
+    }
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+
+                <!-- NUEVO: COMPARAR TRES NÚMEROS (MAYOR Y MENOR CON OPERADOR LÓGICO &&) -->
+                <details class="cyber-code-block">
+                    <summary>Haz clic aquí para ver el código: Ejemplo 3 - Comparar TRES Números (Determinar Mayor y Menor)</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">double</span> a, b, c;
+    <span class="token-keyword">double</span> mayor, menor;
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== COMPARADOR DE 3 NUMEROS (ANALISIS TOTAL) ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa el valor A: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; a;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa el valor B: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; b;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa el valor C: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; c;
+
+    <span class="token-comment">// 1. Determinando el MAYOR usando el operador lógico '&&' (Y / AND)</span>
+    <span class="token-keyword">if</span> (a &gt;= b &amp;&amp; a &gt;= c) {
+        mayor = a;
+    } <span class="token-keyword">else if</span> (b &gt;= a &amp;&amp; b &gt;= c) {
+        mayor = b;
+    } <span class="token-keyword">else</span> {
+        mayor = c;
+    }
+
+    <span class="token-comment">// 2. Determinando el MENOR</span>
+    <span class="token-keyword">if</span> (a &lt;= b &amp;&amp; a &lt;= c) {
+        menor = a;
+    } <span class="token-keyword">else if</span> (b &lt;= a &amp;&amp; b &lt;= c) {
+        menor = b;
+    } <span class="token-keyword">else</span> {
+        menor = c;
+    }
+
+    <span class="token-comment">// 3. Mostrando los resultados</span>
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"\n--- RESULTADO DE LA COMPARACION ---"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Valores ingresados: ["</span> &lt;&lt; a &lt;&lt; <span class="token-string">", "</span> &lt;&lt; b &lt;&lt; <span class="token-string">", "</span> &lt;&lt; c &lt;&lt; <span class="token-string">"]"</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"★ NUMERO MAYOR = "</span> &lt;&lt; mayor &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"▼ NUMERO MENOR = "</span> &lt;&lt; menor &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 2.5rem 0;">
+
+            <!-- 4.2 CICLO FOR -->
+            <div>
+                <h3 style="color: var(--neon-magenta); font-family: var(--font-display);">4.2 CICLO FOR (Iteraciones Determinadas)</h3>
+                <p><strong>¿Cuándo usarlo?</strong> Cuando sabemos <strong>de antemano exactamente cuántas veces</strong> queremos repetir una instrucción (por ejemplo: contar del 1 al 10, recorrer 50 elementos, o multiplicar consecutivamente).</p>
+
+                <div class="analogy-box">
+                    <div class="analogy-title">🧠 Analogía: Las 10 Flexiones en el Gimnasio</div>
+                    <p>Tu entrenador te dice: <em>"Haz exactamente 10 flexiones"</em>. Empiezas en 1 (<code>inicialización</code>), mientras no llegues a 10 sigues bajando y subiendo (<code>condición</code>), y con cada flexión aumentas tu cuenta en uno (<code>incremento ++</code>).</p>
+                </div>
+
+                <!-- EJEMPLO 1: TABLA DE MULTIPLICAR -->
+                <details class="cyber-code-block solution-block">
+                    <summary>Haz clic aquí para ver el código: Ejemplo 1 - Tabla de Multiplicar con Ciclo for</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">int</span> tabla;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== GENERADOR DE MATRICES NUMERICAS ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"¿Que tabla de multiplicar deseas generar?: "</span>;
+    <span class="token-func">cin</span> &gt;&gt; tabla;
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"\nGenerando tabla del "</span> &lt;&lt; tabla &lt;&lt; <span class="token-string">"...\n"</span>;
+
+    <span class="token-comment">// for(inicio; condicion; incremento)</span>
+    <span class="token-keyword">for</span> (<span class="token-keyword">int</span> i = <span class="token-op">1</span>; i &lt;= <span class="token-op">10</span>; i++) {
+        <span class="token-func">cout</span> &lt;&lt; tabla &lt;&lt; <span class="token-string">" x "</span> &lt;&lt; i &lt;&lt; <span class="token-string">" = "</span> &lt;&lt; (tabla * i) &lt;&lt; <span class="token-var">endl</span>;
+    }
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+
+                <!-- NUEVO: FACTORIAL DE UN NÚMERO (EJ. 5! = 120) -->
+                <div style="margin-top: 1.5rem;">
+                    <div class="analogy-box" style="border-left-color: var(--neon-cyan); background: rgba(0,255,255,0.04);">
+                        <div class="analogy-title" style="color: var(--neon-cyan);">📐 Explicación Didáctica: Factorial de un Número (N!)</div>
+                        <p>El factorial de un número $n$ ($n!$) es la multiplicación consecutiva de todos los enteros desde $1$ hasta $n$.<br>
+                        Por ejemplo para $5!$: <strong>$1 \times 2 \times 3 \times 4 \times 5 = 120$</strong>.<br>
+                        💡 <em>Regla de Oro:</em> El acumulador de multiplicación siempre debe iniciar en <strong>1</strong> (si iniciara en 0, toda multiplicación daría 0).</p>
+                    </div>
+
+                    <details class="cyber-code-block solution-block">
+                        <summary>Haz clic aquí para ver el código: Ejemplo 2 - Cálculo del Factorial (N!) con Ciclo for</summary>
+                        <div class="code-wrapper">
+                            <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                            <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">int</span> n;
+    <span class="token-comment">// Usamos long long porque los factoriales crecen extremadamente rápido</span>
+    <span class="token-keyword">long long</span> factorial = <span class="token-op">1</span>; 
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== CALCULO DE FACTORIAL (N!) CYBER-CORE ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa un numero entero positivo (ej. 5): "</span>;
+    <span class="token-func">cin</span> &gt;&gt; n;
+
+    <span class="token-keyword">if</span> (n &lt; <span class="token-op">0</span>) {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Error: No existe el factorial de numeros negativos."</span> &lt;&lt; <span class="token-var">endl</span>;
+    } <span class="token-keyword">else</span> {
+        <span class="token-comment">// Multiplicamos sucesivamente desde 1 hasta n</span>
+        <span class="token-keyword">for</span> (<span class="token-keyword">int</span> i = <span class="token-op">1</span>; i &lt;= n; i++) {
+            factorial = factorial * i; <span class="token-comment">// Acumulando multiplicación</span>
+        }
+
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"\n-&gt; El factorial de "</span> &lt;&lt; n &lt;&lt; <span class="token-string">"! es = "</span> &lt;&lt; factorial &lt;&lt; <span class="token-var">endl</span>;
+    }
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 2.5rem 0;">
+
+            <!-- 4.3 CICLO WHILE -->
+            <div>
+                <h3 style="color: var(--neon-cyan); font-family: var(--font-display);">4.3 CICLO WHILE (Repetición Basada en Condición)</h3>
+                <p><strong>¿Cuándo usarlo?</strong> Cuando <strong>NO sabemos cuántas veces</strong> se repetirá el proceso, pero sí sabemos <strong>qué condición debe cumplirse para continuar</strong> (por ejemplo: mantenerse en un juego hasta que las vidas lleguen a 0, o mantener un menú abierto hasta que el usuario elija salir).</p>
+
+                <div class="analogy-box">
+                    <div class="analogy-title">🧠 Analogía: Comer Palomitas de Maíz en el Cine</div>
+                    <p>Mientras (<code>while</code>) el paquete de palomitas NO esté vacío, sigues comiendo. No sabes exactamente cuántas palomitas contiene la bolsa antes de empezar, pero te detienes en el momento exacto en que se acaban.</p>
+                </div>
+
+                <!-- BOTÓN DESPLEGABLE OBLIGATORIO: WHILE -->
+                <details class="cyber-code-block">
+                    <summary>Haz clic aquí para ver el código: Ciclo while y Menú Interactivo</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Código</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">int</span> opcion = <span class="token-op">0</span>;
+
+    <span class="token-comment">// El ciclo se repite MIENTRAS la opción sea diferente de 3 (Salir)</span>
+    <span class="token-keyword">while</span> (opcion != <span class="token-op">3</span>) {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"\n=== TERMINAL DE CONTROL ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"1. Escanear red de servidores"</span> &lt;&lt; <span class="token-var">endl</span>;
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"2. Recargar escudos de energia"</span> &lt;&lt; <span class="token-var">endl</span>;
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"3. Desconectar y salir"</span> &lt;&lt; <span class="token-var">endl</span>;
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Selecciona una opcion (1-3): "</span>;
+        <span class="token-func">cin</span> &gt;&gt; opcion;
+
+        <span class="token-keyword">if</span> (opcion == <span class="token-op">1</span>) {
+            <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; [OK] Red analizada: 0 intrusiones detectadas."</span> &lt;&lt; <span class="token-var">endl</span>;
+        } <span class="token-keyword">else if</span> (opcion == <span class="token-op">2</span>) {
+            <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; [OK] Escudos reestablecidos al 100%."</span> &lt;&lt; <span class="token-var">endl</span>;
+        } <span class="token-keyword">else if</span> (opcion == <span class="token-op">3</span>) {
+            <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; Cerrando conexion segura... ¡Hasta pronto!"</span> &lt;&lt; <span class="token-var">endl</span>;
+        } <span class="token-keyword">else</span> {
+            <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"-&gt; [!] Opcion invalida. Intenta nuevamente."</span> &lt;&lt; <span class="token-var">endl</span>;
+        }
+    }
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <!-- EJERCICIO DE LABORATORIO 4 -->
+            <div class="lab-exercise">
+                <div class="lab-title">⚡ Desafío de Laboratorio 4.1: Sumador Acumulativo con Centinela</div>
+                <p><strong>Problema propuesto:</strong> Escribe un programa que solicite números enteros al usuario continuamente y los sume en un acumulador total. El programa debe detenerse inmediatamente cuando el usuario ingrese el número <code>0</code> (valor centinela) y mostrar la sumatoria final calculada.</p>
+                
+                <details class="cyber-code-block solution-block">
+                    <summary>Haz clic aquí para ver la solución propuesta</summary>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyCode(this)">Copiar Solución</button>
+                        <pre><code><span class="token-directive">#include</span> <span class="token-header">&lt;iostream&gt;</span>
+<span class="token-keyword">using namespace</span> <span class="token-var">std</span>;
+
+<span class="token-keyword">int</span> <span class="token-func">main</span>() {
+    <span class="token-keyword">int</span> numeroIngresado = -<span class="token-op">1</span>;
+    <span class="token-keyword">int</span> sumaTotal = <span class="token-op">0</span>;
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"=== ACUMULADOR DE DATOS (Ingresa 0 para finalizar) ==="</span> &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">while</span> (numeroIngresado != <span class="token-op">0</span>) {
+        <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Ingresa un valor numerico: "</span>;
+        <span class="token-func">cin</span> &gt;&gt; numeroIngresado;
+        sumaTotal += numeroIngresado; <span class="token-comment">// Equivale a: sumaTotal = sumaTotal + numeroIngresado</span>
+    }
+
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"\nSuma total acumulada: "</span> &lt;&lt; sumaTotal &lt;&lt; <span class="token-var">endl</span>;
+    <span class="token-func">cout</span> &lt;&lt; <span class="token-string">"Protocolo completado."</span> &lt;&lt; <span class="token-var">endl</span>;
+
+    <span class="token-keyword">return</span> <span class="token-op">0</span>;
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- Status Terminal Component -->
+        <div class="status-terminal">
+            <span class="blink">●</span> [SISTEMA EN LÍNEA] Protocolos de C++ actualizados // Comparadores e Iteraciones Factoriales listos.
+        </div>
+    </main>
+
+    <footer>
+        <p><strong>CYBER_CORE // Guía Didáctica Universitaria de C++</strong></p>
+        <p style="margin-top: 5px; font-size: 0.9rem;">Diseñado para el fortalecimiento del Pensamiento Computacional e Ingeniería de Software.</p>
+    </footer>
+
+    <!-- Interactive JS for Copying Code -->
+    <script>
+        function copyCode(btn) {
+            const pre = btn.nextElementSibling;
+            const codeText = pre.innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "¡COPIADO!";
+                btn.style.background = "var(--neon-magenta)";
+                btn.style.color = "#fff";
+                btn.style.borderColor = "var(--neon-magenta)";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "rgba(0, 255, 255, 0.1)";
+                    btn.style.color = "var(--neon-cyan)";
+                    btn.style.borderColor = "var(--neon-cyan)";
+                }, 2000);
+            }).catch(err => {
+                console.error("Error al copiar código: ", err);
+            });
+        }
+    </script>
+</body>
+</html>
