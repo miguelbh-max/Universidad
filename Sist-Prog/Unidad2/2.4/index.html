@@ -1,1 +1,371 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.4 Conjunto de instrucciones · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;
+  --bg-grid: rgba(0,255,255,0.06);
+  --magenta:#ff00ff;
+  --cyan:#00ffff;
+  --text:#e8e8f0;
+  --text-dim:#9a9ab0;
+  --card-bg: rgba(15,15,25,0.75);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.scanlines{
+  position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background:repeating-linear-gradient(
+    to bottom, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px,
+    transparent 2px, transparent 4px
+  );
+  mix-blend-mode:overlay;
+}
+a{color:inherit; text-decoration:none;}
+.container{max-width:1000px; margin:0 auto; padding:0 24px;}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center;
+  position:relative;
+  padding:100px 20px 60px;
+}
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 30%, rgba(255,0,255,0.15), transparent 60%),
+             radial-gradient(ellipse at 50% 80%, rgba(0,255,255,0.12), transparent 60%);
+  pointer-events:none;
+}
+.eyebrow{
+  font-family:'Orbitron', sans-serif;
+  letter-spacing:4px;
+  font-size:0.8rem;
+  color:var(--cyan);
+  text-shadow:0 0 8px var(--cyan);
+  margin-bottom:18px;
+}
+.hero h1{
+  font-family:'Orbitron', sans-serif;
+  font-weight:800;
+  font-size:clamp(2.2rem, 6vw, 4.2rem);
+  line-height:1.15;
+  color:#fff;
+  text-shadow: 0 0 6px var(--magenta), 0 0 22px rgba(255,0,255,0.35);
+  position:relative;
+  display:inline-block;
+}
+.hero h1 .glitch{
+  position:relative;
+  display:inline-block;
+}
+.hero h1 .glitch::before,
+.hero h1 .glitch::after{
+  content:attr(data-text);
+  position:absolute; left:0; top:0; width:100%;
+  overflow:hidden; opacity:0.7;
+}
+.hero h1 .glitch::before{
+  color:var(--cyan);
+  clip-path: inset(0 0 55% 0);
+  animation: glitchTop 3.5s infinite linear;
+}
+.hero h1 .glitch::after{
+  color:var(--magenta);
+  clip-path: inset(55% 0 0 0);
+  animation: glitchBottom 3.2s infinite linear;
+}
+@keyframes glitchTop{
+  0%,90%,100%{ transform:translate(0,0); }
+  92%{ transform:translate(-3px,-1px); }
+  94%{ transform:translate(3px,1px); }
+  96%{ transform:translate(-2px,0); }
+}
+@keyframes glitchBottom{
+  0%,90%,100%{ transform:translate(0,0); }
+  91%{ transform:translate(3px,1px); }
+  93%{ transform:translate(-3px,-1px); }
+  95%{ transform:translate(2px,0); }
+}
+.hero p.subtitulo{
+  margin-top:22px;
+  font-size:clamp(1rem, 2.2vw, 1.3rem);
+  color:var(--text-dim);
+  max-width:640px;
+}
+.hero .num-badge{
+  margin-top:34px;
+  font-family:'Orbitron', sans-serif;
+  font-size:0.85rem;
+  color:var(--bg);
+  background:linear-gradient(90deg, var(--cyan), var(--magenta));
+  padding:8px 20px;
+  border-radius:999px;
+  letter-spacing:2px;
+}
+.scroll-hint{
+  position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+  font-size:0.75rem; color:var(--text-dim); letter-spacing:2px;
+  font-family:'Orbitron',sans-serif;
+  animation:bob 2s infinite ease-in-out;
+}
+@keyframes bob{
+  0%,100%{ transform:translate(-50%,0); }
+  50%{ transform:translate(-50%,8px); }
+}
+
+/* SECTIONS */
+section{ padding:70px 0; position:relative; }
+.section-title{
+  font-family:'Orbitron', sans-serif;
+  font-size:clamp(1.4rem, 3vw, 2rem);
+  color:#fff;
+  margin-bottom:28px;
+  text-shadow:0 0 10px rgba(0,255,255,0.4);
+}
+.section-title span{ color:var(--cyan); }
+
+.fade-up{
+  opacity:0; transform:translateY(30px);
+  transition:opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-up.visible{ opacity:1; transform:translateY(0); }
+
+/* RESUMEN */
+.resumen-card{
+  background:var(--card-bg);
+  border:1px solid rgba(0,255,255,0.35);
+  border-radius:10px;
+  padding:28px 30px;
+  box-shadow:0 0 25px rgba(255,0,255,0.08), inset 0 0 40px rgba(0,255,255,0.03);
+  backdrop-filter:blur(6px);
+}
+.resumen-card p{
+  color:var(--text-dim);
+  font-size:1.02rem;
+  line-height:1.75;
+  margin-bottom:14px;
+}
+.resumen-card p:last-child{ margin-bottom:0; }
+.resumen-card strong{ color:var(--cyan); text-shadow:0 0 6px rgba(0,255,255,0.5); }
+
+/* ACCORDION / TEMAS */
+.temas-list{ display:flex; flex-direction:column; gap:16px; }
+.tema-card{
+  background:var(--card-bg);
+  border:1px solid rgba(255,0,255,0.3);
+  border-radius:8px;
+  overflow:hidden;
+  transition:border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.tema-card.practica{ border-color:rgba(0,255,255,0.55); }
+.tema-card:hover{
+  border-color:var(--cyan);
+  box-shadow:0 0 20px rgba(0,255,255,0.25);
+}
+.tema-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 22px;
+  cursor:pointer;
+  gap:16px;
+}
+.tema-head h3{
+  font-family:'Orbitron', sans-serif;
+  font-size:1rem;
+  color:#fff;
+  font-weight:600;
+}
+.tema-card.practica .tema-head h3{ color:var(--cyan); }
+.tema-toggle{
+  font-family:'Orbitron',sans-serif;
+  color:var(--magenta);
+  font-size:1.3rem;
+  flex-shrink:0;
+  transition:transform 0.35s ease;
+}
+.tema-card.open .tema-toggle{ transform:rotate(45deg); }
+.tema-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.4s ease, padding 0.4s ease;
+  padding:0 22px;
+}
+.tema-card.open .tema-body{
+  max-height:400px;
+  padding:0 22px 20px;
+}
+.tema-body p{ color:var(--text-dim); line-height:1.7; font-size:0.96rem; }
+
+/* NAV FOOTER */
+.nav-footer{
+  padding:60px 0 90px;
+  display:flex; justify-content:space-between; align-items:center; gap:16px;
+  flex-wrap:wrap;
+}
+.nav-btn{
+  font-family:'Orbitron', sans-serif;
+  font-size:0.78rem;
+  letter-spacing:1px;
+  padding:14px 22px;
+  border-radius:6px;
+  border:1px solid var(--cyan);
+  color:var(--cyan);
+  background:rgba(0,255,255,0.05);
+  transition:all 0.25s ease;
+  display:inline-block;
+}
+.nav-btn:hover{
+  background:var(--cyan);
+  color:#000;
+  box-shadow:0 0 20px rgba(0,255,255,0.6);
+}
+.nav-btn.prev{ border-color:var(--magenta); color:var(--magenta); background:rgba(255,0,255,0.05); }
+.nav-btn.prev:hover{ background:var(--magenta); color:#000; box-shadow:0 0 20px rgba(255,0,255,0.6); }
+.nav-spacer{ flex:1; }
+.materia-tag{
+  text-align:center;
+  font-family:'Orbitron',sans-serif;
+  font-size:0.7rem;
+  letter-spacing:2px;
+  color:var(--text-dim);
+  padding-bottom:30px;
+}
+
+@media (max-width:640px){
+  .nav-footer{ flex-direction:column; }
+  .nav-btn{ width:100%; text-align:center; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+
+<header class="hero">
+  <p class="eyebrow">Sistemas Programables · Unidad 2 · Programación de Microcontroladores</p>
+  <h1><span class="glitch" data-text="Conjunto de instrucciones">Conjunto de instrucciones</span></h1>
+  <p class="subtitulo">El vocabulario completo que entiende un microcontrolador</p>
+  <span class="num-badge">TEMA 2.4</span>
+  <span class="scroll-hint">SCROLL ▾</span>
+</header>
+
+<main>
+  <section class="container">
+    <h2 class="section-title fade-up">// <span>Objetivo</span></h2>
+    <div class="resumen-card fade-up">
+      <p>El <strong>conjunto de instrucciones</strong> (Instruction Set Architecture, ISA) es la lista completa de operaciones elementales que un procesador es capaz de ejecutar: sumar, comparar, mover datos, saltar a otra parte del código, etc.</p>
+<p>Todo lo que escribes en C++ para Arduino termina traducido, por el compilador, a una secuencia de estas instrucciones básicas del ISA de AVR o ARM.</p>
+    </div>
+  </section>
+
+  <section class="container">
+    <h2 class="section-title fade-up">// <span>Contenido</span></h2>
+    <div class="temas-list fade-up">
+      
+        <div class="tema-card open">
+          <div class="tema-head">
+            <h3>¿Qué es un ISA?</h3>
+            <span class="tema-toggle">+</span>
+          </div>
+          <div class="tema-body">
+            <p>El contrato entre el hardware y el software: define exactamente qué instrucciones existen, cómo se codifican en bits y qué efecto tiene cada una. Arduino UNO clásico usa el ISA de AVR de 8 bits; el UNO R4 usa el ISA ARM Cortex-M4 de 32 bits.</p>
+          </div>
+        </div>
+
+        <div class="tema-card">
+          <div class="tema-head">
+            <h3>Instrucciones aritméticas y lógicas</h3>
+            <span class="tema-toggle">+</span>
+          </div>
+          <div class="tema-body">
+            <p>Suma, resta, multiplicación, operaciones AND/OR/XOR a nivel de bits, desplazamientos (shift). Son la base de cualquier cálculo, desde un contador simple hasta un filtro digital de señal.</p>
+          </div>
+        </div>
+
+        <div class="tema-card">
+          <div class="tema-head">
+            <h3>Instrucciones de control de flujo</h3>
+            <span class="tema-toggle">+</span>
+          </div>
+          <div class="tema-body">
+            <p>Saltos condicionales e incondicionales (jump, branch) que permiten los if, for y while de C++. Sin estas instrucciones, un programa solo podría ejecutarse de arriba hacia abajo una vez.</p>
+          </div>
+        </div>
+
+        <div class="tema-card">
+          <div class="tema-head">
+            <h3>Instrucciones de transferencia de datos</h3>
+            <span class="tema-toggle">+</span>
+          </div>
+          <div class="tema-body">
+            <p>Mueven valores entre registros, memoria RAM y periféricos (load/store). Son las que realmente están detrás de asignaciones como variable = valor; o de leer un pin analógico.</p>
+          </div>
+        </div>
+
+        <div class="tema-card">
+          <div class="tema-head">
+            <h3>De C++ al ISA: qué hace el compilador</h3>
+            <span class="tema-toggle">+</span>
+          </div>
+          <div class="tema-body">
+            <p>El compilador de Arduino (avr-gcc o arm-gcc) traduce cada línea de tu sketch a decenas de estas instrucciones. Ver el ensamblador generado ayuda a entender por qué ciertas operaciones (como la división) son mucho más costosas que otras (como el desplazamiento de bits).</p>
+          </div>
+        </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  
+      <div class="nav-footer container">
+        <a class="nav-btn prev" href="../2.3/index.html">&#8592; Tema anterior: 2.3 Modos de direccionamiento</a>
+        <div class="nav-spacer"></div>
+        <a class="nav-btn" href="../2.5/index.html">Siguiente tema: 2.5 Lenguajes ensambladores &#8594;</a>
+      </div>
+      <p class="materia-tag">UNIDAD 2 · PROGRAMACIÓN DE MICROCONTROLADORES · SISTEMAS PROGRAMABLES</p>
+    
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Acordeón
+  document.querySelectorAll('.tema-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+
+  // Fade-in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+});
+</script>
+</body>
+</html>
