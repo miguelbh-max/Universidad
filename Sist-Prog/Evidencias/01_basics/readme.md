@@ -24,7 +24,9 @@ Enumera todos los componentes usados:
 - Cables Dupont
 
 ## Diagrama del circuito
-![diagrama](Diagrama/hc05_bb.png)
+
+<img src="Diagrama/hc05_bb.png" width="300">
+
 
 ## Código
 [main.ino](Codigo/main.ino)
