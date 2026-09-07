@@ -24,9 +24,8 @@ Enumera todos los componentes usados:
 - Cables Dupont
 
 ## Diagrama del circuito
-Inserta aquí la imagen del diagrama generado en Fritzing.
-Ejemplo:
 ![diagrama](diagrams/diagrama.png)
+
 
 ## Código
 Coloca aquí el link al archivo dentro de la carpeta /code.
