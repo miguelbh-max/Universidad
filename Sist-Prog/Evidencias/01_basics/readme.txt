@@ -30,6 +30,7 @@ Enumera todos los componentes usados:
 [main.ino](Codigo/main.ino)
 
 
+
 ## Video del funcionamiento
 https://www.youtube.com/watch?v=T5Aq7cRc-mU
 
