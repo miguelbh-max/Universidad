@@ -34,7 +34,7 @@ Enumera todos los componentes usados:
 ## Video del funcionamiento
 
 [Video](Video/video.txt)
-
+[Ver video en YouTube](https://www.youtube.com/watch?v=T5Aq7cRc-mU)
 ## Resultados
 Incluye:
 - Gráficas (insertar imagen o link)
