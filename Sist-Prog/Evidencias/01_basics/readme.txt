@@ -24,11 +24,13 @@ Enumera todos los componentes usados:
 - Cables Dupont
 
 ## Diagrama del circuito
-![diagrama](Sist-Prog/Evidencias/01_basics/Diagrama/hc05_bb.png)
+![diagrama](Diagrama/hc05_bb.png)
+
 
 
 ## Código
-![diagrama](Sist-Prog/Evidencias/01_basics/Diagrama/hc05_bb.png)
+Codigo/main.ino
+
 
 
 ## Video del funcionamiento
