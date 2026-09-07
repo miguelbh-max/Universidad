@@ -36,6 +36,11 @@ Enumera todos los componentes usados:
 [Video](Video/video.txt)
 
 [Ver video en YouTube](https://www.youtube.com/watch?v=T5Aq7cRc-mU)
+
+## Evidencias de armado
+![Harry potter](Imagenes/Harry potter.jpg)
+
+Harry potter
 ## Resultados
 Incluye:
 [valor.txt](Resultados/valor.txt)
