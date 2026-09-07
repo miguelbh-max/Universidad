@@ -40,7 +40,8 @@ Enumera todos los componentes usados:
 [Ver video en YouTube](https://www.youtube.com/watch?v=T5Aq7cRc-mU)
 
 ## Evidencias de armado
-![Harry_potter](Imagenes/Harry_potter.png)
+
+<img src="Imagenes/Harry_potter.png" width="300">
 
 Harry potter
 ## Resultados
