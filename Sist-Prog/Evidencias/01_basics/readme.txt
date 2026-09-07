@@ -26,12 +26,8 @@ Enumera todos los componentes usados:
 ## Diagrama del circuito
 ![diagrama](Diagrama/hc05_bb.png)
 
-
-
 ## Código
 Codigo/main.ino
-
-
 
 ## Video del funcionamiento
 https://www.youtube.com/watch?v=T5Aq7cRc-mU
