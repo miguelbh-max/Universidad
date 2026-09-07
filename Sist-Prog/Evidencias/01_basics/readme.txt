@@ -34,9 +34,7 @@ Codigo/main.ino
 
 
 ## Video del funcionamiento
-Coloca aquí el link al video en YouTube, Drive o OneDrive.
-Ejemplo:
-https://youtu.be/xxxxxxxx
+https://www.youtube.com/watch?v=T5Aq7cRc-mU
 
 ## Resultados
 Incluye:
