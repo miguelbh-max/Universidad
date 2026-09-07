@@ -47,7 +47,7 @@ Incluye:
 ## Conclusiones
 Explica qué aprendiste, qué funcionó bien, qué podría mejorarse y qué aplicaciones tendría este proyecto.
 
-## Archivos adicionales
+
 ## Reporte
 [Guía de práctica GreenIT Make](Reporte/Guia_Practica_GreenIT_Make.pdf)
 
