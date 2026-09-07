@@ -32,7 +32,8 @@ Enumera todos los componentes usados:
 
 
 ## Video del funcionamiento
-https://www.youtube.com/watch?v=T5Aq7cRc-mU
+
+[Video](Video/video.txt)
 
 ## Resultados
 Incluye:
