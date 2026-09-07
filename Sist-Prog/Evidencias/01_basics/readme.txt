@@ -27,7 +27,8 @@ Enumera todos los componentes usados:
 ![diagrama](Diagrama/hc05_bb.png)
 
 ## Código
-Codigo/main.ino
+[main.ino](Codigo/main.ino)
+
 
 ## Video del funcionamiento
 https://www.youtube.com/watch?v=T5Aq7cRc-mU
