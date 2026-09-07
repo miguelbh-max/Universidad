@@ -38,6 +38,8 @@ Enumera todos los componentes usados:
 [Ver video en YouTube](https://www.youtube.com/watch?v=T5Aq7cRc-mU)
 ## Resultados
 Incluye:
+[valor.txt](Resultados/valor.txt)
+
 - Gráficas (insertar imagen o link)
 - Tablas de datos
 - Observaciones sobre el comportamiento del sistema
