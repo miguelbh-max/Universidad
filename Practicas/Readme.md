@@ -2,7 +2,7 @@
 Parpadeo de LED con Arduino (Blink)
 
 ## Descripción
-el suo de este codigo expone como prender y apagar un led
+el objetivo de este codigo expone como prender y apagar un led
 
 ## Objetivos de aprendizaje
 Programar y simular en Arduino el encendido y apagado intermitente (parpadeo) de un LED conectado al pin digital 13, 
