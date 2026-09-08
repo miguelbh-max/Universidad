@@ -31,7 +31,7 @@ Enumera todos los componentes usados:
 
 [Readme](Video/Readme.txt)
 
-[Ver video en YouTube]([https://www.youtube.com/watch?v=T5Aq7cRc-mU](https://www.youtube.com/watch?v=r36q2z-AkHk&sttick=0))
+[Ver video en YouTube]([https://www.youtube.com/watch?v=T5Aq7cRc-mU](https://www.youtube.com/watch?v=r36q2z-AkHk&sttick=0)
 
 ## Evidencias de armado
 
