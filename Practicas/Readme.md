@@ -23,21 +23,20 @@ Enumera todos los componentes usados:
 
 
 ## Código
-[main.ino](Codigo/main.ino)
+[led13.ino](Codigo/led13.ino)
 
 
 
 ## Video del funcionamiento
 
-[Video](Video/video.txt)
+[Readme](Video/Readme.txt)
 
-[Ver video en YouTube](https://www.youtube.com/watch?v=T5Aq7cRc-mU)
+[Ver video en YouTube]([https://www.youtube.com/watch?v=T5Aq7cRc-mU](https://www.youtube.com/watch?v=r36q2z-AkHk&sttick=0))
 
 ## Evidencias de armado
 
 <img src="Imagenes/Harry_potter.png" width="300">
 
-Harry potter
 ## Resultados
 Incluye:
 [valor.txt](Resultados/valor.txt)
@@ -51,7 +50,7 @@ Explica qué aprendiste, qué funcionó bien, qué podría mejorarse y qué apli
 
 
 ## Reporte
-[Guía de práctica GreenIT Make](Reporte/Guia_Practica_GreenIT_Make.pdf)
+[Resultados](Resutados/Resultados.pdf)
 
 Este documento contiene la descripción de la práctica, objetivos y procedimientos realizados.
 
