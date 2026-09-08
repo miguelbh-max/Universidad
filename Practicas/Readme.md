@@ -1,20 +1,3 @@
-
-[Video](Video/video.txt)
-
-[Ver video en YouTube](https://www.youtube.com/watch?v=T5Aq7cRc-mU)
-
-## Evidencias de armado
-
-<img src="Imagenes/Harry_potter.png" width="300">
-
-Harry potter
-## Resultados
-Incluye:
-[valor.txt](Resultados/valor.txt)
-
-- Gráficas (insertar imagen o link)
-- Tablas de datos
-- Observaciones sobre el comportamiento del sistema
 # Nombre del proyecto
 Ejemplo: Control de velocidad de motor DC con PWM
 
@@ -52,6 +35,23 @@ Enumera todos los componentes usados:
 
 ## Video del funcionamiento
 
+[Video](Video/video.txt)
+
+[Ver video en YouTube](https://www.youtube.com/watch?v=T5Aq7cRc-mU)
+
+## Evidencias de armado
+
+<img src="Imagenes/Harry_potter.png" width="300">
+
+Harry potter
+## Resultados
+Incluye:
+[valor.txt](Resultados/valor.txt)
+
+- Gráficas (insertar imagen o link)
+- Tablas de datos
+- Observaciones sobre el comportamiento del sistema
+
 ## Conclusiones
 Explica qué aprendiste, qué funcionó bien, qué podría mejorarse y qué aplicaciones tendría este proyecto.
 
@@ -64,4 +64,3 @@ Este documento contiene la descripción de la práctica, objetivos y procedimien
 - Reporte técnico estilo IEEE (PDF)
 - Datos CSV (si aplica)
 - Diagramas adicionales
-
