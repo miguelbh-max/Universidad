@@ -39,7 +39,7 @@ Enumera todos los componentes usados:
 
 ## Resultados
 Incluye:
-[valor.txt](Resultados/valor.txt)
+[Resultados.pdf](Resultados/Resultados.pdf)
 
 - Gráficas (insertar imagen o link)
 - Tablas de datos
