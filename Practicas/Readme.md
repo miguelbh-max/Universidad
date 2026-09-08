@@ -49,7 +49,7 @@ Incluye:
 La práctica permitió reforzar el uso de las funciones básicas de salida digital y temporización en Arduino (digitalWrite y delay), así como comprender el funcionamiento eléctrico de un protoboard: la importancia de que los componentes queden conectados en serie para que la resistencia cumpla su función de limitar la corriente. Este tipo de error es común en simuladores como Tinkercad y resalta la importancia de verificar el camino real de la corriente, no solo la presencia física de los componentes en el circuito.
 
 ## Reporte
-[Resultados](Resutados/Resultados.pdf)
+[Resultados.pdf](Resutados/Resultados.pdf)
 
 Este documento contiene la descripción de la práctica, objetivos y procedimientos realizados.
 
