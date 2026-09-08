@@ -35,7 +35,7 @@ Enumera todos los componentes usados:
 
 ## Evidencias de armado
 
-<img src="Imagenes/Harry_potter.png" width="300">
+<img src="Diagrama/Led 13.png" width="300">
 
 ## Resultados
 Incluye:
