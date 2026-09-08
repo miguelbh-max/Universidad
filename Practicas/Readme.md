@@ -1,31 +1,25 @@
 # Nombre del proyecto
-Ejemplo: Control de velocidad de motor DC con PWM
+Parpadeo de LED con Arduino (Blink)
 
 ## Descripción
-Explica brevemente qué hace el proyecto, cuál es su propósito y qué problema resuelve.
-Debe ser un párrafo corto y claro.
+el suo de este codigo expone como prender y apagar un led
 
 ## Objetivos de aprendizaje
-Lista de los conceptos que el alumno aprendió en esta práctica:
-- Entradas/salidas digitales
-- Lectura de sensores
-- PWM
-- Interrupciones
-- IoT (si aplica)
-- Control PID (si aplica)
+Programar y simular en Arduino el encendido y apagado intermitente (parpadeo) de un LED conectado al pin digital 13, 
+utilizando la función delay() para generar un efecto visualmente perceptible.
 
 ## Material utilizado
 Enumera todos los componentes usados:
-- Arduino Uno R4 WiFi / Arduino Uno Q
-- Sensor(es)
-- Motor(es)
-- Driver
-- Protoboard
+- Arduino Uno R4 WiFi
+- Protoboar
+- Led
 - Cables Dupont
+- Resistencia 220 ohms
+  
 
 ## Diagrama del circuito
 
-<img src="Diagrama/hc05_bb.png" width="300">
+<img src="Diagrama/Led 13.png" width="300">
 
 
 ## Código
