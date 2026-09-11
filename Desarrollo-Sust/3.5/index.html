@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Difusión de la Conciencia Ambiental mediante Automatización | Desarrollo Sustentable</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:            #0d0b1a;
+    --card-bg:       rgba(24,20,41,.7);
+    --card-bg-2:     rgba(31,25,54,.8);
+    --border:        rgba(255,255,255,.09);
+    --border-soft:   rgba(255,255,255,.16);
+    --text:          #f6f4ff;
+    --text-dim:      #c3bce3;
+    --text-faint:    #8a82ad;
+    --purple:        #a78bfa;
+    --cyan:          #22d3ee;
+    --emerald:       #34d399;
+    --accent:        var(--purple);
+    --accent-2:      var(--cyan);
+    --glow:          0 0 0 1px rgba(167,139,250,.4), 0 0 40px rgba(34,211,238,.18);
+    --radius:        20px;
+    --maxw:          1180px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
+  body{ background:var(--bg); color:var(--text); font-family:'Inter', sans-serif; line-height:1.6; overflow-x:hidden; position:relative; }
+  img{ display:block; max-width:100%; }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-.02em; color:var(--text); }
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-2); }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,48px); }
+  ::selection{ background:var(--purple); color:#0d0b1a; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--accent-2); outline-offset:3px; border-radius:6px; }
+
+  .aurora{ position:fixed; inset:0; z-index:-1; overflow:hidden; background:var(--bg); }
+  .aurora span{ position:absolute; width:58vw; height:58vw; border-radius:50%; filter:blur(95px); opacity:.5; mix-blend-mode:screen; }
+  .aurora .a1{ background:var(--purple); top:-18%; left:-12%; animation:drift1 28s ease-in-out infinite; }
+  .aurora .a2{ background:var(--cyan); bottom:-22%; right:-14%; animation:drift2 34s ease-in-out infinite; }
+  .aurora .a3{ background:var(--emerald); top:28%; right:12%; width:44vw; height:44vw; animation:drift3 24s ease-in-out infinite; }
+  @keyframes drift1{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(9%,11%) scale(1.15);} }
+  @keyframes drift2{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-11%,-7%) scale(1.1);} }
+  @keyframes drift3{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-7%,9%) scale(1.2);} }
+  @media (prefers-reduced-motion: reduce){ .aurora span{ animation:none !important; } }
+
+  .nav{ position:fixed; top:0; left:0; right:0; z-index:100; backdrop-filter:blur(16px); background:rgba(13,11,26,.5); border-bottom:1px solid transparent; transition:border-color .3s ease, background .3s ease; }
+  .nav.scrolled{ border-bottom-color:var(--border); background:rgba(13,11,26,.82); }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:16px clamp(20px,5vw,48px); max-width:var(--maxw); margin:0 auto; }
+  .brand{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.02rem; display:flex; align-items:center; gap:8px; }
+  .brand-dot{ width:9px; height:9px; border-radius:50%; background:linear-gradient(135deg,var(--purple),var(--cyan)); box-shadow:0 0 10px var(--purple), 0 0 22px var(--cyan); }
+  .nav-links{ display:flex; gap:clamp(16px,3vw,32px); font-size:.88rem; color:var(--text-dim); }
+  .nav-links a{ transition:color .2s ease; }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border-soft); color:var(--text); width:40px; height:40px; border-radius:10px; font-size:1.1rem; }
+  @media (max-width:720px){ .nav-links{ position:fixed; top:64px; left:0; right:0; flex-direction:column; gap:0; background:rgba(17,14,32,.97); border-bottom:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .35s ease; } .nav-links.open{ max-height:320px; } .nav-links a{ padding:16px clamp(20px,5vw,48px); border-top:1px solid var(--border); } .nav-toggle{ display:block; } }
+
+  .hero{ position:relative; min-height:100svh; display:flex; align-items:center; padding-top:80px; overflow:hidden; }
+  .hero-rings{ position:absolute; right:-14%; top:50%; transform:translateY(-50%); width:min(60vw, 640px); aspect-ratio:1/1; opacity:.5; pointer-events:none; }
+  .hero-rings svg{ width:100%; height:100%; }
+  .ring{ fill:none; stroke:var(--accent-2); stroke-opacity:.4; }
+  .ring-spin{ animation:spin 60s linear infinite; transform-origin:center; }
+  .ring-spin-rev{ animation:spin 90s linear infinite reverse; transform-origin:center; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes pulse{ 0%,100%{ opacity:.18; r:70; } 50%{ opacity:.5; r:78; } }
+
+  .hero-content{ position:relative; z-index:2; max-width:780px; }
+  .hero-eyebrow{ display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-2); border:1px solid rgba(34,211,238,.35); background:rgba(34,211,238,.1); padding:7px 14px; border-radius:999px; margin-bottom:22px; }
+  .hero h1{ font-size:clamp(2.2rem, 6.2vw, 4rem); line-height:1.08; margin-bottom:20px; }
+  .hero h1 .accent-word{ background:linear-gradient(135deg,var(--purple),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero h1 .accent-word-2{ color:var(--emerald); }
+  .hero p.lead{ font-size:clamp(1rem, 2vw, 1.2rem); color:var(--text-dim); max-width:56ch; margin-bottom:28px; }
+  .hero-note{ display:flex; gap:12px; align-items:flex-start; border:1px solid var(--border-soft); background:var(--card-bg); backdrop-filter:blur(6px); padding:16px 18px; border-radius:16px; max-width:56ch; margin-bottom:34px; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .hero-note svg{ flex:none; width:20px; height:20px; margin-top:2px; color:var(--emerald); }
+  .hero-note p{ font-size:.9rem; color:var(--text-dim); }
+  .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{ font-family:'Inter', sans-serif; font-weight:600; font-size:.94rem; padding:14px 26px; border-radius:14px; border:1px solid transparent; display:inline-flex; align-items:center; gap:8px; transition:transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease; cursor:pointer; }
+  .btn-primary{ background:linear-gradient(135deg,var(--purple),var(--cyan)); color:#0d0b1a; }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 12px 32px rgba(167,139,250,.4); }
+  .btn-ghost{ background:var(--card-bg); color:var(--text); border-color:var(--border-soft); backdrop-filter:blur(6px); }
+  .btn-ghost:hover{ border-color:var(--accent-2); color:var(--accent-2); transform:translateY(-3px); }
+
+  .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-faint); font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; z-index:2; }
+  .scroll-cue .line{ width:1px; height:34px; background:linear-gradient(var(--accent-2), transparent); animation:cue 2s ease-in-out infinite; }
+  @keyframes cue{ 0%,100%{ transform:scaleY(1); opacity:.8;} 50%{ transform:scaleY(.5); opacity:.3;} }
+
+  section{ padding:clamp(70px, 10vw, 128px) 0; position:relative; }
+  .section-head{ max-width:660px; margin-bottom:48px; }
+  .section-head h2{ font-size:clamp(1.8rem, 4vw, 2.6rem); margin-top:12px; }
+  .section-head p.sub{ margin-top:14px; color:var(--text-dim); font-size:1rem; max-width:60ch; }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  .resumen-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; }
+  .resumen-text p{ color:var(--text-dim); margin-bottom:18px; font-size:1.02rem; }
+  .resumen-media{ position:relative; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border-soft); aspect-ratio:4/5; box-shadow:0 30px 70px rgba(0,0,0,.4); }
+  .resumen-media img{ width:100%; height:100%; object-fit:cover; filter:saturate(1.02) contrast(1.02); }
+  .resumen-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 50%, rgba(13,11,26,.9) 100%); }
+  .resumen-tag{ position:absolute; left:18px; bottom:18px; z-index:2; font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--text-dim); letter-spacing:.06em; }
+
+  .pillars{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:34px; }
+  .pillar{ border:1px solid var(--border-soft); border-radius:16px; padding:18px 16px; background:var(--card-bg); backdrop-filter:blur(6px); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .pillar:hover{ transform:translateY(-4px); border-color:var(--accent-2); box-shadow:var(--glow); }
+  .pillar .p-label{ font-family:'IBM Plex Mono', monospace; font-size:.68rem; color:var(--accent-2); letter-spacing:.08em; text-transform:uppercase; }
+  .pillar .p-stat{ font-family:'Space Grotesk', sans-serif; font-size:1.4rem; font-weight:700; margin-top:8px; color:var(--text); }
+  .pillar p{ font-size:.86rem; color:var(--text-dim); margin-top:8px; }
+  @media (max-width:860px){ .resumen-grid{ grid-template-columns:1fr; } .resumen-media{ order:-1; aspect-ratio:16/9; } .pillars{ grid-template-columns:1fr; } }
+
+  .accordion{ display:flex; flex-direction:column; gap:14px; }
+  .acc-item{ border:1px solid var(--border-soft); border-radius:var(--radius); background:var(--card-bg); backdrop-filter:blur(6px); overflow:hidden; transition:border-color .3s ease, box-shadow .3s ease, background .3s ease; }
+  .acc-item.open, .acc-item:hover{ border-color:var(--accent-2); box-shadow:var(--glow); background:var(--card-bg-2); }
+  .acc-trigger{ width:100%; text-align:left; display:flex; align-items:center; gap:18px; background:none; border:none; color:var(--text); padding:22px clamp(18px,3vw,28px); cursor:pointer; font-family:'Inter', sans-serif; }
+  .acc-icon{ flex:none; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:rgba(167,139,250,.14); color:var(--purple); transition:background .3s ease, transform .3s ease; }
+  .acc-item.open .acc-icon{ background:linear-gradient(135deg,var(--purple),var(--cyan)); color:#0d0b1a; transform:rotate(-6deg); }
+  .acc-icon svg{ width:22px; height:22px; }
+  .acc-title-wrap{ flex:1; }
+  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; }
+  .acc-title-wrap h3{ font-size:clamp(1.02rem, 2vw, 1.22rem); font-weight:600; line-height:1.35; }
+  .acc-chevron{ flex:none; width:22px; height:22px; color:var(--text-faint); transition:transform .35s ease, color .3s ease; }
+  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--accent-2); }
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .45s ease; }
+  .acc-panel-inner{ padding:0 clamp(18px,3vw,28px) 28px 86px; color:var(--text-dim); font-size:.96rem; }
+  .acc-panel-inner p{ margin-bottom:12px; }
+  .acc-panel-inner ul{ margin:10px 0 4px 20px; }
+  .acc-panel-inner li{ margin-bottom:8px; }
+  .acc-panel-inner strong{ color:var(--text); font-weight:600; }
+  @media (max-width:600px){ .acc-panel-inner{ padding-left:clamp(18px,3vw,28px); } .acc-trigger{ gap:12px; padding:18px 16px; } .acc-icon{ width:38px; height:38px; } }
+
+  .flow{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; align-items:center; }
+  .flow-step{ display:flex; flex-direction:column; gap:6px; padding:18px 20px; min-width:160px; flex:1; border:1px solid var(--border-soft); border-radius:16px; background:var(--card-bg); backdrop-filter:blur(6px); transition:border-color .3s ease, box-shadow .3s ease; }
+  .flow-step:hover{ border-color:var(--accent-2); box-shadow:var(--glow); }
+  .flow-step strong{ font-family:'Space Grotesk', sans-serif; font-size:1.02rem; }
+  .flow-step span.desc{ font-size:.86rem; color:var(--text-dim); }
+  .flow-arrow{ flex:none; width:22px; height:22px; color:var(--text-faint); }
+  @media (max-width:760px){ .flow{ flex-direction:column; align-items:stretch; } .flow-arrow{ transform:rotate(90deg); align-self:center; } }
+
+  .practice-box{ display:flex; gap:14px; align-items:flex-start; border:1px solid rgba(52,211,153,.35); background:rgba(52,211,153,.08); border-radius:16px; padding:18px 20px; margin-top:28px; }
+  .practice-box svg{ flex:none; width:22px; height:22px; color:var(--emerald); margin-top:2px; }
+  .practice-box p{ font-size:.92rem; color:var(--text-dim); }
+  .practice-box strong{ color:var(--emerald); }
+
+  .cta{ position:relative; border-radius:calc(var(--radius) + 6px); overflow:hidden; border:1px solid var(--border-soft); padding:clamp(48px,8vw,90px) clamp(24px,6vw,64px); text-align:center; background:var(--card-bg-2); backdrop-filter:blur(10px); box-shadow:0 30px 80px rgba(0,0,0,.4); }
+  .cta-inner{ position:relative; z-index:2; max-width:640px; margin:0 auto; }
+  .cta .quote{ font-family:'Space Grotesk', sans-serif; font-size:clamp(1.3rem,2.6vw,1.7rem); font-weight:700; margin-bottom:16px; background:linear-gradient(135deg,var(--purple),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .cta h2{ font-size:clamp(1.7rem, 4vw, 2.3rem); margin-bottom:14px; }
+  .cta p{ color:var(--text-dim); margin-bottom:30px; }
+
+  footer{ border-top:1px solid var(--border); padding:32px 0 60px; }
+  .footer-inner{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; font-size:.82rem; color:var(--text-faint); }
+</style>
+</head>
+<body>
+
+  <div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <div class="brand"><span class="brand-dot"></span>3.5 Difusión Automatizada</div>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#difusion">Difusión ambiental</a>
+        <a href="#practica">Práctica en Make</a>
+        <a href="#flujo">Flujo del escenario</a>
+        <a href="#cierre">Cierre</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-rings" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <g class="ring-spin"><circle class="ring" cx="200" cy="200" r="180" stroke-dasharray="2 10"/><circle class="ring" cx="200" cy="200" r="140" stroke-dasharray="1 6"/></g>
+        <g class="ring-spin-rev"><circle class="ring" cx="200" cy="200" r="100"/></g>
+        <circle class="ring" cx="200" cy="200" r="70" style="animation:pulse 4s ease-in-out infinite;"/>
+      </svg>
+    </div>
+
+    <div class="wrap">
+      <div class="hero-content">
+        <span class="hero-eyebrow">Escenario Socio-cultural · 3.5 Difusión Automatizada</span>
+        <h1>Automatizar la <span class="accent-word">Conciencia</span> <span class="accent-word-2">Ambiental</span></h1>
+        <p class="lead">La información ambiental solo genera cambio si llega a tiempo y a las personas correctas. Con herramientas No-Code como Make, cualquiera puede automatizar esa difusión sin escribir una sola línea de código.</p>
+
+        <div class="hero-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4.3 2.8 17.5c-.5.9.1 2 1.2 2h16c1.1 0 1.7-1.1 1.2-2L13.7 4.3c-.6-1-2-1-2.6 0z"/></svg>
+          <p>Un flujo automatizado puede leer noticias ambientales y reenviarlas cada día a un canal de Telegram, sin intervención manual.</p>
+        </div>
+
+        <div class="btn-row">
+          <a href="#difusion" class="btn btn-primary">Ver por qué automatizar</a>
+          <a href="#practica" class="btn btn-ghost">Ver la práctica en Make</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><span class="line"></span></div>
+  </header>
+
+  <main>
+
+    <!-- ===== DIFUSIÓN ===== -->
+    <section class="resumen" id="difusion">
+      <div class="wrap">
+        <div class="resumen-grid">
+
+          <div class="resumen-text reveal">
+            <span class="eyebrow">Concepto central</span>
+            <h2 style="margin-top:10px; font-size:clamp(1.6rem,3.4vw,2.2rem);">¿Por qué Automatizar la Difusión Ambiental?</h2>
+            <p>La educación ambiental depende de que la información llegue de forma constante y oportuna a la comunidad. Hacerlo manualmente —buscar noticias, resumirlas, compartirlas— consume tiempo y suele abandonarse rápido.</p>
+            <p>La automatización No-Code resuelve ese problema: un flujo configurado una sola vez sigue trabajando todos los días sin que nadie tenga que repetir el proceso.</p>
+
+            <div class="pillars">
+              <div class="pillar">
+                <span class="p-label">Información oportuna</span>
+                <p>Las noticias ambientales llegan al momento, sin depender de que alguien las busque.</p>
+              </div>
+              <div class="pillar">
+                <span class="p-label">Alcance constante</span>
+                <p>El envío se repite automáticamente cada día, sin pausas ni olvidos.</p>
+              </div>
+              <div class="pillar">
+                <span class="p-label">Cero código</span>
+                <p>Todo se construye con módulos visuales, sin programar nada.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-media reveal">
+            <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80" alt="Persona revisando notificaciones y noticias en su teléfono" loading="lazy">
+            <span class="resumen-tag">La tecnología como puente hacia la conciencia ambiental</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PRÁCTICA / ACORDEÓN ===== -->
+    <section class="temas" id="practica">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Práctica 3.1 (MAKE)</span>
+          <h2>Automatización de Noticias Ambientales con Make</h2>
+          <p class="sub">Un flujo No-Code que conecta un feed de noticias con Telegram o correo electrónico.</p>
+        </div>
+
+        <div class="accordion">
+
+          <!-- 1 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M4 18a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Fuente de información</span><h3>¿Qué es un Feed RSS?</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Un Feed RSS es un formato mediante el cual sitios de noticias publican automáticamente sus artículos más recientes, para que otras aplicaciones (como Make) puedan leerlos sin necesidad de visitar la página manualmente.</p>
+                <ul>
+                  <li>Muchos medios ambientales y organizaciones internacionales publican su propio feed RSS sobre cambio climático y sustentabilidad.</li>
+                  <li>Es la "materia prima" que alimenta todo el escenario de automatización.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Herramienta No-Code</span><h3>El Escenario en Make: Módulo por Módulo</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>El escenario se arma conectando módulos visuales, sin escribir código: cada módulo hace una tarea específica y pasa el resultado al siguiente.</p>
+                <ul>
+                  <li><strong>Watch RSS Feed Items:</strong> revisa el feed periódicamente y detecta artículos nuevos.</li>
+                  <li><strong>Filtro (opcional):</strong> permite quedarse solo con noticias que mencionen palabras clave como "cambio climático" o "sustentabilidad".</li>
+                  <li><strong>Telegram Bot / Email:</strong> envía automáticamente el título y enlace del artículo al canal o correo configurado.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c4-4 7-7.5 7-11a7 7 0 1 0-14 0c0 3.5 3 7 7 11z"/><path d="M12 8v4l2.5 1.5"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Impacto educativo</span><h3>Beneficios de la Difusión Automatizada</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>Este tipo de práctica conecta directamente el escenario socio-cultural con la tecnología: convierte la conciencia ambiental en un hábito diario reforzado automáticamente.</p>
+                <ul>
+                  <li>Mantiene a la comunidad educativa informada sin esfuerzo adicional de nadie.</li>
+                  <li>Demuestra que la automatización No-Code puede ponerse al servicio de causas sociales y ambientales, no solo de negocios.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="practice-box reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+          <p><strong>Práctica de clase:</strong> configura en Make un escenario con "Watch RSS Feed Items" apuntando a un feed ambiental y conéctalo al módulo de Telegram Bot para enviar un resumen diario al grupo del curso, sin escribir código.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FLUJO ===== -->
+    <section class="flujo" id="flujo">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">De la noticia al mensaje</span>
+          <h2>Así Viaja la Información en el Escenario</h2>
+          <p class="sub">Cuatro pasos automáticos, sin intervención manual una vez configurados.</p>
+        </div>
+
+        <div class="flow reveal">
+          <div class="flow-step">
+            <span class="eyebrow">1</span>
+            <strong>Feed RSS</strong>
+            <span class="desc">Publica un nuevo artículo sobre cambio climático.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">2</span>
+            <strong>Make lo detecta</strong>
+            <span class="desc">El módulo "Watch RSS Feed Items" revisa el feed automáticamente.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">3</span>
+            <strong>Filtro de contenido</strong>
+            <span class="desc">Se conserva solo lo relevante para el curso.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">4</span>
+            <strong>Telegram / Correo</strong>
+            <span class="desc">El resumen llega directo a la comunidad educativa.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CIERRE ===== -->
+    <section id="cierre">
+      <div class="wrap">
+        <div class="cta reveal">
+          <div class="cta-inner">
+            <span class="eyebrow">Idea clave</span>
+            <p class="quote">"La tecnología no reemplaza la conciencia ambiental: la mantiene viva todos los días."</p>
+            <h2>Automatizar para no depender de la memoria</h2>
+            <p>Cerramos así el escenario socio-cultural: la sociedad, la cultura, el desarrollo humano y el consumo se conectan con la tecnología para sostener, sin esfuerzo extra, la conciencia ambiental de una comunidad completa.</p>
+            <a href="#difusion" class="btn btn-primary">Repasar la difusión automatizada</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <span>Desarrollo Sustentable — 3.5 Difusión de la Conciencia Ambiental mediante Automatización</span>
+      <a href="../3.4/index.html" style="color:var(--accent-2);">← Tema anterior: 3.4 Estilos de Vida y Estrategias de Sustentabilidad</a>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 12); });
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => { const isOpen = navLinks.classList.toggle('open'); navToggle.setAttribute('aria-expanded', String(isOpen)); });
+    navLinks.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { navLinks.classList.remove('open'); navToggle.setAttribute('aria-expanded', 'false'); }); });
+
+    document.querySelectorAll('.acc-item').forEach(item => {
+      const trigger = item.querySelector('.acc-trigger');
+      const panel = item.querySelector('.acc-panel');
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        item.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        panel.style.maxHeight = !isOpen ? panel.scrollHeight + 'px' : null;
+      });
+    });
+    window.addEventListener('resize', () => { document.querySelectorAll('.acc-item.open .acc-panel').forEach(panel => { panel.style.maxHeight = panel.scrollHeight + 'px'; }); });
+
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); } }); }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
