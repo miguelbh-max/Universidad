@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sociedad y Diversidad Socio-cultural | Desarrollo Sustentable</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:            #0d0b1a;
+    --card-bg:       rgba(24,20,41,.7);
+    --card-bg-2:     rgba(31,25,54,.8);
+    --border:        rgba(255,255,255,.09);
+    --border-soft:   rgba(255,255,255,.16);
+    --text:          #f6f4ff;
+    --text-dim:      #c3bce3;
+    --text-faint:    #8a82ad;
+    --purple:        #a78bfa;
+    --cyan:          #22d3ee;
+    --emerald:       #34d399;
+    --accent:        var(--purple);
+    --accent-2:      var(--cyan);
+    --glow:          0 0 0 1px rgba(167,139,250,.4), 0 0 40px rgba(34,211,238,.18);
+    --radius:        20px;
+    --maxw:          1180px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
+  body{ background:var(--bg); color:var(--text); font-family:'Inter', sans-serif; line-height:1.6; overflow-x:hidden; position:relative; }
+  img{ display:block; max-width:100%; }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-.02em; color:var(--text); }
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-2); }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,48px); }
+  ::selection{ background:var(--purple); color:#0d0b1a; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--accent-2); outline-offset:3px; border-radius:6px; }
+
+  /* ===== FONDO AURORA ANIMADO ===== */
+  .aurora{ position:fixed; inset:0; z-index:-1; overflow:hidden; background:var(--bg); }
+  .aurora span{ position:absolute; width:58vw; height:58vw; border-radius:50%; filter:blur(95px); opacity:.5; mix-blend-mode:screen; }
+  .aurora .a1{ background:var(--purple); top:-18%; left:-12%; animation:drift1 28s ease-in-out infinite; }
+  .aurora .a2{ background:var(--cyan); bottom:-22%; right:-14%; animation:drift2 34s ease-in-out infinite; }
+  .aurora .a3{ background:var(--emerald); top:28%; right:12%; width:44vw; height:44vw; animation:drift3 24s ease-in-out infinite; }
+  @keyframes drift1{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(9%,11%) scale(1.15);} }
+  @keyframes drift2{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-11%,-7%) scale(1.1);} }
+  @keyframes drift3{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-7%,9%) scale(1.2);} }
+  @media (prefers-reduced-motion: reduce){ .aurora span{ animation:none !important; } }
+
+  .nav{ position:fixed; top:0; left:0; right:0; z-index:100; backdrop-filter:blur(16px); background:rgba(13,11,26,.5); border-bottom:1px solid transparent; transition:border-color .3s ease, background .3s ease; }
+  .nav.scrolled{ border-bottom-color:var(--border); background:rgba(13,11,26,.82); }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:16px clamp(20px,5vw,48px); max-width:var(--maxw); margin:0 auto; }
+  .brand{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.02rem; display:flex; align-items:center; gap:8px; }
+  .brand-dot{ width:9px; height:9px; border-radius:50%; background:linear-gradient(135deg,var(--purple),var(--cyan)); box-shadow:0 0 10px var(--purple), 0 0 22px var(--cyan); }
+  .nav-links{ display:flex; gap:clamp(16px,3vw,32px); font-size:.88rem; color:var(--text-dim); }
+  .nav-links a{ transition:color .2s ease; }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border-soft); color:var(--text); width:40px; height:40px; border-radius:10px; font-size:1.1rem; }
+  @media (max-width:720px){ .nav-links{ position:fixed; top:64px; left:0; right:0; flex-direction:column; gap:0; background:rgba(17,14,32,.97); border-bottom:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .35s ease; } .nav-links.open{ max-height:320px; } .nav-links a{ padding:16px clamp(20px,5vw,48px); border-top:1px solid var(--border); } .nav-toggle{ display:block; } }
+
+  .hero{ position:relative; min-height:100svh; display:flex; align-items:center; padding-top:80px; overflow:hidden; }
+  .hero-rings{ position:absolute; right:-14%; top:50%; transform:translateY(-50%); width:min(60vw, 640px); aspect-ratio:1/1; opacity:.5; pointer-events:none; }
+  .hero-rings svg{ width:100%; height:100%; }
+  .ring{ fill:none; stroke:var(--accent-2); stroke-opacity:.4; }
+  .ring-spin{ animation:spin 60s linear infinite; transform-origin:center; }
+  .ring-spin-rev{ animation:spin 90s linear infinite reverse; transform-origin:center; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes pulse{ 0%,100%{ opacity:.18; r:70; } 50%{ opacity:.5; r:78; } }
+
+  .hero-content{ position:relative; z-index:2; max-width:780px; }
+  .hero-eyebrow{ display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-2); border:1px solid rgba(34,211,238,.35); background:rgba(34,211,238,.1); padding:7px 14px; border-radius:999px; margin-bottom:22px; }
+  .hero h1{ font-size:clamp(2.2rem, 6.2vw, 4rem); line-height:1.08; margin-bottom:20px; }
+  .hero h1 .accent-word{ background:linear-gradient(135deg,var(--purple),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero h1 .accent-word-2{ color:var(--emerald); }
+  .hero p.lead{ font-size:clamp(1rem, 2vw, 1.2rem); color:var(--text-dim); max-width:56ch; margin-bottom:28px; }
+  .hero-note{ display:flex; gap:12px; align-items:flex-start; border:1px solid var(--border-soft); background:var(--card-bg); backdrop-filter:blur(6px); padding:16px 18px; border-radius:16px; max-width:56ch; margin-bottom:34px; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .hero-note svg{ flex:none; width:20px; height:20px; margin-top:2px; color:var(--emerald); }
+  .hero-note p{ font-size:.9rem; color:var(--text-dim); }
+  .btn-row{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{ font-family:'Inter', sans-serif; font-weight:600; font-size:.94rem; padding:14px 26px; border-radius:14px; border:1px solid transparent; display:inline-flex; align-items:center; gap:8px; transition:transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease; cursor:pointer; }
+  .btn-primary{ background:linear-gradient(135deg,var(--purple),var(--cyan)); color:#0d0b1a; }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 12px 32px rgba(167,139,250,.4); }
+  .btn-ghost{ background:var(--card-bg); color:var(--text); border-color:var(--border-soft); backdrop-filter:blur(6px); }
+  .btn-ghost:hover{ border-color:var(--accent-2); color:var(--accent-2); transform:translateY(-3px); }
+
+  .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-faint); font-family:'IBM Plex Mono', monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; z-index:2; }
+  .scroll-cue .line{ width:1px; height:34px; background:linear-gradient(var(--accent-2), transparent); animation:cue 2s ease-in-out infinite; }
+  @keyframes cue{ 0%,100%{ transform:scaleY(1); opacity:.8;} 50%{ transform:scaleY(.5); opacity:.3;} }
+
+  section{ padding:clamp(70px, 10vw, 128px) 0; position:relative; }
+  .section-head{ max-width:660px; margin-bottom:48px; }
+  .section-head h2{ font-size:clamp(1.8rem, 4vw, 2.6rem); margin-top:12px; }
+  .section-head p.sub{ margin-top:14px; color:var(--text-dim); font-size:1rem; max-width:60ch; }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  .resumen-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; }
+  .resumen-text p{ color:var(--text-dim); margin-bottom:18px; font-size:1.02rem; }
+  .resumen-media{ position:relative; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border-soft); aspect-ratio:4/5; box-shadow:0 30px 70px rgba(0,0,0,.4); }
+  .resumen-media img{ width:100%; height:100%; object-fit:cover; filter:saturate(1.02) contrast(1.02); }
+  .resumen-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 50%, rgba(13,11,26,.9) 100%); }
+  .resumen-tag{ position:absolute; left:18px; bottom:18px; z-index:2; font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--text-dim); letter-spacing:.06em; }
+
+  .pillars{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:34px; }
+  .pillar{ border:1px solid var(--border-soft); border-radius:16px; padding:18px 16px; background:var(--card-bg); backdrop-filter:blur(6px); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .pillar:hover{ transform:translateY(-4px); border-color:var(--accent-2); box-shadow:var(--glow); }
+  .pillar .p-label{ font-family:'IBM Plex Mono', monospace; font-size:.68rem; color:var(--accent-2); letter-spacing:.08em; text-transform:uppercase; }
+  .pillar .p-stat{ font-family:'Space Grotesk', sans-serif; font-size:1.4rem; font-weight:700; margin-top:8px; color:var(--text); }
+  .pillar p{ font-size:.86rem; color:var(--text-dim); margin-top:8px; }
+  @media (max-width:860px){ .resumen-grid{ grid-template-columns:1fr; } .resumen-media{ order:-1; aspect-ratio:16/9; } .pillars{ grid-template-columns:1fr; } }
+
+  .accordion{ display:flex; flex-direction:column; gap:14px; }
+  .acc-item{ border:1px solid var(--border-soft); border-radius:var(--radius); background:var(--card-bg); backdrop-filter:blur(6px); overflow:hidden; transition:border-color .3s ease, box-shadow .3s ease, background .3s ease; }
+  .acc-item.open, .acc-item:hover{ border-color:var(--accent-2); box-shadow:var(--glow); background:var(--card-bg-2); }
+  .acc-trigger{ width:100%; text-align:left; display:flex; align-items:center; gap:18px; background:none; border:none; color:var(--text); padding:22px clamp(18px,3vw,28px); cursor:pointer; font-family:'Inter', sans-serif; }
+  .acc-icon{ flex:none; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:rgba(167,139,250,.14); color:var(--purple); transition:background .3s ease, transform .3s ease; }
+  .acc-item.open .acc-icon{ background:linear-gradient(135deg,var(--purple),var(--cyan)); color:#0d0b1a; transform:rotate(-6deg); }
+  .acc-icon svg{ width:22px; height:22px; }
+  .acc-title-wrap{ flex:1; }
+  .acc-title-wrap .eyebrow{ display:block; margin-bottom:4px; }
+  .acc-title-wrap h3{ font-size:clamp(1.02rem, 2vw, 1.22rem); font-weight:600; line-height:1.35; }
+  .acc-chevron{ flex:none; width:22px; height:22px; color:var(--text-faint); transition:transform .35s ease, color .3s ease; }
+  .acc-item.open .acc-chevron{ transform:rotate(180deg); color:var(--accent-2); }
+  .acc-panel{ max-height:0; overflow:hidden; transition:max-height .45s ease; }
+  .acc-panel-inner{ padding:0 clamp(18px,3vw,28px) 28px 86px; color:var(--text-dim); font-size:.96rem; }
+  .acc-panel-inner p{ margin-bottom:12px; }
+  .acc-panel-inner ul{ margin:10px 0 4px 20px; }
+  .acc-panel-inner li{ margin-bottom:8px; }
+  .acc-panel-inner strong{ color:var(--text); font-weight:600; }
+  @media (max-width:600px){ .acc-panel-inner{ padding-left:clamp(18px,3vw,28px); } .acc-trigger{ gap:12px; padding:18px 16px; } .acc-icon{ width:38px; height:38px; } }
+
+  .flow{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; align-items:center; }
+  .flow-step{ display:flex; flex-direction:column; gap:6px; padding:18px 20px; min-width:160px; flex:1; border:1px solid var(--border-soft); border-radius:16px; background:var(--card-bg); backdrop-filter:blur(6px); transition:border-color .3s ease, box-shadow .3s ease; }
+  .flow-step:hover{ border-color:var(--accent-2); box-shadow:var(--glow); }
+  .flow-step strong{ font-family:'Space Grotesk', sans-serif; font-size:1.02rem; }
+  .flow-step span.desc{ font-size:.86rem; color:var(--text-dim); }
+  .flow-arrow{ flex:none; width:22px; height:22px; color:var(--text-faint); }
+  @media (max-width:760px){ .flow{ flex-direction:column; align-items:stretch; } .flow-arrow{ transform:rotate(90deg); align-self:center; } }
+
+  .cta{ position:relative; border-radius:calc(var(--radius) + 6px); overflow:hidden; border:1px solid var(--border-soft); padding:clamp(48px,8vw,90px) clamp(24px,6vw,64px); text-align:center; background:var(--card-bg-2); backdrop-filter:blur(10px); box-shadow:0 30px 80px rgba(0,0,0,.4); }
+  .cta-inner{ position:relative; z-index:2; max-width:640px; margin:0 auto; }
+  .cta .quote{ font-family:'Space Grotesk', sans-serif; font-size:clamp(1.3rem,2.6vw,1.7rem); font-weight:700; margin-bottom:16px; background:linear-gradient(135deg,var(--purple),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .cta h2{ font-size:clamp(1.7rem, 4vw, 2.3rem); margin-bottom:14px; }
+  .cta p{ color:var(--text-dim); margin-bottom:30px; }
+
+  footer{ border-top:1px solid var(--border); padding:32px 0 60px; }
+  .footer-inner{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; font-size:.82rem; color:var(--text-faint); }
+</style>
+</head>
+<body>
+
+  <div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <div class="brand"><span class="brand-dot"></span>3.1 Sociedad y Cultura</div>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#sociedad">Sociedad</a>
+        <a href="#organizacion">Organización</a>
+        <a href="#cultura">Cultura y diversidad</a>
+        <a href="#cierre">Cierre</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-rings" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <g class="ring-spin"><circle class="ring" cx="200" cy="200" r="180" stroke-dasharray="2 10"/><circle class="ring" cx="200" cy="200" r="140" stroke-dasharray="1 6"/></g>
+        <g class="ring-spin-rev"><circle class="ring" cx="200" cy="200" r="100"/></g>
+        <circle class="ring" cx="200" cy="200" r="70" style="animation:pulse 4s ease-in-out infinite;"/>
+      </svg>
+    </div>
+
+    <div class="wrap">
+      <div class="hero-content">
+        <span class="hero-eyebrow">Escenario Socio-cultural · 3.1 Sociedad</span>
+        <h1>La <span class="accent-word">Sociedad</span> y su <span class="accent-word-2">Organización</span></h1>
+        <p class="lead">Antes de hablar de sustentabilidad hay que entender cómo se organizan las personas: la sociedad, sus instituciones y la diversidad cultural son el terreno donde ocurre cualquier estrategia ambiental.</p>
+
+        <div class="hero-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4.3 2.8 17.5c-.5.9.1 2 1.2 2h16c1.1 0 1.7-1.1 1.2-2L13.7 4.3c-.6-1-2-1-2.6 0z"/></svg>
+          <p>Ninguna estrategia de desarrollo sustentable funciona si ignora cómo vive y se organiza la comunidad a la que va dirigida.</p>
+        </div>
+
+        <div class="btn-row">
+          <a href="#sociedad" class="btn btn-primary">Ver el concepto de sociedad</a>
+          <a href="#cultura" class="btn btn-ghost">Ver diversidad cultural</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><span class="line"></span></div>
+  </header>
+
+  <main>
+
+    <!-- ===== SOCIEDAD ===== -->
+    <section class="resumen" id="sociedad">
+      <div class="wrap">
+        <div class="resumen-grid">
+
+          <div class="resumen-text reveal">
+            <span class="eyebrow">Concepto central</span>
+            <h2 style="margin-top:10px; font-size:clamp(1.6rem,3.4vw,2.2rem);">¿Qué es la Sociedad?</h2>
+            <p>Una sociedad es un conjunto de personas que comparten un territorio, normas y formas de relacionarse, y que dependen unas de otras para satisfacer sus necesidades. No es solo "un grupo de gente": es una red de vínculos, instituciones y acuerdos que hacen posible la vida en común.</p>
+            <p>Entender esta red es el primer paso para diseñar cualquier estrategia de sustentabilidad, porque las soluciones ambientales siempre se aplican dentro de un contexto social concreto.</p>
+
+            <div class="pillars">
+              <div class="pillar">
+                <span class="p-label">Territorio</span>
+                <p>El espacio físico compartido donde la comunidad vive e interactúa.</p>
+              </div>
+              <div class="pillar">
+                <span class="p-label">Normas</span>
+                <p>Reglas escritas y no escritas que regulan la convivencia y el comportamiento.</p>
+              </div>
+              <div class="pillar">
+                <span class="p-label">Interdependencia</span>
+                <p>La necesidad mutua entre personas e instituciones para funcionar como comunidad.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-media reveal">
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80" alt="Comunidad de personas reunidas en un espacio público" loading="lazy">
+            <span class="resumen-tag">La sociedad como red de vínculos</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ORGANIZACIÓN SOCIAL Y CULTURA / ACORDEÓN ===== -->
+    <section class="temas" id="organizacion">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Descripción detallada</span>
+          <h2>Organización Social, Cultura y Diversidad</h2>
+          <p class="sub">Cómo se estructura una sociedad y por qué la diversidad cultural es una riqueza a proteger.</p>
+        </div>
+
+        <div class="accordion">
+
+          <!-- 1 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M13 15c1-1.5 3-2 4-2 3 0 5 2 5 5"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Estructura social</span><h3>¿Qué es la Organización Social?</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La organización social es la forma en que una comunidad distribuye roles, responsabilidades y recursos entre sus integrantes, a través de instituciones como la familia, la escuela, el gobierno o las empresas.</p>
+                <ul>
+                  <li>Define quién toma decisiones, cómo se resuelven los conflictos y cómo se accede a los recursos.</li>
+                  <li>Puede favorecer u obstaculizar el acceso equitativo a la educación, la salud y un ambiente sano.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l8-6 8 6v12M9 21v-6h6v6"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Instituciones</span><h3>Niveles de Organización: de la Familia al Estado</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La organización social se expresa en distintos niveles, cada uno con reglas propias pero conectados entre sí:</p>
+                <ul>
+                  <li><strong>Familia:</strong> el primer núcleo de socialización y transmisión de valores.</li>
+                  <li><strong>Comunidad y barrio:</strong> vecindad, cooperación local y organizaciones civiles.</li>
+                  <li><strong>Instituciones formales:</strong> escuelas, empresas, gobiernos municipales.</li>
+                  <li><strong>Estado y nación:</strong> el marco legal y político más amplio que regula a todos los niveles anteriores.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2c2.5 2.7 4 6.2 4 10s-1.5 7.3-4 10c-2.5-2.7-4-6.2-4-10s1.5-7.3 4-10z"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Riqueza colectiva</span><h3 id="cultura">Cultura y Diversidad Socio-cultural</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>La cultura es el conjunto de creencias, costumbres, idiomas, tradiciones y formas de ver el mundo que comparte un grupo humano. La diversidad cultural es la coexistencia de múltiples culturas distintas dentro de una misma región o país.</p>
+                <ul>
+                  <li>Cada cultura desarrolla su propia relación con el entorno natural, muchas veces con conocimientos ambientales valiosos y acumulados por generaciones.</li>
+                  <li>Respetar la diversidad cultural es clave para diseñar estrategias de sustentabilidad que la comunidad realmente adopte, en vez de imponerlas desde fuera.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="acc-item reveal">
+            <button class="acc-trigger" aria-expanded="false">
+              <span class="acc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c4-4 7-7.5 7-11a7 7 0 1 0-14 0c0 3.5 3 7 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+              <span class="acc-title-wrap"><span class="eyebrow">Vínculo con el curso</span><h3>Sociedad y Cultura como Base del Desarrollo Sustentable</h3></span>
+              <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-panel-inner">
+                <p>El escenario socio-cultural del desarrollo sustentable estudia cómo la sociedad y su cultura influyen en el uso de los recursos naturales y en la calidad de vida.</p>
+                <ul>
+                  <li>Una sociedad bien organizada puede coordinar mejor sus respuestas ante problemas ambientales.</li>
+                  <li>La diversidad cultural aporta distintas soluciones y perspectivas frente a un mismo reto de sustentabilidad.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FLUJO: NIVELES ===== -->
+    <section class="flujo" id="niveles">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">De lo individual a lo colectivo</span>
+          <h2>Cómo se Construye la Organización Social</h2>
+          <p class="sub">Cada nivel se apoya en el anterior para formar una sociedad funcional.</p>
+        </div>
+
+        <div class="flow reveal">
+          <div class="flow-step">
+            <span class="eyebrow">1</span>
+            <strong>Individuo</strong>
+            <span class="desc">Una persona con necesidades, valores y cultura propia.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">2</span>
+            <strong>Familia y comunidad</strong>
+            <span class="desc">Primeros vínculos de cooperación y transmisión cultural.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">3</span>
+            <strong>Instituciones</strong>
+            <span class="desc">Escuelas, empresas y organizaciones que dan estructura.</span>
+          </div>
+          <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="flow-step">
+            <span class="eyebrow">4</span>
+            <strong>Sociedad y Estado</strong>
+            <span class="desc">El marco completo donde se definen políticas y normas.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CIERRE ===== -->
+    <section id="cierre">
+      <div class="wrap">
+        <div class="cta reveal">
+          <div class="cta-inner">
+            <span class="eyebrow">Idea clave</span>
+            <p class="quote">"No hay desarrollo sustentable sin entender primero a la sociedad que lo va a vivir."</p>
+            <h2>La cultura como punto de partida</h2>
+            <p>Antes de proponer soluciones ambientales es necesario comprender la organización social y respetar la diversidad cultural de cada comunidad: son la base sobre la que se construye cualquier estrategia sustentable.</p>
+            <a href="#sociedad" class="btn btn-primary">Repasar el concepto de sociedad</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <span>Desarrollo Sustentable — 3.1 Sociedad y Diversidad Socio-cultural</span>
+      <a href="../2.4/index.html" style="color:var(--accent-2);">← Tema anterior: 2.4 Biodiversidad</a>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 12); });
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => { const isOpen = navLinks.classList.toggle('open'); navToggle.setAttribute('aria-expanded', String(isOpen)); });
+    navLinks.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { navLinks.classList.remove('open'); navToggle.setAttribute('aria-expanded', 'false'); }); });
+
+    document.querySelectorAll('.acc-item').forEach(item => {
+      const trigger = item.querySelector('.acc-trigger');
+      const panel = item.querySelector('.acc-panel');
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        item.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        panel.style.maxHeight = !isOpen ? panel.scrollHeight + 'px' : null;
+      });
+    });
+    window.addEventListener('resize', () => { document.querySelectorAll('.acc-item.open .acc-panel').forEach(panel => { panel.style.maxHeight = panel.scrollHeight + 'px'; }); });
+
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); } }); }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
