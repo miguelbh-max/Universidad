@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adiós al delay() bloqueante · Sistemas Programables</title>
+<style>
+:root{--bg:#121212;--card:#1a1a1a;--accent:#00c8ff;--text:#f2f2f2;--dim:#9a9a9a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px}
+header{padding:70px 0 40px;text-align:center;border-bottom:1px solid #222}
+.eyebrow{color:var(--accent);letter-spacing:2px;font-size:.8rem;text-transform:uppercase}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);margin:14px 0;text-shadow:0 0 18px rgba(0,200,255,.35)}
+.badge{display:inline-block;margin-top:10px;background:var(--accent);color:#0a0a0a;font-weight:700;font-size:.75rem;padding:5px 14px;border-radius:20px}
+.sub{color:var(--dim);max-width:560px;margin:14px auto 0}
+main{padding:50px 0}
+h2.sec{color:var(--accent);font-size:1.1rem;margin:40px 0 18px;text-transform:uppercase;letter-spacing:1px}
+.card{background:var(--card);border:1px solid #262626;border-left:3px solid var(--accent);border-radius:8px;padding:20px 24px;margin-bottom:14px;transition:box-shadow .25s,border-color .25s}
+.card:hover{box-shadow:0 0 20px rgba(0,200,255,.15);border-color:var(--accent)}
+.card h3{font-size:1.02rem;margin-bottom:8px;color:#fff}
+.card p{color:var(--dim);font-size:.95rem}
+svg{display:block;margin:30px auto;max-width:100%;height:auto}
+.diag-cap{color:#666;font-size:.78rem;text-align:center;margin-top:-14px}
+footer{padding:40px 0 70px;text-align:center;border-top:1px solid #222}
+.nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.nav a{color:var(--accent);text-decoration:none;font-size:.85rem;border:1px solid var(--accent);padding:10px 18px;border-radius:6px;transition:background .2s,color .2s}
+.nav a:hover{background:var(--accent);color:#0a0a0a}
+.tag{color:#666;font-size:.72rem;letter-spacing:1px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="wrap">
+<p class="eyebrow">Sistemas Programables · Unidad 2 · Tema 2.1</p>
+<h1>Adiós al delay() bloqueante</h1>
+<span class="badge">2.1.1</span>
+<p class="sub">Cómo controlar el tiempo sin congelar el microcontrolador</p>
+</header>
+<main class="wrap">
+<h2 class="sec">// El problema</h2>
+<div class="card">
+<h3>Qué hace delay() realmente</h3>
+<p>Detiene por completo la ejecución del programa durante el tiempo indicado. Mientras "espera", el microcontrolador no puede leer sensores, atender botones ni responder a nada más — está congelado, no dormido de forma inteligente.</p>
+</div>
+<div class="card">
+<h3>Por qué es un antipatrón</h3>
+<p>En un sistema real casi nunca hay una sola tarea. Si hay que parpadear un LED, leer un sensor y vigilar un botón al mismo tiempo, cada delay() bloquea TODAS las demás tareas, no solo la que lo usa. Un proyecto con varios delay() se vuelve lento, rígido e imposible de escalar.</p>
+</div>
+<h2 class="sec">// La alternativa</h2>
+<div class="card">
+<h3>millis(): el reloj que no detiene nada</h3>
+<p>Esta función devuelve los milisegundos transcurridos desde que la placa se encendió, sin pausar el programa. Se usa para "recordar" cuándo ocurrió algo por última vez y comparar ese instante contra el tiempo actual.</p>
+</div>
+<div class="card">
+<h3>El cambio de patrón</h3>
+<p>La lógica pasa de "espera X tiempo y luego haz Y" a "si ya pasó X tiempo desde la última vez, haz Y" — y el programa queda libre para revisar cualquier otra cosa en cada vuelta del loop().</p>
+</div>
+<svg viewBox="0 0 680 170" xmlns="http://www.w3.org/2000/svg">
+<text x="0" y="18" fill="#9a9a9a" font-size="12">Con delay() — el programa se congela</text>
+<rect x="0" y="28" width="90" height="24" fill="#00c8ff"/>
+<rect x="90" y="28" width="150" height="24" fill="#2a2a2a"/>
+<rect x="240" y="28" width="90" height="24" fill="#00c8ff"/>
+<rect x="330" y="28" width="150" height="24" fill="#2a2a2a"/>
+<rect x="480" y="28" width="90" height="24" fill="#00c8ff"/>
+<text x="95" y="45" fill="#666" font-size="10">bloqueado</text>
+<text x="335" y="45" fill="#666" font-size="10">bloqueado</text>
+<text x="0" y="100" fill="#9a9a9a" font-size="12">Con millis() — el ciclo nunca se detiene</text>
+<rect x="0" y="110" width="680" height="24" fill="#00c8ff" opacity="0.85"/>
+<line x1="90" y1="110" x2="90" y2="134" stroke="#0a0a0a" stroke-width="2"/>
+<line x1="240" y1="110" x2="240" y2="134" stroke="#0a0a0a" stroke-width="2"/>
+<line x1="480" y1="110" x2="480" y2="134" stroke="#0a0a0a" stroke-width="2"/>
+<text x="0" y="150" fill="#666" font-size="10">el loop() sigue corriendo; solo revisa "¿ya pasó el tiempo?" en cada vuelta</text>
+</svg>
+<h2 class="sec">// Por qué importa</h2>
+<div class="card">
+<h3>Multitarea real en un solo núcleo</h3>
+<p>Permite que un Arduino UNO R4 WiFi controle simultáneamente varios procesos con distintos ritmos — leer un sensor cada 100 ms, parpadear un LED cada 500 ms, revisar un botón todo el tiempo — sin que ninguno espere a los demás.</p>
+</div>
+</main>
+<footer class="wrap">
+<div class="nav">
+<span></span>
+<a href="index2.html">Siguiente: 2.1.2 Máquinas de Estados Finitos →</a>
+</div>
+<p class="tag">UNIDAD 2 · TEMA 2.1 · SISTEMAS PROGRAMABLES</p>
+</footer>
+</body>
+</html>
