@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.1.4 VLAN nativa y seguridad | Conmutación y Enrutamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0d;--bg-alt:#111318;--card:#16181d;--border:#242830;--text:#e6e6e6;--muted:#9aa0aa;--accent:#00f0ff;--accent2:#7c4dff;--accent3:#39ff88;--warn:#ff5c5c;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.65;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+img,svg{max-width:100%;height:auto;display:block;}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(11,11,13,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar .brand{font-weight:800;letter-spacing:.5px;font-size:.9rem;color:var(--accent);}
+.topbar .steps{display:flex;gap:8px;}
+.step-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:1px solid var(--border);color:var(--muted);background:var(--bg-alt);transition:.25s;}
+.step-dot.active{color:#000;background:var(--accent);box-shadow:0 0 14px var(--accent);border-color:var(--accent);}
+.step-dot.done{color:var(--accent3);border-color:var(--accent3);}
+.hero{min-height:74vh;display:flex;flex-direction:column;justify-content:center;padding:70px 6vw 50px;background:radial-gradient(circle at 15% 20%,rgba(0,240,255,.12),transparent 40%),radial-gradient(circle at 85% 80%,rgba(124,77,255,.12),transparent 45%);}
+.breadcrumb{color:var(--muted);font-size:.8rem;margin-bottom:18px;letter-spacing:.5px;text-transform:uppercase;}
+.breadcrumb span{color:var(--accent);margin:0 4px;}
+.hero h1{font-size:clamp(1.9rem,5.5vw,3.4rem);font-weight:800;max-width:900px;margin-bottom:16px;}
+.hero h1 .num{color:var(--accent);text-shadow:0 0 20px rgba(0,240,255,.6);}
+.hero p.lead{color:var(--muted);max-width:640px;font-size:1.05rem;}
+section{padding:60px 6vw;}
+.section-title{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:10px;}
+.section-sub{color:var(--muted);margin-bottom:32px;max-width:640px;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+.grid{display:grid;gap:22px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:.25s;}
+.card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 0 24px rgba(0,240,255,.18);}
+.card h3{font-size:1.1rem;margin-bottom:10px;color:var(--accent);}
+.card p{color:var(--muted);font-size:.92rem;}
+.card.warn h3{color:var(--warn);}
+.card.warn:hover{border-color:var(--warn);box-shadow:0 0 24px rgba(255,92,92,.18);}
+.diagram-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:28px 0;}
+.diagram-box .cap{color:var(--muted);font-size:.8rem;text-align:center;margin-top:14px;}
+.example-box{border-left:3px solid var(--accent3);background:var(--bg-alt);padding:20px 24px;border-radius:0 var(--radius) var(--radius) 0;margin:26px 0;}
+.example-box .tag{color:var(--accent3);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;}
+.terminal{background:#000;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;font-family:'Courier New',monospace;font-size:.85rem;overflow-x:auto;margin:24px 0;color:#39ff88;}
+.terminal .cmt{color:var(--muted);}
+.terminal .prompt{color:var(--accent);}
+.accordion-item{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;background:var(--card);}
+.accordion-head{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:700;}
+.accordion-head .plus{color:var(--accent);font-size:1.3rem;transition:transform .3s;}
+.accordion-item.open .plus{transform:rotate(45deg);}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .35s ease;padding:0 22px;}
+.accordion-body-inner{padding-bottom:20px;color:var(--muted);font-size:.92rem;}
+.navfoot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:46px 6vw 70px;border-top:1px solid var(--border);}
+.navbtn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border:1px solid var(--border);border-radius:10px;font-weight:700;font-size:.9rem;transition:.25s;}
+.navbtn:hover{border-color:var(--accent);box-shadow:0 0 16px rgba(0,240,255,.25);color:var(--accent);}
+.navbtn.disabled{opacity:.3;pointer-events:none;}
+@media(max-width:600px){section{padding:44px 6vw;} .topbar{padding:12px 16px;} .step-dot{width:28px;height:28px;font-size:.65rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+ <div class="brand">1.1 · Segmentación de Capa 2</div>
+ <div class="steps">
+  <a class="step-dot done" href="index1.html">1</a>
+  <a class="step-dot done" href="index2.html">2</a>
+  <a class="step-dot done" href="index3.html">3</a>
+  <a class="step-dot active" href="index4.html">4</a>
+ </div>
+</div>
+
+<header class="hero">
+ <div class="breadcrumb">Conmutación y Enrutamiento <span>›</span> Unidad 1 <span>›</span> Tema 1.1</div>
+ <h1><span class="num">1.1.4</span> — VLAN nativa y buenas prácticas de seguridad</h1>
+ <p class="lead">No toda VLAN que cruza un trunk lleva etiqueta. La única que viaja “desnuda” es la <strong>VLAN nativa</strong> — y si no se configura con cuidado, se convierte en una puerta de entrada para ataques.</p>
+</header>
+
+<section>
+ <h2 class="section-title reveal">¿Qué es la VLAN nativa?</h2>
+ <p class="section-sub reveal">En un enlace troncal, existe exactamente <strong>una VLAN cuyo tráfico no se etiqueta</strong>: la VLAN nativa. Por defecto, en la mayoría de switches esa VLAN es la VLAN 1. Cualquier trama que llegue al puerto troncal sin etiqueta 802.1Q, el switch la asume automáticamente como perteneciente a la VLAN nativa.</p>
+
+ <div class="grid grid-2">
+  <div class="card reveal">
+   <h3>📬 VLAN nativa</h3>
+   <p>La VLAN que viaja sin etiqueta por un trunk. Existe por compatibilidad con equipos antiguos que no entienden 802.1Q, pero su valor debe coincidir en ambos extremos del enlace.</p>
+  </div>
+  <div class="card warn reveal">
+   <h3>⚠️ Riesgo: VLAN hopping</h3>
+   <p>Un atacante puede enviar una trama con <strong>doble etiqueta</strong>: la exterior coincide con la VLAN nativa (se quita al entrar al trunk) y la interior apunta a otra VLAN, “saltando” hacia un segmento al que no debería tener acceso.</p>
+  </div>
+ </div>
+
+ <div class="diagram-box reveal">
+  <svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg">
+   <rect x="20" y="70" width="110" height="50" rx="8" fill="#16181d" stroke="#242830"/>
+   <text x="75" y="100" fill="#e6e6e6" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">Switch A</text>
+   <rect x="630" y="70" width="110" height="50" rx="8" fill="#16181d" stroke="#242830"/>
+   <text x="685" y="100" fill="#e6e6e6" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">Switch B</text>
+   <rect x="130" y="88" width="500" height="14" fill="#00f0ff33" stroke="#00f0ff"/>
+   <text x="380" y="75" fill="#00f0ff" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">Trunk</text>
+
+   <g font-family="Inter">
+    <rect x="190" y="130" width="85" height="32" rx="5" fill="#1a1c22" stroke="#00f0ff"/>
+    <rect x="190" y="130" width="26" height="32" fill="#00f0ff"/>
+    <text x="250" y="150" fill="#e6e6e6" font-size="9.5" text-anchor="middle">VLAN 10</text>
+
+    <rect x="320" y="130" width="85" height="32" rx="5" fill="#1a1c22" stroke="#ff5c5c" stroke-dasharray="4 3"/>
+    <text x="362" y="150" fill="#ff5c5c" font-size="9.5" font-weight="700" text-anchor="middle">SIN TAG</text>
+
+    <rect x="450" y="130" width="85" height="32" rx="5" fill="#1a1c22" stroke="#7c4dff"/>
+    <rect x="450" y="130" width="26" height="32" fill="#7c4dff"/>
+    <text x="510" y="150" fill="#e6e6e6" font-size="9.5" text-anchor="middle">VLAN 20</text>
+   </g>
+   <text x="362" y="180" fill="#ff5c5c" font-size="11" font-family="Inter" text-anchor="middle">↑ Esta trama viaja como VLAN nativa: nadie le puso etiqueta</text>
+  </svg>
+  <p class="cap">La trama sin tag se asume automáticamente como VLAN nativa en ambos extremos.</p>
+ </div>
+
+ <h2 class="section-title reveal" style="margin-top:10px;">Buenas prácticas de seguridad</h2>
+ <div class="accordion reveal">
+  <div class="accordion-item">
+   <div class="accordion-head"><span>1. Cambia la VLAN nativa a una que nadie use</span><span class="plus">+</span></div>
+   <div class="accordion-body"><div class="accordion-body-inner">Nunca dejes la VLAN nativa en la VLAN 1 por defecto. Usa una VLAN reservada exclusivamente para eso (ej. VLAN 999) en ambos extremos del trunk.</div></div>
+  </div>
+  <div class="accordion-item">
+   <div class="accordion-head"><span>2. Verifica que coincida en ambos switches</span><span class="plus">+</span></div>
+   <div class="accordion-body"><div class="accordion-body-inner">Si un extremo del trunk usa VLAN nativa 1 y el otro VLAN 99, el switch genera una alerta de “native VLAN mismatch” y el tráfico sin etiqueta puede terminar en la VLAN equivocada.</div></div>
+  </div>
+  <div class="accordion-item">
+   <div class="accordion-head"><span>3. No uses la VLAN nativa para datos ni administración</span><span class="plus">+</span></div>
+   <div class="accordion-body"><div class="accordion-body-inner">La VLAN nativa debe quedar vacía, sin dispositivos ni tráfico real, precisamente porque no lleva etiqueta y es la más expuesta a manipulación.</div></div>
+  </div>
+  <div class="accordion-item">
+   <div class="accordion-head"><span>4. Apaga los puertos que no uses</span><span class="plus">+</span></div>
+   <div class="accordion-body"><div class="accordion-body-inner">Los puertos libres deben quedar en <code>shutdown</code> y asignados a una VLAN “basurero” sin conectividad real, para que nadie pueda conectarse sin autorización.</div></div>
+  </div>
+  <div class="accordion-item">
+   <div class="accordion-head"><span>5. Desactiva la negociación automática de trunk (DTP)</span><span class="plus">+</span></div>
+   <div class="accordion-body"><div class="accordion-body-inner">En puertos donde no necesites que un switch negocie automáticamente convertirse en trunk, usa <code>switchport nonegotiate</code> para evitar que un atacante fuerce esa negociación.</div></div>
+  </div>
+ </div>
+
+ <div class="terminal reveal">
+<span class="cmt">! Endurecer un puerto troncal</span>
+Switch(config)# <span class="prompt">interface GigabitEthernet0/1</span>
+Switch(config-if)# <span class="prompt">switchport trunk native vlan 999</span>
+Switch(config-if)# <span class="prompt">switchport nonegotiate</span>
+ </div>
+
+ <div class="example-box reveal">
+  <span class="tag">Ejemplo fácil</span>
+  Piensa en la VLAN nativa como una carta sin remitente en el sobre. Si un atacante logra meter una segunda etiqueta falsa por dentro, puede engañar al switch receptor haciéndole creer que la carta pertenece a otra VLAN. Cambiar la VLAN nativa a una que nadie usa reduce drásticamente ese riesgo.
+ </div>
+</section>
+
+<footer class="navfoot">
+ <a class="navbtn" href="index3.html">← 1.1.3 Enlaces troncales y 802.1Q</a>
+ <span class="navbtn disabled">Fin del tema 1.1 →</span>
+</footer>
+
+<script>
+document.querySelectorAll('.accordion-head').forEach(h=>{
+ h.addEventListener('click',()=>{
+  const item=h.parentElement;
+  const body=item.querySelector('.accordion-body');
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.accordion-item').forEach(i=>{i.classList.remove('open');i.querySelector('.accordion-body').style.maxHeight=null;});
+  if(!isOpen){item.classList.add('open');body.style.maxHeight=body.scrollHeight+'px';}
+ });
+});
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');observer.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

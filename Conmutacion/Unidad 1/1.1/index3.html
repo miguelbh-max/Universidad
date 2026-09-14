@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.1.3 Enlaces troncales y 802.1Q | Conmutación y Enrutamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0d;--bg-alt:#111318;--card:#16181d;--border:#242830;--text:#e6e6e6;--muted:#9aa0aa;--accent:#00f0ff;--accent2:#7c4dff;--accent3:#39ff88;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.65;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+img,svg{max-width:100%;height:auto;display:block;}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(11,11,13,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar .brand{font-weight:800;letter-spacing:.5px;font-size:.9rem;color:var(--accent);}
+.topbar .steps{display:flex;gap:8px;}
+.step-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:1px solid var(--border);color:var(--muted);background:var(--bg-alt);transition:.25s;}
+.step-dot.active{color:#000;background:var(--accent);box-shadow:0 0 14px var(--accent);border-color:var(--accent);}
+.step-dot.done{color:var(--accent3);border-color:var(--accent3);}
+.hero{min-height:74vh;display:flex;flex-direction:column;justify-content:center;padding:70px 6vw 50px;background:radial-gradient(circle at 15% 20%,rgba(0,240,255,.12),transparent 40%),radial-gradient(circle at 85% 80%,rgba(124,77,255,.12),transparent 45%);}
+.breadcrumb{color:var(--muted);font-size:.8rem;margin-bottom:18px;letter-spacing:.5px;text-transform:uppercase;}
+.breadcrumb span{color:var(--accent);margin:0 4px;}
+.hero h1{font-size:clamp(1.9rem,5.5vw,3.4rem);font-weight:800;max-width:900px;margin-bottom:16px;}
+.hero h1 .num{color:var(--accent);text-shadow:0 0 20px rgba(0,240,255,.6);}
+.hero p.lead{color:var(--muted);max-width:640px;font-size:1.05rem;}
+section{padding:60px 6vw;}
+.section-title{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:10px;}
+.section-sub{color:var(--muted);margin-bottom:32px;max-width:640px;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+.grid{display:grid;gap:22px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:.25s;}
+.card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 0 24px rgba(0,240,255,.18);}
+.card h3{font-size:1.1rem;margin-bottom:10px;color:var(--accent);}
+.card p{color:var(--muted);font-size:.92rem;}
+.diagram-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:28px 0;}
+.diagram-box .cap{color:var(--muted);font-size:.8rem;text-align:center;margin-top:14px;}
+.example-box{border-left:3px solid var(--accent3);background:var(--bg-alt);padding:20px 24px;border-radius:0 var(--radius) var(--radius) 0;margin:26px 0;}
+.example-box .tag{color:var(--accent3);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;}
+.terminal{background:#000;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;font-family:'Courier New',monospace;font-size:.85rem;overflow-x:auto;margin:24px 0;color:#39ff88;}
+.terminal .cmt{color:var(--muted);}
+.terminal .prompt{color:var(--accent);}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem;}
+th,td{padding:12px 14px;border:1px solid var(--border);text-align:left;}
+th{background:var(--bg-alt);color:var(--accent);}
+tr:hover td{background:rgba(0,240,255,.04);}
+.navfoot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:46px 6vw 70px;border-top:1px solid var(--border);}
+.navbtn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border:1px solid var(--border);border-radius:10px;font-weight:700;font-size:.9rem;transition:.25s;}
+.navbtn:hover{border-color:var(--accent);box-shadow:0 0 16px rgba(0,240,255,.25);color:var(--accent);}
+@media(max-width:600px){section{padding:44px 6vw;} .topbar{padding:12px 16px;} .step-dot{width:28px;height:28px;font-size:.65rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+ <div class="brand">1.1 · Segmentación de Capa 2</div>
+ <div class="steps">
+  <a class="step-dot done" href="index1.html">1</a>
+  <a class="step-dot done" href="index2.html">2</a>
+  <a class="step-dot active" href="index3.html">3</a>
+  <a class="step-dot" href="index4.html">4</a>
+ </div>
+</div>
+
+<header class="hero">
+ <div class="breadcrumb">Conmutación y Enrutamiento <span>›</span> Unidad 1 <span>›</span> Tema 1.1</div>
+ <h1><span class="num">1.1.3</span> — Enlaces troncales y etiquetado IEEE 802.1Q</h1>
+ <p class="lead">Un puerto de acceso solo puede llevar una VLAN. Pero para conectar switches entre sí necesitamos que <strong>varias VLANs viajen por el mismo cable</strong> — eso exige un enlace troncal y una forma de etiquetar cada trama.</p>
+</header>
+
+<section>
+ <h2 class="section-title reveal">¿Qué es un enlace troncal (trunk)?</h2>
+ <p class="section-sub reveal">Un <strong>trunk</strong> es un enlace —normalmente entre dos switches, o entre un switch y un router— configurado para transportar el tráfico de <strong>varias VLANs a la vez</strong> sobre un solo cable físico. Para que el switch del otro extremo sepa a qué VLAN pertenece cada trama, cada una se marca con una etiqueta antes de salir por el puerto troncal.</p>
+
+ <div class="grid grid-2">
+  <div class="card reveal">
+   <h3>🛣️ Enlace troncal</h3>
+   <p>Puerto configurado en modo <code>trunk</code>. Puede transportar el tráfico de todas las VLANs permitidas en su lista, en lugar de una sola como el modo <code>access</code>.</p>
+  </div>
+  <div class="card reveal">
+   <h3>🏷️ Etiquetado 802.1Q</h3>
+   <p>El estándar IEEE que define cómo insertar una etiqueta de 4 bytes dentro de la trama Ethernet, indicando a qué VLAN pertenece, justo antes de que salga por el puerto troncal.</p>
+  </div>
+ </div>
+
+ <div class="diagram-box reveal">
+  <svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg">
+   <rect x="20" y="70" width="120" height="50" rx="8" fill="#16181d" stroke="#242830"/>
+   <text x="80" y="100" fill="#e6e6e6" font-size="13" font-weight="700" font-family="Inter" text-anchor="middle">Switch A</text>
+   <rect x="620" y="70" width="120" height="50" rx="8" fill="#16181d" stroke="#242830"/>
+   <text x="680" y="100" fill="#e6e6e6" font-size="13" font-weight="700" font-family="Inter" text-anchor="middle">Switch B</text>
+   <rect x="140" y="88" width="480" height="14" fill="#00f0ff44" stroke="#00f0ff"/>
+   <text x="380" y="75" fill="#00f0ff" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">Enlace troncal (trunk)</text>
+
+   <g font-family="Inter">
+    <rect x="200" y="140" width="90" height="34" rx="5" fill="#1a1c22" stroke="#00f0ff"/>
+    <rect x="200" y="140" width="28" height="34" fill="#00f0ff"/>
+    <text x="214" y="162" fill="#000" font-size="9" font-weight="700" text-anchor="middle">TAG</text>
+    <text x="258" y="162" fill="#e6e6e6" font-size="10" text-anchor="middle">VLAN 10</text>
+
+    <rect x="335" y="140" width="90" height="34" rx="5" fill="#1a1c22" stroke="#7c4dff"/>
+    <rect x="335" y="140" width="28" height="34" fill="#7c4dff"/>
+    <text x="349" y="162" fill="#000" font-size="9" font-weight="700" text-anchor="middle">TAG</text>
+    <text x="393" y="162" fill="#e6e6e6" font-size="10" text-anchor="middle">VLAN 20</text>
+
+    <rect x="470" y="140" width="90" height="34" rx="5" fill="#1a1c22" stroke="#00f0ff"/>
+    <rect x="470" y="140" width="28" height="34" fill="#00f0ff"/>
+    <text x="484" y="162" fill="#000" font-size="9" font-weight="700" text-anchor="middle">TAG</text>
+    <text x="528" y="162" fill="#e6e6e6" font-size="10" text-anchor="middle">VLAN 10</text>
+   </g>
+   <text x="380" y="200" fill="#9aa0aa" font-size="11" font-family="Inter" text-anchor="middle">Cada trama sale del trunk con su etiqueta 802.1Q puesta; el switch receptor la lee y sabe a qué VLAN entregarla.</text>
+  </svg>
+  <p class="cap">Varias VLANs comparten el mismo cable físico gracias a la etiqueta.</p>
+ </div>
+
+ <table class="reveal">
+  <tr><th>Campo de la etiqueta 802.1Q</th><th>Tamaño</th><th>Función</th></tr>
+  <tr><td>TPID</td><td>2 bytes</td><td>Valor fijo 0x8100: le dice al switch “esta trama viene etiquetada”</td></tr>
+  <tr><td>Prioridad (PCP)</td><td>3 bits</td><td>Prioridad de QoS de la trama</td></tr>
+  <tr><td>CFI/DEI</td><td>1 bit</td><td>Indicador de formato adicional (uso poco común en Ethernet)</td></tr>
+  <tr><td>VLAN ID</td><td>12 bits</td><td>Identifica la VLAN (valores del 1 al 4094)</td></tr>
+ </table>
+
+ <div class="terminal reveal">
+<span class="cmt">! Configurar un puerto como troncal 802.1Q</span>
+Switch(config)# <span class="prompt">interface GigabitEthernet0/1</span>
+Switch(config-if)# <span class="prompt">switchport mode trunk</span>
+Switch(config-if)# <span class="prompt">switchport trunk allowed vlan 10,20</span>
+ </div>
+
+ <div class="example-box reveal">
+  <span class="tag">Ejemplo fácil</span>
+  Piensa en el trunk como una autopista de un solo carril físico, pero por la que circulan camiones de distintas paqueterías (VLANs). Cada camion lleva pegada una etiqueta de color en el parabrisas (el tag 802.1Q) que indica a qué bodega debe entregarse al llegar al otro extremo.
+ </div>
+</section>
+
+<footer class="navfoot">
+ <a class="navbtn" href="index2.html">← 1.1.2 VLANs de acceso y datos</a>
+ <a class="navbtn" href="index4.html">Siguiente: 1.1.4 VLAN nativa y seguridad →</a>
+</footer>
+
+<script>
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');observer.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
