@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.1.2 VLANs de acceso y datos | Conmutación y Enrutamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0d;--bg-alt:#111318;--card:#16181d;--border:#242830;--text:#e6e6e6;--muted:#9aa0aa;--accent:#00f0ff;--accent2:#7c4dff;--accent3:#39ff88;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.65;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+img,svg{max-width:100%;height:auto;display:block;}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(11,11,13,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar .brand{font-weight:800;letter-spacing:.5px;font-size:.9rem;color:var(--accent);}
+.topbar .steps{display:flex;gap:8px;}
+.step-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:1px solid var(--border);color:var(--muted);background:var(--bg-alt);transition:.25s;}
+.step-dot.active{color:#000;background:var(--accent);box-shadow:0 0 14px var(--accent);border-color:var(--accent);}
+.step-dot.done{color:var(--accent3);border-color:var(--accent3);}
+.hero{min-height:74vh;display:flex;flex-direction:column;justify-content:center;padding:70px 6vw 50px;background:radial-gradient(circle at 15% 20%,rgba(0,240,255,.12),transparent 40%),radial-gradient(circle at 85% 80%,rgba(124,77,255,.12),transparent 45%);}
+.breadcrumb{color:var(--muted);font-size:.8rem;margin-bottom:18px;letter-spacing:.5px;text-transform:uppercase;}
+.breadcrumb span{color:var(--accent);margin:0 4px;}
+.hero h1{font-size:clamp(1.9rem,5.5vw,3.4rem);font-weight:800;max-width:900px;margin-bottom:16px;}
+.hero h1 .num{color:var(--accent);text-shadow:0 0 20px rgba(0,240,255,.6);}
+.hero p.lead{color:var(--muted);max-width:640px;font-size:1.05rem;}
+section{padding:60px 6vw;}
+.section-title{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:10px;}
+.section-sub{color:var(--muted);margin-bottom:32px;max-width:640px;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+.grid{display:grid;gap:22px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:.25s;}
+.card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 0 24px rgba(0,240,255,.18);}
+.card h3{font-size:1.1rem;margin-bottom:10px;color:var(--accent);}
+.card p{color:var(--muted);font-size:.92rem;}
+.diagram-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:28px 0;}
+.diagram-box .cap{color:var(--muted);font-size:.8rem;text-align:center;margin-top:14px;}
+.example-box{border-left:3px solid var(--accent3);background:var(--bg-alt);padding:20px 24px;border-radius:0 var(--radius) var(--radius) 0;margin:26px 0;}
+.example-box .tag{color:var(--accent3);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;}
+.terminal{background:#000;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;font-family:'Courier New',monospace;font-size:.85rem;overflow-x:auto;margin:24px 0;color:#39ff88;}
+.terminal .cmt{color:var(--muted);}
+.terminal .prompt{color:var(--accent);}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem;}
+th,td{padding:12px 14px;border:1px solid var(--border);text-align:left;}
+th{background:var(--bg-alt);color:var(--accent);}
+tr:hover td{background:rgba(0,240,255,.04);}
+.navfoot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:46px 6vw 70px;border-top:1px solid var(--border);}
+.navbtn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border:1px solid var(--border);border-radius:10px;font-weight:700;font-size:.9rem;transition:.25s;}
+.navbtn:hover{border-color:var(--accent);box-shadow:0 0 16px rgba(0,240,255,.25);color:var(--accent);}
+@media(max-width:600px){section{padding:44px 6vw;} .topbar{padding:12px 16px;} .step-dot{width:28px;height:28px;font-size:.65rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+ <div class="brand">1.1 · Segmentación de Capa 2</div>
+ <div class="steps">
+  <a class="step-dot done" href="index1.html">1</a>
+  <a class="step-dot active" href="index2.html">2</a>
+  <a class="step-dot" href="index3.html">3</a>
+  <a class="step-dot" href="index4.html">4</a>
+ </div>
+</div>
+
+<header class="hero">
+ <div class="breadcrumb">Conmutación y Enrutamiento <span>›</span> Unidad 1 <span>›</span> Tema 1.1</div>
+ <h1><span class="num">1.1.2</span> — VLANs: concepto y creación (acceso y datos)</h1>
+ <p class="lead">Un mismo switch físico puede comportarse como si fueran <strong>varios switches independientes</strong>. Eso es una VLAN: una separación lógica, no de cables.</p>
+</header>
+
+<section>
+ <h2 class="section-title reveal">¿Qué es una VLAN?</h2>
+ <p class="section-sub reveal">Sin VLANs, todos los dispositivos conectados a un switch comparten el mismo dominio de difusión (broadcast): un mensaje de difusión de una PC llega a todas las demás. Una <strong>VLAN (Virtual LAN)</strong> agrupa un conjunto de puertos en un dominio de difusión propio, aunque estén en el mismo switch físico — o incluso repartidos en varios switches.</p>
+
+ <div class="grid grid-2">
+  <div class="card reveal">
+   <h3>🔌 VLAN de acceso</h3>
+   <p>Es la VLAN asignada a un <strong>puerto de acceso (access port)</strong>: el puerto donde se conecta un dispositivo final (PC, impresora, cámara). Ese puerto pertenece a una sola VLAN a la vez y entrega la trama <strong>sin ninguna etiqueta</strong> al dispositivo.</p>
+  </div>
+  <div class="card reveal">
+   <h3>📊 VLAN de datos</h3>
+   <p>Es la VLAN que transporta el <strong>tráfico normal de los usuarios</strong> (correo, navegación, archivos), para diferenciarla de otras VLANs especiales como la de voz o la de administración del propio switch.</p>
+  </div>
+ </div>
+
+ <div class="diagram-box reveal">
+  <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg">
+   <rect x="230" y="30" width="300" height="60" rx="8" fill="#16181d" stroke="#242830"/>
+   <text x="380" y="65" fill="#e6e6e6" font-size="15" font-weight="700" font-family="Inter" text-anchor="middle">Switch (1 solo equipo físico)</text>
+
+   <!-- ports -->
+   <g font-family="Inter" font-size="11">
+    <rect x="250" y="120" width="36" height="26" fill="#00f0ff33" stroke="#00f0ff"/>
+    <text x="268" y="137" fill="#e6e6e6" text-anchor="middle">F0/1</text>
+    <rect x="296" y="120" width="36" height="26" fill="#00f0ff33" stroke="#00f0ff"/>
+    <text x="314" y="137" fill="#e6e6e6" text-anchor="middle">F0/2</text>
+    <rect x="342" y="120" width="36" height="26" fill="#00f0ff33" stroke="#00f0ff"/>
+    <text x="360" y="137" fill="#e6e6e6" text-anchor="middle">F0/3</text>
+    <rect x="398" y="120" width="36" height="26" fill="#7c4dff33" stroke="#7c4dff"/>
+    <text x="416" y="137" fill="#e6e6e6" text-anchor="middle">F0/4</text>
+    <rect x="444" y="120" width="36" height="26" fill="#7c4dff33" stroke="#7c4dff"/>
+    <text x="462" y="137" fill="#e6e6e6" text-anchor="middle">F0/5</text>
+    <rect x="490" y="120" width="36" height="26" fill="#7c4dff33" stroke="#7c4dff"/>
+    <text x="508" y="137" fill="#e6e6e6" text-anchor="middle">F0/6</text>
+   </g>
+   <line x1="268" y1="90" x2="268" y2="120" stroke="#242830"/>
+   <line x1="314" y1="90" x2="314" y2="120" stroke="#242830"/>
+   <line x1="360" y1="90" x2="360" y2="120" stroke="#242830"/>
+   <line x1="416" y1="90" x2="416" y2="120" stroke="#242830"/>
+   <line x1="462" y1="90" x2="462" y2="120" stroke="#242830"/>
+   <line x1="508" y1="90" x2="508" y2="120" stroke="#242830"/>
+
+   <!-- dashed groups -->
+   <rect x="235" y="165" width="140" height="90" rx="12" fill="none" stroke="#00f0ff" stroke-dasharray="5 5"/>
+   <text x="305" y="185" fill="#00f0ff" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">VLAN 10 — Ventas</text>
+   <text x="268" y="225" fill="#9aa0aa" font-size="22" text-anchor="middle">🖥️</text>
+   <text x="314" y="225" fill="#9aa0aa" font-size="22" text-anchor="middle">🖥️</text>
+   <text x="360" y="225" fill="#9aa0aa" font-size="22" text-anchor="middle">🖥️</text>
+
+   <rect x="390" y="165" width="140" height="90" rx="12" fill="none" stroke="#7c4dff" stroke-dasharray="5 5"/>
+   <text x="460" y="185" fill="#7c4dff" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">VLAN 20 — TI</text>
+   <text x="416" y="225" fill="#9aa0aa" font-size="22" text-anchor="middle">🖥️</text>
+   <text x="462" y="225" fill="#9aa0aa" font-size="22" text-anchor="middle">🖥️</text>
+   <text x="508" y="225" fill="#9aa0aa" font-size="22" text-anchor="middle">🖥️</text>
+
+   <text x="380" y="285" fill="#9aa0aa" font-size="11" font-family="Inter" text-anchor="middle">Un broadcast de un PC de Ventas jamás llega a los PC de TI, aunque compartan el mismo switch.</text>
+  </svg>
+  <p class="cap">Mismo switch, dos dominios de difusión separados por VLAN.</p>
+ </div>
+
+ <div class="terminal reveal">
+<span class="cmt">! Crear las VLANs</span>
+Switch(config)# <span class="prompt">vlan 10</span>
+Switch(config-vlan)# <span class="prompt">name Ventas</span>
+Switch(config)# <span class="prompt">vlan 20</span>
+Switch(config-vlan)# <span class="prompt">name TI</span>
+
+<span class="cmt">! Asignar un puerto de acceso a una VLAN</span>
+Switch(config)# <span class="prompt">interface FastEthernet0/1</span>
+Switch(config-if)# <span class="prompt">switchport mode access</span>
+Switch(config-if)# <span class="prompt">switchport access vlan 10</span>
+ </div>
+
+ <div class="example-box reveal">
+  <span class="tag">Ejemplo fácil</span>
+  Imagina un edificio de oficinas donde Ventas y TI comparten el mismo router de electricidad, pero cada departamento tiene su propia puerta con llave: pueden usar la misma infraestructura sin mezclarse. Las VLANs hacen exactamente eso, pero con tráfico de red en lugar de electricidad.
+ </div>
+</section>
+
+<footer class="navfoot">
+ <a class="navbtn" href="index1.html">← 1.1.1 Modos de conmutación</a>
+ <a class="navbtn" href="index3.html">Siguiente: 1.1.3 Enlaces troncales →</a>
+</footer>
+
+<script>
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');observer.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

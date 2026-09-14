@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.1.1 Modos de conmutación | Conmutación y Enrutamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0d;--bg-alt:#111318;--card:#16181d;--border:#242830;--text:#e6e6e6;--muted:#9aa0aa;--accent:#00f0ff;--accent2:#7c4dff;--accent3:#39ff88;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.65;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+img,svg{max-width:100%;height:auto;display:block;}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(11,11,13,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar .brand{font-weight:800;letter-spacing:.5px;font-size:.9rem;color:var(--accent);}
+.topbar .steps{display:flex;gap:8px;}
+.step-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:1px solid var(--border);color:var(--muted);background:var(--bg-alt);transition:.25s;}
+.step-dot.active{color:#000;background:var(--accent);box-shadow:0 0 14px var(--accent);border-color:var(--accent);}
+.step-dot.done{color:var(--accent3);border-color:var(--accent3);}
+.hero{min-height:74vh;display:flex;flex-direction:column;justify-content:center;padding:70px 6vw 50px;background:radial-gradient(circle at 15% 20%,rgba(0,240,255,.12),transparent 40%),radial-gradient(circle at 85% 80%,rgba(124,77,255,.12),transparent 45%);}
+.breadcrumb{color:var(--muted);font-size:.8rem;margin-bottom:18px;letter-spacing:.5px;text-transform:uppercase;}
+.breadcrumb span{color:var(--accent);margin:0 4px;}
+.hero h1{font-size:clamp(1.9rem,5.5vw,3.4rem);font-weight:800;max-width:900px;margin-bottom:16px;}
+.hero h1 .num{color:var(--accent);text-shadow:0 0 20px rgba(0,240,255,.6);}
+.hero p.lead{color:var(--muted);max-width:640px;font-size:1.05rem;}
+section{padding:60px 6vw;}
+.section-title{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:10px;}
+.section-sub{color:var(--muted);margin-bottom:32px;max-width:640px;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+.grid{display:grid;gap:22px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:.25s;}
+.card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 0 24px rgba(0,240,255,.18);}
+.card h3{font-size:1.1rem;margin-bottom:10px;color:var(--accent);}
+.card p{color:var(--muted);font-size:.92rem;}
+.diagram-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:28px 0;}
+.diagram-box .cap{color:var(--muted);font-size:.8rem;text-align:center;margin-top:14px;}
+.example-box{border-left:3px solid var(--accent3);background:var(--bg-alt);padding:20px 24px;border-radius:0 var(--radius) var(--radius) 0;margin:26px 0;}
+.example-box .tag{color:var(--accent3);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem;}
+th,td{padding:12px 14px;border:1px solid var(--border);text-align:left;}
+th{background:var(--bg-alt);color:var(--accent);}
+tr:hover td{background:rgba(0,240,255,.04);}
+.navfoot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:46px 6vw 70px;border-top:1px solid var(--border);}
+.navbtn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border:1px solid var(--border);border-radius:10px;font-weight:700;font-size:.9rem;transition:.25s;}
+.navbtn:hover{border-color:var(--accent);box-shadow:0 0 16px rgba(0,240,255,.25);color:var(--accent);}
+.navbtn.disabled{opacity:.3;pointer-events:none;}
+@media(max-width:600px){section{padding:44px 6vw;} .topbar{padding:12px 16px;} .step-dot{width:28px;height:28px;font-size:.65rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+ <div class="brand">1.1 · Segmentación de Capa 2</div>
+ <div class="steps">
+  <a class="step-dot active" href="index1.html">1</a>
+  <a class="step-dot" href="index2.html">2</a>
+  <a class="step-dot" href="index3.html">3</a>
+  <a class="step-dot" href="index4.html">4</a>
+ </div>
+</div>
+
+<header class="hero">
+ <div class="breadcrumb">Conmutación y Enrutamiento <span>›</span> Unidad 1 <span>›</span> Tema 1.1</div>
+ <h1><span class="num">1.1.1</span> — Modos de conmutación de Capa 2</h1>
+ <p class="lead">Cuando una trama llega a un switch, este debe decidir <strong>cuándo</strong> empieza a reenviarla. No todos los switches esperan lo mismo antes de actuar — y esa diferencia se llama modo de conmutación.</p>
+</header>
+
+<section>
+ <h2 class="section-title reveal">¿Qué hace un switch con cada trama?</h2>
+ <p class="section-sub reveal">Todo switch guarda una tabla de direcciones MAC (tabla CAM) que relaciona cada MAC con el puerto por donde se aprendió. Al recibir una trama, el switch revisa esa tabla para saber por qué puerto reenviarla. La pregunta es: <em>¿cuánto de la trama necesita leer antes de empezar a enviarla?</em> De eso tratan los dos modos principales.</p>
+
+ <div class="grid grid-2">
+  <div class="card reveal">
+   <h3>📥 Store-and-forward</h3>
+   <p>El switch recibe la trama <strong>completa</strong>, calcula su checksum (FCS) para verificar que no venga dañada, y solo entonces la reenvía. Es el modo por defecto en la mayoría de switches modernos (Catalyst incluidos).</p>
+  </div>
+  <div class="card reveal">
+   <h3>⚡ Cut-through</h3>
+   <p>El switch lee <strong>solo la dirección MAC de destino</strong> (los primeros 6 bytes tras el preámbulo) y empieza a reenviar de inmediato, sin esperar el resto de la trama ni verificar errores.</p>
+  </div>
+ </div>
+
+ <div class="diagram-box reveal">
+  <svg viewBox="0 0 800 210" xmlns="http://www.w3.org/2000/svg">
+   <text x="10" y="18" fill="#9aa0aa" font-size="12" font-family="Inter">Estructura simplificada de una trama Ethernet</text>
+   <g transform="translate(10,30)">
+    <rect x="0" y="0" width="70" height="40" fill="#1a1c22" stroke="#242830"/>
+    <text x="35" y="24" fill="#9aa0aa" font-size="11" font-family="Inter" text-anchor="middle">Preámb.</text>
+    <rect x="70" y="0" width="140" height="40" fill="#00f0ff33" stroke="#00f0ff"/>
+    <text x="140" y="24" fill="#e6e6e6" font-size="11" font-weight="700" font-family="Inter" text-anchor="middle">MAC Destino</text>
+    <rect x="210" y="0" width="120" height="40" fill="#1a1c22" stroke="#242830"/>
+    <text x="270" y="24" fill="#9aa0aa" font-size="11" font-family="Inter" text-anchor="middle">MAC Origen</text>
+    <rect x="330" y="0" width="60" height="40" fill="#1a1c22" stroke="#242830"/>
+    <text x="360" y="24" fill="#9aa0aa" font-size="11" font-family="Inter" text-anchor="middle">Tipo</text>
+    <rect x="390" y="0" width="280" height="40" fill="#1a1c22" stroke="#242830"/>
+    <text x="530" y="24" fill="#9aa0aa" font-size="11" font-family="Inter" text-anchor="middle">Datos</text>
+    <rect x="670" y="0" width="60" height="40" fill="#1a1c22" stroke="#242830"/>
+    <text x="700" y="24" fill="#9aa0aa" font-size="11" font-family="Inter" text-anchor="middle">FCS</text>
+   </g>
+   <line x1="220" y1="85" x2="220" y2="180" stroke="#00f0ff" stroke-width="2" stroke-dasharray="5 5"/>
+   <text x="228" y="100" fill="#00f0ff" font-size="12" font-weight="700" font-family="Inter">Cut-through reenvía aquí</text>
+   <text x="228" y="116" fill="#9aa0aa" font-size="10.5" font-family="Inter">(solo leyó la MAC destino)</text>
+   <line x1="740" y1="85" x2="740" y2="180" stroke="#39ff88" stroke-width="2" stroke-dasharray="5 5"/>
+   <text x="732" y="140" fill="#39ff88" font-size="12" font-weight="700" font-family="Inter" text-anchor="end">Store-and-forward</text>
+   <text x="732" y="156" fill="#39ff88" font-size="12" font-weight="700" font-family="Inter" text-anchor="end">reenvía aquí</text>
+   <text x="732" y="172" fill="#9aa0aa" font-size="10.5" font-family="Inter" text-anchor="end">(esperó la trama completa + FCS)</text>
+  </svg>
+  <p class="cap">Store-and-forward espera hasta el último bit; cut-through arranca apenas identifica el destino.</p>
+ </div>
+
+ <table class="reveal">
+  <tr><th>Criterio</th><th>Store-and-forward</th><th>Cut-through</th></tr>
+  <tr><td>¿Qué revisa?</td><td>La trama completa</td><td>Solo la MAC destino</td></tr>
+  <tr><td>¿Detecta errores (FCS)?</td><td>Sí, descarta tramas dañadas</td><td>No, puede reenviar basura</td></tr>
+  <tr><td>Latencia</td><td>Mayor (proporcional al tamaño de la trama)</td><td>Muy baja y constante</td></tr>
+  <tr><td>Uso típico</td><td>Switches de acceso/core en la mayoría de redes</td><td>Entornos donde la latencia es crítica (ej. centros de datos de alto rendimiento)</td></tr>
+ </table>
+
+ <div class="example-box reveal">
+  <span class="tag">Ejemplo fácil</span>
+  <strong>Store-and-forward</strong> es como una carta certificada: el empleado postal la abre, revisa que el contenido esté completo y en buen estado, y hasta entonces la despacha. <strong>Cut-through</strong> es como un mensajero que solo mira la dirección en el sobre y sale corriendo a entregarlo — es más rápido, pero si el contenido venía roto, igual lo entrega.
+ </div>
+</section>
+
+<footer class="navfoot">
+ <span class="navbtn disabled">← Tema anterior</span>
+ <a class="navbtn" href="index2.html">Siguiente: 1.1.2 VLANs de acceso y datos →</a>
+</footer>
+
+<script>
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');observer.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
