@@ -15,36 +15,25 @@ svg{max-width:100%;height:auto;display:block;}
 h1,h2,.brand{font-family:'Orbitron',sans-serif;}
 .topbar{position:sticky;top:0;z-index:50;padding:16px 24px;background:rgba(10,10,15,.9);border-bottom:1px solid var(--cyan);box-shadow:0 0 12px rgba(0,255,242,.15);}
 .brand{font-size:.85rem;color:var(--cyan);letter-spacing:1px;}
-.hero{min-height:60vh;display:flex;flex-direction:column;justify-content:center;padding:60px 6vw;}
+.hero{min-height:50vh;display:flex;flex-direction:column;justify-content:center;padding:50px 6vw;}
 .breadcrumb{color:var(--muted);font-size:.8rem;margin-bottom:16px;letter-spacing:.5px;text-transform:uppercase;}
 .breadcrumb span{color:var(--magenta);margin:0 4px;}
 .hero h1{font-size:clamp(1.7rem,5vw,3rem);font-weight:800;text-shadow:0 0 6px var(--magenta),0 0 18px rgba(255,43,214,.5);letter-spacing:1px;margin-bottom:16px;}
-.hero p.lead{color:var(--muted);max-width:660px;font-size:1.02rem;}
-section{padding:50px 6vw;}
-.section-title{font-size:clamp(1.2rem,3vw,1.7rem);font-weight:800;color:var(--cyan);margin-bottom:10px;text-shadow:0 0 8px rgba(0,255,242,.4);}
-.section-sub{color:var(--muted);margin-bottom:28px;max-width:680px;}
-.grid{display:grid;gap:20px;}
-.grid-3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
-.card{background:var(--card);border:1px solid var(--cyan);box-shadow:0 0 8px rgba(0,255,242,.12);border-radius:var(--radius);padding:22px;transition:.25s;}
-.card:hover{box-shadow:0 0 20px rgba(255,43,214,.3);border-color:var(--magenta);}
-.card h3{font-size:1rem;margin-bottom:8px;color:var(--magenta);}
-.card p{color:var(--muted);font-size:.9rem;}
-.diagram-box{background:#0d0d13;border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin:24px 0;}
-.diagram-box .cap{color:var(--muted);font-size:.78rem;text-align:center;margin-top:12px;}
-.example-box{border-left:3px solid var(--cyan);background:#0d0d13;padding:18px 22px;margin:24px 0;}
-.example-box .tag{color:var(--cyan);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px;}
-.note-box{border-left:3px solid var(--magenta);background:#0d0d13;padding:18px 22px;margin:24px 0;}
-.note-box .tag{color:var(--magenta);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px;}
-.terminal{background:#000;border:1px solid var(--cyan);border-radius:var(--radius);padding:18px 20px;font-family:'Courier New',monospace;font-size:.85rem;overflow-x:auto;margin:22px 0;color:var(--cyan);}
-code{background:#0d0d13;padding:2px 6px;border-radius:3px;color:var(--cyan);font-family:'Courier New',monospace;}
-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.88rem;}
-th,td{padding:11px 13px;border:1px solid var(--border);text-align:left;}
+.hero p.lead{color:var(--muted);max-width:700px;font-size:1.02rem;}
+section{padding:40px 6vw;}
+.section-title{font-size:clamp(1.15rem,3vw,1.5rem);font-weight:800;color:var(--cyan);margin-bottom:14px;text-shadow:0 0 8px rgba(0,255,242,.4);}
+p.body-text{color:var(--muted);margin-bottom:16px;max-width:760px;}
+.diagram-box{background:#0d0d13;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:20px 0;overflow-x:auto;}
+.diagram-box .cap{color:var(--muted);font-size:.78rem;text-align:center;margin-top:10px;}
+ul.formula-list{list-style:none;margin:16px 0;}
+ul.formula-list li{background:#0d0d13;border-left:3px solid var(--magenta);padding:12px 16px;margin-bottom:10px;font-family:'Courier New',monospace;color:var(--cyan);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.86rem;}
+th,td{padding:10px 12px;border:1px solid var(--border);text-align:center;}
 th{background:#0d0d13;color:var(--magenta);}
-.step-card{display:flex;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;}
-.step-num{flex:none;width:36px;height:36px;border-radius:50%;background:var(--magenta);color:#000;font-weight:800;display:flex;align-items:center;justify-content:center;}
-.step-body h4{font-size:.98rem;margin-bottom:6px;}
-.step-body p{color:var(--muted);font-size:.9rem;}
-@media(max-width:600px){section{padding:40px 6vw;} .step-card{flex-direction:column;}}
+tr:nth-child(3) td{color:var(--cyan);font-weight:700;}
+.divider{border:none;border-top:1px dashed var(--border);margin:36px 0;}
+.footnote{color:var(--muted);font-size:.82rem;margin-top:10px;font-style:italic;}
+@media(max-width:600px){section{padding:32px 6vw;}}
 </style>
 </head>
 <body>
@@ -53,67 +42,139 @@ th{background:#0d0d13;color:var(--magenta);}
 
 <header class="hero">
  <div class="breadcrumb">Conmutación y Enrutamiento <span>›</span> Unidad 1 <span>›</span> Tema 1.2</div>
- <h1>Cálculo de subredes (Subnetting)</h1>
- <p class="lead">Antes de diseñar cualquier red, hay una pregunta básica que resolver: ¿cómo dividimos un bloque de direcciones IP en partes más pequeñas y manejables? Esa técnica es el subnetting.</p>
+ <h1>Calcular subredes</h1>
+ <p class="lead">Las subredes son un método para maximizar el espacio de direcciones IPv4 de 32 bits y reducir el tamaño de las tablas de enrutamiento en una interred mayor. En cualquier clase de dirección, las subredes proporcionan un medio de asignar parte del espacio de la dirección host a las direcciones de red, lo cual permite tener más redes. La parte del espacio de dirección de host asignada a las nuevas direcciones de red se conoce como número de subred.</p>
 </header>
 
 <section>
- <h2 class="section-title">¿Qué es subnetear y para qué sirve?</h2>
- <p class="section-sub">Subnetear es tomar parte del espacio reservado para hosts en una dirección IP y usarlo para crear más redes pequeñas (subredes) en lugar de una sola red grande.</p>
- <div class="grid grid-3">
-  <div class="card"><h3>Menos difusión</h3><p>Subredes más pequeñas significan dominios de broadcast más chicos: menos tráfico innecesario.</p></div>
-  <div class="card"><h3>Mejor organización</h3><p>Cada departamento o sucursal puede tener su propio bloque de direcciones.</p></div>
-  <div class="card"><h3>Uso eficiente del espacio IP</h3><p>Si solo necesitas 50 hosts, no tiene sentido reservar un bloque completo de 254.</p></div>
- </div>
+ <p class="body-text">Muchas veces, las redes de computadoras suelen volverse demasiado grandes y complejas, lo cual hace que el manejo y administración de la misma se convierta en un trabajo engorroso. Al crear subredes, estaremos reduciendo el tamaño de los dominios de difusión y logrando una estructura de red mucho más manejable (entre otras cosas). En IPv4 tenemos básicamente 3 clases de direcciones IP (en realidad hay 2 más): Clases A, B y C.</p>
 
- <h2 class="section-title" style="margin-top:30px;">Repaso: máscara de una red Clase C</h2>
+ <hr class="divider">
+
+ <h2 class="section-title">Máscara de subred — direcciones Clase C</h2>
+ <p class="body-text">Las máscaras de subred de las direcciones de clase C tienen 24 bits de red y 8 de host.</p>
  <div class="diagram-box">
-  <svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
-   <rect x="10" y="20" width="555" height="36" fill="#00fff222" stroke="#00fff2"/>
-   <text x="287" y="43" fill="#e8e8f0" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">Porción de RED — 24 bits (192.168.1.)</text>
-   <rect x="565" y="20" width="185" height="36" fill="#ff2bd622" stroke="#ff2bd6"/>
-   <text x="657" y="43" fill="#e8e8f0" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">HOST — 8 bits</text>
-   <text x="10" y="80" fill="#9494a8" font-size="11" font-family="Inter">192.168.1.0 /24 → 255.255.255.0 → 256 valores posibles; 2 reservados (.0 red, .255 broadcast) → 254 hosts por defecto</text>
+  <svg viewBox="0 0 700 110" xmlns="http://www.w3.org/2000/svg">
+   <text x="10" y="18" fill="#9494a8" font-size="12" font-family="Inter">Con letras:</text>
+   <text x="10" y="36" fill="#e8e8f0" font-size="13" font-family="Courier New" font-weight="700">RRRRRRRR . RRRRRRRR . RRRRRRRR . HHHHHHHH</text>
+   <text x="10" y="58" fill="#9494a8" font-size="12" font-family="Inter">En binario:</text>
+   <text x="10" y="76" fill="#00fff2" font-size="13" font-family="Courier New" font-weight="700">11111111 . 11111111 . 11111111 . 00000000</text>
+   <text x="10" y="98" fill="#9494a8" font-size="12" font-family="Inter">En decimal: <tspan fill="#ff2bd6" font-weight="700">255.255.255.0</tspan></text>
+  </svg>
+ </div>
+ <p class="body-text"><strong>192.168.0.0/24</strong> — el 24 representa la máscara de subred. La máscara de subred por defecto de una dirección IP de clase C nos dice que solo el último octeto está destinado a hosts. Esos 8 números del último octeto, equivalen a 256 números posibles.</p>
+ <p class="body-text">De esos 256 números posibles, hay solo 2 que no podremos usar para un host: el <strong>192.168.0.0</strong> y el <strong>192.168.0.255</strong>, ya que esas dos direcciones son las direcciones de red y difusión respectivamente.</p>
+
+ <hr class="divider">
+
+ <h2 class="section-title">Reglas generales de subneteo</h2>
+ <p class="body-text">No importa qué clase de dirección se necesite dividir en subredes, las reglas son las siguientes:</p>
+ <ul class="formula-list">
+  <li>Subredes totales = 2 <sup>Potencia de bits pedidos</sup></li>
+  <li>Hosts totales = 2 <sup>Potencia de bits restantes</sup></li>
+  <li>Subredes utilizables = (2 <sup>Potencia de bits pedidos</sup>) – 2</li>
+  <li>Hosts utilizables = (2 <sup>Potencia de bits restantes</sup>) – 2</li>
+ </ul>
+
+ <hr class="divider">
+
+ <h2 class="section-title">Subneteo Red Clase C</h2>
+ <p class="body-text">Dada la dirección de red Clase C <strong>192.168.1.0 /24</strong> para realizar mediante subneteo <strong>4 subredes</strong> con un mínimo de <strong>50 hosts</strong> por subred. Se realizará en 3 pasos.</p>
+
+ <h2 class="section-title" style="margin-top:24px;">Adaptar la Máscara de Red por Defecto a Nuestras Subredes (1)</h2>
+ <p class="body-text">La máscara por defecto para la red 192.168.1.0 es:</p>
+ <div class="diagram-box">
+  <svg viewBox="0 0 700 90" xmlns="http://www.w3.org/2000/svg">
+   <text x="120" y="16" fill="#ff2bd6" font-size="12" font-weight="700" font-family="Inter">Porción de Red</text>
+   <text x="600" y="16" fill="#00fff2" font-size="12" font-weight="700" font-family="Inter">Porción de Host</text>
+   <text x="10" y="40" fill="#e8e8f0" font-size="13" font-family="Courier New">255 . 255 . 255 .</text>
+   <text x="600" y="40" fill="#e8e8f0" font-size="13" font-family="Courier New">0</text>
+   <text x="10" y="62" fill="#ff2bd6" font-size="13" font-family="Courier New" font-weight="700">11111111 . 11111111 . 11111111 .</text>
+   <text x="600" y="62" fill="#00fff2" font-size="13" font-family="Courier New" font-weight="700">00000000</text>
+   <text x="660" y="62" fill="#9494a8" font-size="12" font-family="Inter">= /24</text>
   </svg>
  </div>
 
- <h2 class="section-title">Las fórmulas que necesitas</h2>
+ <p class="body-text">Usando la fórmula 2<sup>N</sup>, donde N es la cantidad de bits que tenemos que robarle a la porción de host, adaptamos la máscara de red por defecto a la subred. Se nos solicitaron 4 subredes, es decir que el resultado de 2<sup>N</sup> tiene que ser mayor o igual a 4.</p>
+
+ <div class="diagram-box">
+  <table>
+   <tr><th>2<sup>N</sup></th><th>Redes</th><th>Máscara Binario</th><th>Máscara Decimal</th></tr>
+   <tr><td>2¹</td><td>2</td><td>11111111.11111111.11111111.10000000</td><td>255.255.255.128</td></tr>
+   <tr><td>2²</td><td>4</td><td>11111111.11111111.11111111.11000000</td><td>255.255.255.192</td></tr>
+   <tr><td>2³</td><td>8</td><td>11111111.11111111.11111111.11100000</td><td>255.255.255.224</td></tr>
+   <tr><td>2⁴</td><td>16</td><td>11111111.11111111.11111111.11110000</td><td>255.255.255.240</td></tr>
+   <tr><td>2⁵</td><td>32</td><td>11111111.11111111.11111111.11111000</td><td>255.255.255.248</td></tr>
+   <tr><td>2⁶</td><td>64</td><td>11111111.11111111.11111111.11111100</td><td>255.255.255.252</td></tr>
+  </table>
+  <p class="cap">Fila resaltada: 2² = 4 redes, la opción que cumple con las 4 subredes solicitadas.</p>
+ </div>
+
+ <p class="body-text">Como se observa en el gráfico, para hacer 4 subredes debemos robar 2 bits a la porción de host. Agregamos los 2 bits robados reemplazándolos por “1” a la máscara Clase C por defecto y obtenemos la máscara adaptada <strong>255.255.255.192</strong>.</p>
+
+ <div class="diagram-box">
+  <svg viewBox="0 0 700 110" xmlns="http://www.w3.org/2000/svg">
+   <text x="10" y="20" fill="#e8e8f0" font-size="13" font-family="Courier New">255 . 255 . 255 . 192</text>
+   <text x="10" y="44" fill="#ff2bd6" font-size="13" font-family="Courier New" font-weight="700">11111111 . 11111111 . 11111111 . </text>
+   <text x="330" y="44" fill="#00fff2" font-size="13" font-family="Courier New" font-weight="700">11</text>
+   <text x="350" y="44" fill="#e8e8f0" font-size="13" font-family="Courier New">000000</text>
+   <text x="470" y="44" fill="#9494a8" font-size="12" font-family="Inter">= /26</text>
+   <text x="330" y="64" fill="#9494a8" font-size="11" font-family="Inter">└ 64</text>
+   <text x="330" y="80" fill="#9494a8" font-size="11" font-family="Inter">└ 128</text>
+   <text x="330" y="96" fill="#9494a8" font-size="11" font-family="Inter">└ 192</text>
+  </svg>
+ </div>
+
+ <h2 class="section-title" style="margin-top:24px;">Obtener Cantidad de Hosts por Subred (2)</h2>
+ <p class="body-text">Ya tenemos nuestra máscara de red adaptada que va a ser común a todas las subredes y hosts que componen la red. Ahora queda obtener los hosts. Para esto vamos a trabajar con la dirección IP de red, específicamente con la porción de host (fondo gris).</p>
+
+ <div class="diagram-box">
+  <svg viewBox="0 0 700 90" xmlns="http://www.w3.org/2000/svg">
+   <text x="120" y="16" fill="#ff2bd6" font-size="12" font-weight="700" font-family="Inter">Porción de Red</text>
+   <text x="600" y="16" fill="#9494a8" font-size="12" font-weight="700" font-family="Inter">Porción de Host</text>
+   <text x="10" y="40" fill="#e8e8f0" font-size="13" font-family="Courier New">192 . 168 . 1 .</text>
+   <text x="600" y="40" fill="#e8e8f0" font-size="13" font-family="Courier New">0</text>
+   <text x="10" y="62" fill="#ff2bd6" font-size="13" font-family="Courier New" font-weight="700">11000000 . 10101000 . 00000001 .</text>
+   <text x="600" y="62" fill="#9494a8" font-size="13" font-family="Courier New" font-weight="700">00000000</text>
+   <text x="600" y="80" fill="#9494a8" font-size="11" font-family="Inter">Hosts (fondo gris)</text>
+  </svg>
+ </div>
+
+ <p class="body-text">El ejercicio nos pedía un mínimo de 50 hosts por subred. Para esto utilizamos la fórmula 2<sup>M</sup> − 2, donde M es el número de bits “0” disponibles en la porción de host, y −2 porque la primer y última dirección IP de la subred no se utilizan por ser la dirección de la subred y broadcast respectivamente.</p>
+ <ul class="formula-list"><li>2⁶ − 2 = 62 hosts por subred</li></ul>
+ <p class="body-text">Los 6 bits “0” de la porción de host (fondo gris) son los que vamos a utilizar según vayamos asignando los hosts a las subredes.</p>
+
+ <h2 class="section-title" style="margin-top:24px;">Obtener Rango de Subredes (3)</h2>
+ <p class="body-text">Para obtener el rango de subredes utilizamos la porción de red de la dirección IP que fue modificada al adaptar la máscara de red. A la máscara de red se le agregaron 2 bits en el cuarto octeto, entonces van a tener que modificar esos mismos bits pero en la dirección IP (fondo negro).</p>
+
+ <div class="diagram-box">
+  <svg viewBox="0 0 700 90" xmlns="http://www.w3.org/2000/svg">
+   <text x="120" y="16" fill="#ff2bd6" font-size="12" font-weight="700" font-family="Inter">Porción de Red</text>
+   <text x="600" y="16" fill="#9494a8" font-size="12" font-weight="700" font-family="Inter">Porción de Host</text>
+   <text x="10" y="40" fill="#e8e8f0" font-size="13" font-family="Courier New">192 . 168 . 1 .</text>
+   <text x="600" y="40" fill="#e8e8f0" font-size="13" font-family="Courier New">0</text>
+   <text x="10" y="62" fill="#ff2bd6" font-size="13" font-family="Courier New" font-weight="700">11000000 . 10101000 . 00000001 . </text>
+   <text x="440" y="62" fill="#00fff2" font-size="13" font-family="Courier New" font-weight="700">00</text>
+   <text x="460" y="62" fill="#9494a8" font-size="13" font-family="Courier New">000000</text>
+   <text x="440" y="80" fill="#00fff2" font-size="11" font-family="Inter">Subredes (fondo negro)</text>
+  </svg>
+  <p class="cap">Los 2 bits “0” de la porción de red (fondo negro) son los que más adelante modificaremos según vayamos asignando las subredes.</p>
+ </div>
+
+ <p class="body-text">Para obtener el rango, la forma más sencilla es restarle a 256 el número de la máscara de subred adaptada. En este caso sería: <strong>256 − 192 = 64</strong>, entonces 64 va a ser el rango entre cada subred.</p>
+
+ <hr class="divider">
+
+ <h2 class="section-title">Resultado final</h2>
  <table>
-  <tr><th>Fórmula</th><th>Qué calcula</th></tr>
-  <tr><td><code>Subredes creadas = 2ⁿ</code></td><td>n = bits robados a la porción de host</td></tr>
-  <tr><td><code>Hosts por subred = 2ᵐ − 2</code></td><td>m = bits de host restantes; se restan red y broadcast</td></tr>
-  <tr><td><code>Salto entre subredes = 256 − máscara decimal</code></td><td>Cada cuántas direcciones empieza la siguiente subred</td></tr>
+  <tr><th>N° de Subred</th><th colspan="2">Rango IP *</th><th>Hosts Asignables x Subred</th></tr>
+  <tr><th></th><th>Desde</th><th>Hasta</th><th></th></tr>
+  <tr><td>1</td><td>192.168.1.0</td><td>192.168.1.63</td><td>62</td></tr>
+  <tr><td>2</td><td>192.168.1.64</td><td>192.168.1.127</td><td>62</td></tr>
+  <tr><td>3</td><td>192.168.1.128</td><td>192.168.1.191</td><td>62</td></tr>
+  <tr><td>4</td><td>192.168.1.192</td><td>192.168.1.255</td><td>62</td></tr>
  </table>
-
- <div class="note-box">
-  <span class="tag">Corrección sobre el material original</span>
-  Versiones antiguas de este tema también restan 2 a las subredes (<code>2ⁿ−2</code>). Esa regla es de un estándar obsoleto (antes de RFC 1878); el equipo moderno (Cisco IOS, Packet Tracer) usa todas las subredes sin restar. Por eso aquí <code>2ⁿ</code> es para subredes y el <code>−2</code> se aplica solo a hosts.
- </div>
-
- <h2 class="section-title">Ejemplo resuelto</h2>
- <p class="section-sub">Red 192.168.1.0/24, crear 4 subredes con mínimo 50 hosts cada una.</p>
-
- <div class="step-card"><div class="step-num">1</div><div class="step-body"><h4>Bits a robar</h4><p>2ⁿ ≥ 4 → n=2 bits. Máscara pasa de /24 a /26 (255.255.255.192).</p></div></div>
- <div class="step-card"><div class="step-num">2</div><div class="step-body"><h4>Hosts por subred</h4><p>8−2=6 bits libres → 2⁶−2 = 62 hosts (cumple el mínimo de 50).</p></div></div>
- <div class="step-card"><div class="step-num">3</div><div class="step-body"><h4>Salto entre subredes</h4><p>256−192=64 → bloques de 64 direcciones: 0, 64, 128, 192.</p></div></div>
-
- <table>
-  <tr><th>Subred</th><th>Red</th><th>Primer host</th><th>Último host</th><th>Broadcast</th></tr>
-  <tr><td>1</td><td>192.168.1.0</td><td>.1</td><td>.62</td><td>.63</td></tr>
-  <tr><td>2</td><td>192.168.1.64</td><td>.65</td><td>.126</td><td>.127</td></tr>
-  <tr><td>3</td><td>192.168.1.128</td><td>.129</td><td>.190</td><td>.191</td></tr>
-  <tr><td>4</td><td>192.168.1.192</td><td>.193</td><td>.254</td><td>.255</td></tr>
- </table>
-
- <div class="example-box">
-  <span class="tag">Ejemplo fácil</span>
-  Imagina 256 casas numeradas en una calle. Subnetear es levantar una reja cada 64 casas para formar 4 colonias: cada una con su entrada (red), su salida común (broadcast), y el resto para vecinos (hosts).
- </div>
-
- <div class="terminal">
-Router(config)# interface GigabitEthernet0/0
-Router(config-if)# ip address 192.168.1.1 255.255.255.192
- </div>
+ <p class="footnote">* La primera y la última dirección IP de cada Subred no se asignan ya que contienen la dirección de red y broadcast de la Subred.</p>
 </section>
 
 </body>
