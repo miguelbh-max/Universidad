@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complemento — Cálculo de subredes | Conmutación y Enrutamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0d;--bg-alt:#111318;--card:#16181d;--border:#242830;--text:#e6e6e6;--muted:#9aa0aa;--accent:#00f0ff;--accent2:#7c4dff;--accent3:#39ff88;--warn:#ffb020;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.65;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+img,svg{max-width:100%;height:auto;display:block;}
+code{background:var(--bg-alt);padding:2px 6px;border-radius:4px;font-family:'Courier New',monospace;color:var(--accent);}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(11,11,13,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.topbar .brand{font-weight:800;letter-spacing:.5px;font-size:.9rem;color:var(--accent2);}
+.topbar .steps{display:flex;gap:8px;}
+.step-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:1px solid var(--border);color:var(--muted);background:var(--bg-alt);transition:.25s;}
+.step-dot.done{color:var(--accent3);border-color:var(--accent3);}
+.step-dot.extra{border-style:dashed;color:var(--accent2);border-color:var(--accent2);}
+.step-dot.extra.active{background:var(--accent2);border-color:var(--accent2);box-shadow:0 0 14px var(--accent2);color:#000;}
+.hero{min-height:74vh;display:flex;flex-direction:column;justify-content:center;padding:70px 6vw 50px;background:radial-gradient(circle at 15% 20%,rgba(124,77,255,.16),transparent 40%),radial-gradient(circle at 85% 80%,rgba(0,240,255,.10),transparent 45%);}
+.badge{display:inline-block;width:fit-content;background:rgba(124,77,255,.15);border:1px solid var(--accent2);color:var(--accent2);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:6px 12px;border-radius:20px;margin-bottom:16px;}
+.breadcrumb{color:var(--muted);font-size:.8rem;margin-bottom:18px;letter-spacing:.5px;text-transform:uppercase;}
+.breadcrumb span{color:var(--accent2);margin:0 4px;}
+.hero h1{font-size:clamp(1.9rem,5.5vw,3.4rem);font-weight:800;max-width:900px;margin-bottom:16px;}
+.hero h1 .num{color:var(--accent2);text-shadow:0 0 20px rgba(124,77,255,.6);}
+.hero p.lead{color:var(--muted);max-width:660px;font-size:1.05rem;}
+section{padding:60px 6vw;}
+.section-title{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:10px;}
+.section-sub{color:var(--muted);margin-bottom:32px;max-width:660px;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+.grid{display:grid;gap:22px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:.25s;}
+.card:hover{transform:translateY(-6px);border-color:var(--accent2);box-shadow:0 0 24px rgba(124,77,255,.18);}
+.card h3{font-size:1.05rem;margin-bottom:10px;color:var(--accent2);}
+.card p{color:var(--muted);font-size:.9rem;}
+.diagram-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:28px 0;}
+.diagram-box .cap{color:var(--muted);font-size:.8rem;text-align:center;margin-top:14px;}
+.example-box{border-left:3px solid var(--accent3);background:var(--bg-alt);padding:20px 24px;border-radius:0 var(--radius) var(--radius) 0;margin:26px 0;}
+.example-box .tag{color:var(--accent3);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;}
+.note-box{border-left:3px solid var(--warn);background:var(--bg-alt);padding:20px 24px;border-radius:0 var(--radius) var(--radius) 0;margin:26px 0;}
+.note-box .tag{color:var(--warn);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;}
+.terminal{background:#000;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;font-family:'Courier New',monospace;font-size:.85rem;overflow-x:auto;margin:24px 0;color:#39ff88;}
+.terminal .cmt{color:var(--muted);}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.88rem;}
+th,td{padding:11px 13px;border:1px solid var(--border);text-align:left;}
+th{background:var(--bg-alt);color:var(--accent2);}
+tr:hover td{background:rgba(124,77,255,.05);}
+.step-card{display:flex;gap:18px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:18px;}
+.step-num{flex:none;width:38px;height:38px;border-radius:50%;background:var(--accent2);color:#000;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.step-body h4{font-size:1rem;margin-bottom:8px;color:var(--text);}
+.step-body p{color:var(--muted);font-size:.9rem;}
+.navfoot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:46px 6vw 70px;border-top:1px solid var(--border);}
+.navbtn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border:1px solid var(--border);border-radius:10px;font-weight:700;font-size:.9rem;transition:.25s;}
+.navbtn:hover{border-color:var(--accent2);box-shadow:0 0 16px rgba(124,77,255,.25);color:var(--accent2);}
+.navbtn.disabled{opacity:.3;pointer-events:none;}
+@media(max-width:600px){section{padding:44px 6vw;} .topbar{padding:12px 16px;} .step-dot{width:28px;height:28px;font-size:.65rem;} .step-card{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+ <div class="brand">1.1 · Complemento: Subredes</div>
+ <div class="steps">
+  <a class="step-dot done" href="index1.html">1</a>
+  <a class="step-dot done" href="index2.html">2</a>
+  <a class="step-dot done" href="index3.html">3</a>
+  <a class="step-dot done" href="index4.html">4</a>
+  <a class="step-dot extra active" href="index5.html">+</a>
+ </div>
+</div>
+
+<header class="hero">
+ <div class="badge">Material de apoyo · no forma parte oficial del temario 1.1</div>
+ <div class="breadcrumb">Conmutación y Enrutamiento <span>›</span> Unidad 1 <span>›</span> Tema 1.1</div>
+ <h1><span class="num">+</span> Cálculo de subredes (Subnetting)</h1>
+ <p class="lead">Antes de crear VLANs, enlaces troncales o cualquier diseño de red, hay una pregunta más básica que resolver: <strong>¿cómo dividimos un bloque de direcciones IP en partes más pequeñas y manejables?</strong> Esa técnica es el subnetting, y es la base para entender el direccionamiento que usan las páginas anteriores de este tema.</p>
+</header>
+
+<section>
+ <h2 class="section-title reveal">¿Qué es subnetear y para qué sirve?</h2>
+ <p class="section-sub reveal">Subnetear es tomar parte del espacio reservado para identificar hosts en una dirección IP y usarlo para crear más redes pequeñas (subredes) en lugar de una sola red grande. Esto evita que una red crezca sin control y se vuelva difícil de administrar.</p>
+
+ <div class="grid grid-3">
+  <div class="card reveal">
+   <h3>📉 Menos difusión</h3>
+   <p>Subredes más pequeñas significan dominios de broadcast más chicos: menos tráfico innecesario circulando por toda la red.</p>
+  </div>
+  <div class="card reveal">
+   <h3>🗂️ Mejor organización</h3>
+   <p>Cada departamento, piso o sucursal puede tener su propio bloque de direcciones, facilitando la administración y el diagnóstico de fallas.</p>
+  </div>
+  <div class="card reveal">
+   <h3>♻️ Uso eficiente del espacio IP</h3>
+   <p>Si solo necesitas 50 hosts, no tiene sentido reservar un bloque completo de 254. El subnetting ajusta el tamaño a lo que realmente necesitas.</p>
+  </div>
+ </div>
+
+ <h2 class="section-title reveal" style="margin-top:20px;">Repaso rápido: la máscara de una red Clase C</h2>
+ <p class="section-sub reveal">Toda dirección IPv4 tiene 32 bits repartidos en 4 octetos. En una red <strong>Clase C</strong> por defecto, los primeros 24 bits identifican la red y los últimos 8 identifican el host — de ahí la notación <code>/24</code> y la máscara <code>255.255.255.0</code>.</p>
+
+ <div class="diagram-box reveal">
+  <svg viewBox="0 0 760 130" xmlns="http://www.w3.org/2000/svg">
+   <rect x="10" y="30" width="555" height="40" fill="#00f0ff33" stroke="#00f0ff"/>
+   <text x="287" y="55" fill="#e6e6e6" font-size="13" font-weight="700" font-family="Inter" text-anchor="middle">Porción de RED — 24 bits (192 . 168 . 1 .)</text>
+   <rect x="565" y="30" width="185" height="40" fill="#7c4dff33" stroke="#7c4dff"/>
+   <text x="657" y="55" fill="#e6e6e6" font-size="13" font-weight="700" font-family="Inter" text-anchor="middle">HOST — 8 bits</text>
+   <text x="10" y="95" fill="#9aa0aa" font-size="12" font-family="Inter">192.168.1.0 /24 → máscara 255.255.255.0 → el último octeto (8 bits = 256 valores) es para hosts</text>
+   <text x="10" y="115" fill="#9aa0aa" font-size="12" font-family="Inter">De esos 256 valores, 2 quedan reservados: .0 (dirección de red) y .255 (broadcast) → 254 hosts utilizables por defecto</text>
+  </svg>
+ </div>
+
+ <h2 class="section-title reveal" style="margin-top:10px;">Las fórmulas que necesitas</h2>
+ <table class="reveal">
+  <tr><th>Fórmula</th><th>Qué calcula</th></tr>
+  <tr><td><code>Subredes creadas = 2ⁿ</code></td><td>n = bits que le “robamos” a la porción de host</td></tr>
+  <tr><td><code>Hosts por subred = 2ᵐ − 2</code></td><td>m = bits de host que quedan; se restan 2 porque la primera dirección (red) y la última (broadcast) de cada subred no se asignan a equipos</td></tr>
+  <tr><td><code>Salto entre subredes = 256 − valor decimal de la máscara</code></td><td>Indica cada cuántas direcciones empieza la siguiente subred</td></tr>
+ </table>
+
+ <div class="note-box reveal">
+  <span class="tag">Mejora sobre el material original</span>
+  Vas a encontrar versiones de este tema que también restan 2 a las subredes (<code>2ⁿ − 2</code>), excluyendo la primera y la última. Esa regla viene de un estándar antiguo que prohibía usar la subred "todo-ceros" y la "todo-unos". Desde hace más de una década (RFC 1878) prácticamente todo equipo moderno — incluido Cisco IOS y Packet Tracer — permite usarlas todas sin problema. Por eso aquí usamos <code>2ⁿ</code> sin restar para las subredes, y dejamos el <code>−2</code> únicamente para los hosts, que sí siguen perdiendo su dirección de red y de broadcast.
+ </div>
+
+ <h2 class="section-title reveal" style="margin-top:10px;">Ejemplo resuelto paso a paso</h2>
+ <p class="section-sub reveal">Dada la red <strong>192.168.1.0 /24</strong>, crea <strong>4 subredes</strong> con un mínimo de <strong>50 hosts</strong> cada una.</p>
+
+ <div class="step-card reveal">
+  <div class="step-num">1</div>
+  <div class="step-body">
+   <h4>¿Cuántos bits hay que robarle a la porción de host?</h4>
+   <p>Necesitamos al menos 4 subredes → buscamos el menor <code>n</code> tal que <code>2ⁿ ≥ 4</code> → <code>n = 2</code> bits. Al pasarlos de la porción de host a la de red, la máscara cambia de <code>/24</code> a <code>/26</code>, es decir, de <code>255.255.255.0</code> a <code>255.255.255.192</code>.</p>
+  </div>
+ </div>
+
+ <div class="diagram-box reveal">
+  <svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg">
+   <text x="10" y="20" fill="#9aa0aa" font-size="12" font-family="Inter">Último octeto de la máscara — antes y después de robar 2 bits</text>
+   <text x="10" y="55" fill="#9aa0aa" font-size="12" font-family="Inter">Antes (/24):</text>
+   <g transform="translate(120,38)">
+    <rect x="0" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="15" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="30" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="45" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="60" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="75" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="90" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="105" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="120" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="135" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="150" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="165" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="180" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="195" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="210" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="225" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+   </g>
+   <text x="10" y="105" fill="#9aa0aa" font-size="12" font-family="Inter">Después (/26):</text>
+   <g transform="translate(120,88)">
+    <rect x="0" y="0" width="30" height="26" fill="#7c4dff66" stroke="#7c4dff"/><text x="15" y="18" fill="#000" font-size="11" font-weight="700" text-anchor="middle">1</text>
+    <rect x="30" y="0" width="30" height="26" fill="#7c4dff66" stroke="#7c4dff"/><text x="45" y="18" fill="#000" font-size="11" font-weight="700" text-anchor="middle">1</text>
+    <rect x="60" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="75" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="90" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="105" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="120" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="135" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="150" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="165" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="180" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="195" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+    <rect x="210" y="0" width="30" height="26" fill="#1a1c22" stroke="#242830"/><text x="225" y="18" fill="#9aa0aa" font-size="11" text-anchor="middle">0</text>
+   </g>
+   <text x="360" y="105" fill="#7c4dff" font-size="12" font-weight="700" font-family="Inter">= 255.255.255.192</text>
+  </svg>
+ </div>
+
+ <div class="step-card reveal">
+  <div class="step-num">2</div>
+  <div class="step-body">
+   <h4>¿Cuántos hosts quedan por subred?</h4>
+   <p>Quedaron 6 bits de host libres (8 − 2 = 6) → <code>2⁶ − 2 = 62</code> hosts utilizables por subred. Como se pedía un mínimo de 50, esta máscara cumple perfectamente.</p>
+  </div>
+ </div>
+
+ <div class="step-card reveal">
+  <div class="step-num">3</div>
+  <div class="step-body">
+   <h4>¿Cuál es el salto entre subredes?</h4>
+   <p><code>256 − 192 = 64</code> → cada subred ocupa un bloque de 64 direcciones, empezando en 0, 64, 128 y 192.</p>
+  </div>
+ </div>
+
+ <div class="diagram-box reveal">
+  <svg viewBox="0 0 760 90" xmlns="http://www.w3.org/2000/svg">
+   <rect x="10" y="20" width="180" height="40" fill="#00f0ff33" stroke="#00f0ff"/><text x="100" y="45" fill="#e6e6e6" font-size="12" font-weight="700" text-anchor="middle" font-family="Inter">Subred 1: .0–.63</text>
+   <rect x="195" y="20" width="180" height="40" fill="#7c4dff33" stroke="#7c4dff"/><text x="285" y="45" fill="#e6e6e6" font-size="12" font-weight="700" text-anchor="middle" font-family="Inter">Subred 2: .64–.127</text>
+   <rect x="380" y="20" width="180" height="40" fill="#00f0ff33" stroke="#00f0ff"/><text x="470" y="45" fill="#e6e6e6" font-size="12" font-weight="700" text-anchor="middle" font-family="Inter">Subred 3: .128–.191</text>
+   <rect x="565" y="20" width="185" height="40" fill="#7c4dff33" stroke="#7c4dff"/><text x="657" y="45" fill="#e6e6e6" font-size="12" font-weight="700" text-anchor="middle" font-family="Inter">Subred 4: .192–.255</text>
+  </svg>
+  <p class="cap">Cada bloque de 64 direcciones es una subred completa (incluye su dirección de red y su broadcast).</p>
+ </div>
+
+ <table class="reveal">
+  <tr><th>Subred</th><th>Dirección de red</th><th>Primer host</th><th>Último host</th><th>Broadcast</th></tr>
+  <tr><td>1</td><td>192.168.1.0</td><td>192.168.1.1</td><td>192.168.1.62</td><td>192.168.1.63</td></tr>
+  <tr><td>2</td><td>192.168.1.64</td><td>192.168.1.65</td><td>192.168.1.126</td><td>192.168.1.127</td></tr>
+  <tr><td>3</td><td>192.168.1.128</td><td>192.168.1.129</td><td>192.168.1.190</td><td>192.168.1.191</td></tr>
+  <tr><td>4</td><td>192.168.1.192</td><td>192.168.1.193</td><td>192.168.1.254</td><td>192.168.1.255</td></tr>
+ </table>
+
+ <div class="example-box reveal">
+  <span class="tag">Ejemplo fácil</span>
+  Imagina las 256 direcciones como una calle con casas numeradas del 0 al 255. Subnetear es levantar una reja cada 64 casas para formar 4 colonias independientes. Cada colonia tiene una entrada oficial (dirección de red), una salida común para anuncios generales (broadcast), y el resto de las casas son para los vecinos (hosts).
+ </div>
+
+ <div class="terminal reveal">
+<span class="cmt">! Aplicar la máscara /26 a la interfaz de la Subred 1 en un router</span>
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip address 192.168.1.1 255.255.255.192
+ </div>
+</section>
+
+<footer class="navfoot">
+ <a class="navbtn" href="index4.html">← 1.1.4 VLAN nativa y seguridad</a>
+ <span class="navbtn disabled">Fin del material de apoyo →</span>
+</footer>
+
+<script>
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');observer.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
