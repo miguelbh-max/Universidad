@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.3.2 STP y Rapid-PVST+ | Conmutación y Enrutamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--card:#12121a;--border:#2a2a38;--text:#e8e8f0;--muted:#9494a8;--magenta:#ff2bd6;--cyan:#00fff2;--radius:4px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0a0a0f;background-image:linear-gradient(rgba(255,43,214,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,242,.05) 1px,transparent 1px);background-size:38px 38px;color:var(--text);font-family:'Inter',sans-serif;line-height:1.65;}
+a{color:inherit;text-decoration:none;}
+svg{max-width:100%;height:auto;display:block;}
+h1,h2,.brand{font-family:'Orbitron',sans-serif;}
+code{background:#0d0d13;padding:2px 6px;border-radius:3px;color:var(--cyan);font-family:'Courier New',monospace;}
+.topbar{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:rgba(10,10,15,.9);border-bottom:1px solid var(--cyan);box-shadow:0 0 12px rgba(0,255,242,.15);}
+.brand{font-size:.8rem;color:var(--cyan);letter-spacing:1px;}
+.steps{display:flex;gap:8px;}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:1px solid var(--border);color:var(--muted);}
+.step-dot.active{color:#000;background:var(--magenta);border-color:var(--magenta);box-shadow:0 0 12px var(--magenta);}
+.step-dot.done{color:var(--cyan);border-color:var(--cyan);}
+.hero{min-height:60vh;display:flex;flex-direction:column;justify-content:center;padding:60px 6vw;}
+.breadcrumb{color:var(--muted);font-size:.8rem;margin-bottom:16px;letter-spacing:.5px;text-transform:uppercase;}
+.breadcrumb span{color:var(--magenta);margin:0 4px;}
+.hero h1{font-size:clamp(1.6rem,5vw,2.8rem);font-weight:800;text-shadow:0 0 6px var(--magenta),0 0 18px rgba(255,43,214,.5);letter-spacing:1px;margin-bottom:16px;}
+.hero p.lead{color:var(--muted);max-width:660px;font-size:1.02rem;}
+section{padding:50px 6vw;}
+.section-title{font-size:clamp(1.2rem,3vw,1.7rem);font-weight:800;color:var(--cyan);margin-bottom:10px;text-shadow:0 0 8px rgba(0,255,242,.4);}
+.section-sub{color:var(--muted);margin-bottom:28px;max-width:680px;}
+.grid{display:grid;gap:20px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+.card{background:var(--card);border:1px solid var(--cyan);box-shadow:0 0 8px rgba(0,255,242,.12);border-radius:var(--radius);padding:22px;transition:.25s;}
+.card:hover{box-shadow:0 0 20px rgba(255,43,214,.3);border-color:var(--magenta);}
+.card h3{font-size:1rem;margin-bottom:8px;color:var(--magenta);}
+.card p{color:var(--muted);font-size:.9rem;}
+.diagram-box{background:#0d0d13;border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin:24px 0;}
+.diagram-box .cap{color:var(--muted);font-size:.78rem;text-align:center;margin-top:12px;}
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.88rem;}
+th,td{padding:11px 13px;border:1px solid var(--border);text-align:left;}
+th{background:#0d0d13;color:var(--magenta);}
+.example-box{border-left:3px solid var(--cyan);background:#0d0d13;padding:18px 22px;margin:24px 0;}
+.example-box .tag{color:var(--cyan);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px;}
+.navfoot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:40px 6vw 60px;border-top:1px solid var(--border);}
+.navbtn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border:1px solid var(--border);border-radius:var(--radius);font-weight:700;font-size:.85rem;transition:.25s;}
+.navbtn:hover{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,242,.3);color:var(--cyan);}
+@media(max-width:600px){section{padding:40px 6vw;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+ <div class="brand">1.3 · SPANNING TREE</div>
+ <div class="steps">
+  <a class="step-dot done" href="index1.html">1</a>
+  <a class="step-dot active" href="index2.html">2</a>
+  <a class="step-dot" href="index3.html">3</a>
+ </div>
+</div>
+
+<header class="hero">
+ <div class="breadcrumb">Conmutación y Enrutamiento <span>›</span> Unidad 1 <span>›</span> Tema 1.3</div>
+ <h1>1.3.2 — Operación de STP (802.1D) y Rapid-PVST+ (802.1w)</h1>
+ <p class="lead">STP resuelve el problema del bucle de la página anterior: mantiene los enlaces redundantes como respaldo, pero bloquea lógicamente los que sobran para que no exista más de un camino activo a la vez.</p>
+</header>
+
+<section>
+ <h2 class="section-title">¿Cómo funciona?</h2>
+ <p class="section-sub">Los switches se intercambian mensajes llamados <strong>BPDU</strong> (Bridge Protocol Data Unit) para elegir un <strong>puente raíz (Root Bridge)</strong> y calcular la mejor ruta hacia él. Cualquier enlace redundante que no forme parte de esa mejor ruta se pone en estado de <strong>bloqueo</strong>, evitando el bucle sin desconectar el cable físicamente.</p>
+
+ <div class="grid grid-2">
+  <div class="card"><h3>STP clásico (802.1D)</h3><p>El estándar original. Es confiable pero <strong>lento</strong>: puede tardar entre 30 y 50 segundos en converger (recalcular la topología) tras un cambio en la red.</p></div>
+  <div class="card"><h3>Rapid-PVST+ (802.1w)</h3><p>Versión mejorada de Cisco. Usa nuevos roles de puerto y un mecanismo de negociación directa entre switches vecinos para converger en <strong>menos de 1 segundo</strong>, por cada VLAN.</p></div>
+ </div>
+
+ <div class="diagram-box">
+  <svg viewBox="0 0 620 160" xmlns="http://www.w3.org/2000/svg">
+   <rect x="40" y="60" width="110" height="46" fill="#12121a" stroke="#00fff2"/><text x="95" y="88" fill="#e8e8f0" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">Switch A</text>
+   <rect x="470" y="60" width="110" height="46" fill="#12121a" stroke="#00fff2"/><text x="525" y="88" fill="#e8e8f0" font-size="12" font-weight="700" font-family="Inter" text-anchor="middle">Switch B</text>
+   <line x1="150" y1="70" x2="470" y2="70" stroke="#39ff88" stroke-width="3"/>
+   <text x="310" y="58" fill="#39ff88" font-size="11" font-family="Inter" text-anchor="middle">FORWARDING (ruta activa)</text>
+   <line x1="150" y1="100" x2="470" y2="100" stroke="#ff2bd6" stroke-width="3" stroke-dasharray="6 4"/>
+   <text x="310" y="122" fill="#ff2bd6" font-size="11" font-family="Inter" text-anchor="middle">BLOCKING (respaldo, sin tráfico)</text>
+  </svg>
+  <p class="cap">STP deja un enlace activo y el otro bloqueado; si el activo falla, el bloqueado toma su lugar.</p>
+ </div>
+
+ <h2 class="section-title">Estados de puerto en 802.1D</h2>
+ <table>
+  <tr><th>Estado</th><th>Qué hace</th></tr>
+  <tr><td>Blocking</td><td>No reenvía tramas, solo escucha BPDUs</td></tr>
+  <tr><td>Listening</td><td>Empieza a participar en la elección de topología, aún no reenvía</td></tr>
+  <tr><td>Learning</td><td>Aprende direcciones MAC, todavía no reenvía tramas de datos</td></tr>
+  <tr><td>Forwarding</td><td>Reenvía tramas normalmente: el puerto está totalmente activo</td></tr>
+  <tr><td>Disabled</td><td>Puerto apagado administrativamente</td></tr>
+ </table>
+
+ <div class="example-box">
+  <span class="tag">Ejemplo fácil</span>
+  Piensa en un cruce con dos calles que llevan al mismo destino. STP es como un semáforo inteligente que cierra temporalmente una de las dos para evitar choques (el bucle), pero la deja lista para abrirla de inmediato si la calle principal se bloquea por un accidente.
+ </div>
+</section>
+
+<footer class="navfoot">
+ <a class="navbtn" href="index1.html">← 1.3.1 Bucles de conmutación</a>
+ <a class="navbtn" href="index3.html">Siguiente: 1.3.3 Root Bridge y costos →</a>
+</footer>
+
+</body>
+</html>
