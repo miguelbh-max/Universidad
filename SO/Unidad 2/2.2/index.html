@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.2 ¿Por qué la extensión .sh? — Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --card:#111826; --card-hover:#151f30;
+    --border:#1d2634; --border-glow:#00ff9d55;
+    --neon:#00ff9d; --neon2:#00d4ff; --warn:#ffb800;
+    --text:#e7edf3; --text-dim:#8b96a8; --text-dimmer:#5c6779;
+    --glow: 0 0 24px rgba(0,255,157,.25);
+    --glow2: 0 0 24px rgba(0,212,255,.25);
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:radial-gradient(circle at 15% 0%, rgba(0,255,157,.06), transparent 40%), radial-gradient(circle at 85% 20%, rgba(0,212,255,.06), transparent 40%), var(--bg); color:var(--text); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; overflow-x:hidden;}
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif;}
+  code,.mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:var(--neon);}
+  ::selection{background:var(--neon); color:#000;}
+
+  .topnav{position:sticky; top:0; z-index:50; background:rgba(10,14,20,.85); backdrop-filter: blur(10px); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:space-between; align-items:center;}
+  .topnav .brand{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.95rem;}
+  .topnav .brand span{color:var(--neon);}
+  .breadcrumb{font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--text-dim);}
+  .breadcrumb b{color:var(--neon2);}
+
+  .hero{max-width:1100px; margin:0 auto; padding:70px 24px 40px; display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:center;}
+  .hero .tag{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--neon); border:1px solid var(--border-glow); border-radius:100px; padding:5px 14px; margin-bottom:18px; letter-spacing:.06em;}
+  .hero h1{font-size:clamp(1.9rem, 4vw, 2.9rem); line-height:1.15; margin-bottom:16px; opacity:0; animation: rise .7s ease forwards;}
+  .hero h1 .accent{color:var(--neon); text-shadow:0 0 30px rgba(0,255,157,.5);}
+  .hero p.lead{color:var(--text-dim); font-size:1.02rem; max-width:48ch; opacity:0; animation: rise .7s ease .15s forwards;}
+  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .hero-visual{display:flex; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px; box-shadow:var(--glow);}
+  .hero-visual img{width:120px; filter:drop-shadow(0 0 18px rgba(0,255,157,.35));}
+
+  section{max-width:1100px; margin:0 auto; padding:50px 24px;}
+  .section-head{margin-bottom:28px;}
+  .section-head .eyebrow{font-family:'IBM Plex Mono',monospace; color:var(--neon2); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase;}
+  .section-head h2{font-size:1.6rem; margin-top:8px;}
+
+  /* MITO VS REALIDAD TOGGLE */
+  .toggle-wrap{display:flex; justify-content:center; gap:10px; margin-bottom:24px;}
+  .toggle-btn{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--text-dim); background:var(--card); border:1px solid var(--border); border-radius:100px; padding:10px 22px; cursor:pointer; transition:.2s;}
+  .toggle-btn.active{color:#1a0a00; background:var(--warn); border-color:var(--warn); font-weight:600;}
+  .toggle-btn.active.real{color:#00110a; background:var(--neon); border-color:var(--neon);}
+  .os-panel{display:none; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:26px;}
+  .os-panel.active{display:block;}
+  .os-panel h3{color:var(--warn); margin-bottom:10px; font-size:1.05rem;}
+  .os-panel.real h3{color:var(--neon);}
+  .os-panel p{color:var(--text-dim); font-size:.92rem;}
+  .os-panel .example{margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:.85rem; background:#000a; padding:10px 14px; border-radius:8px; color:var(--neon2);}
+
+  /* SHEBANG BREAKDOWN */
+  .shebang-wrap{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px 24px; text-align:center;}
+  .shebang{font-family:'IBM Plex Mono',monospace; font-size:clamp(1.3rem,4vw,2rem); display:inline-flex; gap:2px; margin-bottom:18px; cursor:default;}
+  .shebang span{padding:4px 3px; border-radius:4px; transition:.15s;}
+  .shebang span.hash{color:var(--warn);}
+  .shebang span.bang{color:var(--neon2);}
+  .shebang span.path{color:var(--neon);}
+  .shebang span:hover{background:#ffffff14;}
+  #shebangText{margin-top:10px; font-size:.9rem; color:var(--text-dim); min-height:22px;}
+
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:1rem; padding:18px 4px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .faq-q .plus{color:var(--neon); transition:transform .25s; font-size:1.2rem;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease; color:var(--text-dim); font-size:.92rem;}
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:16px;}
+
+  footer{border-top:1px solid var(--border); margin-top:40px; padding:40px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; max-width:1100px; margin-left:auto; margin-right:auto;}
+  footer .fnote{color:var(--text-dimmer); font-size:.82rem;}
+  .nav-link{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--neon2); border:1px solid var(--border); padding:10px 18px; border-radius:100px; text-decoration:none; transition:.2s;}
+  .nav-link:hover{border-color:var(--neon2); box-shadow:var(--glow2);}
+
+  @media(max-width:760px){ .hero{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">SO<span>_I</span> · AEC-1061</div>
+  <div class="breadcrumb">Unidad 2 / <b>2.2 ¿Por qué .sh?</b></div>
+</nav>
+
+<div class="hero">
+  <div>
+    <span class="tag">UNIDAD 2 · SHELL SCRIPTING EN BASH</span>
+    <h1>2.2 ¿Por qué la extensión <span class="accent">.sh</span>?</h1>
+    <p class="lead">Mito vs. realidad: en Linux, la extensión del archivo no es lo que decide cómo se ejecuta.</p>
+  </div>
+  <div class="hero-visual">
+    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gnome-terminal.svg?width=200" alt="Icono de terminal">
+  </div>
+</div>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Compara los dos sistemas</span>
+    <h2>Windows vs. Linux: ¿quién decide cómo ejecutar un archivo?</h2>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" data-panel="win">🪟 Windows</button>
+    <button class="toggle-btn real" data-panel="linux">🐧 Linux</button>
+  </div>
+  <div class="os-panel active" id="win">
+    <h3>Mito: "la extensión decide todo"</h3>
+    <p>En Windows, la extensión (<span class="mono">.exe</span>, <span class="mono">.bat</span>) sí le indica al sistema operativo cómo tratar el archivo. Cambiar la extensión puede romper la forma en que se ejecuta.</p>
+    <div class="example">archivo.exe → el SO lo reconoce como programa ejecutable</div>
+  </div>
+  <div class="os-panel real" id="linux">
+    <h3>Realidad en GNU/Linux</h3>
+    <p>El kernel de Linux <b>no usa la extensión</b> para decidir nada: analiza el contenido real del archivo (sus primeros bytes). Usamos <span class="mono">.sh</span> solo por convención humana, y para que editores como nano o VS Code activen el coloreado de sintaxis.</p>
+    <div class="example">archivo.sh, archivo.txt o archivo sin extensión → todos pueden ejecutarse igual si tienen permiso y shebang</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Interactivo · pasa el cursor</span>
+    <h2>Lo que sí decide la ejecución: el Shebang</h2>
+  </div>
+  <div class="shebang-wrap">
+    <div class="shebang">
+      <span class="hash" data-msg="El símbolo # (hash) marca el inicio de la línea especial que el kernel interpreta antes que cualquier otra cosa.">#</span>
+      <span class="bang" data-msg="El símbolo ! (bang) junto al hash forma el 'Shebang': la señal que el kernel busca en los dos primeros bytes del archivo.">!</span>
+      <span class="path" data-msg="La ruta indica al kernel exactamente qué intérprete usar para ejecutar el resto del archivo — en este caso, Bash ubicado en /bin/bash.">/bin/bash</span>
+    </div>
+    <div id="shebangText">Pasa el cursor sobre cada parte del Shebang para ver su función.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Dudas frecuentes</span>
+    <h2>Preguntas y respuestas</h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item">
+      <button class="faq-q">Si no importa la extensión, ¿por qué todos usan .sh? <span class="plus">+</span></button>
+      <div class="faq-a">Es una convención de la comunidad que facilita reconocer a simple vista que un archivo es un script de shell, y activa el resaltado de sintaxis en la mayoría de los editores.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Qué pasa si olvido escribir el Shebang? <span class="plus">+</span></button>
+      <div class="faq-a">Al ejecutarlo directamente, el sistema podría usar el shell por defecto de la terminal actual (no siempre Bash), lo que puede causar comportamientos inesperados. Siempre incluye el Shebang.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿El Shebang funciona igual en cualquier lenguaje de script? <span class="plus">+</span></button>
+      <div class="faq-a">Sí. Por ejemplo <span class="mono">#!/usr/bin/python3</span> le dice al kernel que use Python en vez de Bash para interpretar el archivo.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a class="nav-link" href="../2.1/index.html">← Tema anterior: 2.1 Qué es un Script</a>
+  <a class="nav-link" href="../2.3/index.html">Siguiente tema: 2.3 Estructura de un Script →</a>
+</footer>
+
+<script>
+  document.querySelectorAll('.toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.os-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.panel).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.shebang span').forEach(span=>{
+    span.addEventListener('mouseenter', ()=>{
+      document.getElementById('shebangText').textContent = span.dataset.msg;
+    });
+  });
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('.faq-q').addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
