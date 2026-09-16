@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.3 Estructura Formal de un Script — Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --card:#111826; --card-hover:#151f30;
+    --border:#1d2634; --border-glow:#00ff9d55;
+    --neon:#00ff9d; --neon2:#00d4ff; --warn:#ffb800;
+    --text:#e7edf3; --text-dim:#8b96a8; --text-dimmer:#5c6779;
+    --glow: 0 0 24px rgba(0,255,157,.25);
+    --glow2: 0 0 24px rgba(0,212,255,.25);
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:radial-gradient(circle at 15% 0%, rgba(0,255,157,.06), transparent 40%), radial-gradient(circle at 85% 20%, rgba(0,212,255,.06), transparent 40%), var(--bg); color:var(--text); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; overflow-x:hidden;}
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif;}
+  code,.mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:var(--neon);}
+  ::selection{background:var(--neon); color:#000;}
+
+  .topnav{position:sticky; top:0; z-index:50; background:rgba(10,14,20,.85); backdrop-filter: blur(10px); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:space-between; align-items:center;}
+  .topnav .brand{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.95rem;}
+  .topnav .brand span{color:var(--neon);}
+  .breadcrumb{font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--text-dim);}
+  .breadcrumb b{color:var(--neon2);}
+
+  .hero{max-width:1100px; margin:0 auto; padding:70px 24px 40px; display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:center;}
+  .hero .tag{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--neon); border:1px solid var(--border-glow); border-radius:100px; padding:5px 14px; margin-bottom:18px; letter-spacing:.06em;}
+  .hero h1{font-size:clamp(1.9rem, 4vw, 2.9rem); line-height:1.15; margin-bottom:16px; opacity:0; animation: rise .7s ease forwards;}
+  .hero h1 .accent{color:var(--neon); text-shadow:0 0 30px rgba(0,255,157,.5);}
+  .hero p.lead{color:var(--text-dim); font-size:1.02rem; max-width:48ch; opacity:0; animation: rise .7s ease .15s forwards;}
+  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .hero-visual{display:flex; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px; box-shadow:var(--glow);}
+  .hero-visual img{width:110px; filter:drop-shadow(0 0 18px rgba(0,255,157,.35));}
+
+  section{max-width:1100px; margin:0 auto; padding:50px 24px;}
+  .section-head{margin-bottom:28px;}
+  .section-head .eyebrow{font-family:'IBM Plex Mono',monospace; color:var(--neon2); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase;}
+  .section-head h2{font-size:1.6rem; margin-top:8px;}
+
+  /* STEPPER */
+  .stepper{display:flex; flex-direction:column; gap:14px;}
+  .step{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:.2s;}
+  .step:hover{border-color:var(--border-glow);}
+  .step-head{display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer;}
+  .step-num{font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:600; color:var(--neon); background:#00ff9d15; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .step-title{font-family:'Space Grotesk',sans-serif; font-size:1.02rem; flex:1;}
+  .step-arrow{color:var(--text-dimmer); transition:transform .25s;}
+  .step.open .step-arrow{transform:rotate(90deg); color:var(--neon);}
+  .step-body{max-height:0; overflow:hidden; transition:max-height .35s ease;}
+  .step.open .step-body{max-height:500px;}
+  .step-body-inner{padding:0 20px 20px 72px; color:var(--text-dim); font-size:.92rem;}
+  .step-body-inner .mono-line{display:block; margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:.82rem; background:#000a; padding:8px 12px; border-radius:8px; color:var(--neon2); width:fit-content;}
+
+  /* CODE BLOCK */
+  .codeblock{background:#05070a; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--glow2); margin-top:10px;}
+  .codeblock-bar{background:#0d1420; padding:10px 16px; font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--text-dimmer); border-bottom:1px solid var(--border);}
+  .codeblock pre{padding:20px; font-family:'IBM Plex Mono',monospace; font-size:.8rem; color:#c9f7e0; overflow-x:auto; line-height:1.7;}
+  .codeblock .cm{color:var(--text-dimmer);}
+  .codeblock .kw{color:var(--neon2);}
+  .codeblock .str{color:var(--warn);}
+
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:1rem; padding:18px 4px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .faq-q .plus{color:var(--neon); transition:transform .25s; font-size:1.2rem;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease; color:var(--text-dim); font-size:.92rem;}
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:16px;}
+
+  footer{border-top:1px solid var(--border); margin-top:40px; padding:40px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; max-width:1100px; margin-left:auto; margin-right:auto;}
+  footer .fnote{color:var(--text-dimmer); font-size:.82rem;}
+  .nav-link{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--neon2); border:1px solid var(--border); padding:10px 18px; border-radius:100px; text-decoration:none; transition:.2s;}
+  .nav-link:hover{border-color:var(--neon2); box-shadow:var(--glow2);}
+
+  @media(max-width:760px){
+    .hero{grid-template-columns:1fr;}
+    .step-body-inner{padding-left:20px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">SO<span>_I</span> · AEC-1061</div>
+  <div class="breadcrumb">Unidad 2 / <b>2.3 Estructura de un Script</b></div>
+</nav>
+
+<div class="hero">
+  <div>
+    <span class="tag">UNIDAD 2 · SHELL SCRIPTING EN BASH</span>
+    <h1>2.3 Estructura Formal de un <span class="accent">Script</span>, Paso a Paso</h1>
+    <p class="lead">Toda la lógica de un script se reduce a tres pasos simples: crearlo, declarar el intérprete y escribir el código.</p>
+  </div>
+  <div class="hero-visual">
+    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gnome-terminal.svg?width=200" alt="Icono de terminal">
+  </div>
+</div>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Haz clic en cada paso</span>
+    <h2>De cero a script funcional</h2>
+  </div>
+  <div class="stepper">
+    <div class="step open">
+      <div class="step-head"><div class="step-num">1</div><div class="step-title">Creación con el editor</div><div class="step-arrow">▶</div></div>
+      <div class="step-body"><div class="step-body-inner">
+        Se crea el archivo con un editor de texto en la terminal, como nano.
+        <span class="mono-line">nano ~/mi_script.sh</span>
+      </div></div>
+    </div>
+    <div class="step">
+      <div class="step-head"><div class="step-num">2</div><div class="step-title">El Shebang (línea obligatoria)</div><div class="step-arrow">▶</div></div>
+      <div class="step-body"><div class="step-body-inner">
+        La primera línea debe ser exactamente <span class="mono">#!/bin/bash</span>. Le ordena al kernel: "carga el intérprete en /bin/bash y pásale el resto del archivo como instrucciones".
+        <span class="mono-line">#!/bin/bash</span>
+      </div></div>
+    </div>
+    <div class="step">
+      <div class="step-head"><div class="step-num">3</div><div class="step-title">Escribir el código del script</div><div class="step-arrow">▶</div></div>
+      <div class="step-body"><div class="step-body-inner">
+        Después del Shebang se escriben los comandos, uno por línea, tal como se teclearían en la terminal. Guardar en nano: <b>Ctrl+O</b>, Enter, salir con <b>Ctrl+X</b>.
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Ejemplo completo</span>
+    <h2>monitor_sistema.sh</h2>
+  </div>
+  <div class="codeblock">
+    <div class="codeblock-bar">monitor_sistema.sh</div>
+    <pre><span class="kw">#!/bin/bash</span>
+<span class="cm"># ========================================================</span>
+<span class="cm"># Script: monitor_sistema.sh</span>
+<span class="cm"># Propósito: Diagnosticar recursos del SO Ubuntu</span>
+<span class="cm"># ========================================================</span>
+
+<span class="cm"># 1. Variables del sistema</span>
+FECHA=$(date +<span class="str">"%Y-%m-%d %H:%M:%S"</span>)
+USUARIO=$(whoami)
+HOST=$(hostname)
+
+echo <span class="str">"=========================================="</span>
+echo <span class="str">" REPORTE DEL SISTEMA - $FECHA"</span>
+echo <span class="str">" Servidor: $HOST | Operador: $USUARIO"</span>
+echo <span class="str">"=========================================="</span>
+
+<span class="cm"># 2. Comprobación de memoria</span>
+echo <span class="str">"[*] Estado de la Memoria RAM:"</span>
+free -h | grep -E <span class="str">"total|Mem:"</span>
+
+<span class="cm"># 3. Comprobación de almacenamiento</span>
+echo <span class="str">"[*] Uso de Disco en la Partición Raíz (/):"</span>
+df -h / | tail -n 1
+
+exit 0</pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Dudas frecuentes</span>
+    <h2>Preguntas y respuestas</h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item">
+      <button class="faq-q">¿Las líneas que empiezan con # siempre son comentarios? <span class="plus">+</span></button>
+      <div class="faq-a">Sí, excepto la primera línea del archivo cuando forma el Shebang (<span class="mono">#!</span>). El resto de las líneas con # son ignoradas por Bash — sirven solo para documentar el código.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Qué hace $() en el script de ejemplo? <span class="plus">+</span></button>
+      <div class="faq-a">Ejecuta el comando dentro de los paréntesis y sustituye esa parte por su resultado. Por ejemplo, <span class="mono">$(whoami)</span> se reemplaza por el nombre del usuario actual.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Es obligatorio terminar el script con exit 0? <span class="plus">+</span></button>
+      <div class="faq-a">No es obligatorio, pero es buena práctica: indica explícitamente que el script terminó sin errores, lo cual es útil si otro script o proceso revisa el resultado de su ejecución.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a class="nav-link" href="../2.2/index.html">← Tema anterior: 2.2 ¿Por qué .sh?</a>
+  <a class="nav-link" href="../2.4/index.html">Siguiente tema: 2.4 Hacerlo Ejecutable →</a>
+</footer>
+
+<script>
+  document.querySelectorAll('.step-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      head.parentElement.classList.toggle('open');
+    });
+  });
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('.faq-q').addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
