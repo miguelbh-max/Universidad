@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.1 ¿Qué es un Script y por qué se usa? — Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --card:#111826; --card-hover:#151f30;
+    --border:#1d2634; --border-glow:#00ff9d55;
+    --neon:#00ff9d; --neon2:#00d4ff; --warn:#ffb800;
+    --text:#e7edf3; --text-dim:#8b96a8; --text-dimmer:#5c6779;
+    --glow: 0 0 24px rgba(0,255,157,.25);
+    --glow2: 0 0 24px rgba(0,212,255,.25);
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(0,255,157,.06), transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(0,212,255,.06), transparent 40%),
+      var(--bg);
+    color:var(--text); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; overflow-x:hidden;
+  }
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif;}
+  code,.mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:var(--neon);}
+  ::selection{background:var(--neon); color:#000;}
+
+  .topnav{position:sticky; top:0; z-index:50; background:rgba(10,14,20,.85); backdrop-filter: blur(10px); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:space-between; align-items:center;}
+  .topnav .brand{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.95rem;}
+  .topnav .brand span{color:var(--neon);}
+  .breadcrumb{font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--text-dim);}
+  .breadcrumb b{color:var(--neon2);}
+
+  .hero{max-width:1100px; margin:0 auto; padding:70px 24px 40px; display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:center;}
+  .hero .tag{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--neon); border:1px solid var(--border-glow); border-radius:100px; padding:5px 14px; margin-bottom:18px; letter-spacing:.06em;}
+  .hero h1{font-size:clamp(1.9rem, 4vw, 2.9rem); line-height:1.15; margin-bottom:16px; opacity:0; animation: rise .7s ease forwards;}
+  .hero h1 .accent{color:var(--neon); text-shadow:0 0 30px rgba(0,255,157,.5);}
+  .hero p.lead{color:var(--text-dim); font-size:1.02rem; max-width:48ch; opacity:0; animation: rise .7s ease .15s forwards;}
+  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .hero-visual{display:flex; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px; box-shadow:var(--glow);}
+  .hero-visual img{width:130px; filter:drop-shadow(0 0 18px rgba(0,255,157,.35));}
+
+  section{max-width:1100px; margin:0 auto; padding:50px 24px;}
+  .section-head{margin-bottom:28px;}
+  .section-head .eyebrow{font-family:'IBM Plex Mono',monospace; color:var(--neon2); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase;}
+  .section-head h2{font-size:1.6rem; margin-top:8px;}
+
+  .intro-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  .intro-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; transition:.25s;}
+  .intro-card:hover{border-color:var(--border-glow); box-shadow:var(--glow); transform:translateY(-3px);}
+  .intro-card h3{font-size:1rem; color:var(--neon); margin-bottom:8px;}
+  .intro-card p{color:var(--text-dim); font-size:.92rem;}
+
+  .compare{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .compare-col{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+  .compare-head{padding:14px 18px; font-family:'IBM Plex Mono',monospace; font-size:.85rem; font-weight:600; border-bottom:1px solid var(--border);}
+  .compare-head.bad{color:var(--warn); background:#2a1a0a;}
+  .compare-head.good{color:var(--neon); background:#0a2a1c;}
+  .compare-body{padding:18px 20px; font-family:'IBM Plex Mono',monospace; font-size:.82rem; color:var(--text-dim); display:flex; flex-direction:column; gap:10px;}
+  .compare-body .line{background:#000a; padding:8px 10px; border-radius:6px;}
+  .compare-body .time{margin-top:10px; font-family:'IBM Plex Sans',sans-serif; color:var(--text-dimmer); font-size:.8rem;}
+  .compare-body .time b{color:var(--warn);}
+  .compare-body .time.good-t b{color:var(--neon);}
+
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:1rem; padding:18px 4px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .faq-q .plus{color:var(--neon); transition:transform .25s; font-size:1.2rem;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease; color:var(--text-dim); font-size:.92rem;}
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:16px;}
+
+  footer{border-top:1px solid var(--border); margin-top:40px; padding:40px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; max-width:1100px; margin-left:auto; margin-right:auto;}
+  footer .fnote{color:var(--text-dimmer); font-size:.82rem;}
+  .nav-link{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--neon2); border:1px solid var(--border); padding:10px 18px; border-radius:100px; text-decoration:none; transition:.2s;}
+  .nav-link:hover{border-color:var(--neon2); box-shadow:var(--glow2);}
+
+  @media(max-width:760px){
+    .hero{grid-template-columns:1fr;}
+    .intro-grid{grid-template-columns:1fr;}
+    .compare{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">SO<span>_I</span> · AEC-1061</div>
+  <div class="breadcrumb">Unidad 2 / <b>2.1 Qué es un Script</b></div>
+</nav>
+
+<div class="hero">
+  <div>
+    <span class="tag">UNIDAD 2 · SHELL SCRIPTING EN BASH</span>
+    <h1>2.1 ¿Qué es un <span class="accent">Script</span> y por qué se usa?</h1>
+    <p class="lead">Automatiza en segundos lo que tomaría minutos escribir a mano, comando por comando.</p>
+  </div>
+  <div class="hero-visual">
+    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gnu-bash-logo.svg?width=260" alt="Logo de GNU Bash">
+  </div>
+</div>
+
+<section>
+  <div class="intro-grid">
+    <div class="intro-card">
+      <h3>¿Qué es un script?</h3>
+      <p>Un archivo de texto plano que contiene una secuencia ordenada de comandos del sistema operativo. El script los ejecuta uno tras otro, de forma automática.</p>
+    </div>
+    <div class="intro-card">
+      <h3>¿Por qué se usa?</h3>
+      <p>En lugar de escribir 10 comandos manualmente cada vez que se arranca un servicio o se hace un respaldo, el script ejecuta todo en un segundo — siempre igual, sin errores de captura.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">La diferencia en la práctica</span>
+    <h2>Sin script vs. con script</h2>
+  </div>
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-head bad">⏱️ Sin script — 4 comandos a mano</div>
+      <div class="compare-body">
+        <div class="line">$ date</div>
+        <div class="line">$ free -h</div>
+        <div class="line">$ df -h /</div>
+        <div class="line">$ echo "Reporte generado"</div>
+        <div class="time">Repetir esto <b>cada vez</b> que necesitas el reporte, sin errores de dedo.</div>
+      </div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-head good">⚡ Con script — 1 comando</div>
+      <div class="compare-body">
+        <div class="line">$ ./monitor_sistema.sh</div>
+        <div class="line" style="color:var(--text-dimmer)">→ ejecuta las mismas 4 tareas automáticamente</div>
+        <div class="time good-t">Un <b>solo comando</b>, siempre el mismo resultado, cero errores.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Dudas frecuentes</span>
+    <h2>Preguntas y respuestas</h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item">
+      <button class="faq-q">¿Un script reemplaza a la programación tradicional? <span class="plus">+</span></button>
+      <div class="faq-a">No del todo. Un script automatiza tareas del sistema operativo (comandos, archivos, servicios). Para lógica compleja de aplicaciones se usan lenguajes de programación completos, aunque ambos mundos se combinan seguido.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿En qué lenguaje están escritos los scripts de este curso? <span class="plus">+</span></button>
+      <div class="faq-a">En Bash, el shell (intérprete de comandos) por defecto de Ubuntu y la mayoría de distribuciones Linux.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Puedo automatizar cualquier tarea del sistema con un script? <span class="plus">+</span></button>
+      <div class="faq-a">Prácticamente cualquier tarea que puedas hacer con comandos de terminal: respaldos, monitoreo, instalación de programas, configuración de red y más — como verás en las siguientes prácticas.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a class="nav-link" href="../../Unidad%201/1.2/index.html">← Unidad 1: 1.2 Permisos de Linux</a>
+  <a class="nav-link" href="../2.2/index.html">Siguiente tema: 2.2 ¿Por qué .sh? →</a>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('.faq-q').addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
