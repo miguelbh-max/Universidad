@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.2 El Sistema de Permisos de Linux — Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --card:#111826; --card-hover:#151f30;
+    --border:#1d2634; --border-glow:#00ff9d55;
+    --neon:#00ff9d; --neon2:#00d4ff; --warn:#ffb800;
+    --text:#e7edf3; --text-dim:#8b96a8; --text-dimmer:#5c6779;
+    --glow: 0 0 24px rgba(0,255,157,.25);
+    --glow2: 0 0 24px rgba(0,212,255,.25);
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(0,255,157,.06), transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(0,212,255,.06), transparent 40%),
+      var(--bg);
+    color:var(--text); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; overflow-x:hidden;
+  }
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif;}
+  code,.mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:var(--neon);}
+  ::selection{background:var(--neon); color:#000;}
+
+  .topnav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,14,20,.85); backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--border);
+    padding:14px 24px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .topnav .brand{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.95rem;}
+  .topnav .brand span{color:var(--neon);}
+  .breadcrumb{font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--text-dim);}
+  .breadcrumb b{color:var(--neon2);}
+
+  .hero{
+    max-width:1100px; margin:0 auto; padding:70px 24px 40px;
+    display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:center;
+  }
+  .hero .tag{
+    display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.72rem;
+    color:var(--neon); border:1px solid var(--border-glow); border-radius:100px;
+    padding:5px 14px; margin-bottom:18px; letter-spacing:.06em;
+  }
+  .hero h1{font-size:clamp(1.9rem, 4vw, 2.9rem); line-height:1.15; margin-bottom:16px; opacity:0; animation: rise .7s ease forwards;}
+  .hero h1 .accent{color:var(--neon); text-shadow:0 0 30px rgba(0,255,157,.5);}
+  .hero p.lead{color:var(--text-dim); font-size:1.02rem; max-width:48ch; opacity:0; animation: rise .7s ease .15s forwards;}
+  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+  .hero-visual{
+    display:flex; align-items:center; justify-content:center;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:30px; box-shadow:var(--glow);
+  }
+  .hero-visual img{width:100px; filter:drop-shadow(0 0 18px rgba(0,255,157,.35));}
+
+  section{max-width:1100px; margin:0 auto; padding:50px 24px;}
+  .section-head{margin-bottom:28px;}
+  .section-head .eyebrow{font-family:'IBM Plex Mono',monospace; color:var(--neon2); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase;}
+  .section-head h2{font-size:1.6rem; margin-top:8px;}
+
+  .intro-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .intro-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; text-align:center;
+    transition:.25s;
+  }
+  .intro-card:hover{border-color:var(--border-glow); box-shadow:var(--glow); transform:translateY(-3px);}
+  .intro-card .letter{font-family:'IBM Plex Mono',monospace; font-size:1.8rem; color:var(--neon); font-weight:600;}
+  .intro-card h3{font-size:.95rem; margin:8px 0 6px;}
+  .intro-card p{color:var(--text-dim); font-size:.85rem;}
+
+  /* PERMISSION STRING BREAKDOWN */
+  .breakdown-wrap{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px 24px;
+    text-align:center;
+  }
+  .perm-string{
+    font-family:'IBM Plex Mono',monospace; font-size:clamp(1.4rem,4vw,2.2rem); letter-spacing:.08em;
+    display:inline-flex; gap:2px; margin-bottom:18px; cursor:default;
+  }
+  .perm-string span{
+    padding:4px 2px; border-radius:4px; transition:.15s;
+  }
+  .perm-string span.type{color:var(--text-dimmer);}
+  .perm-string span.u{color:var(--neon);} .perm-string span.g{color:var(--neon2);} .perm-string span.o{color:var(--warn);}
+  .perm-string span:hover{background:#ffffff14;}
+  .perm-legend{display:flex; justify-content:center; gap:26px; flex-wrap:wrap; font-size:.85rem; color:var(--text-dim);}
+  .perm-legend .dot{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px;}
+  .perm-legend .u-dot{background:var(--neon);} .perm-legend .g-dot{background:var(--neon2);} .perm-legend .o-dot{background:var(--warn);}
+  #breakdownText{margin-top:16px; font-size:.9rem; color:var(--text-dim); min-height:22px;}
+
+  /* OCTAL TABLE */
+  table.octal{width:100%; border-collapse:collapse; margin-top:10px;}
+  table.octal th, table.octal td{
+    padding:12px 14px; text-align:left; border-bottom:1px solid var(--border); font-size:.88rem;
+  }
+  table.octal th{color:var(--text-dimmer); font-family:'IBM Plex Mono',monospace; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em;}
+  table.octal td.mono{color:var(--neon);}
+
+  /* CALCULATOR */
+  .calc{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:26px;
+    display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center;
+  }
+  .calc-grid{display:grid; grid-template-columns:80px repeat(3,1fr); gap:10px 16px; align-items:center;}
+  .calc-grid .head{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--text-dimmer); text-align:center; text-transform:uppercase;}
+  .calc-grid .label{font-family:'IBM Plex Mono',monospace; font-size:.85rem;}
+  .calc-grid .label.u{color:var(--neon);} .calc-grid .label.g{color:var(--neon2);} .calc-grid .label.o{color:var(--warn);}
+  .chk{display:flex; justify-content:center;}
+  .chk input{width:18px; height:18px; accent-color:var(--neon); cursor:pointer;}
+  .calc-result{text-align:center; border-left:1px solid var(--border); padding-left:24px;}
+  .calc-result .octal-num{font-family:'IBM Plex Mono',monospace; font-size:2.6rem; color:var(--neon); font-weight:600; text-shadow:0 0 20px rgba(0,255,157,.4);}
+  .calc-result .sym{font-family:'IBM Plex Mono',monospace; font-size:1rem; color:var(--neon2); margin-top:6px;}
+  .calc-result .cmd-preview{margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:.8rem; background:#000a; padding:8px 12px; border-radius:8px; color:var(--text-dim);}
+
+  .chmod-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-top:10px;}
+  .chmod-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; transition:.2s;}
+  .chmod-card:hover{border-color:var(--border-glow); box-shadow:var(--glow); transform:translateY(-3px);}
+  .chmod-card .cmd{font-family:'IBM Plex Mono',monospace; color:var(--neon); font-size:.95rem; margin-bottom:8px;}
+  .chmod-card p{color:var(--text-dim); font-size:.85rem;}
+
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:1rem; padding:18px 4px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .faq-q .plus{color:var(--neon); transition:transform .25s; font-size:1.2rem;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease; color:var(--text-dim); font-size:.92rem;}
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:16px;}
+
+  footer{
+    border-top:1px solid var(--border); margin-top:40px; padding:40px 24px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+    max-width:1100px; margin-left:auto; margin-right:auto;
+  }
+  footer .fnote{color:var(--text-dimmer); font-size:.82rem;}
+  .nav-link{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--neon2); border:1px solid var(--border); padding:10px 18px; border-radius:100px; text-decoration:none; transition:.2s;}
+  .nav-link:hover{border-color:var(--neon2); box-shadow:var(--glow2);}
+
+  @media(max-width:760px){
+    .hero{grid-template-columns:1fr;}
+    .intro-grid{grid-template-columns:1fr;}
+    .calc{grid-template-columns:1fr;}
+    .calc-result{border-left:none; border-top:1px solid var(--border); padding-left:0; padding-top:20px;}
+    .calc-grid{grid-template-columns:60px repeat(3,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">SO<span>_I</span> · AEC-1061</div>
+  <div class="breadcrumb">Unidad 1 / <b>1.2 Permisos de Linux</b></div>
+</nav>
+
+<div class="hero">
+  <div>
+    <span class="tag">UNIDAD 1 · INTRODUCCIÓN A LOS SISTEMAS OPERATIVOS</span>
+    <h1>1.2 El Sistema de <span class="accent">Permisos de Linux</span></h1>
+    <p class="lead">Todo archivo en Linux vive protegido por tres niveles de acceso. Entender esta lógica es la base para usar <span class="mono">chmod</span> con seguridad.</p>
+  </div>
+  <div class="hero-visual">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/special:filepath/Padlock.svg?width=200" alt="Candado, símbolo de permisos y seguridad">
+  </div>
+</div>
+
+<section>
+  <div class="intro-grid">
+    <div class="intro-card">
+      <div class="letter">u</div>
+      <h3>User (dueño)</h3>
+      <p>La persona propietaria del archivo.</p>
+    </div>
+    <div class="intro-card">
+      <div class="letter">g</div>
+      <h3>Group (grupo)</h3>
+      <p>El grupo de trabajo asignado al archivo.</p>
+    </div>
+    <div class="intro-card">
+      <div class="letter">o</div>
+      <h3>Others (otros)</h3>
+      <p>Cualquier otro usuario del sistema.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Interactivo · pasa el cursor</span>
+    <h2>Así se lee la salida de <span class="mono">ls -l</span></h2>
+  </div>
+  <div class="breakdown-wrap">
+    <div class="perm-string">
+      <span class="type" data-msg="Tipo de archivo: '-' regular, 'd' directorio, 'l' enlace simbólico.">-</span>
+      <span class="u" data-msg="Dueño (u): read + write + execute → puede leer, editar y ejecutar el archivo.">rwx</span>
+      <span class="g" data-msg="Grupo (g): read + execute → puede leer y ejecutar, pero no modificar.">r-x</span>
+      <span class="o" data-msg="Otros (o): solo read → cualquier otro usuario solo puede leer el archivo.">r--</span>
+    </div>
+    <div class="perm-legend">
+      <span><span class="dot u-dot"></span>Dueño</span>
+      <span><span class="dot g-dot"></span>Grupo</span>
+      <span><span class="dot o-dot"></span>Otros</span>
+    </div>
+    <div id="breakdownText">Pasa el cursor sobre cada bloque de letras para ver su significado.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Base numérica</span>
+    <h2>Notación octal</h2>
+  </div>
+  <table class="octal">
+    <tr><th>Permiso</th><th>Letra</th><th>Valor</th></tr>
+    <tr><td>Lectura</td><td class="mono">r</td><td class="mono">4</td></tr>
+    <tr><td>Escritura</td><td class="mono">w</td><td class="mono">2</td></tr>
+    <tr><td>Ejecución</td><td class="mono">x</td><td class="mono">1</td></tr>
+    <tr><td>rwx completo</td><td class="mono">rwx</td><td class="mono">4+2+1 = 7</td></tr>
+    <tr><td>Solo lectura y ejecución</td><td class="mono">r-x</td><td class="mono">4+0+1 = 5</td></tr>
+    <tr><td>Solo lectura</td><td class="mono">r--</td><td class="mono">4+0+0 = 4</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Pruébalo tú mismo</span>
+    <h2>Calculadora de permisos</h2>
+  </div>
+  <div class="calc">
+    <div class="calc-grid">
+      <div></div><div class="head">Leer</div><div class="head">Escribir</div><div class="head">Ejecutar</div>
+      <div class="label u">u (dueño)</div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="u" data-bit="4" checked></div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="u" data-bit="2" checked></div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="u" data-bit="1"></div>
+      <div class="label g">g (grupo)</div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="g" data-bit="4" checked></div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="g" data-bit="2"></div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="g" data-bit="1"></div>
+      <div class="label o">o (otros)</div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="o" data-bit="4" checked></div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="o" data-bit="2"></div>
+      <div class="chk"><input type="checkbox" class="perm-chk" data-who="o" data-bit="1"></div>
+    </div>
+    <div class="calc-result">
+      <div class="octal-num" id="octalOut">644</div>
+      <div class="sym" id="symOut">rw-r--r--</div>
+      <div class="cmd-preview" id="cmdOut">chmod 644 archivo.txt</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Sintaxis en uso</span>
+    <h2>Ejemplos comunes de chmod</h2>
+  </div>
+  <div class="chmod-grid">
+    <div class="chmod-card">
+      <div class="cmd">chmod 755 script.sh</div>
+      <p>Dueño: todo. Grupo y otros: leer/ejecutar. Formato estándar para scripts ejecutables.</p>
+    </div>
+    <div class="chmod-card">
+      <div class="cmd">chmod 644 datos.txt</div>
+      <p>Dueño: lee/escribe. Grupo y otros: solo leen. Formato estándar para documentos.</p>
+    </div>
+    <div class="chmod-card">
+      <div class="cmd">chmod 600 clave.pem</div>
+      <p>Exclusivo para el dueño. Nadie más puede abrir el archivo — ideal para llaves privadas.</p>
+    </div>
+    <div class="chmod-card">
+      <div class="cmd">chmod +x script.sh</div>
+      <p>Notación simbólica: agrega ejecución a todos los niveles (equivale a <span class="mono">a+x</span>).</p>
+    </div>
+    <div class="chmod-card">
+      <div class="cmd">chmod u+x,g-w nota.txt</div>
+      <p>Agrega ejecución al dueño y retira escritura al grupo, en una sola instrucción.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Dudas frecuentes</span>
+    <h2>Preguntas y respuestas</h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item">
+      <button class="faq-q">¿Por qué no debo usar <span class="mono">chmod 777</span>? <span class="plus">+</span></button>
+      <div class="faq-a">777 da permiso total (leer, escribir y ejecutar) a cualquier usuario del sistema. Es un riesgo de seguridad grave y casi nunca es lo que realmente necesitas.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Qué diferencia hay entre notación octal y simbólica? <span class="plus">+</span></button>
+      <div class="faq-a">La octal (ej. 755) reemplaza los tres niveles completos de una vez. La simbólica (ej. u+x) modifica solo una parte sin tocar el resto de los permisos existentes.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Puedo cambiar el dueño de un archivo con chmod? <span class="plus">+</span></button>
+      <div class="faq-a">No. <span class="mono">chmod</span> cambia permisos; para cambiar el dueño o el grupo se usa <span class="mono">chown</span>.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a class="nav-link" href="../1.1/index.html">← Tema anterior: 1.1 Comandos esenciales</a>
+  <div class="fnote">Sistemas Operativos I · AEC-1061 · Unidad 1</div>
+</footer>
+
+<script>
+  // Permission string hover
+  document.querySelectorAll('.perm-string span').forEach(span=>{
+    span.addEventListener('mouseenter', ()=>{
+      document.getElementById('breakdownText').textContent = span.dataset.msg;
+    });
+  });
+
+  // FAQ
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('.faq-q').addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+
+  // Permission calculator
+  function updateCalc(){
+    const who = {u:0, g:0, o:0};
+    document.querySelectorAll('.perm-chk').forEach(chk=>{
+      if(chk.checked) who[chk.dataset.who] += parseInt(chk.dataset.bit);
+    });
+    const toSym = v => (v&4?'r':'-') + (v&2?'w':'-') + (v&1?'x':'-');
+    const octal = '' + who.u + who.g + who.o;
+    const sym = toSym(who.u) + toSym(who.g) + toSym(who.o);
+    document.getElementById('octalOut').textContent = octal;
+    document.getElementById('symOut').textContent = sym;
+    document.getElementById('cmdOut').textContent = 'chmod ' + octal + ' archivo.txt';
+  }
+  document.querySelectorAll('.perm-chk').forEach(chk=>chk.addEventListener('change', updateCalc));
+  updateCalc();
+</script>
+</body>
+</html>
