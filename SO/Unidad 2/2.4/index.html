@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.4 ¿Cómo Hacerlo Ejecutable? — Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --card:#111826; --card-hover:#151f30;
+    --border:#1d2634; --border-glow:#00ff9d55;
+    --neon:#00ff9d; --neon2:#00d4ff; --warn:#ffb800; --danger:#ff5f56;
+    --text:#e7edf3; --text-dim:#8b96a8; --text-dimmer:#5c6779;
+    --glow: 0 0 24px rgba(0,255,157,.25);
+    --glow2: 0 0 24px rgba(0,212,255,.25);
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:radial-gradient(circle at 15% 0%, rgba(0,255,157,.06), transparent 40%), radial-gradient(circle at 85% 20%, rgba(0,212,255,.06), transparent 40%), var(--bg); color:var(--text); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; overflow-x:hidden;}
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif;}
+  code,.mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:var(--neon);}
+  ::selection{background:var(--neon); color:#000;}
+
+  .topnav{position:sticky; top:0; z-index:50; background:rgba(10,14,20,.85); backdrop-filter: blur(10px); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:space-between; align-items:center;}
+  .topnav .brand{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.95rem;}
+  .topnav .brand span{color:var(--neon);}
+  .breadcrumb{font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--text-dim);}
+  .breadcrumb b{color:var(--neon2);}
+
+  .hero{max-width:1100px; margin:0 auto; padding:70px 24px 40px; display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:center;}
+  .hero .tag{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--neon); border:1px solid var(--border-glow); border-radius:100px; padding:5px 14px; margin-bottom:18px; letter-spacing:.06em;}
+  .hero h1{font-size:clamp(1.9rem, 4vw, 2.9rem); line-height:1.15; margin-bottom:16px; opacity:0; animation: rise .7s ease forwards;}
+  .hero h1 .accent{color:var(--neon); text-shadow:0 0 30px rgba(0,255,157,.5);}
+  .hero p.lead{color:var(--text-dim); font-size:1.02rem; max-width:48ch; opacity:0; animation: rise .7s ease .15s forwards;}
+  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .hero-visual{display:flex; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px; box-shadow:var(--glow);}
+  .hero-visual img{width:100px; filter:drop-shadow(0 0 18px rgba(0,255,157,.35));}
+
+  section{max-width:1100px; margin:0 auto; padding:50px 24px;}
+  .section-head{margin-bottom:28px;}
+  .section-head .eyebrow{font-family:'IBM Plex Mono',monospace; color:var(--neon2); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase;}
+  .section-head h2{font-size:1.6rem; margin-top:8px;}
+
+  .intro-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  .intro-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; transition:.25s;}
+  .intro-card:hover{border-color:var(--border-glow); box-shadow:var(--glow); transform:translateY(-3px);}
+  .intro-card h3{font-size:1rem; color:var(--neon); margin-bottom:8px;}
+  .intro-card p{color:var(--text-dim); font-size:.92rem;}
+
+  /* TERMINAL DEMO - STEP THROUGH */
+  .terminal-demo{background:#05070a; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--glow2);}
+  .terminal-bar{background:#0d1420; padding:10px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--border);}
+  .terminal-bar span.dot{width:11px; height:11px; border-radius:50%; display:inline-block;}
+  .terminal-bar .r{background:#ff5f56;} .terminal-bar .y{background:#ffbd2e;} .terminal-bar .g{background:#27c93f;}
+  .terminal-bar .title{margin-left:10px; font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--text-dimmer);}
+  .terminal-body{padding:20px; font-family:'IBM Plex Mono',monospace; font-size:.85rem; min-height:130px; color:#c9f7e0;}
+  .terminal-body .line{margin-bottom:6px;}
+  .terminal-body .prompt{color:var(--neon2);}
+  .terminal-body .err{color:var(--danger);}
+  .terminal-body .ok{color:var(--neon);}
+  .demo-buttons{display:flex; flex-wrap:wrap; gap:10px; padding:16px 20px; border-top:1px solid var(--border); background:#0a0f18;}
+  .demo-buttons button{font-family:'IBM Plex Mono',monospace; font-size:.78rem; background:transparent; color:var(--text-dim); border:1px solid var(--border); border-radius:8px; padding:7px 12px; cursor:pointer; transition:.2s;}
+  .demo-buttons button:hover{border-color:var(--neon); color:var(--neon);}
+  .demo-buttons button:disabled{opacity:.35; cursor:not-allowed;}
+
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:1rem; padding:18px 4px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .faq-q .plus{color:var(--neon); transition:transform .25s; font-size:1.2rem;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease; color:var(--text-dim); font-size:.92rem;}
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:16px;}
+
+  footer{border-top:1px solid var(--border); margin-top:40px; padding:40px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; max-width:1100px; margin-left:auto; margin-right:auto;}
+  footer .fnote{color:var(--text-dimmer); font-size:.82rem;}
+  .nav-link{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--neon2); border:1px solid var(--border); padding:10px 18px; border-radius:100px; text-decoration:none; transition:.2s;}
+  .nav-link:hover{border-color:var(--neon2); box-shadow:var(--glow2);}
+
+  @media(max-width:760px){ .hero{grid-template-columns:1fr;} .intro-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">SO<span>_I</span> · AEC-1061</div>
+  <div class="breadcrumb">Unidad 2 / <b>2.4 Hacerlo Ejecutable</b></div>
+</nav>
+
+<div class="hero">
+  <div>
+    <span class="tag">UNIDAD 2 · SHELL SCRIPTING EN BASH</span>
+    <h1>2.4 ¿Cómo Hacerlo <span class="accent">Ejecutable</span>?</h1>
+    <p class="lead">Un script recién guardado no se puede ejecutar todavía. Aquí entra <span class="mono">chmod +x</span>.</p>
+  </div>
+  <div class="hero-visual">
+    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Open%20Padlock.svg?width=200" alt="Candado abierto, símbolo de permiso de ejecución otorgado">
+  </div>
+</div>
+
+<section>
+  <div class="intro-grid">
+    <div class="intro-card">
+      <h3>¿Por qué falla al principio?</h3>
+      <p>Por seguridad, los editores de texto crean archivos nuevos sin el bit de ejecución (permisos 644 o 664). El sistema se niega a correrlo aunque el contenido sea correcto.</p>
+    </div>
+    <div class="intro-card">
+      <h3>La solución</h3>
+      <p><span class="mono">chmod +x archivo.sh</span> agrega el permiso de ejecución a todos los niveles. A partir de ahí, <span class="mono">./archivo.sh</span> funciona con normalidad.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Simulador · sigue los pasos en orden</span>
+    <h2>De "permiso denegado" a ejecución exitosa</h2>
+  </div>
+  <div class="terminal-demo">
+    <div class="terminal-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">alumno@ubuntu: ~</span>
+    </div>
+    <div class="terminal-body" id="termBody">
+      <div class="line">Presiona los pasos abajo, en orden, para ver qué pasa.</div>
+    </div>
+    <div class="demo-buttons">
+      <button id="btn1">1. ./mi_script.sh</button>
+      <button id="btn2" disabled>2. chmod +x mi_script.sh</button>
+      <button id="btn3" disabled>3. ./mi_script.sh</button>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Dudas frecuentes</span>
+    <h2>Preguntas y respuestas</h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item">
+      <button class="faq-q">¿chmod +x cambia el contenido del script? <span class="plus">+</span></button>
+      <div class="faq-a">No. Solo modifica los metadatos de permisos del archivo (quién puede leer, escribir o ejecutar). El código del script queda exactamente igual.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Puedo ejecutar un script sin darle chmod +x? <span class="plus">+</span></button>
+      <div class="faq-a">Sí, pasándolo directamente al intérprete: <span class="mono">bash mi_script.sh</span>. En ese caso no se necesita el permiso de ejecución porque no se está "ejecutando" el archivo, sino que Bash lo está leyendo como argumento.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Por qué se usa ./ antes del nombre del script? <span class="plus">+</span></button>
+      <div class="faq-a">Por seguridad, Linux no busca comandos en la carpeta actual por defecto. El <span class="mono">./</span> le indica explícitamente "ejecuta el archivo que está aquí mismo, en esta carpeta".</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a class="nav-link" href="../2.3/index.html">← Tema anterior: 2.3 Estructura de un Script</a>
+  <a class="nav-link" href="../2.5/index.html">Siguiente tema: 2.5 Dónde Guardar un Script →</a>
+</footer>
+
+<script>
+  const termBody = document.getElementById('termBody');
+  const btn1 = document.getElementById('btn1');
+  const btn2 = document.getElementById('btn2');
+  const btn3 = document.getElementById('btn3');
+
+  function addLine(html){
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.innerHTML = html;
+    termBody.appendChild(div);
+  }
+
+  btn1.addEventListener('click', ()=>{
+    termBody.innerHTML = '';
+    addLine('<span class="prompt">alumno@ubuntu:~$</span> ./mi_script.sh');
+    addLine('<span class="err">bash: ./mi_script.sh: Permiso denegado</span>');
+    btn1.disabled = true; btn2.disabled = false;
+  });
+  btn2.addEventListener('click', ()=>{
+    addLine('<span class="prompt">alumno@ubuntu:~$</span> chmod +x mi_script.sh');
+    addLine('<span style="color:var(--text-dimmer)">(sin salida — el permiso de ejecución fue agregado)</span>');
+    btn2.disabled = true; btn3.disabled = false;
+  });
+  btn3.addEventListener('click', ()=>{
+    addLine('<span class="prompt">alumno@ubuntu:~$</span> ./mi_script.sh');
+    addLine('<span class="ok">Hola, alumno. Hoy es lun sep 15 2026.</span>');
+    btn3.disabled = true;
+  });
+
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('.faq-q').addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
