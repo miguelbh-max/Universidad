@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.6 Autoejecución al Iniciar el Sistema — Sistemas Operativos I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --card:#111826; --card-hover:#151f30;
+    --border:#1d2634; --border-glow:#00ff9d55;
+    --neon:#00ff9d; --neon2:#00d4ff; --warn:#ffb800;
+    --text:#e7edf3; --text-dim:#8b96a8; --text-dimmer:#5c6779;
+    --glow: 0 0 24px rgba(0,255,157,.25);
+    --glow2: 0 0 24px rgba(0,212,255,.25);
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:radial-gradient(circle at 15% 0%, rgba(0,255,157,.06), transparent 40%), radial-gradient(circle at 85% 20%, rgba(0,212,255,.06), transparent 40%), var(--bg); color:var(--text); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; overflow-x:hidden;}
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif;}
+  code,.mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:var(--neon);}
+  ::selection{background:var(--neon); color:#000;}
+
+  .topnav{position:sticky; top:0; z-index:50; background:rgba(10,14,20,.85); backdrop-filter: blur(10px); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:space-between; align-items:center;}
+  .topnav .brand{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:.95rem;}
+  .topnav .brand span{color:var(--neon);}
+  .breadcrumb{font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--text-dim);}
+  .breadcrumb b{color:var(--neon2);}
+
+  .hero{max-width:1100px; margin:0 auto; padding:70px 24px 40px; display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:center;}
+  .hero .tag{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--neon); border:1px solid var(--border-glow); border-radius:100px; padding:5px 14px; margin-bottom:18px; letter-spacing:.06em;}
+  .hero h1{font-size:clamp(1.9rem, 4vw, 2.9rem); line-height:1.15; margin-bottom:16px; opacity:0; animation: rise .7s ease forwards;}
+  .hero h1 .accent{color:var(--neon); text-shadow:0 0 30px rgba(0,255,157,.5);}
+  .hero p.lead{color:var(--text-dim); font-size:1.02rem; max-width:48ch; opacity:0; animation: rise .7s ease .15s forwards;}
+  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .hero-visual{display:flex; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px; box-shadow:var(--glow);}
+  .hero-visual img{width:150px; filter:drop-shadow(0 0 18px rgba(0,255,157,.35));}
+
+  section{max-width:1100px; margin:0 auto; padding:50px 24px;}
+  .section-head{margin-bottom:28px;}
+  .section-head .eyebrow{font-family:'IBM Plex Mono',monospace; color:var(--neon2); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase;}
+  .section-head h2{font-size:1.6rem; margin-top:8px;}
+
+  .intro-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  .intro-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; transition:.25s;}
+  .intro-card:hover{border-color:var(--border-glow); box-shadow:var(--glow); transform:translateY(-3px);}
+  .intro-card h3{font-size:1rem; color:var(--neon); margin-bottom:8px;}
+  .intro-card p{color:var(--text-dim); font-size:.92rem;}
+
+  .codeblock{background:#05070a; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--glow2); margin-top:10px;}
+  .codeblock-bar{background:#0d1420; padding:10px 16px; font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--text-dimmer); border-bottom:1px solid var(--border);}
+  .codeblock pre{padding:20px; font-family:'IBM Plex Mono',monospace; font-size:.8rem; color:#c9f7e0; overflow-x:auto; line-height:1.7;}
+  .codeblock .cm{color:var(--text-dimmer);}
+  .codeblock .kw{color:var(--neon2);}
+  .codeblock .str{color:var(--warn);}
+
+  .stepper{display:flex; flex-direction:column; gap:14px; margin-top:10px;}
+  .step{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:.2s;}
+  .step:hover{border-color:var(--border-glow);}
+  .step-head{display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer;}
+  .step-num{font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:600; color:var(--neon); background:#00ff9d15; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .step-title{font-family:'Space Grotesk',sans-serif; font-size:1.02rem; flex:1;}
+  .step-arrow{color:var(--text-dimmer); transition:transform .25s;}
+  .step.open .step-arrow{transform:rotate(90deg); color:var(--neon);}
+  .step-body{max-height:0; overflow:hidden; transition:max-height .35s ease;}
+  .step.open .step-body{max-height:300px;}
+  .step-body-inner{padding:0 20px 20px 72px; color:var(--text-dim); font-size:.92rem;}
+  .step-body-inner .mono-line{display:block; margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:.82rem; background:#000a; padding:8px 12px; border-radius:8px; color:var(--neon2); width:fit-content;}
+
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:1rem; padding:18px 4px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .faq-q .plus{color:var(--neon); transition:transform .25s; font-size:1.2rem;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease; color:var(--text-dim); font-size:.92rem;}
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:16px;}
+
+  footer{border-top:1px solid var(--border); margin-top:40px; padding:40px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; max-width:1100px; margin-left:auto; margin-right:auto;}
+  footer .fnote{color:var(--text-dimmer); font-size:.82rem;}
+  .nav-link{font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--neon2); border:1px solid var(--border); padding:10px 18px; border-radius:100px; text-decoration:none; transition:.2s;}
+  .nav-link:hover{border-color:var(--neon2); box-shadow:var(--glow2);}
+
+  @media(max-width:760px){
+    .hero{grid-template-columns:1fr;}
+    .intro-grid{grid-template-columns:1fr;}
+    .step-body-inner{padding-left:20px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">SO<span>_I</span> · AEC-1061</div>
+  <div class="breadcrumb">Unidad 2 / <b>2.6 Autoejecución al Iniciar</b></div>
+</nav>
+
+<div class="hero">
+  <div>
+    <span class="tag">UNIDAD 2 · SHELL SCRIPTING EN BASH</span>
+    <h1>2.6 ¿Cómo Hacerlo <span class="accent">Autoejecutable</span> al Iniciar el Sistema?</h1>
+    <p class="lead">Para que un script corra solo al encender el equipo — sin que nadie inicie sesión — se registra como servicio de <span class="mono">systemd</span>.</p>
+  </div>
+  <div class="hero-visual">
+    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Systemd-logo.svg?width=260" alt="Logo de systemd">
+  </div>
+</div>
+
+<section>
+  <div class="intro-grid">
+    <div class="intro-card">
+      <h3>¿Qué es systemd?</h3>
+      <p>Es el gestor de servicios y procesos de arranque de Ubuntu y la mayoría de distribuciones Linux modernas. Decide qué se enciende, en qué orden, y puede mantener corriendo un script de forma permanente.</p>
+    </div>
+    <div class="intro-card">
+      <h3>¿Por qué no basta con cron o .bashrc?</h3>
+      <p>Esas opciones dependen de que alguien inicie sesión o de que el sistema ya esté funcionando. Un servicio de systemd se ejecuta durante el arranque mismo, sin necesidad de una sesión de usuario activa.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Haz clic en cada paso</span>
+    <h2>Registrar el script como servicio</h2>
+  </div>
+  <div class="stepper">
+    <div class="step open">
+      <div class="step-head"><div class="step-num">1</div><div class="step-title">Crear el archivo de servicio</div><div class="step-arrow">▶</div></div>
+      <div class="step-body"><div class="step-body-inner">
+        Se crea un archivo <span class="mono">.service</span> dentro de la carpeta de systemd.
+        <span class="mono-line">sudo nano /etc/systemd/system/mi_tarea.service</span>
+      </div></div>
+    </div>
+    <div class="step">
+      <div class="step-head"><div class="step-num">2</div><div class="step-title">Recargar systemd y habilitar el servicio</div><div class="step-arrow">▶</div></div>
+      <div class="step-body"><div class="step-body-inner">
+        Se avisa a systemd que hay una unidad nueva, y se habilita para que se active en cada arranque.
+        <span class="mono-line">sudo systemctl daemon-reload</span>
+        <span class="mono-line">sudo systemctl enable mi_tarea.service</span>
+      </div></div>
+    </div>
+    <div class="step">
+      <div class="step-head"><div class="step-num">3</div><div class="step-title">Verificar que corrió solo</div><div class="step-arrow">▶</div></div>
+      <div class="step-body"><div class="step-body-inner">
+        Tras reiniciar, se confirma el estado del servicio.
+        <span class="mono-line">sudo systemctl status mi_tarea.service</span>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Contenido del archivo</span>
+    <h2>mi_tarea.service</h2>
+  </div>
+  <div class="codeblock">
+    <div class="codeblock-bar">/etc/systemd/system/mi_tarea.service</div>
+    <pre><span class="kw">[Unit]</span>
+Description=<span class="str">Servicio de Autoejecución al Arranque</span>
+After=network.target
+
+<span class="kw">[Service]</span>
+Type=oneshot
+ExecStart=/usr/local/bin/monitor-so
+
+<span class="kw">[Install]</span>
+WantedBy=multi-user.target</pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Dudas frecuentes</span>
+    <h2>Preguntas y respuestas</h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item">
+      <button class="faq-q">¿Qué significa Type=oneshot? <span class="plus">+</span></button>
+      <div class="faq-a">Le indica a systemd que el script hace su trabajo y termina (a diferencia de un servicio que corre indefinidamente, como un servidor web). Es el tipo correcto para scripts de una sola tarea, como un firewall o un respaldo.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Qué pasa si el script tiene un error? <span class="plus">+</span></button>
+      <div class="faq-a">systemd lo reporta como fallido en <span class="mono">systemctl status</span>, y los detalles del error quedan registrados en los logs del sistema, consultables con <span class="mono">journalctl -u mi_tarea.service</span>.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">¿Cómo desactivo la autoejecución si ya no la necesito? <span class="plus">+</span></button>
+      <div class="faq-a">Con <span class="mono">sudo systemctl disable mi_tarea.service</span>. El archivo .service sigue existiendo, pero deja de activarse en cada arranque.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a class="nav-link" href="../2.5/index.html">← Tema anterior: 2.5 Dónde Guardar un Script</a>
+  <div class="fnote">Fin de la Unidad 2 · Sistemas Operativos I</div>
+</footer>
+
+<script>
+  document.querySelectorAll('.step-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      head.parentElement.classList.toggle('open');
+    });
+  });
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.querySelector('.faq-q').addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
