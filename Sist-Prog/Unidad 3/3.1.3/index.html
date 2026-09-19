@@ -85,9 +85,9 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
   <header class="b"><h2>1 · El bus: 3 cables compartidos y un CS por dispositivo</h2></header>
   <div class="body">
     <div class="fig">
-<svg viewBox="0 0 600 260" role="img" aria-label="Bus SPI: un maestro conectado a una tarjeta SD y a una pantalla TFT con líneas compartidas SCK, MOSI y MISO y un CS por dispositivo">
+<svg viewBox="0 0 600 260" role="img" aria-label="Bus SPI: un maestro conectado a un registro 74HC595 con LEDs y a un Arduino esclavo, con líneas compartidas SCK, MOSI y MISO y un CS por dispositivo">
 <rect x="10" y="30" width="110" height="130" rx="6" fill="#FFD93D" stroke="#000" stroke-width="3"/>
-<text x="65" y="85" text-anchor="middle" font-size="14">Arduino</text><text x="65" y="103" text-anchor="middle" font-size="12">UNO R4</text><text x="65" y="130" text-anchor="middle" font-size="13">MAESTRO</text>
+<text x="65" y="85" text-anchor="middle" font-size="14">Arduino</text><text x="65" y="103" text-anchor="middle" font-size="12">Uno</text><text x="65" y="130" text-anchor="middle" font-size="13">MAESTRO</text>
 <g stroke-width="4" fill="none">
 <line x1="120" y1="50" x2="545" y2="50" stroke="#4D96FF"/>
 <line x1="120" y1="72" x2="545" y2="72" stroke="#6BCB77"/>
@@ -100,13 +100,14 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
 <line x1="395" y1="50" x2="395" y2="170" stroke="#4D96FF"/><line x1="415" y1="72" x2="415" y2="170" stroke="#6BCB77"/><line x1="435" y1="94" x2="435" y2="170" stroke="#FF6B9D"/>
 </g>
 <g fill="#000"><circle cx="215" cy="50" r="5"/><circle cx="235" cy="72" r="5"/><circle cx="255" cy="94" r="5"/><circle cx="395" cy="50" r="5"/><circle cx="415" cy="72" r="5"/><circle cx="435" cy="94" r="5"/></g>
-<text x="128" y="44" font-size="12" fill="#1a4fa0">SCK · reloj</text>
-<text x="128" y="66" font-size="12" fill="#2b7a3a">MOSI · maestro → esclavo</text>
-<text x="128" y="88" font-size="12" fill="#b3245a">MISO · esclavo → maestro</text>
-<text x="128" y="119" font-size="12" fill="#a85a00">CS2 · elige la pantalla</text>
-<text x="128" y="139" font-size="12" fill="#a85a00">CS1 · elige la SD</text>
-<g fill="#fff" stroke="#000" stroke-width="3"><rect x="200" y="170" width="110" height="70" rx="6"/><rect x="380" y="170" width="110" height="70" rx="6"/></g>
-<g text-anchor="middle"><text x="255" y="202" font-size="14">Tarjeta SD</text><text x="255" y="224" font-size="12">CS1</text><text x="435" y="202" font-size="14">Pantalla TFT</text><text x="435" y="224" font-size="12">CS2</text></g>
+<text x="492" y="44" font-size="12" fill="#1a4fa0">SCK</text>
+<text x="492" y="66" font-size="12" fill="#2b7a3a">MOSI</text>
+<text x="492" y="88" font-size="12" fill="#b3245a">MISO</text>
+<text x="128" y="119" font-size="12" fill="#a85a00">CS2</text>
+<text x="128" y="139" font-size="12" fill="#a85a00">CS1</text>
+<g fill="#fff" stroke="#000" stroke-width="3"><rect x="200" y="170" width="110" height="74" rx="6"/><rect x="380" y="170" width="110" height="74" rx="6"/></g>
+<g text-anchor="middle"><text x="255" y="194" font-size="14">74HC595</text><text x="255" y="212" font-size="12">8 LEDs</text><text x="255" y="231" font-size="12">CS1</text>
+<text x="435" y="194" font-size="14">Arduino</text><text x="435" y="212" font-size="12">esclavo</text><text x="435" y="231" font-size="12">CS2</text></g>
 </svg>
     </div>
     <div class="trio">
@@ -116,7 +117,7 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
       <div class="mini o"><b>CS</b>Chip Select. El maestro lo baja para llamar a un dispositivo. Cada uno tiene su propio CS.</div>
     </div>
     <div class="note">SPI no usa direcciones. Es como llamar por teléfono directo a una persona, en vez de gritar un número en la calle.</div>
-    <details><summary>Ejemplo práctico: registrar datos y mostrarlos</summary><div>Un Arduino guarda lecturas en una tarjeta SD y a la vez las dibuja en una pantalla TFT. Ambas comparten SCK, MOSI y MISO; solo cambian de CS. Cuando habla con la SD, el CS de la pantalla queda arriba y la pantalla ignora todo.</div></details>
+    <details><summary>Ejemplo práctico: LEDs y otro Arduino a la vez</summary><div>Un Arduino maestro manda un número al 74HC595 y este enciende 8 LEDs según sus bits; además habla con un segundo Arduino. Ambos comparten SCK, MOSI y MISO; solo cambian de CS. Cuando habla con uno, el CS del otro queda arriba y ese otro ignora todo. En el 74HC595, el pin de latch (RCLK) hace el papel del CS. Se puede armar completo en Tinkercad.</div></details>
   </div>
 </article>
 
@@ -135,7 +136,7 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
       <span class="chip" id="cnt"></span>
     </div>
     <div class="msg" id="fd"></div>
-    <details><summary>Ejemplo práctico: leer un bloque de la tarjeta SD</summary><div>Para leer 512 bytes, el maestro manda una orden y en el mismo ritmo va recibiendo los datos. Como no hay que esperar turnos, la transferencia de bloques grandes es muy rápida.</div></details>
+    <details><summary>Ejemplo práctico: intercambio entre dos Arduinos</summary><div>El maestro manda un byte y, al mismo tiempo, recibe otro del esclavo (por ejemplo, la lectura de un potenciómetro). Para un bloque de varios bytes se repite byte por byte, sin esperar turnos, y por eso la transferencia es tan rápida.</div></details>
   </div>
 </article>
 
@@ -158,7 +159,7 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
       <div class="mini w"><b>CPOL</b>Cómo descansa el reloj cuando nadie habla: abajo (0) o arriba (1).</div>
       <div class="mini w"><b>CPHA</b>En cuál flanco se lee el dato: el primero (0) o el segundo (1).</div>
     </div>
-    <div class="note">Ejemplo: si el Arduino lee en un flanco y el sensor cambia el dato en ese mismo instante, los datos llegan corruptos. La hoja de datos del chip dice qué modo usa.</div>
+    <div class="note">Ejemplo: si el Arduino lee en un flanco y el esclavo cambia el dato en ese mismo instante, los datos llegan corruptos. Maestro y esclavo deben usar el mismo modo.</div>
   </div>
 </article>
 
@@ -171,10 +172,10 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
       <div><b>Cables</b></div><div>2 en total</div><div>3 compartidos + 1 CS por dispositivo</div>
       <div><b>Velocidad</b></div><div>100 o 400 kHz</div><div>Megahertz</div>
       <div><b>A quién habla</b></div><div>Por dirección</div><div>Por línea CS</div>
-      <div><b>Ideal para</b></div><div>Sensores y pantallas pequeñas</div><div>SD, pantallas TFT, convertidores rápidos</div>
+      <div><b>Ideal para</b></div><div>Pocos datos entre varios dispositivos</div><div>Muchos datos, muy rápido</div>
     </div>
-    <h3>Dónde lo verás</h3>
-    <div class="row"><span class="chip">Tarjeta SD</span><span class="chip">Pantalla TFT a color</span><span class="chip">Convertidor ADC rápido</span><span class="chip">Módulo LoRa / radio</span><span class="chip">Memoria flash</span></div>
+    <h3>Qué puedes armar en Tinkercad</h3>
+    <div class="row"><span class="chip">74HC595 con 8 LEDs</span><span class="chip">Arduino maestro y Arduino esclavo</span></div>
   </div>
 </article>
 
@@ -217,7 +218,7 @@ function modes(){
   }
   document.getElementById('sm').innerHTML='<path d="'+ck+'" fill="none" stroke="#FF6B9D" stroke-width="4"/><path d="'+dt+'" fill="none" stroke="#4D96FF" stroke-width="4"/>'+mk+lb+'<text x="10" y="24" font-size="12">SCK · reloj</text><text x="10" y="118" font-size="12">MOSI · dato</text>';
   var mode=cpol*2+cpha;
-  document.getElementById('mm').textContent='Modo '+mode+': el reloj descansa en '+(cpol?'alto':'bajo')+' y el dato se lee en el '+(cpha?'segundo':'primer')+' flanco (de '+(cpol===cpha?'subida':'bajada')+').'+(mode===0?' Es el modo más común (por ejemplo, tarjetas SD).':'');
+  document.getElementById('mm').textContent='Modo '+mode+': el reloj descansa en '+(cpol?'alto':'bajo')+' y el dato se lee en el '+(cpha?'segundo':'primer')+' flanco (de '+(cpol===cpha?'subida':'bajada')+').'+(mode===0?' Es el modo más común y el que usa por defecto la librería SPI de Arduino.':'');
   ['bp0','bp1','bh0','bh1'].forEach(function(id){document.getElementById(id).classList.remove('on')});
   document.getElementById('bp'+cpol).classList.add('on');
   document.getElementById('bh'+cpha).classList.add('on');
