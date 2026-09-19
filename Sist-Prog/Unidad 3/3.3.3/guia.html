@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía de armado 3.3.3 · Tinkercad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="min-height:46vh;background:var(--o)">
+  <div class="tag">GUÍA DE ARMADO · TINKERCAD · 3.3.3</div>
+  <h1>Filtro <span>complementario</span> con servo</h1>
+  <p class="sub">Un servo que muestra el ángulo estimado por el filtro, con la IMU simulada en el código.</p>
+  <div class="chips"><span class="chip">1× Arduino Uno R3</span><span class="chip">1× Micro servo</span></div>
+</section>
+<main>
+
+<article class="card rv">
+  <header class="y"><h2>1 · El circuito terminado</h2></header>
+  <div class="body">
+    <div class="fig">
+<svg viewBox="0 0 600 230" role="img" aria-label="Arduino Uno conectado a un micro servo; la IMU se simula en el código">
+<rect x="20" y="30" width="150" height="140" rx="6" fill="#00979D" stroke="#006F74" stroke-width="3"/>
+<g fill="#fff" font-size="11" text-anchor="end"><text x="164" y="104">D9</text><text x="164" y="129">5V</text><text x="164" y="154">GND</text></g>
+<text x="95" y="62" text-anchor="middle" font-size="13" fill="#fff">Arduino Uno</text>
+<text x="95" y="196" text-anchor="middle" font-size="12">IMU simulada en el código</text>
+<g stroke-width="3" fill="none"><line x1="170" y1="100" x2="360" y2="100" stroke="#F28C28"/><line x1="170" y1="125" x2="360" y2="125" stroke="#E03131"/><line x1="170" y1="150" x2="360" y2="150" stroke="#8B5A2B"/></g>
+<text x="430" y="72" text-anchor="middle" font-size="13">Micro servo</text>
+<rect x="360" y="80" width="140" height="90" rx="6" fill="#3B7DD8" stroke="#1F4E8C" stroke-width="3"/>
+<g fill="#fff" font-size="11"><text x="366" y="104">SEÑAL</text><text x="366" y="129">5V</text><text x="366" y="154">GND</text></g>
+<circle cx="466" cy="125" r="22" fill="#F2F2F2" stroke="#B0B4BA" stroke-width="2"/><line x1="466" y1="125" x2="466" y2="106" stroke="#444" stroke-width="4"/>
+</svg>
+    </div>
+    <div class="note">Colores: rojo = 5 V, naranja = señal, café = GND.</div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="g"><h2>2 · Pasos de armado</h2></header>
+  <div class="body">
+    <ol style="padding-left:1.4em;display:grid;gap:10px;font-weight:600">
+      <li>Tinkercad → Circuits → <b>Circuito nuevo</b> y arrastra un <b>Arduino Uno R3</b>.</li>
+      <li>Agrega un <b>Micro servo</b>: señal al pin <b>D9</b>, rojo a 5V y café (o negro) a GND.</li>
+      <li>Abre el <b>Monitor serie</b> desde el panel de código.</li>
+    </ol>
+    <div class="note">Tinkercad no trae el MPU6050. El código genera un acelerómetro con ruido y un giroscopio con deriva a partir de un ángulo conocido, y el filtro los combina.</div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="o"><h2>3 · Tabla de conexiones</h2></header>
+  <div class="body">
+    <div class="cmp">
+      <div class="h">Desde</div><div class="h">Pin</div><div class="h">Hasta</div>
+      <div>Servo</div><div>Señal</div><div>D9</div>
+      <div>Servo</div><div>Rojo</div><div>5V</div>
+      <div>Servo</div><div>Café / negro</div><div>GND</div>
+    </div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="p"><h2>4 · Cómo probar</h2></header>
+  <div class="body">
+    <div class="msg">Con el código cargado, el Monitor serie muestra tres ángulos: el del acelerómetro (con ruido), el del giroscopio (que se va desviando con el tiempo) y el del filtro complementario, que es estable y sin deriva. El servo se mueve al ángulo del filtro.</div>
+  </div>
+</article>
+
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="index.html">← Volver a 3.3.3</a></footer>
+</body></html>
