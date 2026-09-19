@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3.1.2 Conector Qwiic · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* ===== Estilo Neubrutalism ===== */
+:root{--y:#FFD93D;--p:#FF6B9D;--b:#4D96FF;--g:#6BCB77;--o:#FF9F45;--bg:#FFF6DC}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:#000;line-height:1.55}
+.hero{min-height:88vh;background:var(--b);border-bottom:5px solid #000;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:40px 18px}
+.tag{align-self:flex-start;background:#000;color:var(--y);font-weight:800;font-size:.85rem;padding:6px 14px;box-shadow:4px 4px 0 var(--p)}
+h1{font-weight:900;font-size:clamp(2.3rem,9vw,5rem);line-height:1.1;text-transform:uppercase;letter-spacing:-1px;max-width:900px}
+h1 span{background:var(--y);border:3px solid #000;box-shadow:6px 6px 0 #000;padding:0 10px;display:inline-block;transform:rotate(-1.5deg)}
+.sub{font-size:clamp(1.05rem,3.6vw,1.45rem);font-weight:600;max-width:700px}
+.chips,.stats,.row{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:3px solid #000;background:#fff;box-shadow:4px 4px 0 #000;font-weight:800;padding:6px 14px;transition:.1s}
+.chip:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+main{max-width:1000px;margin:0 auto;padding:44px 16px 24px;display:grid;gap:40px}
+h2{font-weight:900;font-size:clamp(1.4rem,5vw,2rem);text-transform:uppercase;line-height:1.15}
+h3{font-weight:800;font-size:1.1rem}
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
+.mini{border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:10px;padding:16px;transition:.15s}
+.mini:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 #000}
+.mini b{display:block;font-size:1.3rem;font-weight:900}
+.card{background:#fff;border:3px solid #000;box-shadow:8px 8px 0 #000;border-radius:10px;overflow:hidden}
+.card>header{padding:14px 18px;border-bottom:3px solid #000}
+.card>.body{padding:18px;display:grid;gap:16px}
+.y{background:var(--y)}.p{background:var(--p)}.b{background:var(--b)}.g{background:var(--g)}.o{background:var(--o)}.w{background:#fff}
+.fig{border:3px solid #000;border-radius:8px;background:#FFFDF5;overflow-x:auto;padding:8px}
+.fig svg{display:block;min-width:500px;width:100%;height:auto}
+svg text{font-family:'Poppins',sans-serif;font-weight:700}
+.btn{font:inherit;font-weight:800;border:3px solid #000;background:var(--y);box-shadow:4px 4px 0 #000;padding:8px 14px;cursor:pointer;border-radius:6px;transition:.1s}
+.btn:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.msg{border:3px solid #000;border-radius:8px;padding:12px 14px;font-weight:600;background:#FFFDF5;min-height:3.6em}
+.msg.bad{background:var(--p)}.msg.good{background:var(--g)}
+.note{border:3px dashed #000;border-radius:8px;padding:12px 14px;background:var(--y);font-weight:600}
+details{border:3px solid #000;border-radius:8px;background:#FFFDF5}
+summary{cursor:pointer;font-weight:800;padding:10px 14px;list-style:none}
+summary::before{content:'▸ '}details[open] summary::before{content:'▾ '}
+details>div{padding:0 14px 14px}
+.pill{border:3px solid #000;border-radius:999px;padding:4px 12px;font-weight:800;background:#fff}
+.pill.y{background:var(--y)}
+.chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .6s,transform .6s}
+.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}.mini,.chip,.btn{transition:none}html{scroll-behavior:auto}}
+@media(max-width:600px){.card{box-shadow:5px 5px 0 #000}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="tag">SISTEMAS PROGRAMABLES · 3.1.2</div>
+  <h1>Qwiic: <span>conecta</span> y listo</h1>
+  <p class="sub">Encadena sensores como foquitos de navidad: sin protoboard, sin soldar y sin equivocarte de cable.</p>
+  <div class="chips"><span class="chip">4 hilos</span><span class="chip">No va al revés</span><span class="chip">Cadena de sensores</span><span class="chip">3.3 V</span></div>
+</section>
+
+<main>
+
+<section class="rv">
+  <h2>En 20 segundos</h2><br>
+  <div class="trio">
+    <div class="mini y"><b>Un cable</b>Un solo cable pequeño lleva todo lo que necesita un sensor I2C.</div>
+    <div class="mini p"><b>Sin soldar</b>Se conecta y se desconecta con la mano, sin pines ni protoboard.</div>
+    <div class="mini g"><b>Es I2C</b>Qwiic es solo el enchufe. Por dentro sigue siendo el bus I2C del tema 3.1.1.</div>
+  </div>
+</section>
+
+<!-- TARJETA 1 -->
+<article class="card rv">
+  <header class="b"><h2>1 · El conector: pequeño y a prueba de errores</h2></header>
+  <div class="body">
+    <div class="fig">
+<svg viewBox="0 0 360 170" role="img" aria-label="Conector Qwiic de 4 pines con sus colores: GND negro, 3.3V rojo, SDA azul, SCL amarillo">
+<polygon points="60,30 300,30 300,90 84,90 60,66" fill="#fff" stroke="#000" stroke-width="4"/>
+<circle cx="90" cy="55" r="12" fill="#000" stroke="#000" stroke-width="3"/>
+<circle cx="150" cy="55" r="12" fill="#E03131" stroke="#000" stroke-width="3"/>
+<circle cx="210" cy="55" r="12" fill="#4D96FF" stroke="#000" stroke-width="3"/>
+<circle cx="270" cy="55" r="12" fill="#FFD93D" stroke="#000" stroke-width="3"/>
+<g text-anchor="middle" font-size="13"><text x="90" y="112">GND</text><text x="150" y="112">3.3V</text><text x="210" y="112">SDA</text><text x="270" y="112">SCL</text></g>
+<g text-anchor="middle" font-size="11"><text x="90" y="130">negro</text><text x="150" y="130">rojo</text><text x="210" y="130">azul</text><text x="270" y="130">amarillo</text></g>
+<line x1="38" y1="104" x2="64" y2="76" stroke="#000" stroke-width="3"/>
+<text x="8" y="120" font-size="11">muesca</text>
+</svg>
+    </div>
+    <div class="trio">
+      <div class="mini y"><b>4 hilos</b>GND, 3.3 V, SDA y SCL. Nada más.</div>
+      <div class="mini p"><b>Con muesca</b>La forma del enchufe solo deja entrar el cable de una manera. No se conecta al revés.</div>
+      <div class="mini g"><b>Diminuto</b>Conector JST de 1 mm, del tamaño de una uña.</div>
+    </div>
+  </div>
+</article>
+
+<!-- TARJETA 2 -->
+<article class="card rv">
+  <header class="p"><h2>2 · La cadena: un sensor detrás de otro</h2></header>
+  <div class="body">
+    <p>Cada placa Qwiic tiene dos puertos: uno para recibir y otro para pasar la señal al siguiente. Todos quedan en el mismo bus I2C.</p>
+    <div class="fig">
+<svg viewBox="0 0 560 200" role="img" aria-label="Arduino conectado en cadena con tres sensores mediante cables Qwiic">
+<rect x="10" y="50" width="110" height="100" rx="6" fill="#FFD93D" stroke="#000" stroke-width="3"/>
+<text x="65" y="92" text-anchor="middle" font-size="14">Arduino</text><text x="65" y="110" text-anchor="middle" font-size="12">UNO R4 WiFi</text>
+<text x="65" y="136" text-anchor="middle" font-size="11">puerto Qwiic</text>
+<g fill="#333"><rect x="114" y="90" width="12" height="20"/><rect x="164" y="90" width="12" height="20"/><rect x="254" y="90" width="12" height="20"/><rect x="294" y="90" width="12" height="20"/><rect x="384" y="90" width="12" height="20"/><rect x="424" y="90" width="12" height="20"/></g>
+<g fill="#fff" stroke="#000" stroke-width="3"><rect x="170" y="60" width="90" height="80" rx="6"/><rect x="300" y="60" width="90" height="80" rx="6"/><rect x="430" y="60" width="90" height="80" rx="6"/></g>
+<g fill="#333"><rect x="164" y="90" width="12" height="20"/><rect x="254" y="90" width="12" height="20"/><rect x="294" y="90" width="12" height="20"/><rect x="384" y="90" width="12" height="20"/><rect x="424" y="90" width="12" height="20"/></g>
+<g text-anchor="middle"><text x="215" y="94" font-size="13">BME280</text><text x="215" y="114" font-size="12">0x76</text>
+<text x="345" y="94" font-size="13">VL53L0X</text><text x="345" y="114" font-size="12">0x29</text>
+<text x="475" y="94" font-size="13">MPU6050</text><text x="475" y="114" font-size="12">0x68</text></g>
+<g stroke-width="3" stroke-linecap="round">
+<path d="M126,94 H164 M126,99 H164 M126,104 H164 M126,109 H164" stroke="#000" fill="none"/>
+<path d="M266,94 H294 M266,99 H294 M266,104 H294 M266,109 H294" stroke="#000" fill="none"/>
+<path d="M396,94 H424 M396,99 H424 M396,104 H424 M396,109 H424" stroke="#000" fill="none"/>
+</g>
+</svg>
+    </div>
+    <h3>Juega: arma tu cadena</h3>
+    <div class="row">
+      <button class="btn" onclick="add('bme')">+ BME280 (0x76)</button>
+      <button class="btn" onclick="add('tof')">+ VL53L0X (0x29)</button>
+      <button class="btn" onclick="add('imu')">+ MPU6050 (0x68)</button>
+      <button class="btn" onclick="add('bme2')">+ 2º BME280 (0x76)</button>
+      <button class="btn" onclick="fix()">Cambiar 2º BME280 a 0x77</button>
+      <button class="btn" onclick="reset()">Limpiar</button>
+    </div>
+    <div class="chain" id="chain"></div>
+    <div class="msg" id="msg"></div>
+    <details><summary>Ejemplo práctico: estación ambiental en un minuto</summary><div>Conectas el Arduino a un sensor de clima, este a un sensor de distancia y este a un giroscopio. Tres cables cortos y tienes tres sensores midiendo, sin haber abierto una protoboard.</div></details>
+  </div>
+</article>
+
+<!-- TARJETA 3 -->
+<article class="card rv">
+  <header class="g"><h2>3 · Protoboard vs Qwiic</h2></header>
+  <div class="body">
+    <div class="trio">
+      <div class="mini w"><b>Con protoboard</b>✗ Hasta 4 cables sueltos por sensor<br>✗ Fácil confundir SDA con SCL<br>✗ Los cables se aflojan<br>✗ Toma tiempo revisar cada conexión</div>
+      <div class="mini g"><b>Con Qwiic</b>✓ 1 cable por sensor<br>✓ El conector no deja equivocarse<br>✓ Firme y rápido de cambiar<br>✓ Ideal para clases y prototipos</div>
+    </div>
+    <div class="note">Ejemplo: una estación con 3 sensores pide hasta 12 conexiones sueltas en protoboard, contra solo 3 cables en Qwiic.</div>
+  </div>
+</article>
+
+<!-- TARJETA 4 -->
+<article class="card rv">
+  <header class="o"><h2>4 · Reglas de oro</h2></header>
+  <div class="body">
+    <div class="trio">
+      <div class="mini y"><b>Solo 3.3 V</b>Qwiic trabaja a 3.3 V. No conectes módulos que exijan 5 V.</div>
+      <div class="mini p"><b>Direcciones distintas</b>Todos comparten el bus. Dos dispositivos con la misma dirección chocan (ver 3.1.1).</div>
+      <div class="mini b"><b>Cables cortos</b>Cadenas muy largas o con demasiados dispositivos hacen el bus lento y poco confiable.</div>
+      <div class="mini g"><b>En el UNO R4 WiFi</b>La placa ya trae el puerto Qwiic, y usa un bus I2C aparte del de los pines A4 y A5 (llamado Wire1 en el código).</div>
+    </div>
+    <h3>¿Es compatible?</h3>
+    <div class="row">
+      <span class="pill" style="background:#6BCB77">✓ Qwiic (SparkFun)</span>
+      <span class="pill" style="background:#6BCB77">✓ STEMMA QT (Adafruit): mismo conector</span>
+      <span class="pill" style="background:#FF6B9D">✗ Grove: otro conector</span>
+    </div>
+  </div>
+</article>
+
+</main>
+
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="../3.1.1/index.html">← Tema anterior: 3.1.1 Protocolo I2C</a></footer>
+
+<script>
+/* Constructor de cadena Qwiic */
+var S0={bme:['BME280','0x76'],tof:['VL53L0X','0x29'],imu:['MPU6050','0x68'],bme2:['2º BME280','0x76']};
+var S={},chain=[];
+function init(){S=JSON.parse(JSON.stringify(S0));chain=[];draw()}
+function add(k){if(chain.indexOf(k)<0){chain.push(k);draw()}}
+function fix(){S.bme2=['2º BME280','0x77'];draw()}
+function reset(){init()}
+function draw(){
+  var el=document.getElementById('chain'),m=document.getElementById('msg');
+  el.innerHTML='<span class="pill y">Arduino</span>'+chain.map(function(k){return '<span class="pill">→ '+S[k][0]+' '+S[k][1]+'</span>'}).join('');
+  var a=chain.map(function(k){return S[k][1]}),dup=a.find(function(x,i){return a.indexOf(x)!==i});
+  var n=chain.length;
+  if(!n){m.className='msg';m.textContent='Agrega sensores a la cadena.';return}
+  var cab='Con protoboard: hasta '+(n*4)+' cables sueltos. Con Qwiic: '+n+' cable'+(n>1?'s':'')+'.';
+  if(dup){m.className='msg bad';m.textContent='⚠ Choque: dos dispositivos en '+dup+'. Cambia la dirección de uno (jumper del módulo). '+cab}
+  else{m.className='msg good';m.textContent='✔ Todo bien: '+n+' dispositivo'+(n>1?'s':'')+' con direcciones distintas. '+cab}
+}
+init();
+/* Animación de entrada al hacer scroll */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+</script>
+</body>
+</html>
