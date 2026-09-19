@@ -1,0 +1,55 @@
+/* ===== Estilo Neubrutalism compartido (Unidad 3, temas 3.2 y 3.3) ===== */
+:root{--y:#FFD93D;--p:#FF6B9D;--b:#4D96FF;--g:#6BCB77;--o:#FF9F45;--v:#B197FC;--bg:#FFF6DC}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:#000;line-height:1.55}
+.hero{min-height:88vh;background:var(--y);border-bottom:5px solid #000;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:40px 18px}
+.tag{align-self:flex-start;background:#000;color:var(--y);font-weight:800;font-size:.85rem;padding:6px 14px;box-shadow:4px 4px 0 var(--p)}
+h1{font-weight:900;font-size:clamp(2.2rem,8.5vw,4.8rem);line-height:1.1;text-transform:uppercase;letter-spacing:-1px;max-width:900px}
+h1 span{background:var(--y);border:3px solid #000;box-shadow:6px 6px 0 #000;padding:0 10px;display:inline-block;transform:rotate(-1.5deg)}
+.sub{font-size:clamp(1.05rem,3.6vw,1.45rem);font-weight:600;max-width:700px}
+.chips,.row{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:3px solid #000;background:#fff;box-shadow:4px 4px 0 #000;font-weight:800;padding:6px 14px;transition:.1s}
+.chip:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+main{max-width:1000px;margin:0 auto;padding:44px 16px 24px;display:grid;gap:40px}
+h2{font-weight:900;font-size:clamp(1.4rem,5vw,2rem);text-transform:uppercase;line-height:1.15}
+h3{font-weight:800;font-size:1.1rem}
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
+.mini{border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:10px;padding:16px;transition:.15s}
+.mini:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 #000}
+.mini b{display:block;font-size:1.3rem;font-weight:900}
+.card{background:#fff;border:3px solid #000;box-shadow:8px 8px 0 #000;border-radius:10px;overflow:hidden}
+.card>header{padding:14px 18px;border-bottom:3px solid #000}
+.card>.body{padding:18px;display:grid;gap:16px}
+.y{background:var(--y)}.p{background:var(--p)}.b{background:var(--b)}.g{background:var(--g)}.o{background:var(--o)}.v{background:var(--v)}.w{background:#fff}
+.fig{border:3px solid #000;border-radius:8px;background:#FFFDF5;overflow-x:auto;padding:8px}
+.fig svg{display:block;min-width:500px;width:100%;height:auto}
+svg text{font-family:'Poppins',sans-serif;font-weight:700}
+.btn{font:inherit;font-weight:800;border:3px solid #000;background:var(--y);box-shadow:4px 4px 0 #000;padding:8px 14px;cursor:pointer;border-radius:6px;transition:.1s}
+.btn:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.btn.on{background:var(--g)}
+.msg{border:3px solid #000;border-radius:8px;padding:12px 14px;font-weight:600;background:#FFFDF5;min-height:3.6em}
+.note{border:3px dashed #000;border-radius:8px;padding:12px 14px;background:var(--y);font-weight:600}
+details{border:3px solid #000;border-radius:8px;background:#FFFDF5}
+summary{cursor:pointer;font-weight:800;padding:10px 14px;list-style:none}
+summary::before{content:'▸ '}details[open] summary::before{content:'▾ '}
+details>div{padding:0 14px 14px}
+.sl{display:grid;gap:4px;font-weight:700}
+input[type=range]{width:100%;accent-color:#000;height:28px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{border:3px solid #000;border-radius:8px;padding:10px;background:#fff;font-weight:600;font-size:.85rem}
+.kpi b{display:block;font-size:1.45rem;font-weight:900}
+.leg{display:flex;flex-wrap:wrap;gap:14px;font-weight:700;font-size:.9rem}
+.leg span::before{content:'';display:inline-block;width:22px;height:8px;background:var(--c);border:2px solid #000;margin-right:6px;vertical-align:middle}
+.bits span{display:inline-grid;place-items:center;min-width:44px;height:38px;padding:0 6px;border:3px solid #000;font-weight:800;background:#fff;margin:2px}
+.bits span.hi{background:var(--p)}.bits span.mid{background:var(--g)}
+.cmp{display:grid;grid-template-columns:1fr 1fr 1fr;border:3px solid #000;border-radius:8px;overflow:hidden}
+.cmp div{padding:10px 12px;border-bottom:3px solid #000;font-weight:600}
+.cmp div:nth-child(3n+2){border-left:3px solid #000;border-right:3px solid #000}
+.cmp .h{background:var(--y);font-weight:900}
+.cmp div:nth-last-child(-n+3){border-bottom:0}
+footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .6s,transform .6s}
+.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}.mini,.chip,.btn{transition:none}html{scroll-behavior:auto}}
+@media(max-width:600px){.card{box-shadow:5px 5px 0 #000}.cmp div{font-size:.85rem;padding:8px}}
