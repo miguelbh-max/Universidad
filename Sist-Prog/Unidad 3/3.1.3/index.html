@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3.1.3 Bus SPI · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* ===== Estilo Neubrutalism ===== */
+:root{--y:#FFD93D;--p:#FF6B9D;--b:#4D96FF;--g:#6BCB77;--o:#FF9F45;--bg:#FFF6DC}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:#000;line-height:1.55}
+.hero{min-height:88vh;background:var(--g);border-bottom:5px solid #000;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:40px 18px}
+.tag{align-self:flex-start;background:#000;color:var(--y);font-weight:800;font-size:.85rem;padding:6px 14px;box-shadow:4px 4px 0 var(--p)}
+h1{font-weight:900;font-size:clamp(2.3rem,9vw,5rem);line-height:1.1;text-transform:uppercase;letter-spacing:-1px;max-width:900px}
+h1 span{background:var(--y);border:3px solid #000;box-shadow:6px 6px 0 #000;padding:0 10px;display:inline-block;transform:rotate(-1.5deg)}
+.sub{font-size:clamp(1.05rem,3.6vw,1.45rem);font-weight:600;max-width:700px}
+.chips,.stats,.row{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:3px solid #000;background:#fff;box-shadow:4px 4px 0 #000;font-weight:800;padding:6px 14px;transition:.1s}
+.chip:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+main{max-width:1000px;margin:0 auto;padding:44px 16px 24px;display:grid;gap:40px}
+h2{font-weight:900;font-size:clamp(1.4rem,5vw,2rem);text-transform:uppercase;line-height:1.15}
+h3{font-weight:800;font-size:1.1rem}
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
+.mini{border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:10px;padding:16px;transition:.15s}
+.mini:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 #000}
+.mini b{display:block;font-size:1.3rem;font-weight:900}
+.card{background:#fff;border:3px solid #000;box-shadow:8px 8px 0 #000;border-radius:10px;overflow:hidden}
+.card>header{padding:14px 18px;border-bottom:3px solid #000}
+.card>.body{padding:18px;display:grid;gap:16px}
+.y{background:var(--y)}.p{background:var(--p)}.b{background:var(--b)}.g{background:var(--g)}.o{background:var(--o)}.w{background:#fff}
+.fig{border:3px solid #000;border-radius:8px;background:#FFFDF5;overflow-x:auto;padding:8px}
+.fig svg{display:block;min-width:500px;width:100%;height:auto}
+.fig svg.modo{min-width:420px}
+svg text{font-family:'Poppins',sans-serif;font-weight:700}
+.btn{font:inherit;font-weight:800;border:3px solid #000;background:var(--y);box-shadow:4px 4px 0 #000;padding:8px 14px;cursor:pointer;border-radius:6px;transition:.1s}
+.btn:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.btn.on{background:var(--g)}
+.msg{border:3px solid #000;border-radius:8px;padding:12px 14px;font-weight:600;background:#FFFDF5;min-height:3.6em}
+.note{border:3px dashed #000;border-radius:8px;padding:12px 14px;background:var(--y);font-weight:600}
+details{border:3px solid #000;border-radius:8px;background:#FFFDF5}
+summary{cursor:pointer;font-weight:800;padding:10px 14px;list-style:none}
+summary::before{content:'▸ '}details[open] summary::before{content:'▾ '}
+details>div{padding:0 14px 14px}
+.bits span{display:inline-grid;place-items:center;width:34px;height:34px;border:3px solid #000;font-weight:800;background:#fff;margin:2px}
+.bits span.out{background:var(--o)}
+.reg{display:grid;gap:6px}
+.pill{border:3px solid #000;border-radius:999px;padding:4px 12px;font-weight:800;background:#fff}
+.badge{display:inline-block;background:#000;color:var(--y);font-weight:900;font-size:1.3rem;padding:2px 14px;border-radius:6px}
+footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .6s,transform .6s}
+.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}.mini,.chip,.btn{transition:none}html{scroll-behavior:auto}}
+@media(max-width:600px){.card{box-shadow:5px 5px 0 #000}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="tag">SISTEMAS PROGRAMABLES · 3.1.3</div>
+  <h1>SPI: la <span>autopista</span> rápida</h1>
+  <p class="sub">Un bus con más cables que I2C, pero mucho más veloz. Ideal para tarjetas SD, pantallas a color y todo lo que mueve muchos datos.</p>
+  <div class="chips"><span class="chip">SCK</span><span class="chip">MOSI</span><span class="chip">MISO</span><span class="chip">CS</span></div>
+</section>
+
+<main>
+
+<section class="rv">
+  <h2>En 20 segundos</h2><br>
+  <div class="trio">
+    <div class="mini y"><b>4 cables</b>Reloj, datos de ida, datos de vuelta y un cable para elegir a quién le hablas.</div>
+    <div class="mini p"><b>Sin direcciones</b>En vez de un número de casa, cada dispositivo tiene su propio cable CS: «te hablo a ti».</div>
+    <div class="mini g"><b>Full-duplex</b>Se envía y se recibe al mismo tiempo, en cada pulso de reloj.</div>
+  </div>
+</section>
+
+<!-- TARJETA 1 -->
+<article class="card rv">
+  <header class="b"><h2>1 · Los 4 cables</h2></header>
+  <div class="body">
+    <div class="fig">
+<svg viewBox="0 0 600 260" role="img" aria-label="Un Arduino maestro conectado por SCK, MOSI y MISO compartidos y un CS individual a una tarjeta SD y a una pantalla TFT">
+<rect x="10" y="30" width="110" height="130" rx="6" fill="#FFD93D" stroke="#000" stroke-width="3"/>
+<text x="65" y="85" text-anchor="middle" font-size="14">Arduino</text><text x="65" y="103" text-anchor="middle" font-size="12">UNO R4</text><text x="65" y="130" text-anchor="middle" font-size="13">MAESTRO</text>
+<line x1="120" y1="50" x2="545" y2="50" stroke="#4D96FF" stroke-width="4"/>
+<line x1="120" y1="72" x2="545" y2="72" stroke="#6BCB77" stroke-width="4"/>
+<line x1="120" y1="94" x2="545" y2="94" stroke="#FF6B9D" stroke-width="4"/>
+<text x="128" y="44" font-size="12" fill="#1a4fa0">SCK · reloj</text>
+<text x="128" y="66" font-size="12" fill="#2b7a37">MOSI · maestro → esclavo</text>
+<text x="128" y="88" font-size="12" fill="#b3245a">MISO · esclavo → maestro</text>
+<path d="M120,125 H470 V170" fill="none" stroke="#FF9F45" stroke-width="4"/>
+<path d="M120,145 H290 V170" fill="none" stroke="#FF9F45" stroke-width="4"/>
+<text x="128" y="119" font-size="12" fill="#a35a10">CS2 → pantalla</text>
+<text x="128" y="139" font-size="12" fill="#a35a10">CS1 → tarjeta SD</text>
+<g stroke-width="3" fill="none">
+<path d="M215,50 V170" stroke="#4D96FF"/><path d="M235,72 V170" stroke="#6BCB77"/><path d="M255,94 V170" stroke="#FF6B9D"/>
+<path d="M395,50 V170" stroke="#4D96FF"/><path d="M415,72 V170" stroke="#6BCB77"/><path d="M435,94 V170" stroke="#FF6B9D"/></g>
+<g fill="#000"><circle cx="215" cy="50" r="5"/><circle cx="235" cy="72" r="5"/><circle cx="255" cy="94" r="5"/><circle cx="395" cy="50" r="5"/><circle cx="415" cy="72" r="5"/><circle cx="435" cy="94" r="5"/><circle cx="290" cy="145" r="5"/><circle cx="470" cy="125" r="5"/></g>
+<rect x="200" y="170" width="110" height="70" rx="6" fill="#fff" stroke="#000" stroke-width="3"/>
+<text x="255" y="202" text-anchor="middle" font-size="14">Tarjeta SD</text><text x="255" y="224" text-anchor="middle" font-size="12">esclavo 1</text>
+<rect x="380" y="170" width="110" height="70" rx="6" fill="#fff" stroke="#000" stroke-width="3"/>
+<text x="435" y="202" text-anchor="middle" font-size="14">Pantalla TFT</text><text x="435" y="224" text-anchor="middle" font-size="12">esclavo 2</text>
+</svg>
+    </div>
+    <div class="trio">
+      <div class="mini y"><b>Compartidos</b>SCK, MOSI y MISO van a todos los dispositivos.</div>
+      <div class="mini o"><b>Uno por cabeza</b>Cada dispositivo tiene su CS. El maestro lo baja y solo ese dispositivo escucha.</div>
+    </div>
+    <details><summary>Ejemplo práctico: SD y pantalla en el mismo bus</summary><div>El Arduino baja CS1 y guarda una lectura en la tarjeta SD. Luego lo sube, baja CS2 y dibuja el dato en la pantalla. Comparten los mismos tres cables y nunca se estorban, porque solo uno escucha a la vez.</div></details>
+  </div>
+</article>
+
+<!-- TARJETA 2 -->
+<article class="card rv">
+  <header class="p"><h2>2 · Full-duplex: papelitos al mismo tiempo</h2></header>
+  <div class="body">
+    <p>En cada pulso de reloj sale un bit del maestro por MOSI y entra un bit del esclavo por MISO. Después de 8 pulsos, los dos bytes se intercambiaron. Dale pulsos:</p>
+    <div class="reg">
+      <b>Maestro</b><div class="bits" id="mb"></div>
+      <div>⬇ MOSI: sale el bit del maestro &nbsp; ⬆ MISO: sale el bit del esclavo</div>
+      <b>Esclavo</b><div class="bits" id="sb"></div>
+    </div>
+    <div class="row"><button class="btn" id="tick">⏵ Pulso de reloj</button><button class="btn" id="rst">Reiniciar</button><span class="pill" id="cnt"></span></div>
+    <div class="msg" id="fd"></div>
+    <details><summary>Ejemplo práctico: leer una tarjeta SD</summary><div>Al leer un bloque de la SD, el maestro manda la orden mientras la tarjeta ya empieza a devolver datos. Como se envía y se recibe a la vez, se mueven bloques enteros a muchos megabits por segundo.</div></details>
+  </div>
+</article>
+
+<!-- TARJETA 3 -->
+<article class="card rv">
+  <header class="g"><h2>3 · Modos de reloj: ¿cuándo se lee el dato?</h2></header>
+  <div class="body">
+    <div class="trio">
+      <div class="mini y"><b>CPOL</b>¿El reloj descansa abajo (0) o arriba (1)?</div>
+      <div class="mini p"><b>CPHA</b>¿El dato se lee en el 1er flanco (0) o en el 2º (1)?</div>
+    </div>
+    <div class="row">
+      <button class="btn" data-k="pol" data-v="0">CPOL 0 · reposo abajo</button>
+      <button class="btn" data-k="pol" data-v="1">CPOL 1 · reposo arriba</button>
+      <button class="btn" data-k="pha" data-v="0">CPHA 0 · 1er flanco</button>
+      <button class="btn" data-k="pha" data-v="1">CPHA 1 · 2º flanco</button>
+    </div>
+    <div class="fig"><svg class="modo" id="wave" viewBox="0 0 420 200" role="img" aria-label="Señales de reloj y datos según el modo SPI elegido"></svg></div>
+    <div class="msg" id="mm"></div>
+    <div class="note">Si el maestro y el dispositivo usan modos distintos, los datos llegan corruptos. La hoja de datos del chip dice qué modo usa.</div>
+    <details><summary>Ejemplo práctico: dos amigos y una foto</summary><div>Es como acordar cuándo tomar una foto: si tú la tomas cuando el otro sonríe y él cree que es cuando parpadea, saldrá un desastre. El modo 0 es el más común (por ejemplo, las tarjetas SD).</div></details>
+  </div>
+</article>
+
+<!-- TARJETA 4 -->
+<article class="card rv">
+  <header class="o"><h2>4 · SPI vs I2C</h2></header>
+  <div class="body">
+    <div class="trio">
+      <div class="mini w"><b>I2C</b>2 cables · direcciones<br>Velocidad media (100 a 400 kHz)<br>Ideal para sensores<br>Problema típico: direcciones repetidas</div>
+      <div class="mini g"><b>SPI</b>4 cables + 1 CS por dispositivo<br>Muy rápido (varios MHz)<br>Ideal para SD, pantallas y datos rápidos<br>Problema típico: modo de reloj equivocado</div>
+    </div>
+    <h3>Dónde lo verás</h3>
+    <div class="row"><span class="pill">Tarjetas SD</span><span class="pill">Pantallas TFT a color</span><span class="pill">Convertidores ADC rápidos</span><span class="pill">Módulos LoRa y RF</span><span class="pill">Memorias flash</span></div>
+  </div>
+</article>
+
+</main>
+
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="../3.1.2/index.html">← Tema anterior: 3.1.2 Conector Qwiic</a></footer>
+
+<script>
+/* Full-duplex: registros de desplazamiento */
+var m,s,n;
+function hx(a){return '0x'+parseInt(a.join(''),2).toString(16).toUpperCase().padStart(2,'0')}
+function pinta(){
+  var f=function(a){return a.map(function(x,i){return '<span class="'+(i==0&&n<8?'out':'')+'">'+x+'</span>'}).join('')};
+  document.getElementById('mb').innerHTML=f(m);document.getElementById('sb').innerHTML=f(s);
+  document.getElementById('cnt').textContent='Pulso '+n+' de 8';
+  document.getElementById('fd').textContent=n<8?
+    'Maestro '+hx(m)+' · Esclavo '+hx(s)+'. Cada pulso mueve un bit en cada dirección al mismo tiempo.':
+    '¡Listo! El maestro terminó con '+hx(m)+' (lo que tenía el esclavo) y el esclavo con '+hx(s)+'. Se intercambiaron en 8 pulsos.';
+}
+function rst(){m='10110010'.split('');s='01101001'.split('');n=0;pinta()}
+document.getElementById('tick').onclick=function(){if(n>=8)return;var a=m.shift(),b=s.shift();m.push(b);s.push(a);n++;pinta()};
+document.getElementById('rst').onclick=rst;rst();
+
+/* Modos de reloj CPOL / CPHA */
+var pol=0,pha=0;
+function onda(){
+  var idle=pol?40:80,act=pol?80:40,i,ck='M20,'+idle;
+  for(i=0;i<3;i++){ck+=' H'+(100+80*i)+' V'+act+' H'+(140+80*i)+' V'+idle}
+  ck+=' H400';
+  var x0=pha?100:60,bits=[1,0,1],L=function(b){return b?130:160};
+  var d='M'+x0+','+L(1)+' H'+(x0+80)+' V'+L(0)+' H'+(x0+160)+' V'+L(1)+' H'+(x0+240);
+  var t='<path d="'+ck+'" fill="none" stroke="#FF6B9D" stroke-width="4"/><path d="'+d+'" fill="none" stroke="#4D96FF" stroke-width="4"/>';
+  t+='<text x="20" y="25" font-size="12">SCK · reloj</text><text x="10" y="112" font-size="12">MOSI · dato</text>';
+  for(i=0;i<3;i++){
+    var sx=pha?140+80*i:100+80*i,cx=x0+40+80*i;
+    t+='<line x1="'+sx+'" y1="30" x2="'+sx+'" y2="175" stroke="#000" stroke-width="2" stroke-dasharray="5 4"/>';
+    t+='<circle cx="'+sx+'" cy="'+L(bits[i])+'" r="6" fill="#FF6B9D" stroke="#000" stroke-width="2"/>';
+    t+='<text x="'+cx+'" y="'+(L(bits[i])+(bits[i]?20:20))+'" text-anchor="middle" font-size="13">'+bits[i]+'</text>';
+  }
+  t+='<text x="410" y="195" text-anchor="end" font-size="11">líneas punteadas = momento de lectura</text>';
+  document.getElementById('wave').innerHTML=t;
+  document.getElementById('mm').innerHTML='<span class="badge">MODO '+(pol*2+pha)+'</span> El reloj descansa '+(pol?'arriba':'abajo')+' y el dato se lee en el flanco de '+(pol==pha?'subida':'bajada')+' (el '+(pha?'segundo':'primero')+' flanco de cada pulso).';
+  document.querySelectorAll('[data-k]').forEach(function(b){var v=+b.dataset.v,cur=b.dataset.k=='pol'?pol:pha;b.classList.toggle('on',v===cur)});
+}
+document.querySelectorAll('[data-k]').forEach(function(b){b.onclick=function(){if(b.dataset.k=='pol')pol=+b.dataset.v;else pha=+b.dataset.v;onda()}});
+onda();
+
+/* Animación de entrada al hacer scroll */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+</script>
+</body>
+</html>
