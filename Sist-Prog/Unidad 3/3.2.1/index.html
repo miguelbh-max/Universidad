@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3.2.1 Sensor ambiental BME280/BMP280 · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="background:var(--g)">
+  <div class="tag">SISTEMAS PROGRAMABLES · 3.2.1</div>
+  <h1>BME280: el <span>clima</span> en un chip</h1>
+  <p class="sub">Mide presión y temperatura y se corrige a sí mismo antes de darte el dato.</p>
+  <div class="chips"><span class="chip">Presión</span><span class="chip">Temperatura</span><span class="chip">Compensación</span></div>
+</section>
+<main>
+<section class="rv"><h2>En 20 segundos</h2><br>
+  <div class="trio">
+    <div class="mini y"><b>Presión</b>El peso del aire sobre ti. Al nivel del mar es de unos 1013 hPa y baja al subir.</div>
+    <div class="mini b"><b>Temperatura</b>El mismo chip la mide y además la usa para corregir la presión.</div>
+    <div class="mini p"><b>Compensación</b>Cada chip trae constantes de calibración grabadas en fábrica y las usa para corregir el dato crudo.</div>
+  </div><br>
+  <div class="note">BMP280 mide presión y temperatura. El BME280 agrega humedad.</div>
+</section>
+
+<article class="card rv">
+  <header class="b"><h2>1 · La presión baja al subir</h2></header>
+  <div class="body">
+    <div class="fig"><svg viewBox="0 0 560 200" role="img" aria-label="Montaña con un punto que sube y muestra la presión">
+      <rect width="560" height="200" fill="#CFE8FF"/>
+      <polygon points="280,30 60,190 500,190" fill="#6BCB77" stroke="#000" stroke-width="3"/>
+      <circle id="dot" cx="60" cy="190" r="9" fill="#FF6B9D" stroke="#000" stroke-width="3"/>
+      <text id="dt" x="76" y="185" font-size="14">1013 hPa</text></svg></div>
+    <label class="sl">Altura: <span><b id="hv">0</b> m</span><input type="range" id="h" min="0" max="3000" step="50" value="0"></label>
+    <div class="kpis"><div class="kpi"><b id="pv">1013</b>presión (hPa)</div><div class="kpi"><b id="pd">0</b>hPa respecto al nivel del mar</div></div>
+    <div class="note">Una presión que baja rápido anuncia mal tiempo; una que sube, mejora.</div>
+    <details><summary>Ejemplo práctico: la altura de un edificio</summary><div>Mides la presión en planta baja y en la azotea. Cerca del nivel del mar bajan unos 1 hPa cada 8 m; si la diferencia es de 5 hPa, el edificio mide unos 40 m. Así funcionan los altímetros de drones y relojes.</div></details>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="p"><h2>2 · Compensación: el chip se corrige solo</h2></header>
+  <div class="body">
+    <div class="fig"><svg viewBox="0 0 560 130" role="img" aria-label="Flujo: dato crudo, constantes de fábrica, corrección y dato final">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#000" stroke-width="1.5"/></marker></defs>
+      <g fill="#fff" stroke="#000" stroke-width="3"><rect x="10" y="30" width="105" height="64" rx="6"/><rect x="155" y="30" width="105" height="64" rx="6" fill="#FFD93D"/><rect x="300" y="30" width="105" height="64" rx="6"/><rect x="445" y="30" width="105" height="64" rx="6" fill="#6BCB77"/></g>
+      <g stroke="#000" stroke-width="3" marker-end="url(#ar)"><line x1="115" y1="62" x2="151" y2="62"/><line x1="260" y1="62" x2="296" y2="62"/><line x1="405" y1="62" x2="441" y2="62"/></g>
+      <g text-anchor="middle"><text x="62" y="58" font-size="13">Dato crudo</text><text x="62" y="76" font-size="11">solo un número</text>
+      <text x="207" y="58" font-size="13">Constantes</text><text x="207" y="76" font-size="11">de fábrica</text>
+      <text x="352" y="58" font-size="13">Corrección</text><text x="352" y="76" font-size="11">con temperatura</text>
+      <text x="497" y="58" font-size="13">Dato final</text><text x="497" y="76" font-size="11">en hPa y °C</text></g></svg></div>
+    <div class="note">Como una báscula que marca 2 kg de más: la calibración lo resta y te da el peso real.</div>
+    <label class="sl">Temperatura del chip: <span><b id="tv">25</b> °C</span><input type="range" id="t" min="0" max="60" value="25"></label>
+    <div class="kpis"><div class="kpi"><b id="k1">1013</b>hPa sin compensar</div><div class="kpi"><b>1013</b>hPa compensado</div></div>
+    <small>Valores ilustrativos: sin compensar, la lectura se desvía al cambiar la temperatura; compensada, se mantiene.</small>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="y"><h2>3 · Cómo hablar con él y qué simular</h2></header>
+  <div class="body">
+    <div class="row"><span class="chip">I2C · dirección 0x76 o 0x77</span><span class="chip">También SPI</span></div>
+    <div class="note">En Tinkercad no existe el BME280. Simula la idea con un sensor TMP36 (temperatura) y un potenciómetro que hace de presión, y muestra los valores en una LCD 16x2.</div>
+  </div>
+</article>
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="../3.1.3/index.html">← Tema anterior: 3.1.3 Bus SPI</a></footer>
+<script>
+function fa(){var h=+$('h').value,p=1013.25*Math.pow(1-2.25577e-5*h,5.25588),t=h/3000,x=60+220*t,y=190-160*t;
+$('hv').textContent=h;$('pv').textContent=p.toFixed(0);$('pd').textContent=Math.round(p-1013.25);
+$('dot').setAttribute('cx',x);$('dot').setAttribute('cy',y);$('dt').setAttribute('x',x+16);$('dt').setAttribute('y',y+5);$('dt').textContent=p.toFixed(0)+' hPa'}
+$('h').oninput=fa;fa();
+function fb(){var T=+$('t').value;$('tv').textContent=T;$('k1').textContent=(1013+0.35*(T-25)).toFixed(1)}
+$('t').oninput=fb;fb();
+</script>
+</body></html>
