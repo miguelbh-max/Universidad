@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía de armado 3.1.3 · Tinkercad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="min-height:46vh;background:var(--p)">
+  <div class="tag">GUÍA DE ARMADO · TINKERCAD · 3.1.3</div>
+  <h1>SPI con <span>74HC595</span> y un esclavo</h1>
+  <p class="sub">Un Arduino maestro que comparte SCK, MOSI y MISO con un registro de 8 LEDs y con otro Arduino, eligiendo a cada uno con su propio CS.</p>
+  <div class="chips"><span class="chip">2× Arduino Uno R3</span><span class="chip">1× Shift Register 74HC595</span><span class="chip">9× LED</span><span class="chip">9× Resistencia 220 Ω</span><span class="chip">1× Protoboard</span></div>
+</section>
+<main>
+
+<article class="card rv">
+  <header class="b"><h2>1 · El circuito terminado</h2></header>
+  <div class="body">
+    <div class="fig">
+<svg viewBox="0 0 640 370" role="img" aria-label="Arduino maestro conectado por SPI a un 74HC595 con 8 LEDs y a un Arduino esclavo con un LED">
+<rect x="20" y="60" width="130" height="200" rx="6" fill="#00979D" stroke="#006F74" stroke-width="3"/>
+<g fill="#fff" font-size="11" text-anchor="end"><text x="144" y="94">SCK D13</text><text x="144" y="114">MOSI D11</text><text x="144" y="134">CS1 D8</text><text x="144" y="154">MISO D12</text><text x="144" y="214">CS2 D9</text></g>
+<g fill="#fff" text-anchor="middle"><text x="85" y="235" font-size="13">Maestro</text><text x="85" y="250" font-size="11">Arduino Uno</text></g>
+<g stroke-width="3" fill="none" stroke-linejoin="round">
+<path d="M150,90 H300 M270,90 V255 H300" stroke="#4D96FF"/>
+<path d="M150,110 H300 M250,110 V275 H300" stroke="#6BCB77"/>
+<path d="M150,130 H300" stroke="#F28C28"/>
+<path d="M150,150 H230 V295 H300" stroke="#FF6B9D"/>
+<path d="M150,210 H210 V320 H300" stroke="#F28C28"/>
+</g>
+<g fill="#000"><circle cx="270" cy="90" r="4"/><circle cx="250" cy="110" r="4"/></g>
+<text x="355" y="52" text-anchor="middle" font-size="13">74HC595</text>
+<rect x="300" y="60" width="110" height="110" rx="4" fill="#1F2328"/>
+<g fill="#fff" font-size="11"><text x="306" y="94">SRCLK</text><text x="306" y="114">SER</text><text x="306" y="134">RCLK</text></g>
+<text x="300" y="192" font-size="11">VCC, SRCLR a 5V · GND, OE a GND</text>
+<line x1="410" y1="110" x2="450" y2="110" stroke="#6BCB77" stroke-width="6"/>
+<rect x="450" y="70" width="150" height="80" rx="4" fill="#fff" stroke="#000" stroke-width="3"/>
+<g fill="#FF5050" stroke="#000" stroke-width="2"><circle cx="480" cy="95" r="8"/><circle cx="510" cy="95" r="8"/><circle cx="540" cy="95" r="8"/><circle cx="570" cy="95" r="8"/><circle cx="480" cy="125" r="8"/><circle cx="510" cy="125" r="8"/><circle cx="540" cy="125" r="8"/><circle cx="570" cy="125" r="8"/></g>
+<text x="525" y="168" text-anchor="middle" font-size="11">Q0–Q7 → 8× 220 Ω → 8 LEDs</text>
+<text x="370" y="228" text-anchor="middle" font-size="13">Arduino esclavo</text>
+<rect x="300" y="235" width="140" height="110" rx="6" fill="#00979D" stroke="#006F74" stroke-width="3"/>
+<g fill="#fff" font-size="11"><text x="306" y="259">SCK D13</text><text x="306" y="279">MOSI D11</text><text x="306" y="299">MISO D12</text><text x="306" y="324">SS D10</text></g>
+<text x="434" y="304" text-anchor="end" font-size="11" fill="#fff">D7</text>
+<g stroke-width="3" fill="none" stroke="#444"><path d="M440,300 H460 M490,300 H511 M529,300 H545"/></g>
+<rect x="460" y="294" width="30" height="12" fill="#E8D9A0" stroke="#000" stroke-width="2"/><circle cx="520" cy="300" r="9" fill="#FF5050" stroke="#000" stroke-width="2"/>
+<text x="475" y="286" text-anchor="middle" font-size="11">220 Ω</text><text x="520" y="322" text-anchor="middle" font-size="11">LED</text><text x="550" y="304" font-size="11">GND</text>
+</svg>
+    </div>
+    <div class="note">Colores: azul = SCK, verde = MOSI, rosa = MISO, naranja = CS. El pin de latch (RCLK) del 74HC595 hace el papel del CS.</div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="g"><h2>2 · Pasos de armado</h2></header>
+  <div class="body">
+    <ol style="padding-left:1.4em;display:grid;gap:10px;font-weight:600">
+      <li>Tinkercad → Circuits → <b>Circuito nuevo</b>. Agrega <b>2 Arduino Uno R3</b> y ponles nombre: Maestro y Esclavo.</li>
+      <li>Agrega una <b>protoboard</b> y coloca el <b>Shift Register (74HC595)</b> cruzando la ranura central.</li>
+      <li>Alimenta el chip: <b>VCC (16)</b> y <b>SRCLR (10)</b> a 5V; <b>GND (8)</b> y <b>OE (13)</b> a GND.</li>
+      <li>Bus SPI: <b>D13</b> del maestro al pin <b>SRCLK (11)</b> y a D13 del esclavo; <b>D11</b> al pin <b>SER (14)</b> y a D11 del esclavo; <b>D12</b> del maestro a D12 del esclavo.</li>
+      <li>Chip selects: <b>D8</b> del maestro al pin <b>RCLK (12)</b>; <b>D9</b> del maestro al pin <b>D10</b> del esclavo.</li>
+      <li>Salidas: de cada salida <b>Q0–Q7</b> (pines 15, 1, 2, 3, 4, 5, 6 y 7) a una resistencia de 220 Ω, luego al ánodo de un LED, y todos los cátodos a GND.</li>
+      <li>LED del esclavo: pin <b>7</b> → 220 Ω → LED → GND.</li>
+      <li>Une los <b>GND</b> de las dos placas y con la protoboard.</li>
+    </ol>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="y"><h2>3 · Tabla de conexiones</h2></header>
+  <div class="body">
+    <div class="cmp">
+      <div class="h">Desde</div><div class="h">Pin</div><div class="h">Hasta</div>
+      <div>Maestro</div><div>D13 (SCK)</div><div>74HC595 pin 11 y esclavo D13</div>
+      <div>Maestro</div><div>D11 (MOSI)</div><div>74HC595 pin 14 y esclavo D11</div>
+      <div>Maestro</div><div>D12 (MISO)</div><div>Esclavo D12</div>
+      <div>Maestro</div><div>D8 (CS1)</div><div>74HC595 pin 12 (latch)</div>
+      <div>Maestro</div><div>D9 (CS2)</div><div>Esclavo D10 (SS)</div>
+      <div>74HC595</div><div>Pines 15, 1–7</div><div>8× (220 Ω → LED → GND)</div>
+      <div>Esclavo</div><div>Pin 7</div><div>220 Ω → LED → GND</div>
+    </div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="p"><h2>4 · Cómo probar</h2></header>
+  <div class="body">
+    <div class="msg">Con el código cargado, el maestro baja CS1 y manda un número: los 8 LEDs muestran sus bits. Luego baja CS2 y intercambia un byte con el esclavo: el valor llega al Monitor serie y el LED del esclavo responde. Si los LEDs no cambian, revisa OE a GND y SRCLR a 5V; si el esclavo no contesta, revisa que CS2 vaya al pin D10.</div>
+  </div>
+</article>
+
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="index.html">← Volver a 3.1.3</a></footer>
+</body></html>
