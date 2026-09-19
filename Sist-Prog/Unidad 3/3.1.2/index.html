@@ -59,8 +59,8 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
 <section class="hero">
   <div class="tag">SISTEMAS PROGRAMABLES · 3.1.2</div>
   <h1>Qwiic: <span>conecta</span> y listo</h1>
-  <p class="sub">Encadena sensores como foquitos de navidad: sin protoboard, sin soldar y sin equivocarte de cable.</p>
-  <div class="chips"><span class="chip">4 hilos</span><span class="chip">No va al revés</span><span class="chip">Cadena de sensores</span><span class="chip">3.3 V</span></div>
+  <p class="sub">Encadena dispositivos como foquitos de navidad: sin protoboard, sin soldar y sin equivocarte de cable.</p>
+  <div class="chips"><span class="chip">4 hilos</span><span class="chip">No va al revés</span><span class="chip">Cadena de dispositivos</span><span class="chip">3.3 V</span></div>
 </section>
 
 <main>
@@ -68,7 +68,7 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
 <section class="rv">
   <h2>En 20 segundos</h2><br>
   <div class="trio">
-    <div class="mini y"><b>Un cable</b>Un solo cable pequeño lleva todo lo que necesita un sensor I2C.</div>
+    <div class="mini y"><b>Un cable</b>Un solo cable pequeño lleva todo lo que necesita un dispositivo I2C.</div>
     <div class="mini p"><b>Sin soldar</b>Se conecta y se desconecta con la mano, sin pines ni protoboard.</div>
     <div class="mini g"><b>Es I2C</b>Qwiic es solo el enchufe. Por dentro sigue siendo el bus I2C del tema 3.1.1.</div>
   </div>
@@ -101,39 +101,39 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
 
 <!-- TARJETA 2 -->
 <article class="card rv">
-  <header class="p"><h2>2 · La cadena: un sensor detrás de otro</h2></header>
+  <header class="p"><h2>2 · La cadena: uno detrás de otro</h2></header>
   <div class="body">
     <p>Cada placa Qwiic tiene dos puertos: uno para recibir y otro para pasar la señal al siguiente. Todos quedan en el mismo bus I2C.</p>
     <div class="fig">
-<svg viewBox="0 0 560 200" role="img" aria-label="Arduino conectado en cadena con tres sensores mediante cables Qwiic">
+<svg viewBox="0 0 560 200" role="img" aria-label="Arduino maestro conectado en cadena con tres esclavos mediante cables Qwiic: LED, servo y potenciómetro">
 <rect x="10" y="50" width="110" height="100" rx="6" fill="#FFD93D" stroke="#000" stroke-width="3"/>
-<text x="65" y="92" text-anchor="middle" font-size="14">Arduino</text><text x="65" y="110" text-anchor="middle" font-size="12">UNO R4 WiFi</text>
+<text x="65" y="92" text-anchor="middle" font-size="14">Arduino</text><text x="65" y="110" text-anchor="middle" font-size="12">MAESTRO</text>
 <text x="65" y="136" text-anchor="middle" font-size="11">puerto Qwiic</text>
-<g fill="#333"><rect x="114" y="90" width="12" height="20"/><rect x="164" y="90" width="12" height="20"/><rect x="254" y="90" width="12" height="20"/><rect x="294" y="90" width="12" height="20"/><rect x="384" y="90" width="12" height="20"/><rect x="424" y="90" width="12" height="20"/></g>
-<g fill="#fff" stroke="#000" stroke-width="3"><rect x="170" y="60" width="90" height="80" rx="6"/><rect x="300" y="60" width="90" height="80" rx="6"/><rect x="430" y="60" width="90" height="80" rx="6"/></g>
-<g fill="#333"><rect x="164" y="90" width="12" height="20"/><rect x="254" y="90" width="12" height="20"/><rect x="294" y="90" width="12" height="20"/><rect x="384" y="90" width="12" height="20"/><rect x="424" y="90" width="12" height="20"/></g>
-<g text-anchor="middle"><text x="215" y="94" font-size="13">BME280</text><text x="215" y="114" font-size="12">0x76</text>
-<text x="345" y="94" font-size="13">VL53L0X</text><text x="345" y="114" font-size="12">0x29</text>
-<text x="475" y="94" font-size="13">MPU6050</text><text x="475" y="114" font-size="12">0x68</text></g>
-<g stroke-width="3" stroke-linecap="round">
-<path d="M126,94 H164 M126,99 H164 M126,104 H164 M126,109 H164" stroke="#000" fill="none"/>
-<path d="M266,94 H294 M266,99 H294 M266,104 H294 M266,109 H294" stroke="#000" fill="none"/>
-<path d="M396,94 H424 M396,99 H424 M396,104 H424 M396,109 H424" stroke="#000" fill="none"/>
+<g fill="#fff" stroke="#000" stroke-width="3"><rect x="150" y="60" width="100" height="80" rx="6"/><rect x="284" y="60" width="100" height="80" rx="6"/><rect x="418" y="60" width="100" height="80" rx="6"/></g>
+<g fill="#333"><rect x="114" y="90" width="12" height="20"/><rect x="144" y="90" width="12" height="20"/><rect x="244" y="90" width="12" height="20"/><rect x="278" y="90" width="12" height="20"/><rect x="378" y="90" width="12" height="20"/><rect x="412" y="90" width="12" height="20"/></g>
+<g text-anchor="middle"><text x="200" y="86" font-size="13">Esclavo 1</text><text x="200" y="103" font-size="12">LED</text><text x="200" y="121" font-size="12">0x08</text>
+<text x="334" y="86" font-size="13">Esclavo 2</text><text x="334" y="103" font-size="12">Servo</text><text x="334" y="121" font-size="12">0x09</text>
+<text x="468" y="86" font-size="13">Esclavo 3</text><text x="468" y="103" font-size="11">Potenciómetro</text><text x="468" y="121" font-size="12">0x0A</text></g>
+<g stroke-width="3" stroke-linecap="round" stroke="#000" fill="none">
+<path d="M126,94 H144 M126,99 H144 M126,104 H144 M126,109 H144"/>
+<path d="M256,94 H278 M256,99 H278 M256,104 H278 M256,109 H278"/>
+<path d="M390,94 H412 M390,99 H412 M390,104 H412 M390,109 H412"/>
 </g>
 </svg>
     </div>
     <h3>Juega: arma tu cadena</h3>
     <div class="row">
-      <button class="btn" onclick="add('bme')">+ BME280 (0x76)</button>
-      <button class="btn" onclick="add('tof')">+ VL53L0X (0x29)</button>
-      <button class="btn" onclick="add('imu')">+ MPU6050 (0x68)</button>
-      <button class="btn" onclick="add('bme2')">+ 2º BME280 (0x76)</button>
-      <button class="btn" onclick="fix()">Cambiar 2º BME280 a 0x77</button>
+      <button class="btn" onclick="add('a')">+ Esclavo LED (0x08)</button>
+      <button class="btn" onclick="add('b')">+ Esclavo servo (0x09)</button>
+      <button class="btn" onclick="add('c')">+ Esclavo potenciómetro (0x0A)</button>
+      <button class="btn" onclick="add('a2')">+ 2º esclavo LED (0x08)</button>
+      <button class="btn" onclick="fix()">Cambiar 2º esclavo a 0x0B</button>
       <button class="btn" onclick="reset()">Limpiar</button>
     </div>
     <div class="chain" id="chain"></div>
     <div class="msg" id="msg"></div>
-    <details><summary>Ejemplo práctico: estación ambiental en un minuto</summary><div>Conectas el Arduino a un sensor de clima, este a un sensor de distancia y este a un giroscopio. Tres cables cortos y tienes tres sensores midiendo, sin haber abierto una protoboard.</div></details>
+    <div class="note">En Tinkercad no existe el conector Qwiic, pero se simula igual: SDA, SCL y GND de cada esclavo conectados en paralelo al maestro (A4 es SDA y A5 es SCL en el Uno).</div>
+    <details><summary>Ejemplo práctico: tres dispositivos en un minuto</summary><div>Conectas el maestro a un esclavo con LED, este a uno con servo y este a uno con potenciómetro. Tres cables cortos y los tres trabajan, sin haber abierto una protoboard.</div></details>
   </div>
 </article>
 
@@ -142,10 +142,10 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
   <header class="g"><h2>3 · Protoboard vs Qwiic</h2></header>
   <div class="body">
     <div class="trio">
-      <div class="mini w"><b>Con protoboard</b>✗ Hasta 4 cables sueltos por sensor<br>✗ Fácil confundir SDA con SCL<br>✗ Los cables se aflojan<br>✗ Toma tiempo revisar cada conexión</div>
-      <div class="mini g"><b>Con Qwiic</b>✓ 1 cable por sensor<br>✓ El conector no deja equivocarse<br>✓ Firme y rápido de cambiar<br>✓ Ideal para clases y prototipos</div>
+      <div class="mini w"><b>Con protoboard</b>✗ Hasta 4 cables sueltos por dispositivo<br>✗ Fácil confundir SDA con SCL<br>✗ Los cables se aflojan<br>✗ Toma tiempo revisar cada conexión</div>
+      <div class="mini g"><b>Con Qwiic</b>✓ 1 cable por dispositivo<br>✓ El conector no deja equivocarse<br>✓ Firme y rápido de cambiar<br>✓ Ideal para clases y prototipos</div>
     </div>
-    <div class="note">Ejemplo: una estación con 3 sensores pide hasta 12 conexiones sueltas en protoboard, contra solo 3 cables en Qwiic.</div>
+    <div class="note">Ejemplo: una cadena con 3 dispositivos pide hasta 12 conexiones sueltas en protoboard, contra solo 3 cables en Qwiic.</div>
   </div>
 </article>
 
@@ -174,20 +174,20 @@ footer{max-width:1000px;margin:0 auto;padding:10px 16px 60px}
 
 <script>
 /* Constructor de cadena Qwiic */
-var S0={bme:['BME280','0x76'],tof:['VL53L0X','0x29'],imu:['MPU6050','0x68'],bme2:['2º BME280','0x76']};
+var S0={a:['Esclavo LED','0x08'],b:['Esclavo servo','0x09'],c:['Esclavo potenciómetro','0x0A'],a2:['2º esclavo LED','0x08']};
 var S={},chain=[];
 function init(){S=JSON.parse(JSON.stringify(S0));chain=[];draw()}
 function add(k){if(chain.indexOf(k)<0){chain.push(k);draw()}}
-function fix(){S.bme2=['2º BME280','0x77'];draw()}
+function fix(){S.a2=['2º esclavo LED','0x0B'];draw()}
 function reset(){init()}
 function draw(){
   var el=document.getElementById('chain'),m=document.getElementById('msg');
-  el.innerHTML='<span class="pill y">Arduino</span>'+chain.map(function(k){return '<span class="pill">→ '+S[k][0]+' '+S[k][1]+'</span>'}).join('');
+  el.innerHTML='<span class="pill y">Maestro</span>'+chain.map(function(k){return '<span class="pill">→ '+S[k][0]+' '+S[k][1]+'</span>'}).join('');
   var a=chain.map(function(k){return S[k][1]}),dup=a.find(function(x,i){return a.indexOf(x)!==i});
   var n=chain.length;
-  if(!n){m.className='msg';m.textContent='Agrega sensores a la cadena.';return}
+  if(!n){m.className='msg';m.textContent='Agrega dispositivos a la cadena.';return}
   var cab='Con protoboard: hasta '+(n*4)+' cables sueltos. Con Qwiic: '+n+' cable'+(n>1?'s':'')+'.';
-  if(dup){m.className='msg bad';m.textContent='⚠ Choque: dos dispositivos en '+dup+'. Cambia la dirección de uno (jumper del módulo). '+cab}
+  if(dup){m.className='msg bad';m.textContent='⚠ Choque: dos dispositivos en '+dup+'. Cambia la dirección de uno (en su programa). '+cab}
   else{m.className='msg good';m.textContent='✔ Todo bien: '+n+' dispositivo'+(n>1?'s':'')+' con direcciones distintas. '+cab}
 }
 init();
