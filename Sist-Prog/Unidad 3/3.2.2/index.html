@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3.2.2 Sensor de tiempo de vuelo láser · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="background:var(--o)">
+  <div class="tag">SISTEMAS PROGRAMABLES · 3.2.2</div>
+  <h1>Luz vs sonido: medir <span>distancia</span></h1>
+  <p class="sub">Un láser mide en milímetros y el ultrasonido mide con eco. ¿Cuál conviene y por qué?</p>
+  <div class="chips"><span class="chip">ToF</span><span class="chip">Láser</span><span class="chip">Ultrasonido</span><span class="chip">Eco</span></div>
+</section>
+<main>
+<section class="rv"><h2>En 20 segundos</h2><br>
+  <div class="trio">
+    <div class="mini y"><b>Tiempo de vuelo</b>El sensor manda un pulso y mide cuánto tarda en volver. Distancia = velocidad × tiempo ÷ 2.</div>
+    <div class="mini b"><b>Láser (VL53L0X)</b>Usa luz infrarroja. Mide en milímetros y con un haz muy estrecho.</div>
+    <div class="mini p"><b>Ultrasonido (HC-SR04)</b>Usa sonido que no oyes. Es económico, pero depende de la temperatura del aire.</div>
+  </div>
+</section>
+
+<article class="card rv">
+  <header class="o"><h2>1 · Misma idea, distinto mensajero</h2></header>
+  <div class="body">
+    <div class="fig"><svg viewBox="0 0 560 190" role="img" aria-label="Un sensor láser y uno ultrasónico midiendo la distancia a un objeto">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#000" stroke-width="1.5"/></marker></defs>
+      <text x="100" y="26" font-size="13">Láser: luz a 300 000 km/s</text>
+      <rect x="10" y="35" width="70" height="44" rx="6" fill="#FFD93D" stroke="#000" stroke-width="3"/><text x="45" y="62" text-anchor="middle" font-size="13">ToF</text>
+      <rect x="490" y="35" width="30" height="44" rx="4" fill="#fff" stroke="#000" stroke-width="3"/>
+      <line x1="80" y1="50" x2="486" y2="50" stroke="#FFB700" stroke-width="5" marker-end="url(#ar)"/><line x1="486" y1="66" x2="84" y2="66" stroke="#FFB700" stroke-width="5" stroke-dasharray="8 5" marker-end="url(#ar)"/>
+      <text x="100" y="116" font-size="13">Ultrasonido: sonido a 343 m/s</text>
+      <rect x="10" y="125" width="70" height="44" rx="6" fill="#FF6B9D" stroke="#000" stroke-width="3"/><text x="45" y="152" text-anchor="middle" font-size="13">HC-SR04</text>
+      <rect x="490" y="125" width="30" height="44" rx="4" fill="#fff" stroke="#000" stroke-width="3"/>
+      <line x1="80" y1="140" x2="486" y2="140" stroke="#E03131" stroke-width="5" marker-end="url(#ar)"/><line x1="486" y1="156" x2="84" y2="156" stroke="#E03131" stroke-width="5" stroke-dasharray="8 5" marker-end="url(#ar)"/></svg></div>
+    <p>Mueve los controles y compara cuánto tarda el eco.</p>
+    <label class="sl">Distancia al objeto: <span><b id="dv">100</b> cm</span><input type="range" id="d" min="5" max="200" value="100"></label>
+    <label class="sl">Temperatura del aire: <span><b id="tv">20</b> °C</span><input type="range" id="t" min="0" max="45" value="20"></label>
+    <div class="kpis">
+      <div class="kpi"><b id="ts"></b>eco del sonido</div>
+      <div class="kpi"><b id="tl"></b>eco de la luz</div>
+      <div class="kpi"><b id="vs"></b>velocidad del sonido</div>
+      <div class="kpi"><b id="er"></b>error del ultrasonido si supone 20 °C</div>
+    </div>
+    <div class="note">La luz regresa en nanosegundos y el sonido en milisegundos, un millón de veces más lento. Además, el sonido cambia de velocidad con la temperatura; la luz no.</div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="y"><h2>2 · ¿Cuál elegir?</h2></header>
+  <div class="body">
+    <div class="cmp">
+      <div class="h"></div><div class="h">Láser (VL53L0X)</div><div class="h">Ultrasonido (HC-SR04)</div>
+      <div><b>Rango</b></div><div>Hasta unos 2 m</div><div>De 2 a 400 cm</div>
+      <div><b>Resolución</b></div><div>1 mm</div><div>Unos 3 mm nominales</div>
+      <div><b>Haz</b></div><div>Estrecho: mide un punto</div><div>Ancho: mide un cono</div>
+      <div><b>Le afecta</b></div><div>Sol fuerte, superficies negras o transparentes</div><div>Temperatura, telas y espuma, superficies inclinadas</div>
+    </div>
+    <details><summary>Ejemplo práctico</summary><div>Un robot que esquiva paredes usa ultrasonido: es barato y le basta con saber que hay algo enfrente. Un brazo que debe detener la pinza a 1 cm de una pieza pequeña usa el láser.</div></details>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="b"><h2>3 · Qué se puede simular</h2></header>
+  <div class="body"><div class="note">Tinkercad sí trae el sensor ultrasónico HC-SR04, así que la práctica de distancia se simula completa. El láser ToF no está: para verlo usa la calculadora de arriba.</div></div>
+</article>
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="../3.2.1/index.html">← Tema anterior: 3.2.1 Sensor ambiental</a></footer>
+<script>
+function f(){var d=+$('d').value/100,T=+$('t').value,v=331.3+.606*T,v20=331.3+.606*20,e=Math.round((d*v20/v-d)*1000);
+$('dv').textContent=Math.round(d*100);$('tv').textContent=T;
+$('ts').textContent=(2*d/v*1000).toFixed(2)+' ms';$('tl').textContent=(2*d/299792458*1e9).toFixed(2)+' ns';
+$('vs').textContent=Math.round(v)+' m/s';$('er').textContent=(e>0?'+':'')+e+' mm'}
+$('d').oninput=$('t').oninput=f;f();
+</script>
+</body></html>
