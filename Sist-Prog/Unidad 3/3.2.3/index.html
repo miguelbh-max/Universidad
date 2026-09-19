@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3.2.3 IMU 6-DOF MPU6050 · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="background:var(--v)">
+  <div class="tag">SISTEMAS PROGRAMABLES · 3.2.3</div>
+  <h1>IMU: siente el <span>movimiento</span></h1>
+  <p class="sub">Un acelerómetro y un giroscopio en un chip: sabe hacia dónde estás inclinado y qué tan rápido giras.</p>
+  <div class="chips"><span class="chip">Acelerómetro</span><span class="chip">Giroscopio</span><span class="chip">6 ejes</span><span class="chip">Datos crudos</span></div>
+</section>
+<main>
+<section class="rv"><h2>En 20 segundos</h2><br>
+  <div class="trio">
+    <div class="mini y"><b>Acelerómetro</b>3 ejes. Mide aceleración, incluida la gravedad, y por eso sirve para saber la inclinación.</div>
+    <div class="mini b"><b>Giroscopio</b>3 ejes. Mide qué tan rápido gira, en grados por segundo (°/s).</div>
+    <div class="mini g"><b>6-DOF</b>3 + 3 = 6 grados de libertad. Es lo que trae el MPU6050.</div>
+  </div>
+</section>
+
+<article class="card rv">
+  <header class="v"><h2>1 · De número crudo a unidades físicas</h2></header>
+  <div class="body">
+    <p>El chip entrega números enteros de 16 bits. Se dividen entre su sensibilidad para obtener g y °/s.</p>
+    <div class="fig"><svg viewBox="0 0 560 200" role="img" aria-label="Placa IMU que se inclina según el control y flecha de gravedad">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#000" stroke-width="1.5"/></marker></defs>
+      <line x1="150" y1="100" x2="410" y2="100" stroke="#000" stroke-width="2" stroke-dasharray="6 5"/>
+      <g id="bd"><rect x="230" y="80" width="100" height="40" rx="6" fill="#4D96FF" stroke="#000" stroke-width="3"/><text x="280" y="105" text-anchor="middle" font-size="14">IMU</text></g>
+      <line x1="480" y1="50" x2="480" y2="150" stroke="#000" stroke-width="4" marker-end="url(#ar)"/><text x="492" y="105" font-size="14">g</text></svg></div>
+    <label class="sl">Inclinación: <span><b id="av">30</b> °</span><input type="range" id="a" min="-90" max="90" value="30"></label>
+    <label class="sl">Velocidad de giro: <span><b id="wv">0</b> °/s</span><input type="range" id="w" min="-250" max="250" value="0"></label>
+    <div class="kpis">
+      <div class="kpi"><b id="x1"></b>Acel X · crudo <span id="x2"></span></div>
+      <div class="kpi"><b id="z1"></b>Acel Z · crudo <span id="z2"></span></div>
+      <div class="kpi"><b id="g1"></b>Giro · crudo <span id="g2"></span></div>
+    </div>
+    <div class="note">Acelerómetro en ±2 g: se divide entre 16384. Giroscopio en ±250 °/s: se divide entre 131.</div>
+    <details><summary>Ejemplo práctico</summary><div>En reposo y plano, X vale casi 0 y Z casi 1 g (la gravedad). Si lo inclinas 90°, X sube a 1 g y Z baja a 0. Así el teléfono sabe cuándo girar la pantalla.</div></details>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="o"><h2>2 · Cada sensor tiene su defecto</h2></header>
+  <div class="body">
+    <div class="trio">
+      <div class="mini y"><b>Acelerómetro</b>✓ No se desvía con el tiempo<br>✗ Ruidoso: cualquier vibración o golpe lo altera</div>
+      <div class="mini b"><b>Giroscopio</b>✓ Suave y rápido<br>✗ Deriva: el error se va acumulando</div>
+    </div>
+    <div class="note">Ninguno alcanza solo. Por eso el tema 3.3.3 los combina. El MPU6050 usa I2C, dirección 0x68 (o 0x69).</div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="p"><h2>3 · Qué se puede simular</h2></header>
+  <div class="body"><div class="note">En Tinkercad no hay MPU6050. Simula el ángulo con un potenciómetro y haz que un servo lo copie: así practicas convertir lecturas crudas a grados.</div></div>
+</article>
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="../3.2.2/index.html">← Tema anterior: 3.2.2 Sensor de tiempo de vuelo</a></footer>
+<script>
+function f(){var a=+$('a').value,w=+$('w').value,r=a*Math.PI/180,x=Math.sin(r),z=Math.cos(r);
+$('av').textContent=a;$('wv').textContent=w;$('bd').setAttribute('transform','rotate('+a+' 280 100)');
+$('x1').textContent=x.toFixed(2)+' g';$('x2').textContent=Math.round(x*16384);
+$('z1').textContent=z.toFixed(2)+' g';$('z2').textContent=Math.round(z*16384);
+$('g1').textContent=w+' °/s';$('g2').textContent=Math.round(w*131)}
+$('a').oninput=$('w').oninput=f;f();
+</script>
+</body></html>
