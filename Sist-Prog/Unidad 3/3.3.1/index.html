@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3.3.1 Filtro de mediana · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="background:var(--b)">
+  <div class="tag">SISTEMAS PROGRAMABLES · 3.3.1</div>
+  <h1>Filtro de mediana: adiós a los <span>picos falsos</span></h1>
+  <p class="sub">Cuando un sensor da un valor absurdo de vez en cuando, la mediana lo ignora.</p>
+  <div class="chips"><span class="chip">Outliers</span><span class="chip">Ventana</span><span class="chip">Ordenar</span><span class="chip">El de en medio</span></div>
+</section>
+<main>
+<section class="rv"><h2>En 20 segundos</h2><br>
+  <div class="trio">
+    <div class="mini y"><b>Outlier</b>Una lectura que no tiene sentido, como 400 cm cuando el objeto está a 30 cm.</div>
+    <div class="mini p"><b>Ventana</b>Las últimas N lecturas que guardas para decidir.</div>
+    <div class="mini g"><b>Mediana</b>Ordenas la ventana de menor a mayor y tomas la que queda en medio.</div>
+  </div>
+</section>
+
+<article class="card rv">
+  <header class="y"><h2>1 · Paso a paso con 5 lecturas</h2></header>
+  <div class="body">
+    <div><b>Lecturas (ventana de 5)</b><div class="bits"><span>23</span><span>24</span><span class="hi">250</span><span>23</span><span>25</span></div></div>
+    <div><b>Ordenadas</b><div class="bits"><span>23</span><span>23</span><span class="mid">24</span><span>25</span><span class="hi">250</span></div></div>
+    <div class="msg">Mediana = 24. El 250 no influyó. Con un promedio habría salido 69, muy lejos de la realidad.</div>
+    <details><summary>Ejemplo práctico</summary><div>Un sensor ultrasónico o un DHT11 da, de vez en cuando, una lectura absurda. Un promedio se contagia del pico; la mediana lo descarta y tu robot no frena por un fantasma.</div></details>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="b"><h2>2 · Pruébalo: señal con picos</h2></header>
+  <div class="body">
+    <div class="row">
+      <button class="btn bw" onclick="draw(1)">Sin filtro</button><button class="btn bw" onclick="draw(3)">Ventana 3</button>
+      <button class="btn bw" onclick="draw(5)">Ventana 5</button><button class="btn bw" onclick="draw(7)">Ventana 7</button>
+    </div>
+    <div class="fig"><svg id="ch" viewBox="0 0 600 220" role="img" aria-label="Señal con picos y su versión filtrada con mediana"></svg></div>
+    <div class="leg"><span style="--c:#FF6B9D">Señal con picos</span><span style="--c:#4D96FF">Con mediana</span></div>
+    <div class="msg" id="mm"></div>
+    <div class="note">En Tinkercad: usa un potenciómetro como sensor y agrega los picos por software (por ejemplo, un valor extremo cada cierto número de lecturas).</div>
+  </div>
+</article>
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="../3.2.3/index.html">← Tema anterior: 3.2.3 IMU 6-DOF</a></footer>
+<script>
+var R=rnd(7),raw=[],i,s;
+for(i=0;i<120;i++){s=R()<.06?(R()<.5?-1:1)*(35+R()*20):0;raw.push(50+(R()-.5)*4+s)}
+function med(w){return raw.map(function(_,k){var a=raw.slice(Math.max(0,k-w+1),k+1).sort(function(x,y){return x-y});return a[a.length>>1]})}
+function draw(w){var S=[{d:raw,c:'#FF6B9D',w:2}];if(w>1)S.push({d:med(w),c:'#4D96FF',w:4});
+plot('ch',S,{min:-10,max:110});
+$('mm').textContent=w===1?'Sin filtro: los picos pasan completos al resultado.':'Ventana '+w+': quita picos de hasta '+(w>>1)+' lectura'+((w>>1)>1?'s':'')+' seguida'+((w>>1)>1?'s':'')+'. Ventana más grande quita más picos, pero responde más lento.';
+document.querySelectorAll('.bw').forEach(function(b,k){b.classList.toggle('on',[1,3,5,7][k]===w)})}
+draw(5);
+</script>
+</body></html>
