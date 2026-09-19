@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía de armado 3.1.1 · Tinkercad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="min-height:46vh;background:var(--o)">
+  <div class="tag">GUÍA DE ARMADO · TINKERCAD · 3.1.1</div>
+  <h1>I2C con <span>4 Arduinos</span></h1>
+  <p class="sub">Un maestro y tres esclavos que comparten dos cables: uno enciende un LED, otro mueve un servo y otro lee un potenciómetro.</p>
+  <div class="chips"><span class="chip">4× Arduino Uno R3</span><span class="chip">1× LED</span><span class="chip">1× Resistencia 220 Ω</span><span class="chip">1× Micro servo</span><span class="chip">1× Potenciómetro</span></div>
+</section>
+<main>
+
+<article class="card rv">
+  <header class="b"><h2>1 · El circuito terminado</h2></header>
+  <div class="body">
+    <div class="fig">
+<svg viewBox="0 0 680 335" role="img" aria-label="Cuatro Arduino Uno conectados por SDA, SCL y GND; el esclavo 1 con LED, el 2 con servo y el 3 con potenciómetro">
+<g stroke-width="4" fill="none"><line x1="36" y1="36" x2="660" y2="36" stroke="#4D96FF"/><line x1="36" y1="56" x2="660" y2="56" stroke="#FF6B9D"/><line x1="36" y1="76" x2="660" y2="76" stroke="#444"/></g>
+<text x="4" y="40" font-size="11" fill="#1a4fa0">SDA</text><text x="4" y="60" font-size="11" fill="#b3245a">SCL</text><text x="4" y="80" font-size="11">GND</text>
+<g stroke-width="3">
+<line x1="61" y1="36" x2="61" y2="120" stroke="#4D96FF"/><line x1="96" y1="56" x2="96" y2="120" stroke="#FF6B9D"/><line x1="131" y1="76" x2="131" y2="120" stroke="#444"/>
+<line x1="221" y1="36" x2="221" y2="120" stroke="#4D96FF"/><line x1="256" y1="56" x2="256" y2="120" stroke="#FF6B9D"/><line x1="291" y1="76" x2="291" y2="120" stroke="#444"/>
+<line x1="381" y1="36" x2="381" y2="120" stroke="#4D96FF"/><line x1="416" y1="56" x2="416" y2="120" stroke="#FF6B9D"/><line x1="451" y1="76" x2="451" y2="120" stroke="#444"/>
+<line x1="541" y1="36" x2="541" y2="120" stroke="#4D96FF"/><line x1="576" y1="56" x2="576" y2="120" stroke="#FF6B9D"/><line x1="611" y1="76" x2="611" y2="120" stroke="#444"/></g>
+<g fill="#000"><circle cx="61" cy="36" r="4"/><circle cx="96" cy="56" r="4"/><circle cx="131" cy="76" r="4"/><circle cx="221" cy="36" r="4"/><circle cx="256" cy="56" r="4"/><circle cx="291" cy="76" r="4"/><circle cx="381" cy="36" r="4"/><circle cx="416" cy="56" r="4"/><circle cx="451" cy="76" r="4"/><circle cx="541" cy="36" r="4"/><circle cx="576" cy="56" r="4"/><circle cx="611" cy="76" r="4"/></g>
+<g fill="#00979D" stroke="#006F74" stroke-width="3"><rect x="36" y="120" width="140" height="80" rx="6"/><rect x="196" y="120" width="140" height="80" rx="6"/><rect x="356" y="120" width="140" height="80" rx="6"/><rect x="516" y="120" width="140" height="80" rx="6"/></g>
+<g fill="#fff" font-size="11" text-anchor="middle"><text x="61" y="137">A4</text><text x="96" y="137">A5</text><text x="131" y="137">GND</text><text x="221" y="137">A4</text><text x="256" y="137">A5</text><text x="291" y="137">GND</text><text x="381" y="137">A4</text><text x="416" y="137">A5</text><text x="451" y="137">GND</text><text x="541" y="137">A4</text><text x="576" y="137">A5</text><text x="611" y="137">GND</text>
+<text x="236" y="194">13</text><text x="386" y="194">9</text><text x="426" y="194">5V</text><text x="466" y="194">GND</text><text x="546" y="194">5V</text><text x="586" y="194">A0</text><text x="626" y="194">GND</text></g>
+<g fill="#fff" text-anchor="middle"><text x="106" y="164" font-size="13">Maestro</text><text x="106" y="180" font-size="11">Arduino Uno</text><text x="266" y="164" font-size="13">Esclavo 1</text><text x="266" y="180" font-size="11">0x08</text><text x="426" y="164" font-size="13">Esclavo 2</text><text x="426" y="180" font-size="11">0x09</text><text x="586" y="164" font-size="13">Esclavo 3</text><text x="586" y="180" font-size="11">0x0A</text></g>
+<text x="106" y="222" text-anchor="middle" font-size="12">Monitor serie</text>
+<g stroke-width="3" fill="none"><line x1="236" y1="200" x2="236" y2="222" stroke="#F28C28"/><line x1="236" y1="256" x2="236" y2="271" stroke="#444"/><line x1="236" y1="291" x2="236" y2="306" stroke="#444"/>
+<line x1="386" y1="200" x2="386" y2="250" stroke="#F28C28"/><line x1="426" y1="200" x2="426" y2="250" stroke="#E03131"/><line x1="466" y1="200" x2="466" y2="250" stroke="#8B5A2B"/>
+<line x1="546" y1="200" x2="546" y2="250" stroke="#E03131"/><line x1="586" y1="200" x2="586" y2="250" stroke="#F28C28"/><line x1="626" y1="200" x2="626" y2="250" stroke="#8B5A2B"/></g>
+<rect x="228" y="222" width="16" height="34" fill="#E8D9A0" stroke="#000" stroke-width="2"/><circle cx="236" cy="281" r="10" fill="#FF5050" stroke="#000" stroke-width="2"/>
+<text x="256" y="243" font-size="11">220 Ω</text><text x="256" y="285" font-size="11">LED</text><text x="236" y="322" text-anchor="middle" font-size="11">GND</text>
+<rect x="376" y="250" width="100" height="40" rx="4" fill="#3B7DD8" stroke="#1F4E8C" stroke-width="2"/><text x="426" y="275" text-anchor="middle" font-size="13" fill="#fff">Servo</text>
+<rect x="536" y="250" width="100" height="40" rx="4" fill="#DDD" stroke="#000" stroke-width="2"/><text x="586" y="275" text-anchor="middle" font-size="11">Potenciómetro</text>
+</svg>
+    </div>
+    <div class="note">Colores de los cables: azul = SDA, rosa = SCL, gris = GND, naranja = señal, rojo = 5 V, café = GND del servo o del potenciómetro.</div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="g"><h2>2 · Pasos de armado</h2></header>
+  <div class="body">
+    <ol style="padding-left:1.4em;display:grid;gap:10px;font-weight:600">
+      <li>Entra a Tinkercad → Circuits → <b>Crear</b> → <b>Circuito nuevo</b>.</li>
+      <li>Arrastra <b>4 Arduino Uno R3</b>. Haz clic en cada uno y ponle nombre: Maestro, Esclavo 1, Esclavo 2 y Esclavo 3.</li>
+      <li>Une el pin <b>A4</b> de los 4 Arduinos entre sí (línea SDA), el pin <b>A5</b> de los 4 entre sí (línea SCL) y un <b>GND</b> común de los 4.</li>
+      <li><b>Esclavo 1:</b> del pin 13 a una resistencia de 220 Ω, de ahí al ánodo (pata larga) del LED, y el cátodo a GND.</li>
+      <li><b>Esclavo 2:</b> agrega un Micro servo. Señal al pin 9, rojo a 5V y café (o negro) a GND.</li>
+      <li><b>Esclavo 3:</b> agrega un Potenciómetro. Extremos a 5V y GND, y la pata central a A0.</li>
+      <li>Si el simulador no detecta a los esclavos, agrega dos resistencias de 4.7 kΩ: una de SDA a 5V y otra de SCL a 5V.</li>
+    </ol>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="y"><h2>3 · Tabla de conexiones</h2></header>
+  <div class="body">
+    <div class="cmp">
+      <div class="h">Desde</div><div class="h">Pin</div><div class="h">Hasta</div>
+      <div>Los 4 Arduinos</div><div>A4</div><div>Línea SDA común</div>
+      <div>Los 4 Arduinos</div><div>A5</div><div>Línea SCL común</div>
+      <div>Los 4 Arduinos</div><div>GND</div><div>GND común</div>
+      <div>Esclavo 1</div><div>Pin 13</div><div>220 Ω → LED → GND</div>
+      <div>Esclavo 2</div><div>Pin 9</div><div>Servo (señal); rojo a 5V, café a GND</div>
+      <div>Esclavo 3</div><div>A0</div><div>Potenciómetro (centro); extremos a 5V y GND</div>
+    </div>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="p"><h2>4 · Cómo probar</h2></header>
+  <div class="body">
+    <div class="msg">Con el código cargado (esclavos con direcciones 0x08, 0x09 y 0x0A), inicia la simulación y abre el Monitor serie del maestro. Debe mostrar el valor del potenciómetro del esclavo 3, y al mandar una orden se enciende el LED o se mueve el servo. Si un esclavo no responde, revisa que su dirección sea única y que los cuatro GND estén unidos.</div>
+  </div>
+</article>
+
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="index.html">← Volver a 3.1.1</a></footer>
+</body></html>
