@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3.3.3 Filtro complementario · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../neo.css"><script src="../neo.js"></script></head>
+<body>
+<section class="hero" style="background:var(--p)">
+  <div class="tag">SISTEMAS PROGRAMABLES · 3.3.3</div>
+  <h1>Filtro complementario: lo mejor de <span>dos sensores</span></h1>
+  <p class="sub">El acelerómetro y el giroscopio se corrigen entre sí para dar un ángulo estable.</p>
+  <div class="chips"><span class="chip">Roll</span><span class="chip">Pitch</span><span class="chip">Deriva</span><span class="chip">Fusión</span></div>
+</section>
+<main>
+<section class="rv"><h2>En 20 segundos</h2><br>
+  <div class="trio">
+    <div class="mini o"><b>Acelerómetro</b>Sabe dónde está «abajo» y no se desvía, pero tiembla con cualquier vibración.</div>
+    <div class="mini b"><b>Giroscopio</b>Es suave y rápido, pero con el tiempo el error se acumula (deriva).</div>
+    <div class="mini g"><b>El filtro</b>Toma, por ejemplo, 98% del giroscopio y 2% del acelerómetro. Queda suave y sin deriva.</div>
+  </div>
+</section>
+
+<article class="card rv">
+  <header class="y"><h2>1 · Roll y Pitch</h2></header>
+  <div class="body">
+    <div class="fig"><svg viewBox="0 0 560 170" role="img" aria-label="Pitch: nariz arriba o abajo. Roll: un ala arriba y otra abajo">
+      <line x1="60" y1="85" x2="220" y2="85" stroke="#000" stroke-width="2" stroke-dasharray="6 5"/>
+      <g transform="rotate(-20 140 85)"><rect x="90" y="78" width="100" height="14" rx="4" fill="#4D96FF" stroke="#000" stroke-width="3"/><polygon points="190,78 212,85 190,92" fill="#FFD93D" stroke="#000" stroke-width="3"/></g>
+      <text x="140" y="150" text-anchor="middle" font-size="14">Pitch: cabeceo</text>
+      <line x1="340" y1="85" x2="500" y2="85" stroke="#000" stroke-width="2" stroke-dasharray="6 5"/>
+      <g transform="rotate(15 420 85)"><rect x="350" y="80" width="140" height="10" rx="4" fill="#FF9F45" stroke="#000" stroke-width="3"/><circle cx="420" cy="85" r="11" fill="#4D96FF" stroke="#000" stroke-width="3"/></g>
+      <text x="420" y="150" text-anchor="middle" font-size="14">Roll: alabeo</text></svg></div>
+    <div class="note">El acelerómetro puede dar Roll y Pitch porque siente la gravedad. El giro sobre el eje vertical (Yaw) no cambia la gravedad, así que ahí no ayuda.</div>
+    <details><summary>Ejemplo práctico</summary><div>Un dron o un robot que se balancea sobre dos ruedas necesita saber su inclinación cien veces por segundo, sin temblar y sin desviarse. El filtro complementario lo logra con muy pocos cálculos.</div></details>
+  </div>
+</article>
+
+<article class="card rv">
+  <header class="p"><h2>2 · Pruébalo: ¿cuánto confías en cada uno?</h2></header>
+  <div class="body">
+    <label class="sl">Confianza en el giroscopio, α: <span><b id="av">0.90</b></span><input type="range" id="al" min="0.5" max="0.99" step="0.01" value="0.9"></label>
+    <div class="fig"><svg id="ch" viewBox="0 0 600 220" role="img" aria-label="Ángulo real, acelerómetro ruidoso, giroscopio con deriva y filtro complementario"></svg></div>
+    <div class="leg"><span style="--c:#000">Ángulo real</span><span style="--c:#FF6B9D">Acelerómetro</span><span style="--c:#FF9F45">Giroscopio solo</span><span style="--c:#4D96FF">Filtro</span></div>
+    <div class="kpis"><div class="kpi"><b id="e1"></b>error del acelerómetro</div><div class="kpi"><b id="e2"></b>error del giroscopio</div><div class="kpi"><b id="e3"></b>error del filtro</div></div>
+    <div class="msg">α alto: confías más en el giroscopio, hay menos ruido pero vuelve la deriva. α bajo: confías más en el acelerómetro, no hay deriva pero pasa más ruido. En sistemas reales se usa cerca de 0.98 porque se lee 100 veces por segundo.</div>
+    <div class="note">En Tinkercad no hay MPU6050. Esta gráfica simula el acelerómetro y el giroscopio por software; en Tinkercad puedes mostrar el ángulo estimado con un servo.</div>
+  </div>
+</article>
+</main>
+<footer class="rv"><a class="btn" style="text-decoration:none;color:#000;display:inline-block" href="../3.3.2/index.html">← Tema anterior: 3.3.2 Filtro EMA y media móvil</a></footer>
+<script>
+var R=rnd(5),N=120,th=[],ac=[],rate=[],i;
+for(i=0;i<N;i++){th.push(30*Math.sin(2*Math.PI*i/60));ac.push(th[i]+(R()-.5)*16);rate.push((i?th[i]-th[i-1]:0)+0.1)}
+function rms(a){var s=0;a.forEach(function(v,k){s+=(v-th[k])*(v-th[k])});return Math.sqrt(s/N)}
+function f(){var a=+$('al').value,g=[th[0]],fu=[th[0]],k;
+for(k=1;k<N;k++){g.push(g[k-1]+rate[k]);fu.push(a*(fu[k-1]+rate[k])+(1-a)*ac[k])}
+plot('ch',[{d:ac,c:'#FF6B9D',w:1.5},{d:g,c:'#FF9F45',w:3},{d:th,c:'#000',w:2,k:'6 4'},{d:fu,c:'#4D96FF',w:4}],{min:-50,max:50});
+$('av').textContent=a.toFixed(2);$('e1').textContent=rms(ac).toFixed(1)+'°';$('e2').textContent=rms(g).toFixed(1)+'°';$('e3').textContent=rms(fu).toFixed(1)+'°'}
+$('al').oninput=f;f();
+</script>
+</body></html>
