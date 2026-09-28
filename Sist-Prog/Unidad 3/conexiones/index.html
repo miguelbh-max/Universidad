@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conexiones · Sistemas Programables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS AURORA ============ */
+:root{
+  --bg:#070b14;
+  --card:rgba(15,20,35,.82);
+  --card-solid:#0f1423;
+  --line:rgba(255,255,255,.09);
+  --text:#e8ecf5;
+  --muted:#9aa4bd;
+  --violet:#a78bfa;
+  --cyan:#22d3ee;
+  --emerald:#34d399;
+  /* colores de cable (convención del curso) */
+  --vcc:#ef4444;   /* rojo  = alimentación */
+  --gnd:#6b7280;   /* gris/negro = tierra */
+  --sda:#3b82f6;   /* azul  = datos */
+  --scl:#facc15;   /* amarillo = reloj */
+  --cs:#f472b6;    /* rosa  = chip select */
+  --radius:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Inter,system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.55;overflow-x:hidden;min-height:100vh;
+}
+/* ============ FONDO AURORA ANIMADO ============ */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.aurora span{
+  position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;
+  animation:drift 22s ease-in-out infinite alternate;
+}
+.aurora span:nth-child(1){width:60vw;height:60vw;background:var(--violet);top:-20vw;left:-15vw}
+.aurora span:nth-child(2){width:55vw;height:55vw;background:var(--cyan);top:20vh;right:-20vw;animation-delay:-7s}
+.aurora span:nth-child(3){width:50vw;height:50vw;background:var(--emerald);bottom:-25vw;left:20vw;animation-delay:-14s}
+@keyframes drift{
+  0%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(8vw,6vh) scale(1.12)}
+  100%{transform:translate(-6vw,-4vh) scale(.95)}
+}
+/* ============ LAYOUT ============ */
+.wrap{width:min(1100px,100% - 32px);margin-inline:auto}
+section{padding:64px 0}
+h1,h2,h3{font-family:Poppins,sans-serif;line-height:1.15}
+h2{font-size:clamp(1.8rem,5vw,2.6rem);margin-bottom:10px}
+h3{font-size:1.2rem;margin-bottom:8px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:10px}
+.lead{color:var(--muted);max-width:720px;margin-bottom:28px}
+.grad{background:linear-gradient(90deg,var(--violet),var(--cyan),var(--emerald));-webkit-background-clip:text;background-clip:text;color:transparent}
+code,.mono{font-family:"JetBrains Mono",monospace}
+/* ============ NAV ============ */
+nav{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);background:rgba(7,11,20,.6);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:8px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+nav a{flex:none;color:var(--text);text-decoration:none;font-size:.88rem;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid var(--line);transition:.25s}
+nav a:hover{background:var(--violet);color:#0b0b14;border-color:transparent;transform:translateY(-2px)}
+/* ============ HERO ============ */
+.hero{min-height:88vh;display:grid;place-items:center;text-align:center;padding:80px 0 40px}
+.hero h1{font-size:clamp(2.6rem,10vw,5.6rem);font-weight:800;margin:10px 0 16px}
+.hero p{color:var(--muted);font-size:clamp(1rem,2.6vw,1.25rem);max-width:640px;margin:0 auto 28px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chip{font-family:"JetBrains Mono",monospace;font-size:.85rem;padding:8px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.hero-svg{width:min(560px,100%);margin:32px auto 0;display:block}
+/* ============ TARJETAS ============ */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.35);
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+}
+.card:hover{transform:translateY(-6px);box-shadow:0 28px 60px rgba(0,0,0,.5);border-color:rgba(167,139,250,.45)}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:1fr}
+.g3{grid-template-columns:1fr}
+@media(min-width:720px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:980px){.g3{grid-template-columns:repeat(3,1fr)}}
+.diagram{background:var(--card-solid);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:18px 0}
+.diagram svg{width:100%;height:auto;display:block}
+.caption{font-size:.86rem;color:var(--muted);margin-top:10px;text-align:center}
+.note{border-left:4px solid var(--cyan);background:rgba(34,211,238,.08);padding:14px 16px;border-radius:12px;margin-top:16px;font-size:.95rem}
+/* ============ GLOSARIO ============ */
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.filters button{
+  font:600 .9rem Inter,sans-serif;color:var(--text);background:var(--card);
+  border:1px solid var(--line);padding:10px 18px;border-radius:999px;cursor:pointer;transition:.25s
+}
+.filters button:hover{transform:scale(1.05)}
+.filters button.on{background:linear-gradient(90deg,var(--violet),var(--cyan));color:#0b0b14;border-color:transparent}
+.term{display:flex;gap:16px;align-items:flex-start}
+.term .ico{flex:none;width:76px;height:76px;border-radius:18px;background:#0a0f1c;border:1px solid var(--line);display:grid;place-items:center}
+.term .ico svg{width:60px;height:60px}
+.term .sig{font-family:"JetBrains Mono",monospace;font-size:1.25rem;font-weight:700}
+.term .full{font-size:.88rem;color:var(--cyan);margin-bottom:4px}
+.term .full i{color:var(--muted);font-style:normal}
+.term p{font-size:.92rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.t-bus{background:rgba(167,139,250,.18);color:var(--violet)}
+.t-i2c{background:rgba(59,130,246,.18);color:#93c5fd}
+.t-spi{background:rgba(244,114,182,.18);color:var(--cs)}
+.t-qwiic{background:rgba(52,211,153,.18);color:var(--emerald)}
+.term-card.hide{display:none}
+/* ============ TRAMA I2C ============ */
+.frame{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.frame div{flex:1 1 auto;min-width:70px;text-align:center;padding:12px 8px;border-radius:12px;font:700 .82rem "JetBrains Mono",monospace;cursor:pointer;transition:.25s;border:1px solid transparent}
+.frame div:hover,.frame div.sel{transform:translateY(-4px);border-color:#fff}
+.frame-info{margin-top:14px;min-height:48px;padding:14px 16px;border-radius:14px;background:#0a0f1c;border:1px solid var(--line);font-size:.95rem}
+/* ============ CPOL / CPHA ============ */
+.modes{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:720px){.modes{grid-template-columns:1fr 1fr}}
+.mode{background:#0a0f1c;border:1px solid var(--line);border-radius:18px;padding:14px}
+.mode h4{font:700 .95rem "JetBrains Mono",monospace;margin-bottom:6px}
+.mode small{color:var(--muted)}
+/* ============ TABLA ============ */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;min-width:560px;background:var(--card)}
+th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line);font-size:.93rem}
+th{font-family:Poppins,sans-serif;background:rgba(167,139,250,.12)}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600;color:var(--cyan)}
+/* ============ RESUMEN FINAL ============ */
+.summary{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:720px){.summary{grid-template-columns:repeat(4,1fr)}}
+.summary .card{text-align:center}
+.summary .big{font:800 1.6rem Poppins,sans-serif;margin-bottom:6px}
+/* ============ FOOTER / BOTÓN ============ */
+footer{padding:40px 0 60px;text-align:center}
+.btn{display:inline-block;text-decoration:none;color:#0b0b14;font-weight:700;padding:14px 26px;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--cyan));transition:.25s}
+.btn:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 12px 30px rgba(34,211,238,.35)}
+/* ============ ANIMACIÓN DE ENTRADA ============ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .aurora span{animation:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .card,.btn,nav a,.frame div{transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Sistemas Programables · Unidad 3</div>
+    <h1><span class="grad">Conexiones</span></h1>
+    <p>Qué es un bus y qué significa cada sigla de I2C, SPI y Qwiic, explicado con diagramas.</p>
+    <div class="chips">
+      <span class="chip">BUS</span><span class="chip">I2C</span><span class="chip">SPI</span><span class="chip">Qwiic</span>
+    </div>
+    <!-- Ilustración: un maestro y tres dispositivos colgados de un bus -->
+    <svg class="hero-svg" viewBox="0 0 560 200" role="img" aria-label="Un maestro conectado a tres dispositivos por un bus compartido">
+      <rect x="10" y="70" width="110" height="60" rx="14" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/>
+      <text x="65" y="98" text-anchor="middle" fill="#e8ecf5" font-family="Poppins" font-weight="700" font-size="15">Arduino</text>
+      <text x="65" y="117" text-anchor="middle" fill="#a78bfa" font-family="Inter" font-size="11">MAESTRO</text>
+      <line x1="120" y1="88" x2="550" y2="88" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+      <line x1="120" y1="112" x2="550" y2="112" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+      <g font-family="Inter" font-size="11" fill="#e8ecf5" text-anchor="middle">
+        <g><line x1="220" y1="88" x2="220" y2="150" stroke="#3b82f6" stroke-width="3"/><line x1="232" y1="112" x2="232" y2="150" stroke="#facc15" stroke-width="3"/><rect x="186" y="150" width="80" height="40" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2"/><text x="226" y="175">Sensor</text></g>
+        <g><line x1="340" y1="88" x2="340" y2="150" stroke="#3b82f6" stroke-width="3"/><line x1="352" y1="112" x2="352" y2="150" stroke="#facc15" stroke-width="3"/><rect x="306" y="150" width="80" height="40" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2"/><text x="346" y="175">Pantalla</text></g>
+        <g><line x1="460" y1="88" x2="460" y2="150" stroke="#3b82f6" stroke-width="3"/><line x1="472" y1="112" x2="472" y2="150" stroke="#facc15" stroke-width="3"/><rect x="426" y="150" width="80" height="40" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2"/><text x="466" y="175">Memoria</text></g>
+      </g>
+      <text x="540" y="80" text-anchor="end" fill="#93c5fd" font-family="JetBrains Mono" font-size="12">SDA</text>
+      <text x="540" y="132" text-anchor="end" fill="#facc15" font-family="JetBrains Mono" font-size="12">SCL</text>
+    </svg>
+  </div>
+</header>
+
+<nav aria-label="Secciones">
+  <div class="wrap">
+    <a href="#bus">¿Qué es un bus?</a>
+    <a href="#glosario">Glosario de siglas</a>
+    <a href="#i2c">I2C</a>
+    <a href="#spi">SPI</a>
+    <a href="#qwiic">Qwiic</a>
+    <a href="#comparativa">Comparativa</a>
+  </div>
+</nav>
+
+<main>
+<!-- ============ 1. BUS ============ -->
+<section id="bus" class="wrap reveal">
+  <div class="kicker">01 · Concepto base</div>
+  <h2>¿Qué es un <span class="grad">BUS</span>?</h2>
+  <p class="lead">Un bus es un <b>conjunto de cables compartidos</b> por el que varios dispositivos se comunican. Todos se conectan a las mismas líneas y siguen reglas (un <b>protocolo</b>) para decidir quién habla, cuándo y con quién.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 760 260" role="img" aria-label="Comparación: cables punto a punto contra un bus compartido">
+      <text x="185" y="26" text-anchor="middle" fill="#ef4444" font-family="Poppins" font-weight="700" font-size="16">Sin bus: un cable por pareja</text>
+      <g stroke="#9aa4bd" stroke-width="2">
+        <line x1="95" y1="75" x2="275" y2="75"/><line x1="95" y1="75" x2="95" y2="215"/><line x1="95" y1="75" x2="275" y2="215"/>
+        <line x1="275" y1="75" x2="275" y2="215"/><line x1="275" y1="75" x2="95" y2="215"/><line x1="95" y1="215" x2="275" y2="215"/>
+      </g>
+      <g fill="#1e1b4b" stroke="#a78bfa" stroke-width="2">
+        <circle cx="95" cy="75" r="24"/><circle cx="275" cy="75" r="24"/><circle cx="95" cy="215" r="24"/><circle cx="275" cy="215" r="24"/>
+      </g>
+      <g fill="#e8ecf5" font-family="Poppins" font-weight="700" font-size="14" text-anchor="middle">
+        <text x="95" y="80">A</text><text x="275" y="80">B</text><text x="95" y="220">C</text><text x="275" y="220">D</text>
+      </g>
+      <text x="185" y="252" text-anchor="middle" fill="#9aa4bd" font-family="Inter" font-size="13">4 dispositivos = 6 cables</text>
+
+      <line x1="380" y1="30" x2="380" y2="240" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="6 6"/>
+
+      <text x="575" y="26" text-anchor="middle" fill="#34d399" font-family="Poppins" font-weight="700" font-size="16">Con bus: una vía compartida</text>
+      <rect x="420" y="135" width="310" height="14" rx="7" fill="#22d3ee"/>
+      <g stroke="#22d3ee" stroke-width="3">
+        <line x1="460" y1="90" x2="460" y2="135"/><line x1="545" y1="90" x2="545" y2="135"/>
+        <line x1="630" y1="90" x2="630" y2="135"/><line x1="700" y1="149" x2="700" y2="190"/>
+      </g>
+      <g fill="#1e1b4b" stroke="#a78bfa" stroke-width="2">
+        <circle cx="460" cy="75" r="24"/><circle cx="545" cy="75" r="24"/><circle cx="630" cy="75" r="24"/><circle cx="700" cy="205" r="24"/>
+      </g>
+      <g fill="#e8ecf5" font-family="Poppins" font-weight="700" font-size="14" text-anchor="middle">
+        <text x="460" y="80">A</text><text x="545" y="80">B</text><text x="630" y="80">C</text><text x="700" y="210">D</text>
+      </g>
+      <text x="560" y="252" text-anchor="middle" fill="#9aa4bd" font-family="Inter" font-size="13">agregar uno más = solo conectarlo</text>
+    </svg>
+    <div class="caption">Un bus funciona como una calle por la que pasan todos, con reglas de tránsito para que nadie choque.</div>
+  </div>
+</section>
+
+<!-- ============ 2. GLOSARIO ============ -->
+<section id="glosario" class="wrap reveal">
+  <div class="kicker">02 · Nomenclatura</div>
+  <h2>Glosario de <span class="grad">siglas</span></h2>
+  <p class="lead">Cada sigla con su significado en inglés, su traducción y una imagen que la representa. Filtra por protocolo.</p>
+  <div class="filters" role="group" aria-label="Filtrar glosario">
+    <button class="on" data-f="all">Todas</button>
+    <button data-f="i2c">I2C</button>
+    <button data-f="spi">SPI</button>
+    <button data-f="qwiic">Qwiic</button>
+  </div>
+  <div class="grid g3" id="glossary"></div>
+</section>
+
+<!-- ============ 3. I2C ============ -->
+<section id="i2c" class="wrap reveal">
+  <div class="kicker">03 · 3.1.1</div>
+  <h2><span class="grad">I2C</span>: dos cables, muchos dispositivos</h2>
+  <p class="lead"><b>I2C</b> = <i>Inter-Integrated Circuit</i> (Circuito Inter-Integrado). Creado por Philips para comunicar chips dentro de una placa. Un <b>maestro</b> controla la comunicación y cada <b>esclavo</b> tiene una <b>dirección</b> única.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 760 300" role="img" aria-label="Bus I2C con resistencias pull-up y tres esclavos">
+      <!-- 3.3V y pull-ups -->
+      <line x1="160" y1="30" x2="330" y2="30" stroke="#ef4444" stroke-width="4"/>
+      <text x="150" y="35" text-anchor="end" fill="#ef4444" font-family="JetBrains Mono" font-size="13">3.3 V</text>
+      <g stroke="#e8ecf5" stroke-width="2.5" fill="none">
+        <line x1="220" y1="30" x2="220" y2="45"/><polyline points="220,45 212,52 228,60 212,68 228,76 220,83"/><line x1="220" y1="83" x2="220" y2="120"/>
+        <line x1="290" y1="30" x2="290" y2="45"/><polyline points="290,45 282,52 298,60 282,68 298,76 290,83"/><line x1="290" y1="83" x2="290" y2="170"/>
+      </g>
+      <text x="255" y="66" text-anchor="middle" fill="#9aa4bd" font-family="Inter" font-size="11">4.7 kΩ</text>
+      <text x="335" y="66" fill="#9aa4bd" font-family="Inter" font-size="11">pull-ups</text>
+      <!-- maestro -->
+      <rect x="20" y="95" width="130" height="100" rx="16" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/>
+      <text x="85" y="138" text-anchor="middle" fill="#e8ecf5" font-family="Poppins" font-weight="700" font-size="15">UNO R4</text>
+      <text x="85" y="158" text-anchor="middle" fill="#a78bfa" font-family="Inter" font-size="12">MAESTRO</text>
+      <!-- líneas -->
+      <line x1="150" y1="120" x2="740" y2="120" stroke="#3b82f6" stroke-width="5"/>
+      <line x1="150" y1="170" x2="740" y2="170" stroke="#facc15" stroke-width="5"/>
+      <text x="740" y="110" text-anchor="end" fill="#93c5fd" font-family="JetBrains Mono" font-size="13">SDA · datos</text>
+      <text x="740" y="190" text-anchor="end" fill="#facc15" font-family="JetBrains Mono" font-size="13">SCL · reloj</text>
+      <!-- esclavos -->
+      <g font-family="Inter" text-anchor="middle">
+        <g><line x1="400" y1="120" x2="400" y2="225" stroke="#3b82f6" stroke-width="3"/><line x1="418" y1="170" x2="418" y2="225" stroke="#facc15" stroke-width="3"/>
+          <rect x="360" y="225" width="100" height="58" rx="12" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+          <text x="410" y="249" fill="#e8ecf5" font-size="13">LED</text><text x="410" y="270" fill="#34d399" font-family="JetBrains Mono" font-size="13">0x08</text></g>
+        <g><line x1="520" y1="120" x2="520" y2="225" stroke="#3b82f6" stroke-width="3"/><line x1="538" y1="170" x2="538" y2="225" stroke="#facc15" stroke-width="3"/>
+          <rect x="480" y="225" width="100" height="58" rx="12" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+          <text x="530" y="249" fill="#e8ecf5" font-size="13">Servo</text><text x="530" y="270" fill="#34d399" font-family="JetBrains Mono" font-size="13">0x09</text></g>
+        <g><line x1="640" y1="120" x2="640" y2="225" stroke="#3b82f6" stroke-width="3"/><line x1="658" y1="170" x2="658" y2="225" stroke="#facc15" stroke-width="3"/>
+          <rect x="600" y="225" width="100" height="58" rx="12" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+          <text x="650" y="249" fill="#e8ecf5" font-size="13">Potenciómetro</text><text x="650" y="270" fill="#34d399" font-family="JetBrains Mono" font-size="13">0x0A</text></g>
+      </g>
+    </svg>
+    <div class="caption">SDA (azul) y SCL (amarillo) son compartidas. Las resistencias pull-up mantienen las líneas en 1 cuando nadie transmite. En el UNO: A4 = SDA, A5 = SCL.</div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Direcciones</h3>
+      <p style="color:var(--muted);font-size:.95rem">Con <b>7 bits</b> hay 128 direcciones (unas 112 utilizables). El prefijo <code>0x</code> indica hexadecimal.</p>
+      <svg viewBox="0 0 360 90" style="width:100%;margin-top:14px" role="img" aria-label="Mapa de direcciones I2C">
+        <rect x="0" y="20" width="22" height="34" rx="6" fill="#ef4444" opacity=".8"/>
+        <rect x="24" y="20" width="312" height="34" rx="6" fill="#34d399" opacity=".85"/>
+        <rect x="338" y="20" width="22" height="34" rx="6" fill="#ef4444" opacity=".8"/>
+        <text x="180" y="42" text-anchor="middle" fill="#052e1f" font-family="JetBrains Mono" font-weight="700" font-size="13">0x08 … 0x77 · libres</text>
+        <text x="0" y="74" fill="#fca5a5" font-family="JetBrains Mono" font-size="11">0x00–07</text>
+        <text x="360" y="74" text-anchor="end" fill="#fca5a5" font-family="JetBrains Mono" font-size="11">0x78–7F</text>
+        <text x="180" y="12" text-anchor="middle" fill="#9aa4bd" font-family="Inter" font-size="11">rojo = reservadas</text>
+      </svg>
+    </div>
+    <div class="card">
+      <h3>Velocidades</h3>
+      <p style="color:var(--muted);font-size:.95rem"><b>kHz</b> = kilohertz, miles de pulsos de reloj por segundo.</p>
+      <svg viewBox="0 0 360 90" style="width:100%;margin-top:14px" role="img" aria-label="Comparación de velocidades I2C">
+        <text x="0" y="28" fill="#e8ecf5" font-family="Inter" font-size="12">Estándar</text>
+        <rect x="80" y="16" width="70" height="16" rx="8" fill="#3b82f6"/><text x="160" y="29" fill="#93c5fd" font-family="JetBrains Mono" font-size="12">100 kHz</text>
+        <text x="0" y="68" fill="#e8ecf5" font-family="Inter" font-size="12">Rápido</text>
+        <rect x="80" y="56" width="260" height="16" rx="8" fill="#22d3ee"/><text x="330" y="69" text-anchor="end" fill="#052e3a" font-family="JetBrains Mono" font-weight="700" font-size="12">400 kHz</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <h3>La trama: toca cada parte</h3>
+    <div class="frame" id="frame">
+      <div data-i="0" style="background:#34d399;color:#052e1f">START</div>
+      <div data-i="1" style="background:#a78bfa;color:#1e1b4b;flex-grow:3">DIRECCIÓN · 7 bits</div>
+      <div data-i="2" style="background:#f472b6;color:#3b0a24">R/W</div>
+      <div data-i="3" style="background:#22d3ee;color:#052e3a">ACK</div>
+      <div data-i="4" style="background:#3b82f6;color:#fff;flex-grow:3">DATOS · 8 bits</div>
+      <div data-i="5" style="background:#22d3ee;color:#052e3a">ACK</div>
+      <div data-i="6" style="background:#ef4444;color:#fff">STOP</div>
+    </div>
+    <div class="frame-info" id="frameInfo">Toca un bloque para ver qué significa.</div>
+
+    <svg viewBox="0 0 760 170" style="margin-top:18px" role="img" aria-label="Condición de Start y Stop en SDA y SCL">
+      <text x="10" y="50" fill="#facc15" font-family="JetBrains Mono" font-size="13">SCL</text>
+      <text x="10" y="120" fill="#93c5fd" font-family="JetBrains Mono" font-size="13">SDA</text>
+      <!-- SCL -->
+      <polyline fill="none" stroke="#facc15" stroke-width="3" points="60,35 170,35 170,70 220,70 220,35 270,35 270,70 320,70 320,35 370,35 370,70 420,70 420,35 470,35 470,70 520,70 520,35 700,35"/>
+      <!-- SDA -->
+      <polyline fill="none" stroke="#3b82f6" stroke-width="3" points="60,100 120,100 130,140 245,140 250,100 345,100 350,140 540,140 600,140 610,100 700,100"/>
+      <rect x="95" y="88" width="60" height="64" rx="10" fill="none" stroke="#34d399" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="125" y="166" text-anchor="middle" fill="#34d399" font-family="Poppins" font-weight="700" font-size="13">START</text>
+      <rect x="575" y="88" width="60" height="64" rx="10" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="605" y="166" text-anchor="middle" fill="#ef4444" font-family="Poppins" font-weight="700" font-size="13">STOP</text>
+      <text x="395" y="166" text-anchor="middle" fill="#9aa4bd" font-family="Inter" font-size="12">bits: SDA solo cambia con SCL abajo</text>
+    </svg>
+    <div class="caption">START: SDA baja mientras SCL está arriba. STOP: SDA sube mientras SCL está arriba.</div>
+  </div>
+
+  <div class="grid g3">
+    <div class="card"><h3>Misma dirección</h3><p style="color:var(--muted);font-size:.93rem">Dos esclavos contestan a la vez y la lectura sale basura. Solución: cambiar la dirección de uno.</p></div>
+    <div class="card"><h3>NACK</h3><p style="color:var(--muted);font-size:.93rem">Nadie confirma: cable suelto o dirección mal escrita. Así funciona un escáner I2C.</p></div>
+    <div class="card"><h3>Timeout</h3><p style="color:var(--muted);font-size:.93rem">Si un esclavo no contesta en cierto tiempo, el maestro aborta y sigue, en lugar de congelarse.</p></div>
+  </div>
+</section>
+
+<!-- ============ 4. SPI ============ -->
+<section id="spi" class="wrap reveal">
+  <div class="kicker">04 · 3.1.3</div>
+  <h2><span class="grad">SPI</span>: la autopista rápida</h2>
+  <p class="lead"><b>SPI</b> = <i>Serial Peripheral Interface</i> (Interfaz Serial de Periféricos). Creado por Motorola. Es <b>síncrono</b> (lo guía un reloj) y trabaja en <b>MHz</b>, millones de pulsos por segundo.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 760 330" role="img" aria-label="Bus SPI con líneas compartidas y un CS por dispositivo">
+      <defs>
+        <marker id="arR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#22d3ee"/></marker>
+        <marker id="arL" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#34d399"/></marker>
+      </defs>
+      <rect x="20" y="40" width="140" height="250" rx="18" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/>
+      <text x="90" y="160" text-anchor="middle" fill="#e8ecf5" font-family="Poppins" font-weight="700" font-size="16">UNO R4</text>
+      <text x="90" y="182" text-anchor="middle" fill="#a78bfa" font-family="Inter" font-size="12">MAESTRO</text>
+      <!-- líneas compartidas -->
+      <line x1="160" y1="70" x2="620" y2="70" stroke="#facc15" stroke-width="4"/>
+      <line x1="160" y1="110" x2="610" y2="110" stroke="#22d3ee" stroke-width="4" marker-end="url(#arR)"/>
+      <line x1="620" y1="150" x2="170" y2="150" stroke="#34d399" stroke-width="4" marker-end="url(#arL)"/>
+      <g font-family="JetBrains Mono" font-size="12">
+        <text x="175" y="62" fill="#facc15">SCK · reloj</text>
+        <text x="175" y="102" fill="#22d3ee">MOSI · maestro → esclavo</text>
+        <text x="205" y="142" fill="#34d399">MISO · esclavo → maestro</text>
+      </g>
+      <!-- CS individuales -->
+      <line x1="160" y1="230" x2="420" y2="230" stroke="#f472b6" stroke-width="4"/>
+      <line x1="160" y1="270" x2="640" y2="270" stroke="#f472b6" stroke-width="4" stroke-dasharray="10 6"/>
+      <text x="175" y="222" fill="#f472b6" font-family="JetBrains Mono" font-size="12">CS1</text>
+      <text x="175" y="262" fill="#f472b6" font-family="JetBrains Mono" font-size="12">CS2</text>
+      <!-- esclavo 1 -->
+      <g stroke-width="3"><line x1="380" y1="70" x2="380" y2="185" stroke="#facc15"/><line x1="395" y1="110" x2="395" y2="185" stroke="#22d3ee"/><line x1="410" y1="150" x2="410" y2="185" stroke="#34d399"/><line x1="420" y1="230" x2="420" y2="215" stroke="#f472b6"/></g>
+      <rect x="350" y="185" width="110" height="30" rx="8" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+      <text x="405" y="205" text-anchor="middle" fill="#e8ecf5" font-family="Inter" font-size="12">74HC595</text>
+      <!-- esclavo 2 -->
+      <g stroke-width="3"><line x1="600" y1="70" x2="600" y2="185" stroke="#facc15"/><line x1="615" y1="110" x2="615" y2="185" stroke="#22d3ee"/><line x1="630" y1="150" x2="630" y2="185" stroke="#34d399"/><line x1="640" y1="270" x2="640" y2="215" stroke="#f472b6"/></g>
+      <rect x="570" y="185" width="110" height="30" rx="8" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+      <text x="625" y="205" text-anchor="middle" fill="#e8ecf5" font-family="Inter" font-size="12">Arduino esclavo</text>
+    </svg>
+    <div class="caption">SCK, MOSI y MISO se comparten. Cada dispositivo tiene su propio CS (rosa): el maestro lo baja para "llamarlo". No hay direcciones.</div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Full-duplex</h3>
+      <p style="color:var(--muted);font-size:.93rem">En cada pulso de reloj sale un bit por MOSI y entra otro por MISO: hablar y escuchar al mismo tiempo.</p>
+      <svg viewBox="0 0 360 170" style="width:100%;margin-top:12px" role="img" aria-label="Intercambio circular de bits entre maestro y esclavo">
+        <g font-family="JetBrains Mono" font-size="12" text-anchor="middle">
+          <text x="80" y="20" fill="#a78bfa">Maestro</text><text x="280" y="20" fill="#34d399">Esclavo</text>
+        </g>
+        <g id="dxM"></g><g id="dxS"></g>
+        <path d="M150,60 C180,40 180,40 205,60" fill="none" stroke="#22d3ee" stroke-width="3" marker-end="url(#arR)"/>
+        <path d="M205,115 C180,135 180,135 155,115" fill="none" stroke="#34d399" stroke-width="3" marker-end="url(#arL)"/>
+        <text x="180" y="36" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono" font-size="11">MOSI</text>
+        <text x="180" y="152" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="11">MISO</text>
+      </svg>
+      <div style="text-align:center;margin-top:8px"><button class="btn" id="dxBtn" style="border:none;cursor:pointer;font-size:.9rem;padding:10px 20px">Pulso de reloj ⏵</button></div>
+    </div>
+    <div class="card">
+      <h3>SPI vs I2C en velocidad</h3>
+      <p style="color:var(--muted);font-size:.93rem">SPI trabaja en megahertz; I2C en cientos de kilohertz.</p>
+      <svg viewBox="0 0 360 150" style="width:100%;margin-top:12px" role="img" aria-label="Barras de velocidad I2C contra SPI">
+        <g font-family="Inter" font-size="12" fill="#e8ecf5">
+          <text x="0" y="36">I2C</text><text x="0" y="96">SPI</text>
+        </g>
+        <rect x="50" y="22" width="30" height="20" rx="10" fill="#3b82f6"/><text x="90" y="37" fill="#93c5fd" font-family="JetBrains Mono" font-size="12">0.1 – 0.4 MHz</text>
+        <rect x="50" y="82" width="300" height="20" rx="10" fill="#f472b6"/><text x="340" y="97" text-anchor="end" fill="#3b0a24" font-family="JetBrains Mono" font-weight="700" font-size="12">varios MHz</text>
+        <text x="180" y="138" text-anchor="middle" fill="#9aa4bd" font-family="Inter" font-size="11">ideal para pantallas, memorias y bloques grandes</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <h3>Modos de reloj: CPOL y CPHA</h3>
+    <p style="color:var(--muted);font-size:.93rem;margin-bottom:14px"><b>CPOL</b> = <i>Clock Polarity</i>: cómo descansa el reloj. <b>CPHA</b> = <i>Clock Phase</i>: en qué flanco se lee. El punto rosa marca el instante de lectura.</p>
+    <div class="modes" id="modes"></div>
+    <div class="note">Maestro y esclavo deben usar el mismo modo; si no, los datos llegan corruptos.</div>
+  </div>
+</section>
+
+<!-- ============ 5. QWIIC ============ -->
+<section id="qwiic" class="wrap reveal">
+  <div class="kicker">05 · 3.1.2</div>
+  <h2><span class="grad">Qwiic</span>: conecta y listo</h2>
+  <p class="lead"><b>Qwiic</b> no es una sigla: es un juego de palabras con <i>quick</i> (rápido), marca de SparkFun. No es un protocolo nuevo: es <b>un conector estandarizado para I2C</b>.</p>
+
+  <div class="grid g2">
+    <div class="diagram" style="margin:0">
+      <svg viewBox="0 0 360 260" role="img" aria-label="Conector JST de 4 pines con muesca">
+        <!-- carcasa -->
+        <rect x="70" y="40" width="220" height="90" rx="10" fill="#e5e7eb" stroke="#9aa4bd" stroke-width="2"/>
+        <rect x="160" y="28" width="40" height="14" rx="3" fill="#e5e7eb" stroke="#9aa4bd" stroke-width="2"/>
+        <text x="180" y="22" text-anchor="middle" fill="#22d3ee" font-family="Inter" font-size="11">muesca</text>
+        <!-- pines -->
+        <g><rect x="92" y="62" width="34" height="46" rx="5" fill="#111"/><rect x="138" y="62" width="34" height="46" rx="5" fill="#111"/><rect x="188" y="62" width="34" height="46" rx="5" fill="#111"/><rect x="234" y="62" width="34" height="46" rx="5" fill="#111"/></g>
+        <!-- cables -->
+        <g stroke-width="8" stroke-linecap="round">
+          <line x1="109" y1="130" x2="109" y2="200" stroke="#374151"/>
+          <line x1="155" y1="130" x2="155" y2="200" stroke="#ef4444"/>
+          <line x1="205" y1="130" x2="205" y2="200" stroke="#3b82f6"/>
+          <line x1="251" y1="130" x2="251" y2="200" stroke="#facc15"/>
+        </g>
+        <g font-family="JetBrains Mono" font-size="12" text-anchor="middle" font-weight="700">
+          <text x="109" y="222" fill="#9aa4bd">GND</text><text x="155" y="222" fill="#ef4444">3.3V</text>
+          <text x="205" y="222" fill="#93c5fd">SDA</text><text x="251" y="222" fill="#facc15">SCL</text>
+        </g>
+        <g font-family="Inter" font-size="10" text-anchor="middle" fill="#9aa4bd">
+          <text x="109" y="240">negro</text><text x="155" y="240">rojo</text><text x="205" y="240">azul</text><text x="251" y="240">amarillo</text>
+        </g>
+      </svg>
+      <div class="caption">Conector JST de 1 mm y 4 hilos. La muesca impide conectarlo al revés.</div>
+    </div>
+    <div class="diagram" style="margin:0">
+      <svg viewBox="0 0 360 260" role="img" aria-label="Tres placas Qwiic conectadas en cadena">
+        <rect x="120" y="10" width="120" height="50" rx="12" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/>
+        <text x="180" y="32" text-anchor="middle" fill="#e8ecf5" font-family="Poppins" font-weight="700" font-size="13">UNO R4 WiFi</text>
+        <text x="180" y="50" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono" font-size="11">Wire1</text>
+        <g stroke="#34d399" stroke-width="5" fill="none" stroke-linecap="round">
+          <path d="M180,60 C180,80 70,70 70,100"/>
+          <path d="M110,125 C140,125 150,125 160,125"/>
+          <path d="M250,125 C270,125 280,125 300,125"/>
+        </g>
+        <g font-family="Inter" text-anchor="middle">
+          <rect x="30" y="100" width="80" height="50" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2"/><text x="70" y="122" fill="#e8ecf5" font-size="12">BME280</text><text x="70" y="140" fill="#34d399" font-family="JetBrains Mono" font-size="11">0x76</text>
+          <rect x="160" y="100" width="90" height="50" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2"/><text x="205" y="122" fill="#e8ecf5" font-size="12">VL53L0X</text><text x="205" y="140" fill="#34d399" font-family="JetBrains Mono" font-size="11">0x29</text>
+          <rect x="300" y="100" width="55" height="50" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2"/><text x="327" y="122" fill="#e8ecf5" font-size="12">IMU</text><text x="327" y="140" fill="#34d399" font-family="JetBrains Mono" font-size="11">0x68</text>
+        </g>
+        <g font-family="Inter" font-size="12" fill="#9aa4bd">
+          <text x="20" y="190">✗ Protoboard: hasta 12 conexiones sueltas</text>
+          <text x="20" y="214" fill="#34d399">✓ Qwiic: solo 3 cables, sin soldar</text>
+          <text x="20" y="238">Cada placa trae 2 puertos (entrada y salida)</text>
+        </g>
+      </svg>
+      <div class="caption">Encadenamiento (<i>daisy chain</i>): todos quedan en el mismo bus I2C.</div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:18px">
+    <div class="card"><h3>Solo 3.3 V</h3><p style="color:var(--muted);font-size:.93rem">No conectes módulos que exijan 5 V.</p></div>
+    <div class="card"><h3>Direcciones distintas</h3><p style="color:var(--muted);font-size:.93rem">Todos comparten el bus: dos con el mismo número chocan.</p></div>
+    <div class="card"><h3>Wire1 en el R4</h3><p style="color:var(--muted);font-size:.93rem">El puerto Qwiic es un bus aparte de A4/A5 (<code>Wire</code>). En código se usa <code>Wire1</code>.</p></div>
+  </div>
+  <div class="note">Compatible con <b>STEMMA QT</b> (Adafruit, mismo conector). No compatible con <b>Grove</b> (Seeed Studio, otro conector).</div>
+</section>
+
+<!-- ============ 6. COMPARATIVA ============ -->
+<section id="comparativa" class="wrap reveal">
+  <div class="kicker">06 · En resumen</div>
+  <h2>I2C vs SPI vs <span class="grad">Qwiic</span></h2>
+  <div class="table-wrap" style="margin-top:20px">
+    <table>
+      <thead><tr><th></th><th>I2C</th><th>SPI</th><th>Qwiic</th></tr></thead>
+      <tbody>
+        <tr><td>¿Qué es?</td><td>Protocolo</td><td>Protocolo</td><td>Conector físico para I2C</td></tr>
+        <tr><td>Cables</td><td>2 (SDA, SCL) + GND</td><td>3 compartidos + 1 CS por dispositivo</td><td>1 cable de 4 hilos</td></tr>
+        <tr><td>Elige al dispositivo por</td><td>Dirección (0x08…)</td><td>Línea CS</td><td>Dirección (es I2C)</td></tr>
+        <tr><td>Velocidad</td><td>100 / 400 kHz</td><td>Varios MHz</td><td>La de I2C</td></tr>
+        <tr><td>Dirección de datos</td><td>Half-duplex (por turnos)</td><td>Full-duplex</td><td>Half-duplex</td></tr>
+        <tr><td>Ideal para</td><td>Muchos sensores, pocos datos</td><td>Muchos datos, muy rápido</td><td>Prototipos sin protoboard</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="summary" style="margin-top:24px">
+    <div class="card"><div class="big grad">BUS</div><p style="color:var(--muted);font-size:.92rem">El camino compartido</p></div>
+    <div class="card"><div class="big grad">I2C</div><p style="color:var(--muted);font-size:.92rem">2 cables, con direcciones</p></div>
+    <div class="card"><div class="big grad">SPI</div><p style="color:var(--muted);font-size:.92rem">Más cables, más velocidad, elige por CS</p></div>
+    <div class="card"><div class="big grad">Qwiic</div><p style="color:var(--muted);font-size:.92rem">El enchufe que facilita I2C</p></div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <a class="btn" href="../3.1.3/index.html">← Tema anterior: 3.1.3 Bus SPI</a>
+</footer>
+
+<script>
+/* ============ ICONOS DEL GLOSARIO (SVG propios) ============ */
+const W = (inner) => `<svg viewBox="0 0 60 60" aria-hidden="true">${inner}</svg>`;
+const ICONS = {
+  bus: W('<rect x="4" y="27" width="52" height="6" rx="3" fill="#22d3ee"/><g stroke="#22d3ee" stroke-width="3"><line x1="14" y1="10" x2="14" y2="27"/><line x1="30" y1="10" x2="30" y2="27"/><line x1="46" y1="10" x2="46" y2="27"/><line x1="22" y1="33" x2="22" y2="50"/><line x1="38" y1="33" x2="38" y2="50"/></g>'),
+  chips: W('<rect x="4" y="18" width="20" height="24" rx="3" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/><rect x="36" y="18" width="20" height="24" rx="3" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/><line x1="24" y1="26" x2="36" y2="26" stroke="#3b82f6" stroke-width="3"/><line x1="24" y1="34" x2="36" y2="34" stroke="#facc15" stroke-width="3"/>'),
+  data: W('<polyline fill="none" stroke="#3b82f6" stroke-width="4" points="4,40 12,40 12,20 20,20 20,40 36,40 36,20 44,20 44,20 52,20 52,40 56,40"/><text x="30" y="56" text-anchor="middle" fill="#93c5fd" font-family="monospace" font-size="9">1 0 0 1 1</text>'),
+  clock: W('<polyline fill="none" stroke="#facc15" stroke-width="4" points="4,40 10,40 10,20 18,20 18,40 26,40 26,20 34,20 34,40 42,40 42,20 50,20 50,40 56,40"/>'),
+  gnd: W('<line x1="30" y1="8" x2="30" y2="28" stroke="#9aa4bd" stroke-width="4"/><line x1="12" y1="28" x2="48" y2="28" stroke="#9aa4bd" stroke-width="4"/><line x1="19" y1="37" x2="41" y2="37" stroke="#9aa4bd" stroke-width="4"/><line x1="26" y1="46" x2="34" y2="46" stroke="#9aa4bd" stroke-width="4"/>'),
+  vcc: W('<circle cx="30" cy="30" r="22" fill="none" stroke="#ef4444" stroke-width="4"/><path d="M33,12 L20,33 H30 L27,48 L40,26 H30 Z" fill="#ef4444"/>'),
+  ack: W('<circle cx="30" cy="30" r="22" fill="rgba(52,211,153,.15)" stroke="#34d399" stroke-width="3"/><polyline points="18,31 27,40 43,21" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'),
+  nack: W('<circle cx="30" cy="30" r="22" fill="rgba(239,68,68,.15)" stroke="#ef4444" stroke-width="3"/><g stroke="#ef4444" stroke-width="5" stroke-linecap="round"><line x1="21" y1="21" x2="39" y2="39"/><line x1="39" y1="21" x2="21" y2="39"/></g>'),
+  rw: W('<g stroke-width="4" stroke-linecap="round" fill="none"><path d="M8,22 H48" stroke="#22d3ee"/><path d="M40,14 L48,22 L40,30" stroke="#22d3ee"/><path d="M52,40 H12" stroke="#f472b6"/><path d="M20,32 L12,40 L20,48" stroke="#f472b6"/></g>'),
+  hex: W('<polygon points="30,5 52,17 52,43 30,55 8,43 8,17" fill="rgba(167,139,250,.15)" stroke="#a78bfa" stroke-width="3"/><text x="30" y="36" text-anchor="middle" fill="#e8ecf5" font-family="monospace" font-weight="700" font-size="14">0x</text>'),
+  freq: W('<path d="M4,30 Q9,10 14,30 T24,30 T34,30 T44,30 T54,30" fill="none" stroke="#22d3ee" stroke-width="3"/><text x="30" y="54" text-anchor="middle" fill="#9aa4bd" font-family="monospace" font-size="9">Hz</text>'),
+  pullup: W('<line x1="14" y1="6" x2="46" y2="6" stroke="#ef4444" stroke-width="4"/><polyline points="30,6 30,14 23,18 37,24 23,30 37,36 30,40 30,54" fill="none" stroke="#e8ecf5" stroke-width="3"/><path d="M44,40 V22 M38,28 L44,22 L50,28" stroke="#34d399" stroke-width="3" fill="none"/>'),
+  timeout: W('<path d="M16,6 H44 M16,54 H44 M18,6 C18,24 42,24 42,30 C42,36 18,36 18,54 M42,6 C42,24 18,24 18,30 M42,54 C42,36 30,36 30,36" fill="none" stroke="#facc15" stroke-width="3"/><path d="M22,50 H38 L30,42 Z" fill="#facc15"/>'),
+  master: W('<rect x="8" y="12" width="44" height="36" rx="8" fill="#1e1b4b" stroke="#a78bfa" stroke-width="3"/><path d="M20,36 L24,24 L30,32 L36,24 L40,36 Z" fill="#facc15"/>'),
+  mosi: W('<rect x="2" y="18" width="16" height="24" rx="4" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/><rect x="42" y="18" width="16" height="24" rx="4" fill="#0f172a" stroke="#34d399" stroke-width="2"/><line x1="18" y1="30" x2="38" y2="30" stroke="#22d3ee" stroke-width="4"/><path d="M34,24 L41,30 L34,36" fill="none" stroke="#22d3ee" stroke-width="4"/><text x="10" y="54" text-anchor="middle" fill="#a78bfa" font-size="8" font-family="monospace">M</text><text x="50" y="54" text-anchor="middle" fill="#34d399" font-size="8" font-family="monospace">S</text>'),
+  miso: W('<rect x="2" y="18" width="16" height="24" rx="4" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/><rect x="42" y="18" width="16" height="24" rx="4" fill="#0f172a" stroke="#34d399" stroke-width="2"/><line x1="22" y1="30" x2="42" y2="30" stroke="#34d399" stroke-width="4"/><path d="M26,24 L19,30 L26,36" fill="none" stroke="#34d399" stroke-width="4"/><text x="10" y="54" text-anchor="middle" fill="#a78bfa" font-size="8" font-family="monospace">M</text><text x="50" y="54" text-anchor="middle" fill="#34d399" font-size="8" font-family="monospace">S</text>'),
+  cs: W('<polyline fill="none" stroke="#f472b6" stroke-width="4" points="4,18 18,18 18,42 42,42 42,18 56,18"/><text x="30" y="56" text-anchor="middle" fill="#f472b6" font-family="monospace" font-size="8">activo en 0</text>'),
+  duplex: W('<g stroke-width="4" fill="none" stroke-linecap="round"><path d="M10,22 H46" stroke="#22d3ee"/><path d="M40,16 L46,22 L40,28" stroke="#22d3ee"/><path d="M50,38 H14" stroke="#34d399"/><path d="M20,32 L14,38 L20,44" stroke="#34d399"/></g><text x="30" y="56" text-anchor="middle" fill="#9aa4bd" font-size="8" font-family="monospace">a la vez</text>'),
+  cpol: W('<polyline fill="none" stroke="#facc15" stroke-width="3" points="4,22 12,22 12,10 20,10 20,22 28,22"/><polyline fill="none" stroke="#f472b6" stroke-width="3" points="32,38 40,38 40,50 48,50 48,38 56,38"/><text x="16" y="36" text-anchor="middle" fill="#facc15" font-size="8" font-family="monospace">0</text><text x="44" y="30" text-anchor="middle" fill="#f472b6" font-size="8" font-family="monospace">1</text>'),
+  cpha: W('<polyline fill="none" stroke="#facc15" stroke-width="3" points="4,44 14,44 14,18 30,18 30,44 46,44 46,18 56,18"/><circle cx="14" cy="31" r="4" fill="#f472b6"/><circle cx="30" cy="31" r="4" fill="#22d3ee"/><text x="14" y="58" text-anchor="middle" fill="#f472b6" font-size="8" font-family="monospace">1º</text><text x="30" y="58" text-anchor="middle" fill="#22d3ee" font-size="8" font-family="monospace">2º</text>'),
+  latch: W('<rect x="10" y="10" width="40" height="30" rx="4" fill="#0f172a" stroke="#34d399" stroke-width="2"/><g fill="#ef4444"><circle cx="18" cy="50" r="3"/><circle cx="26" cy="50" r="3"/><circle cx="34" cy="50" r="3"/><circle cx="42" cy="50" r="3"/></g><text x="30" y="30" text-anchor="middle" fill="#e8ecf5" font-size="8" font-family="monospace">595</text>'),
+  sync: W('<circle cx="30" cy="30" r="20" fill="none" stroke="#a78bfa" stroke-width="3"/><line x1="30" y1="30" x2="30" y2="16" stroke="#e8ecf5" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="30" x2="40" y2="34" stroke="#e8ecf5" stroke-width="3" stroke-linecap="round"/>'),
+  qwiic: W('<rect x="10" y="12" width="40" height="18" rx="4" fill="#e5e7eb"/><rect x="25" y="7" width="10" height="6" fill="#e5e7eb"/><g stroke-width="4"><line x1="17" y1="30" x2="17" y2="54" stroke="#374151"/><line x1="26" y1="30" x2="26" y2="54" stroke="#ef4444"/><line x1="35" y1="30" x2="35" y2="54" stroke="#3b82f6"/><line x1="44" y1="30" x2="44" y2="54" stroke="#facc15"/></g>'),
+  jst: W('<rect x="6" y="16" width="48" height="28" rx="4" fill="#e5e7eb" stroke="#9aa4bd" stroke-width="2"/><g fill="#111"><rect x="12" y="23" width="7" height="14" rx="1"/><rect x="22" y="23" width="7" height="14" rx="1"/><rect x="32" y="23" width="7" height="14" rx="1"/><rect x="42" y="23" width="7" height="14" rx="1"/></g><text x="30" y="56" text-anchor="middle" fill="#9aa4bd" font-size="8" font-family="monospace">1 mm</text>'),
+  stemma: W('<rect x="4" y="18" width="22" height="24" rx="5" fill="#0f172a" stroke="#34d399" stroke-width="2"/><rect x="34" y="18" width="22" height="24" rx="5" fill="#0f172a" stroke="#f472b6" stroke-width="2"/><text x="30" y="35" text-anchor="middle" fill="#e8ecf5" font-size="12" font-family="monospace">=</text>'),
+  grove: W('<rect x="4" y="18" width="22" height="24" rx="5" fill="#0f172a" stroke="#34d399" stroke-width="2"/><rect x="34" y="16" width="22" height="28" rx="2" fill="#0f172a" stroke="#facc15" stroke-width="2"/><text x="30" y="35" text-anchor="middle" fill="#ef4444" font-size="12" font-family="monospace">≠</text>'),
+  wire1: W('<rect x="6" y="10" width="48" height="40" rx="8" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/><text x="30" y="28" text-anchor="middle" fill="#9aa4bd" font-size="8" font-family="monospace">Wire</text><text x="30" y="42" text-anchor="middle" fill="#34d399" font-size="10" font-weight="700" font-family="monospace">Wire1</text>'),
+  chain: W('<g fill="#0f172a" stroke="#34d399" stroke-width="2"><rect x="2" y="22" width="14" height="16" rx="3"/><rect x="23" y="22" width="14" height="16" rx="3"/><rect x="44" y="22" width="14" height="16" rx="3"/></g><g stroke="#34d399" stroke-width="3"><line x1="16" y1="30" x2="23" y2="30"/><line x1="37" y1="30" x2="44" y2="30"/></g>')
+};
+
+/* ============ DATOS DEL GLOSARIO ============ */
+// p: protocolo (i2c | spi | qwiic | bus) · s: sigla · en: inglés · es: español · d: descripción · i: icono
+const TERMS = [
+  {p:'bus',  s:'BUS',   en:'Bus',                        es:'Vía compartida',            d:'Conjunto de cables compartidos por varios dispositivos que siguen un protocolo.', i:'bus'},
+  {p:'bus',  s:'GND',   en:'Ground',                     es:'Tierra',                    d:'Referencia común de 0 V. Todos los dispositivos deben compartirla.', i:'gnd'},
+  {p:'i2c',  s:'I2C',   en:'Inter-Integrated Circuit',   es:'Circuito Inter-Integrado',  d:'Protocolo de 2 cables creado por Philips. Se lee "I cuadrada C".', i:'chips'},
+  {p:'i2c',  s:'SDA',   en:'Serial Data',                es:'Datos Seriales',            d:'Línea por la que viajan los datos, bit por bit.', i:'data'},
+  {p:'i2c',  s:'SCL',   en:'Serial Clock',               es:'Reloj Serial',              d:'Línea que marca el ritmo en que se lee cada bit.', i:'clock'},
+  {p:'i2c',  s:'ACK',   en:'Acknowledge',                es:'Confirmación',              d:'El receptor baja SDA para decir "recibido, aquí estoy".', i:'ack'},
+  {p:'i2c',  s:'NACK',  en:'Not Acknowledge',            es:'Sin confirmación',          d:'Nadie contestó: cable suelto o dirección equivocada.', i:'nack'},
+  {p:'i2c',  s:'R/W',   en:'Read / Write',               es:'Leer / Escribir',           d:'Bit después de la dirección: 1 = leer, 0 = escribir.', i:'rw'},
+  {p:'i2c',  s:'0x',    en:'Hexadecimal prefix',         es:'Prefijo hexadecimal',       d:'Indica que el número está en base 16. Ej.: 0x08 = 8.', i:'hex'},
+  {p:'i2c',  s:'kHz',   en:'Kilohertz',                  es:'Kilohercio',                d:'Miles de pulsos por segundo. I2C: 100 o 400 kHz.', i:'freq'},
+  {p:'i2c',  s:'Pull-up', en:'Pull-up resistor',         es:'Resistencia de jalón',      d:'Mantiene la línea en 1 cuando nadie transmite. Típica: 4.7 kΩ.', i:'pullup'},
+  {p:'i2c',  s:'Timeout', en:'Timeout',                  es:'Tiempo límite',             d:'Si no hay respuesta a tiempo, el maestro aborta y sigue.', i:'timeout'},
+  {p:'spi',  s:'SPI',   en:'Serial Peripheral Interface', es:'Interfaz Serial de Periféricos', d:'Bus rápido de Motorola. Síncrono y full-duplex.', i:'master'},
+  {p:'spi',  s:'SCK',   en:'Serial Clock',               es:'Reloj Serial',              d:'Reloj generado por el maestro que marca cada bit.', i:'clock'},
+  {p:'spi',  s:'MOSI',  en:'Master Out, Slave In',       es:'Sale del Maestro, Entra al Esclavo', d:'Datos del maestro hacia el esclavo. Hoy también COPI.', i:'mosi'},
+  {p:'spi',  s:'MISO',  en:'Master In, Slave Out',       es:'Entra al Maestro, Sale del Esclavo', d:'Datos del esclavo hacia el maestro. Hoy también CIPO.', i:'miso'},
+  {p:'spi',  s:'CS / SS', en:'Chip Select / Slave Select', es:'Selección de Chip',       d:'El maestro lo baja para "llamar" a un dispositivo. Uno por cada uno.', i:'cs'},
+  {p:'spi',  s:'COPI / CIPO', en:'Controller Out Peripheral In / Controller In Peripheral Out', es:'Nombres modernos', d:'Mismo significado que MOSI y MISO.', i:'rw'},
+  {p:'spi',  s:'CPOL',  en:'Clock Polarity',             es:'Polaridad del Reloj',       d:'Cómo descansa el reloj: abajo (0) o arriba (1).', i:'cpol'},
+  {p:'spi',  s:'CPHA',  en:'Clock Phase',                es:'Fase del Reloj',            d:'En qué flanco se lee: el primero (0) o el segundo (1).', i:'cpha'},
+  {p:'spi',  s:'Full-duplex', en:'Full-duplex',          es:'Dúplex completo',           d:'Envía y recibe al mismo tiempo en cada pulso.', i:'duplex'},
+  {p:'spi',  s:'MHz',   en:'Megahertz',                  es:'Megahercio',                d:'Millones de pulsos por segundo. SPI trabaja en varios MHz.', i:'freq'},
+  {p:'spi',  s:'RCLK',  en:'Register Clock',             es:'Reloj del Registro',        d:'Pin "latch" del 74HC595 que hace el papel de CS.', i:'latch'},
+  {p:'spi',  s:'Síncrono', en:'Synchronous',             es:'Sincronizado por reloj',    d:'Emisor y receptor siguen el mismo reloj (SCK).', i:'sync'},
+  {p:'qwiic',s:'Qwiic', en:'"Quick" (marca SparkFun)',   es:'No es sigla',               d:'Conector estandarizado para I2C. No es un protocolo nuevo.', i:'qwiic'},
+  {p:'qwiic',s:'JST',   en:'Japan Solderless Terminal',  es:'Terminal japonesa sin soldadura', d:'Tipo de conector de 1 mm usado por Qwiic.', i:'jst'},
+  {p:'qwiic',s:'3.3V',  en:'3.3 Volts',                  es:'3.3 voltios',               d:'Voltaje de trabajo de Qwiic. No conectes módulos de 5 V.', i:'vcc'},
+  {p:'qwiic',s:'Daisy chain', en:'Daisy chain',          es:'Encadenamiento',            d:'Conectar un dispositivo tras otro con 2 puertos por placa.', i:'chain'},
+  {p:'qwiic',s:'STEMMA QT', en:'STEMMA "cutie" (Adafruit)', es:'Compatible',             d:'Mismo conector que Qwiic. QT se lee "cutie" (pequeño).', i:'stemma'},
+  {p:'qwiic',s:'Grove', en:'Grove (Seeed Studio)',       es:'No compatible',             d:'Otro conector distinto. Tampoco es sigla.', i:'grove'},
+  {p:'qwiic',s:'Wire1', en:'Second I2C bus',             es:'Segundo bus I2C',           d:'En el UNO R4 WiFi el puerto Qwiic es Wire1; A4/A5 son Wire.', i:'wire1'}
+];
+const TAG = {bus:'t-bus BUS', i2c:'t-i2c I2C', spi:'t-spi SPI', qwiic:'t-qwiic Qwiic'};
+
+const box = document.getElementById('glossary');
+box.innerHTML = TERMS.map(t => {
+  const [cls, lbl] = TAG[t.p].split(' ');
+  return `<article class="card term-card" data-p="${t.p}">
+    <div class="term">
+      <div class="ico">${ICONS[t.i]}</div>
+      <div>
+        <div class="sig">${t.s}<span class="tag ${cls}">${lbl}</span></div>
+        <div class="full">${t.en} <i>· ${t.es}</i></div>
+        <p>${t.d}</p>
+      </div>
+    </div>
+  </article>`;
+}).join('');
+
+/* Filtros del glosario (BUS/GND se muestran siempre) */
+document.querySelectorAll('.filters button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.filters button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    const f = b.dataset.f;
+    document.querySelectorAll('.term-card').forEach(c => {
+      c.classList.toggle('hide', !(f === 'all' || c.dataset.p === f || c.dataset.p === 'bus'));
+    });
+  });
+});
+
+/* ============ TRAMA I2C INTERACTIVA ============ */
+const FRAME = [
+  '<b>START</b>: "¡Atención, voy a hablar!" SDA baja mientras SCL está arriba.',
+  '<b>DIRECCIÓN (7 bits)</b>: el número del esclavo, por ejemplo 0x0A = 0001010.',
+  '<b>R/W</b> (<i>Read/Write</i>): 1 = el maestro quiere leer, 0 = quiere escribir.',
+  '<b>ACK</b> (<i>Acknowledge</i>): el esclavo baja SDA para confirmar "aquí estoy".',
+  '<b>DATOS (8 bits)</b>: un byte a la vez. Pueden ir varios, cada uno con su ACK.',
+  '<b>ACK</b>: confirmación del byte recibido. Si nadie confirma, es un <b>NACK</b>.',
+  '<b>STOP</b>: "Cambio y fuera." SDA sube mientras SCL está arriba. El bus queda libre.'
+];
+const info = document.getElementById('frameInfo');
+document.querySelectorAll('#frame div').forEach(d => {
+  d.addEventListener('click', () => {
+    document.querySelectorAll('#frame div').forEach(x => x.classList.remove('sel'));
+    d.classList.add('sel');
+    info.innerHTML = FRAME[d.dataset.i];
+  });
+});
+
+/* ============ FULL-DUPLEX ANIMADO ============ */
+let mBits = [1,0,1,1,0,0,1,0], sBits = [0,1,1,0,1,0,0,1], pulses = 0;
+function drawDuplex(){
+  const cell = (b, x, y, c) => `<rect x="${x}" y="${y}" width="16" height="22" rx="4" fill="${b ? c : '#0a0f1c'}" stroke="${c}" stroke-width="1.5"/><text x="${x+8}" y="${y+16}" text-anchor="middle" fill="${b ? '#0b0b14' : c}" font-family="JetBrains Mono" font-size="11" font-weight="700">${b}</text>`;
+  document.getElementById('dxM').innerHTML = mBits.map((b,i) => cell(b, 8 + (i%4)*18, 40 + Math.floor(i/4)*40, '#a78bfa')).join('');
+  document.getElementById('dxS').innerHTML = sBits.map((b,i) => cell(b, 210 + (i%4)*18, 40 + Math.floor(i/4)*40, '#34d399')).join('');
+}
+document.getElementById('dxBtn').addEventListener('click', () => {
+  // el bit más significativo del maestro va al esclavo y viceversa
+  const outM = mBits.shift(), outS = sBits.shift();
+  mBits.push(outS); sBits.push(outM);
+  pulses = (pulses + 1) % 8;
+  document.getElementById('dxBtn').textContent = pulses === 0 ? '¡Bytes intercambiados! Otra vez ⏵' : `Pulso ${pulses}/8 ⏵`;
+  drawDuplex();
+});
+drawDuplex();
+
+/* ============ MODOS CPOL / CPHA (SVG generado) ============ */
+function modeSVG(cpol, cpha){
+  const hi = 20, lo = 60, idle = cpol ? hi : lo, act = cpol ? lo : hi;
+  let x = 10, pts = `${x},${idle}`; x = 40; pts += ` ${x},${idle}`;
+  const edges = [];
+  for (let k = 0; k < 4; k++){
+    pts += ` ${x},${act}`; edges.push(x); x += 30;
+    pts += ` ${x},${act} ${x},${idle}`; edges.push(x); x += 30;
+    pts += ` ${x},${idle}`;
+  }
+  pts += ` 290,${idle}`;
+  const sample = edges.filter((_, i) => i % 2 === cpha);
+  const dots = sample.map(e => `<circle cx="${e}" cy="40" r="6" fill="#f472b6"/><line x1="${e}" y1="8" x2="${e}" y2="72" stroke="#f472b6" stroke-width="1" stroke-dasharray="3 3"/>`).join('');
+  return `<svg viewBox="0 0 300 80" role="img" aria-label="Modo SPI CPOL ${cpol} CPHA ${cpha}"><polyline fill="none" stroke="#facc15" stroke-width="3" points="${pts}"/>${dots}</svg>`;
+}
+const MODES = [
+  [0,0,'Reposo abajo · lee en el 1er flanco (subida)'],
+  [0,1,'Reposo abajo · lee en el 2º flanco (bajada)'],
+  [1,0,'Reposo arriba · lee en el 1er flanco (bajada)'],
+  [1,1,'Reposo arriba · lee en el 2º flanco (subida)']
+];
+document.getElementById('modes').innerHTML = MODES.map(([p,h,t],i) =>
+  `<div class="mode"><h4>Modo ${i} · CPOL ${p} · CPHA ${h}</h4>${modeSVG(p,h)}<small>${t}</small></div>`).join('');
+
+/* ============ ANIMACIÓN DE ENTRADA AL HACER SCROLL ============ */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+}), {threshold:.12});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
