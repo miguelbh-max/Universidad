@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unidad 3.1: Servidor Web Apache2 (Puerto TCP 80)</title>
+  <style>
+    :root {
+      --primary: #d9480f;
+      --primary-light: #fff4e6;
+      --primary-dark: #b83804;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --terminal-prompt: #38bdf8;
+      --warning-bg: #fffbeb;
+      --warning-border: #fcd34d;
+      --warning-text: #92400e;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #166534;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: var(--surface);
+      padding: 2.5rem;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-orange { background: var(--primary-light); color: var(--primary-dark); }
+    .badge-gray { background: #f1f5f9; color: var(--text-muted); }
+
+    h1 {
+      font-size: 2rem;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      margin-bottom: 1.8rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-number {
+      background: var(--primary);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    .terminal-box {
+      background: var(--code-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1.2rem 0;
+      border: 1px solid #1e293b;
+    }
+
+    .terminal-header {
+      background: #1e293b;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .terminal-title {
+      color: #94a3b8;
+      font-size: 0.75rem;
+      margin-left: 0.5rem;
+      font-family: monospace;
+    }
+
+    pre {
+      padding: 1.2rem;
+      overflow-x: auto;
+      font-family: "JetBrains Mono", Consolas, "Fira Code", monospace;
+      font-size: 0.92rem;
+      color: var(--code-text);
+      line-height: 1.5;
+    }
+
+    .prompt {
+      color: var(--terminal-prompt);
+      user-select: none;
+    }
+
+    .callout {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1.25rem 0;
+      border-left: 4px solid;
+      font-size: 0.95rem;
+    }
+
+    .callout-info {
+      background-color: var(--info-bg);
+      border-color: #3b82f6;
+      color: var(--info-text);
+    }
+
+    .callout-warning {
+      background-color: var(--warning-bg);
+      border-color: #f59e0b;
+      color: var(--warning-text);
+    }
+
+    .callout-success {
+      background-color: var(--success-bg);
+      border-color: #22c55e;
+      color: var(--success-text);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    code:not(pre code) {
+      background-color: #e2e8f0;
+      color: #0f172a;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: monospace;
+    }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 3rem;
+      padding-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge badge-orange">Unidad 3: Servidores en el S.O.</span>
+        <span class="badge badge-gray">Sección 3.1</span>
+        <span class="badge badge-gray">Ubuntu Desktop</span>
+        <span class="badge badge-gray">Puerto TCP 80</span>
+      </div>
+      <h1>Instalación y Configuración de Apache2</h1>
+      <p class="subtitle">Guía de laboratorio paso a paso para desplegar un servidor HTTP en Linux.</p>
+    </header>
+
+    <!-- INTRODUCCIÓN -->
+    <section class="step-card">
+      <div class="step-header">
+        <div class="step-number">1</div>
+        <h2 class="step-title">Introducción: ¿Qué es Apache2?</h2>
+      </div>
+      <p>
+        <strong>Apache HTTP Server (Apache2)</strong> es uno de los servidores web de código abierto más utilizados, robustos y confiables a nivel mundial. Es administrado por la Apache Software Foundation.
+      </p>
+      <p>
+        <strong>¿Para qué sirve?</strong> Su función principal es recibir peticiones de clientes (navegadores web) a través del protocolo <strong>HTTP (puerto estándar TCP 80)</strong> o <strong>HTTPS (puerto estándar TCP 443)</strong>, y entregar archivos HTML, imágenes, hojas de estilo o reenviar peticiones a procesadores dinámicos como PHP.
+      </p>
+      <div class="callout callout-info">
+        <strong>Ubicación de archivos clave en Ubuntu:</strong>
+        <ul>
+          <li>Directorio raíz por defecto para páginas web: <code>/var/www/html/</code></li>
+          <li>Directorio principal de configuración: <code>/etc/apache2/</code></li>
+          <li>Archivo de registro de errores (logs): <code>/var/log/apache2/error.log</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- REQUISITOS PREVIOS -->
+    <section class="step-card">
+      <div class="step-header">
+        <div class="step-number">2</div>
+        <h2 class="step-title">Requisitos previos y preparación</h2>
+      </div>
+      <p>
+        Antes de instalar cualquier software nuevo en Ubuntu, es una buena práctica actualizar el índice de los repositorios de paquetes (APT) y elevar las librerías del sistema a su versión más reciente.
+      </p>
+      <p>Abre la terminal de Ubuntu (atajo: <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd>) y ejecuta:</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header">
+          <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+          <span class="terminal-title">bash — terminal</span>
+        </div>
+        <pre><span class="prompt">$ </span>sudo apt update &amp;&amp; sudo apt upgrade -y</pre>
+      </div>
+
+      <div class="callout callout-warning">
+        <strong>Nota sobre privilegios:</strong> El comando <code>sudo</code> solicitará tu contraseña de usuario administrador. Recuerda que al escribirla en la terminal de Linux no se mostrarán asteriscos por seguridad.
+      </div>
+    </section>
+
+    <!-- INSTALACIÓN -->
+    <section class="step-card">
+      <div class="step-header">
+        <div class="step-number">3</div>
+        <h2 class="step-title">Instalación paso a paso de Apache2</h2>
+      </div>
+      <p>Apache se encuentra en los repositorios oficiales de Ubuntu. Ejecuta el comando de instalación:</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header">
+          <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+          <span class="terminal-title">bash — terminal</span>
+        </div>
+        <pre><span class="prompt">$ </span>sudo apt install apache2 -y</pre>
+      </div>
+
+      <p>
+        Una vez concluida la descarga e instalación, Ubuntu iniciará y habilitará automáticamente el servicio de Apache para que arranque con el encendido de la máquina.
+      </p>
+    </section>
+
+    <!-- VERIFICACIÓN Y PRUEBAS -->
+    <section class="step-card">
+      <div class="step-header">
+        <div class="step-number">4</div>
+        <h2 class="step-title">Verificación, Firewall y Pruebas</h2>
+      </div>
+
+      <p><strong>Paso A: Verificar el estado del servicio</strong></p>
+      <p>Comprueba que el demonio <code>apache2</code> se encuentre activo y en ejecución (<em>active (running)</em>):</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo systemctl status apache2</pre>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Tip:</strong> Si la salida te deja en modo visor, presiona la tecla <kbd>Q</kbd> para regresar a la terminal.
+      </div>
+
+      <p><strong>Paso B: Configurar el Firewall (UFW)</strong></p>
+      <p>
+        Si tienes activado el cortafuegos <em>Uncomplicated Firewall</em> (UFW), debes habilitar el tráfico entrante en el puerto 80 TCP:
+      </p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo ufw allow 'Apache'
+<span class="prompt">$ </span>sudo ufw reload
+<span class="prompt">$ </span>sudo ufw status</pre>
+      </div>
+
+      <p><strong>Paso C: Comprobación en el navegador web</strong></p>
+      <p>
+        Abre Firefox o Google Chrome en tu Ubuntu Desktop e ingresa en la barra de direcciones:
+      </p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">navegador</span></div>
+        <pre>http://localhost</pre>
+      </div>
+
+      <p>O si deseas consultarlo desde otra máquina en la misma red local, averigua tu IP con:</p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>hostname -I | awk '{print $1}'</pre>
+      </div>
+
+      <div class="callout callout-success">
+        <strong>Resultado exitoso:</strong> Deberás observar la página por defecto titulada <strong>"Apache2 Ubuntu Default Page - It works!"</strong>. Esto confirma que el servidor web está operando y escuchando en el puerto TCP 80.
+      </div>
+    </section>
+
+    <footer>
+      Unidad 3: Servidores en el Sistema Operativo — Material de Laboratorio y Prácticas
+    </footer>
+  </div>
+
+</body>
+</html>
