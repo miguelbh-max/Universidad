@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unidad 3.2: Base de Datos (MySQL) y Entorno PHP / phpMyAdmin</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-light: #e0f2fe;
+      --primary-dark: #0369a1;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --terminal-prompt: #38bdf8;
+      --warning-bg: #fffbeb;
+      --warning-border: #fcd34d;
+      --warning-text: #92400e;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #166534;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: var(--surface);
+      padding: 2.5rem;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-blue { background: var(--primary-light); color: var(--primary-dark); }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-gray { background: #f1f5f9; color: var(--text-muted); }
+
+    h1 {
+      font-size: 2rem;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      margin-bottom: 1.8rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-number {
+      background: var(--primary);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    .terminal-box {
+      background: var(--code-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1.2rem 0;
+      border: 1px solid #1e293b;
+    }
+
+    .terminal-header {
+      background: #1e293b;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .terminal-title {
+      color: #94a3b8;
+      font-size: 0.75rem;
+      margin-left: 0.5rem;
+      font-family: monospace;
+    }
+
+    pre {
+      padding: 1.2rem;
+      overflow-x: auto;
+      font-family: "JetBrains Mono", Consolas, "Fira Code", monospace;
+      font-size: 0.92rem;
+      color: var(--code-text);
+      line-height: 1.5;
+    }
+
+    .prompt {
+      color: var(--terminal-prompt);
+      user-select: none;
+    }
+
+    .callout {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1.25rem 0;
+      border-left: 4px solid;
+      font-size: 0.95rem;
+    }
+
+    .callout-info {
+      background-color: var(--info-bg);
+      border-color: #3b82f6;
+      color: var(--info-text);
+    }
+
+    .callout-warning {
+      background-color: var(--warning-bg);
+      border-color: #f59e0b;
+      color: var(--warning-text);
+    }
+
+    .callout-success {
+      background-color: var(--success-bg);
+      border-color: #22c55e;
+      color: var(--success-text);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    code:not(pre code) {
+      background-color: #e2e8f0;
+      color: #0f172a;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: monospace;
+    }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 3rem;
+      padding-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge badge-blue">Unidad 3: Servidores en el S.O.</span>
+        <span class="badge badge-purple">Sección 3.2</span>
+        <span class="badge badge-gray">MySQL (Puerto 3306)</span>
+        <span class="badge badge-gray">PHP + phpMyAdmin</span>
+      </div>
+      <h1>Servidor MySQL, Intérprete PHP y phpMyAdmin</h1>
+      <p class="subtitle">Guía de instalación y configuración de la pila LAMP completa en Ubuntu Desktop.</p>
+    </header>
+
+    <!-- BLOQUE 1: MYSQL -->
+    <section class="step-card">
+      <div class="step-header">
+        <div class="step-number">1</div>
+        <h2 class="step-title">MySQL Server: Base de Datos Relacional</h2>
+      </div>
+      <p>
+        <strong>¿Qué es MySQL?</strong> Es un Sistema de Gestión de Bases de Datos Relacionales (RDBMS) de alto rendimiento basado en el lenguaje SQL. Escucha por defecto en el puerto de red <strong>TCP 3306</strong>.
+      </p>
+      <p>
+        <strong>¿Para qué sirve?</strong> Permite almacenar, organizar, indexar y consultar información estructurada (usuarios, productos, transacciones o sesiones) de aplicaciones web.
+      </p>
+
+      <p><strong>Paso 1.1: Instalación de MySQL Server</strong></p>
+      <p>Ejecuta en tu terminal el siguiente comando:</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo apt install mysql-server -y</pre>
+      </div>
+
+      <p><strong>Paso 1.2: Asegurar la instalación (Security Script)</strong></p>
+      <p>Ejecuta el script de endurecimiento para eliminar accesos anónimos y bases de datos de prueba:</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo mysql_secure_installation</pre>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Opciones recomendadas en el asistente:</strong>
+        <ul>
+          <li><strong>VALIDATE PASSWORD COMPONENT:</strong> Puedes responder <code>n</code> si es un entorno de laboratorio educativo, o <code>y</code> (Medium o Strong) en producción.</li>
+          <li><strong>Remove anonymous users?:</strong> Responde <code>y</code>.</li>
+          <li><strong>Disallow root login remotely?:</strong> Responde <code>y</code>.</li>
+          <li><strong>Remove test database and access to it?:</strong> Responde <code>y</code>.</li>
+          <li><strong>Reload privilege tables now?:</strong> Responde <code>y</code>.</li>
+        </ul>
+      </div>
+
+      <p><strong>Paso 1.3: Verificación del servicio</strong></p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo systemctl status mysql</pre>
+      </div>
+    </section>
+
+    <!-- BLOQUE 2: PHP -->
+    <section class="step-card">
+      <div class="step-header">
+        <div class="step-number">2</div>
+        <h2 class="step-title">PHP: Intérprete y Conexión con Apache y MySQL</h2>
+      </div>
+      <p>
+        <strong>¿Qué es PHP?</strong> Es un lenguaje de programación interpretado del lado del servidor (<em>Server-Side Scripting</em>) diseñado para el desarrollo de páginas web dinámicas.
+      </p>
+      <p>
+        <strong>¿Para qué sirve?</strong> Procesa la lógica de negocio, se comunica con la base de datos MySQL y genera dinámicamente el HTML final que Apache entrega al navegador del cliente.
+      </p>
+
+      <p><strong>Paso 2.1: Instalación de PHP y sus módulos esenciales</strong></p>
+      <p>Instalamos el motor PHP, el módulo para integrarlo con Apache y la extensión para dialogar con MySQL:</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo apt install php libapache2-mod-php php-mysql -y</pre>
+      </div>
+
+      <p><strong>Paso 2.2: Creación de un script de prueba (<code>info.php</code>)</strong></p>
+      <p>Generamos un archivo PHP en la raíz pública del servidor web para comprobar la interpretación:</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>echo "&lt;?php phpinfo(); ?&gt;" | sudo tee /var/www/html/info.php</pre>
+      </div>
+
+      <p>Reinicia Apache para cargar los módulos de PHP:</p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo systemctl restart apache2</pre>
+      </div>
+
+      <p><strong>Paso 2.3: Verificación en el navegador</strong></p>
+      <p>Abre tu navegador e ingresa a:</p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">navegador</span></div>
+        <pre>http://localhost/info.php</pre>
+      </div>
+
+      <div class="callout callout-warning">
+        <strong>¡Advertencia de Seguridad!</strong> La página <code>phpinfo()</code> expone información sensible sobre módulos y rutas del sistema. Al terminar tus pruebas en entornos reales, bórrala con: <br>
+        <code>sudo rm /var/www/html/info.php</code>
+      </div>
+    </section>
+
+    <!-- BLOQUE 3: PHPMYADMIN -->
+    <section class="step-card">
+      <div class="step-header">
+        <div class="step-number">3</div>
+        <h2 class="step-title">phpMyAdmin: Administración Gráfica Web de MySQL</h2>
+      </div>
+      <p>
+        <strong>¿Qué es phpMyAdmin?</strong> Es una herramienta web escrita en PHP orientada a administrar servidores MySQL/MariaDB a través de una interfaz gráfica intuitiva, eliminando la necesidad de interactuar solo por línea de comandos.
+      </p>
+
+      <p><strong>Paso 3.1: Instalación de paquetes necesarios</strong></p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl -y</pre>
+      </div>
+
+      <div class="callout callout-warning">
+        <strong>Atención a las ventanas del asistente en la terminal:</strong>
+        <ol>
+          <li><strong>Servidor web a configurar:</strong> Selecciona <code>[*] apache2</code> presionando la <strong>Barra Espaciadora</strong> para marcar el asterisco, y luego pulsa <kbd>Enter</kbd>.</li>
+          <li><strong>¿Configurar base de datos para phpmyadmin con dbconfig-common?:</strong> Selecciona <strong>&lt;Sí&gt; / &lt;Yes&gt;</strong>.</li>
+          <li><strong>Contraseña para phpmyadmin:</strong> Ingresa una clave segura o déjalo en blanco para autogenerar una.</li>
+        </ol>
+      </div>
+
+      <p>Habilita la extensión <code>mbstring</code> y reinicia Apache:</p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo phpenmod mbstring
+<span class="prompt">$ </span>sudo systemctl restart apache2</pre>
+      </div>
+
+      <p><strong>Paso 3.2: Creación de usuario administrador para el acceso web</strong></p>
+      <p>
+        Por defecto en Ubuntu, el usuario <code>root</code> de MySQL se autentica mediante el plugin <code>auth_socket</code> a nivel de sistema operativo y no permite login directo vía formulario web con contraseña. Por ello, creamos un usuario dedicado:
+      </p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">bash — terminal</span></div>
+        <pre><span class="prompt">$ </span>sudo mysql</pre>
+      </div>
+
+      <p>Dentro del intérprete de comandos de MySQL (<code>mysql&gt;</code>), ejecuta una por una:</p>
+
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">mysql shell</span></div>
+        <pre><span class="prompt">mysql&gt; </span>CREATE USER 'admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'TuClaveSegura123!';
+<span class="prompt">mysql&gt; </span>GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' WITH GRANT OPTION;
+<span class="prompt">mysql&gt; </span>FLUSH PRIVILEGES;
+<span class="prompt">mysql&gt; </span>EXIT;</pre>
+      </div>
+
+      <p><strong>Paso 3.3: Acceso al panel web</strong></p>
+      <p>Abre el navegador e ingresa a:</p>
+      <div class="terminal-box">
+        <div class="terminal-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="terminal-title">navegador</span></div>
+        <pre>http://localhost/phpmyadmin</pre>
+      </div>
+
+      <div class="callout callout-success">
+        <strong>Acceso concedido:</strong> Ingresa el usuario <code>admin</code> y la contraseña definida (<code>TuClaveSegura123!</code>). Ahora tendrás acceso a la consola gráfica completa para crear bases de datos, tablas y ejecutar sentencias SQL.
+      </div>
+    </section>
+
+    <footer>
+      Unidad 3: Servidores en el Sistema Operativo — Material de Laboratorio y Prácticas
+    </footer>
+  </div>
+
+</body>
+</html>
