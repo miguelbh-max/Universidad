@@ -59,7 +59,7 @@
   .nav-links a{ transition:color .2s ease; }
   .nav-links a:hover{ color:var(--text); }
   .nav-toggle{ display:none; background:none; border:1px solid var(--border-soft); color:var(--text); width:40px; height:40px; border-radius:10px; font-size:1.1rem; }
-  @media (max-width:720px){ .nav-links{ position:fixed; top:64px; left:0; right:0; flex-direction:column; gap:0; background:rgba(17,14,32,.97); border-bottom:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .35s ease; } .nav-links.open{ max-height:320px; } .nav-links a{ padding:16px clamp(20px,5vw,48px); border-top:1px solid var(--border); } .nav-toggle{ display:block; } }
+  @media (max-width:720px){ .nav-links{ position:fixed; top:64px; left:0; right:0; flex-direction:column; gap:0; background:rgba(17,14,32,.97); border-bottom:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .35s ease; } .nav-links.open{ max-height:380px; } .nav-links a{ padding:16px clamp(20px,5vw,48px); border-top:1px solid var(--border); } .nav-toggle{ display:block; } }
 
   .hero{ position:relative; min-height:100svh; display:flex; align-items:center; padding-top:80px; overflow:hidden; }
   .hero-rings{ position:absolute; right:-14%; top:50%; transform:translateY(-50%); width:min(60vw, 640px); aspect-ratio:1/1; opacity:.5; pointer-events:none; }
@@ -131,7 +131,19 @@
   .acc-panel-inner ul{ margin:10px 0 4px 20px; }
   .acc-panel-inner li{ margin-bottom:8px; }
   .acc-panel-inner strong{ color:var(--text); font-weight:600; }
+  .acc-link{ display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-weight:600; font-size:.9rem; color:var(--accent-2); border:1px solid rgba(34,211,238,.4); padding:8px 14px; border-radius:10px; transition:background .2s ease, transform .2s ease; }
+  .acc-link:hover{ background:rgba(34,211,238,.12); transform:translateY(-2px); }
   @media (max-width:600px){ .acc-panel-inner{ padding-left:clamp(18px,3vw,28px); } .acc-trigger{ gap:12px; padding:18px 16px; } .acc-icon{ width:38px; height:38px; } }
+
+  /* Tarjetas de subtemas 3.2.2 – 3.2.4 */
+  .sub-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .sub-card{ display:flex; flex-direction:column; gap:10px; border:1px solid var(--border-soft); border-radius:var(--radius); background:var(--card-bg); backdrop-filter:blur(6px); padding:26px 22px; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .sub-card:hover{ transform:translateY(-6px); border-color:var(--accent-2); box-shadow:var(--glow); }
+  .sub-card .s-ic{ font-size:2rem; }
+  .sub-card h3{ font-size:1.15rem; }
+  .sub-card p{ font-size:.9rem; color:var(--text-dim); flex:1; }
+  .sub-card .s-go{ font-weight:600; font-size:.9rem; color:var(--accent-2); }
+  @media (max-width:860px){ .sub-grid{ grid-template-columns:1fr; } }
 
   .flow{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; align-items:center; }
   .flow-step{ display:flex; flex-direction:column; gap:6px; padding:18px 20px; min-width:160px; flex:1; border:1px solid var(--border-soft); border-radius:16px; background:var(--card-bg); backdrop-filter:blur(6px); transition:border-color .3s ease, box-shadow .3s ease; }
@@ -151,6 +163,7 @@
   .cta .quote{ font-family:'Space Grotesk', sans-serif; font-size:clamp(1.3rem,2.6vw,1.7rem); font-weight:700; margin-bottom:16px; background:linear-gradient(135deg,var(--purple),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .cta h2{ font-size:clamp(1.7rem, 4vw, 2.3rem); margin-bottom:14px; }
   .cta p{ color:var(--text-dim); margin-bottom:30px; }
+  .cta .btn-row{ justify-content:center; }
 
   footer{ border-top:1px solid var(--border); padding:32px 0 60px; }
   .footer-inner{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; font-size:.82rem; color:var(--text-faint); }
@@ -167,6 +180,7 @@
       <div class="nav-links" id="navLinks">
         <a href="#desarrollo">Desarrollo humano</a>
         <a href="#indices">Índices</a>
+        <a href="#subtemas">Subtemas</a>
         <a href="#urbano-rural">Urbano y rural</a>
         <a href="#cierre">Cierre</a>
       </div>
@@ -195,7 +209,7 @@
 
         <div class="btn-row">
           <a href="#desarrollo" class="btn btn-primary">Ver qué es el desarrollo humano</a>
-          <a href="#indices" class="btn btn-ghost">Ver cómo se calcula el IDH</a>
+          <a href="#subtemas" class="btn btn-ghost">Ir a los subtemas 3.2.2 – 3.2.4</a>
         </div>
       </div>
     </div>
@@ -266,6 +280,7 @@
                   <li>Se publica anualmente por el PNUD y permite comparar países entre sí y a lo largo del tiempo.</li>
                   <li>Un país puede tener buen ingreso económico y, aun así, un IDH bajo si su salud o educación son deficientes.</li>
                 </ul>
+                <a href="3.2.2.html" class="acc-link">Ver página completa: 3.2.2 Índice de Desarrollo Humano →</a>
               </div>
             </div>
           </div>
@@ -284,6 +299,7 @@
                   <li>Es especialmente útil a nivel municipal o estatal, donde el IDH nacional puede ocultar grandes diferencias internas.</li>
                   <li>Ayuda a identificar zonas con rezago social para dirigir mejor los programas públicos.</li>
                 </ul>
+                <a href="3.2.3.html" class="acc-link">Ver página completa: 3.2.3 Índice de Desarrollo Social →</a>
               </div>
             </div>
           </div>
@@ -303,6 +319,7 @@
                   <li>Las zonas rurales dependen más directamente de los recursos naturales, por lo que su desarrollo sustentable exige otro tipo de estrategias.</li>
                   <li>Comparar ambos índices ayuda a detectar la brecha urbano-rural en acceso a oportunidades.</li>
                 </ul>
+                <a href="3.2.4.html" class="acc-link">Ver página completa: 3.2.4 Desarrollo urbano y rural →</a>
               </div>
             </div>
           </div>
@@ -312,6 +329,40 @@
         <div class="practice-box reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
           <p><strong>Práctica relacionada:</strong> el riego automatizado con Arduino, activado solo cuando el suelo lo necesita, es un ejemplo de cómo la tecnología puede apoyar comunidades rurales a mejorar su desarrollo sin desperdiciar recursos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SUBTEMAS 3.2.2 – 3.2.4 ===== -->
+    <section id="subtemas">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">Profundiza en cada tema</span>
+          <h2>Subtemas de 3.2</h2>
+          <p class="sub">Cada subtema tiene su propia página con imágenes, datos de México y actividades interactivas.</p>
+        </div>
+        <div class="sub-grid reveal">
+          <a href="3.2.2.html" class="sub-card">
+            <span class="s-ic">📊</span>
+            <span class="eyebrow">3.2.2</span>
+            <h3>Índice de Desarrollo Humano</h3>
+            <p>Las 3 dimensiones del IDH, el mapa mundial y una calculadora para probar cómo cambia el índice.</p>
+            <span class="s-go">Abrir página →</span>
+          </a>
+          <a href="3.2.3.html" class="sub-card">
+            <span class="s-ic">🏘️</span>
+            <span class="eyebrow">3.2.3</span>
+            <h3>Índice de Desarrollo Social</h3>
+            <p>Las 6 carencias sociales, la pobreza multidimensional y los datos de México 2024 por estado.</p>
+            <span class="s-go">Abrir página →</span>
+          </a>
+          <a href="3.2.4.html" class="sub-card">
+            <span class="s-ic">🏙️🌾</span>
+            <span class="eyebrow">3.2.4</span>
+            <h3>Desarrollo urbano y rural</h3>
+            <p>Ciudad contra campo, la urbanización de México de 1950 a 2020 y estrategias sustentables.</p>
+            <span class="s-go">Abrir página →</span>
+          </a>
         </div>
       </div>
     </section>
@@ -362,7 +413,10 @@
             <p class="quote">"El verdadero desarrollo se mide en vidas mejores, no solo en cifras económicas."</p>
             <h2>Salud, educación e ingreso: el trío que define el bienestar</h2>
             <p>Los índices de desarrollo humano y social permiten ver más allá del crecimiento económico y detectar en dónde se necesita realmente invertir esfuerzo y recursos.</p>
-            <a href="#desarrollo" class="btn btn-primary">Repasar el desarrollo humano</a>
+            <div class="btn-row">
+              <a href="3.2.2.html" class="btn btn-primary">Continuar: 3.2.2 Índice de Desarrollo Humano →</a>
+              <a href="#desarrollo" class="btn btn-ghost">Repasar el desarrollo humano</a>
+            </div>
           </div>
         </div>
       </div>
@@ -372,8 +426,9 @@
 
   <footer>
     <div class="wrap footer-inner">
-      <span>Desarrollo Sustentable — 3.2 Desarrollo Humano e Índices</span>
       <a href="../3.1/index.html" style="color:var(--accent-2);">← Tema anterior: 3.1 Sociedad y Diversidad Socio-cultural</a>
+      <span>Desarrollo Sustentable — 3.2 Desarrollo Humano e Índices</span>
+      <a href="3.2.2.html" style="color:var(--accent-2);">Siguiente: 3.2.2 Índice de Desarrollo Humano →</a>
     </div>
   </footer>
 
