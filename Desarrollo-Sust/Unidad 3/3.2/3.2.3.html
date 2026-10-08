@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3.2.3 Índice de Desarrollo Social | Desarrollo Sustentable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Dark Mode tecnológico — estilo compartido 3.2.x ===== */
+:root{--bg:#070b12;--s1:#0d1420;--s2:#111b2b;--bd:#1c2a3a;--bd2:#27405a;--tx:#e6edf3;--dim:#93a4b8;--faint:#5d6f84;--g:#00ff9c;--c:#00d4ff;--a:#ffb800;--red:#ff4d6d;--r:16px;--max:1140px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(0,212,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%)}
+img,svg{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;line-height:1.15}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 clamp(16px,5vw,40px)}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--g)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(7,11,18,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.nav-in{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px clamp(16px,5vw,40px);max-width:var(--max);margin:0 auto}
+.brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--g);white-space:nowrap}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{font-family:'JetBrains Mono',monospace;font-size:.78rem;padding:7px 12px;border:1px solid var(--bd);border-radius:8px;color:var(--dim);white-space:nowrap;transition:.2s}
+.tabs a:hover{border-color:var(--c);color:var(--c)}
+.tabs a.on{background:var(--g);color:#04110b;border-color:var(--g);font-weight:700}
+@media(max-width:700px){.brand{display:none}.nav-in{justify-content:center}}
+.hero{min-height:92svh;display:flex;align-items:center;padding:110px 0 60px;position:relative;overflow:hidden}
+.rings{position:absolute;right:-14%;top:50%;transform:translateY(-50%);width:min(72vw,620px);opacity:.55;pointer-events:none}
+.rings circle{fill:none;stroke:var(--c);stroke-opacity:.35}
+.spin{animation:spin 50s linear infinite;transform-origin:200px 200px}
+.spin2{animation:spin 80s linear infinite reverse;transform-origin:200px 200px}
+.pulse{animation:pulse 4s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{stroke-opacity:.9;stroke:var(--g)}}
+.hero-c{position:relative;z-index:2;max-width:760px}
+.chip{display:inline-flex;gap:8px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.08em;color:var(--g);border:1px solid rgba(0,255,156,.35);background:rgba(0,255,156,.08);padding:6px 12px;border-radius:999px;margin-bottom:20px}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.hero h1{font-size:clamp(2.1rem,6vw,3.8rem);margin-bottom:18px}
+.hero h1 span{background:linear-gradient(90deg,var(--g),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--dim);font-size:clamp(1rem,2vw,1.15rem);max-width:56ch;margin-bottom:28px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{font-weight:600;font-size:.92rem;padding:13px 22px;border-radius:10px;border:1px solid var(--bd2);display:inline-flex;gap:8px;align-items:center;transition:.25s}
+.btn-p{background:var(--g);color:#04110b;border-color:var(--g)}
+.btn-p:hover{box-shadow:0 0 0 4px rgba(0,255,156,.2),0 0 30px rgba(0,255,156,.35);transform:translateY(-2px)}
+.btn-g{color:var(--tx);background:var(--s1)}
+.btn-g:hover{border-color:var(--c);color:var(--c);transform:translateY(-2px)}
+section{padding:clamp(56px,9vw,100px) 0}
+.head{max-width:680px;margin-bottom:34px}
+.head h2{font-size:clamp(1.7rem,4vw,2.4rem);margin-top:10px}
+.head p{color:var(--dim);margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.stat{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:.25s}
+.stat:hover{border-color:var(--g);transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,255,156,.08)}
+.stat b{display:block;font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,4vw,2.2rem);color:var(--g);line-height:1.2}
+.stat.c b{color:var(--c)}.stat.a b{color:var(--a)}.stat.r b{color:var(--red)}
+.stat span{color:var(--dim);font-size:.88rem}
+.fig{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:clamp(14px,3vw,24px);overflow:hidden}
+.fig img{width:100%;border-radius:10px}
+.fig figcaption{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--faint);margin-top:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.acc{display:flex;flex-direction:column;gap:12px}
+.item{border:1px solid var(--bd);border-radius:var(--r);background:var(--s1);overflow:hidden;transition:border-color .3s}
+.item.open,.item:hover{border-color:var(--c)}
+.trig{width:100%;display:flex;align-items:center;gap:14px;background:none;border:0;color:var(--tx);padding:18px clamp(14px,3vw,24px);cursor:pointer;text-align:left;font:inherit}
+.num{flex:none;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--g);border:1px solid rgba(0,255,156,.4);border-radius:8px;padding:4px 8px}
+.trig h3{flex:1;font-size:clamp(1rem,2vw,1.15rem);font-weight:600}
+.chev{flex:none;width:20px;height:20px;color:var(--faint);transition:transform .3s}
+.item.open .chev{transform:rotate(180deg);color:var(--c)}
+.panel{max-height:0;overflow:hidden;transition:max-height .45s ease}
+.pin{padding:0 clamp(14px,3vw,24px) 22px;color:var(--dim);font-size:.95rem}
+.pin p{margin-bottom:10px}.pin ul{margin:6px 0 10px 20px}.pin li{margin-bottom:6px}.pin strong{color:var(--tx)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:22px;transition:.25s}
+.card:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 10px 30px rgba(0,212,255,.08)}
+.card .ic{font-size:1.8rem;margin-bottom:10px}
+.card h3{font-size:1.05rem;margin-bottom:6px}
+.card p{font-size:.9rem;color:var(--dim)}
+.card .pct{font-family:'JetBrains Mono',monospace;color:var(--a);font-size:.82rem;margin-top:8px;display:block}
+.note{display:flex;gap:12px;border:1px solid rgba(255,184,0,.35);background:rgba(255,184,0,.07);border-radius:12px;padding:14px 16px;margin-top:22px;font-size:.92rem;color:var(--dim)}
+.note strong{color:var(--a)}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+.cta{border:1px solid var(--bd2);border-radius:20px;background:linear-gradient(135deg,rgba(0,255,156,.08),rgba(0,212,255,.06));padding:clamp(36px,7vw,72px) clamp(20px,5vw,56px);text-align:center}
+.cta h2{font-size:clamp(1.5rem,3.6vw,2.2rem);margin:10px 0 12px}
+.cta p{color:var(--dim);max-width:58ch;margin:0 auto 24px}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.pager a{border:1px solid var(--bd);border-radius:12px;padding:16px;background:var(--s1);transition:.25s;display:block}
+.pager a:hover{border-color:var(--g);transform:translateY(-2px)}
+.pager small{display:block;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em}
+.pager span{font-weight:600}
+.pager .nx{text-align:right}
+@media(max-width:560px){.pager{grid-template-columns:1fr}.pager .nx{text-align:left}}
+.src{font-size:.78rem;color:var(--faint);margin-top:26px;line-height:1.7}
+footer{border-top:1px solid var(--bd);padding:26px 0 44px;font-size:.8rem;color:var(--faint)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+/* Barras de pobreza por estado */
+.hbars{display:flex;flex-direction:column;gap:10px}
+.hb{display:grid;grid-template-columns:120px 1fr 56px;gap:10px;align-items:center;font-size:.88rem}
+.hb .lb{color:var(--dim)}
+.hb .tr{height:14px;background:#050810;border:1px solid var(--bd);border-radius:99px;overflow:hidden}
+.hb .tr i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.2s ease}
+.hb .vl{font-family:'JetBrains Mono',monospace;text-align:right}
+.hb.nat .lb{color:var(--tx);font-weight:600}
+@media(max-width:480px){.hb{grid-template-columns:92px 1fr 48px;font-size:.8rem}}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.vs{grid-template-columns:1fr}}
+.vs .box{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:22px}
+.vs .box.g{border-top:3px solid var(--g)}.vs .box.c{border-top:3px solid var(--c)}
+.vs h3{margin-bottom:10px}
+.vs ul{margin-left:18px;color:var(--dim);font-size:.92rem}
+.vs li{margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="brand">&gt;_ Desarrollo Sustentable</div>
+    <div class="tabs">
+      <a href="index.html">↩ 3.2</a>
+      <a href="3.2.2.html">3.2.2 IDH</a>
+      <a href="3.2.3.html" class="on">3.2.3 IDS</a>
+      <a href="3.2.4.html">3.2.4 Urbano-Rural</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="rings" aria-hidden="true">
+    <svg viewBox="0 0 400 400">
+      <g class="spin"><circle cx="200" cy="200" r="185" stroke-dasharray="2 10"/><circle cx="200" cy="200" r="145" stroke-dasharray="1 6"/></g>
+      <g class="spin2"><circle cx="200" cy="200" r="105" stroke-dasharray="40 14"/></g>
+      <circle class="pulse" cx="200" cy="200" r="68"/>
+    </svg>
+  </div>
+  <div class="wrap">
+    <div class="hero-c">
+      <span class="chip"><i></i>Unidad 3 · Escenario socio-cultural</span>
+      <h1>3.2.3 Índice de <span>Desarrollo Social</span></h1>
+      <p class="lead">No basta con tener ingreso: ¿la gente tiene escuela, médico, agua, drenaje, comida y seguridad social? Eso es lo que miden los índices de desarrollo social.</p>
+      <div class="btns">
+        <a href="#carencias" class="btn btn-p">Ver las 6 carencias ↓</a>
+        <a href="#mexico" class="btn btn-g">Datos de México 2024</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="concepto" style="padding-top:0">
+  <div class="wrap two">
+    <div class="rv">
+      <span class="tag">// concepto</span>
+      <h2 style="font-size:clamp(1.6rem,3.6vw,2.2rem);margin:10px 0 12px">¿Qué es un Índice de Desarrollo Social?</h2>
+      <p style="color:var(--dim);margin-bottom:12px">Es una medida que evalúa si la población tiene <strong style="color:var(--tx)">acceso efectivo a sus derechos sociales</strong>: educación, salud, seguridad social, vivienda digna, servicios básicos y alimentación.</p>
+      <p style="color:var(--dim)">Mientras el IDH mide <em>capacidades</em> con promedios nacionales, los índices sociales detectan <strong style="color:var(--tx)">carencias concretas</strong> hasta nivel municipio o localidad, para saber dónde invertir.</p>
+    </div>
+    <figure class="fig rv">
+      <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=80" alt="Estudiantes en un salón de clases, ejemplo del derecho a la educación" loading="lazy" onerror="this.closest('figure').style.display='none'">
+      <figcaption>// El acceso a la educación es uno de los derechos sociales que se miden</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="carencias">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// las 6 carencias sociales</span>
+      <h2>¿Qué se revisa en cada hogar?</h2>
+      <p>La medición oficial de México identifica seis carencias. El porcentaje muestra la población nacional con esa carencia en 2024 (cuando hay dato disponible).</p>
+    </div>
+    <div class="cards rv">
+      <div class="card"><div class="ic">🎓</div><h3>Rezago educativo</h3><p>No asiste a la escuela o no terminó la educación obligatoria según su edad.</p></div>
+      <div class="card"><div class="ic">🏥</div><h3>Acceso a servicios de salud</h3><p>No está afiliado ni tiene derecho a recibir atención en una institución de salud.</p><span class="pct">34.2% en 2024</span></div>
+      <div class="card"><div class="ic">🛡️</div><h3>Acceso a seguridad social</h3><p>Sin prestaciones como pensión, incapacidad o guardería. Es la carencia más extendida.</p><span class="pct">48.2% en 2024</span></div>
+      <div class="card"><div class="ic">🏠</div><h3>Calidad y espacios de la vivienda</h3><p>Piso de tierra, techos o muros frágiles, o hacinamiento.</p></div>
+      <div class="card"><div class="ic">🚰</div><h3>Servicios básicos en la vivienda</h3><p>Sin agua entubada, drenaje o electricidad, o cocinar con leña sin chimenea.</p></div>
+      <div class="card"><div class="ic">🍲</div><h3>Alimentación nutritiva y de calidad</h3><p>El hogar no tiene acceso suficiente a comida nutritiva y de calidad.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="cuadrantes">
+  <div class="wrap two">
+    <div class="rv">
+      <span class="tag">// cómo se clasifica</span>
+      <h2 style="font-size:clamp(1.6rem,3.6vw,2.2rem);margin:10px 0 12px">Ingreso + carencias = pobreza multidimensional</h2>
+      <p style="color:var(--dim)">Cada persona se ubica en un cuadrante según dos ejes: si su ingreso alcanza para lo básico y cuántas carencias sociales tiene.</p>
+      <div class="note"><span>📌</span><p><strong>En pobreza:</strong> ingreso insuficiente <em>y</em> al menos una carencia social. <strong>Pobreza extrema:</strong> ingreso que no alcanza ni para la comida y tres o más carencias.</p></div>
+    </div>
+    <figure class="fig rv">
+      <svg viewBox="0 0 420 360" role="img" aria-label="Cuadrantes de pobreza multidimensional">
+        <g font-family="Inter, sans-serif">
+          <rect x="60" y="20" width="170" height="140" fill="rgba(255,77,109,.18)" stroke="#ff4d6d"/>
+          <text x="145" y="80" text-anchor="middle" fill="#ff4d6d" font-size="15" font-weight="700">POBREZA</text>
+          <text x="145" y="102" text-anchor="middle" fill="#e6edf3" font-family="JetBrains Mono, monospace" font-size="18">29.6%</text>
+          <text x="145" y="124" text-anchor="middle" fill="#93a4b8" font-size="10">ingreso bajo + carencias</text>
+          <rect x="230" y="20" width="170" height="140" fill="rgba(255,184,0,.12)" stroke="#ffb800"/>
+          <text x="315" y="84" text-anchor="middle" fill="#ffb800" font-size="13" font-weight="700">VULNERABLE</text>
+          <text x="315" y="104" text-anchor="middle" fill="#ffb800" font-size="13" font-weight="700">POR CARENCIAS</text>
+          <rect x="60" y="160" width="170" height="140" fill="rgba(255,184,0,.12)" stroke="#ffb800"/>
+          <text x="145" y="224" text-anchor="middle" fill="#ffb800" font-size="13" font-weight="700">VULNERABLE</text>
+          <text x="145" y="244" text-anchor="middle" fill="#ffb800" font-size="13" font-weight="700">POR INGRESO</text>
+          <rect x="230" y="160" width="170" height="140" fill="rgba(0,255,156,.12)" stroke="#00ff9c"/>
+          <text x="315" y="224" text-anchor="middle" fill="#00ff9c" font-size="13" font-weight="700">NO POBRE</text>
+          <text x="315" y="244" text-anchor="middle" fill="#00ff9c" font-size="13" font-weight="700">NI VULNERABLE</text>
+          <text x="230" y="330" text-anchor="middle" fill="#93a4b8" font-size="12">Ingreso suficiente →</text>
+          <text x="28" y="160" text-anchor="middle" fill="#93a4b8" font-size="12" transform="rotate(-90 28 160)">← Más carencias sociales</text>
+        </g>
+      </svg>
+      <figcaption>// Esquema de la medición multidimensional de la pobreza en México</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="mexico">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// México 2024</span>
+      <h2>Radiografía social del país</h2>
+      <p>Primera medición realizada por el INEGI tras la desaparición del CONEVAL (publicada el 13 de agosto de 2025).</p>
+    </div>
+    <div class="stats rv" style="margin-bottom:22px">
+      <div class="stat r"><b>29.6%</b><span>Población en pobreza multidimensional (38.5 millones)</span></div>
+      <div class="stat a"><b>5.3%</b><span>Población en pobreza extrema (≈7 millones)</span></div>
+      <div class="stat"><b>41.9%→29.6%</b><span>Caída de la pobreza entre 2018 y 2024</span></div>
+      <div class="stat c"><b>48.2%</b><span>Sin acceso a seguridad social: la carencia más alta</span></div>
+    </div>
+    <div class="fig rv">
+      <span class="tag" style="display:block;margin-bottom:14px">% de población en pobreza por entidad, 2024</span>
+      <div class="hbars" id="hbars">
+        <div class="hb"><span class="lb">Chiapas</span><span class="tr"><i data-w="66.0" style="background:var(--red)"></i></span><span class="vl">66.0</span></div>
+        <div class="hb"><span class="lb">Guerrero</span><span class="tr"><i data-w="58.1" style="background:var(--red)"></i></span><span class="vl">58.1</span></div>
+        <div class="hb"><span class="lb">Oaxaca</span><span class="tr"><i data-w="51.6" style="background:var(--red)"></i></span><span class="vl">51.6</span></div>
+        <div class="hb nat"><span class="lb">NACIONAL</span><span class="tr"><i data-w="29.6" style="background:var(--a)"></i></span><span class="vl">29.6</span></div>
+        <div class="hb"><span class="lb">Nuevo León</span><span class="tr"><i data-w="10.6" style="background:var(--g)"></i></span><span class="vl">10.6</span></div>
+        <div class="hb"><span class="lb">B. C. Sur</span><span class="tr"><i data-w="10.2" style="background:var(--g)"></i></span><span class="vl">10.2</span></div>
+        <div class="hb"><span class="lb">Baja California</span><span class="tr"><i data-w="9.9" style="background:var(--g)"></i></span><span class="vl">9.9</span></div>
+      </div>
+      <figcaption>// El sur concentra la mayor pobreza; el norte, la menor. Fuente: INEGI, Pobreza multidimensional 2024</figcaption>
+    </div>
+  </div>
+</section>
+
+<section id="detalle">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// paso a paso</span>
+      <h2>Los índices sociales que debes conocer</h2>
+    </div>
+    <div class="acc">
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">01</span><h3>Índice de Rezago Social (IRS)</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>Resume en un solo valor varios indicadores de <strong>educación, acceso a salud, servicios básicos, calidad de la vivienda y bienes del hogar</strong>, usando datos del Censo del INEGI.</p>
+          <ul>
+            <li>Se calcula para <strong>estados, municipios y localidades</strong>.</li>
+            <li>Clasifica en 5 grados: muy bajo, bajo, medio, alto y muy alto rezago.</li>
+            <li>Se usa para dirigir recursos, por ejemplo el fondo de infraestructura social (FAIS) hacia localidades con alto rezago.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">02</span><h3>Pobreza multidimensional</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>Combina el <strong>ingreso</strong> de las personas con las <strong>6 carencias sociales</strong>. México fue de los primeros países en medir la pobreza así, con enfoque de derechos.</p>
+          <ul>
+            <li>Se publica cada dos años con datos de la encuesta de ingresos y gastos de los hogares (ENIGH).</li>
+            <li>Desde julio de 2025 la realiza el <strong>INEGI</strong>, que conservó el método del CONEVAL.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">03</span><h3>Índice de Progreso Social (internacional)</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>Mide el bienestar <strong>sin usar variables económicas</strong>, con tres bloques:</p>
+          <ul>
+            <li><strong>Necesidades humanas básicas:</strong> nutrición, agua, vivienda, seguridad.</li>
+            <li><strong>Fundamentos del bienestar:</strong> educación, información, salud y calidad ambiental.</li>
+            <li><strong>Oportunidades:</strong> derechos, libertades, inclusión y educación superior.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">04</span><h3>Relación con la sustentabilidad</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <ul>
+            <li>Sin drenaje, las aguas residuales terminan en ríos y suelos.</li>
+            <li>Cocinar con leña sin chimenea daña la salud y presiona los bosques.</li>
+            <li>Sin recolección de basura, crecen los tiraderos a cielo abierto.</li>
+            <li>Reducir carencias sociales es también <strong>reducir presión ambiental</strong>: la dimensión social y la ambiental van juntas.</li>
+          </ul>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="comparativa">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// comparativa</span>
+      <h2>IDH vs. Índices de Desarrollo Social</h2>
+    </div>
+    <div class="vs rv">
+      <div class="box g"><h3>📊 IDH</h3><ul><li>Lo calcula el PNUD (ONU).</li><li>Mide capacidades: salud, educación, ingreso.</li><li>Sirve para comparar países.</li><li>Resultado de 0 a 1.</li></ul></div>
+      <div class="box c"><h3>🏘️ Índices sociales</h3><ul><li>En México los calcula el INEGI.</li><li>Miden acceso a derechos y carencias.</li><li>Sirven para ubicar dónde están las necesidades.</li><li>Resultado en porcentajes o grados de rezago.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="cierre">
+  <div class="wrap">
+    <div class="cta rv">
+      <span class="tag">// idea clave</span>
+      <h2>Medir carencias es el primer paso para eliminarlas</h2>
+      <p>Las carencias no se reparten igual: cambian mucho entre la ciudad y el campo. Eso es justo lo que veremos en el siguiente tema.</p>
+      <a href="3.2.4.html" class="btn btn-p">Continuar: 3.2.4 Desarrollo urbano y rural →</a>
+    </div>
+    <div class="pager rv">
+      <a href="3.2.2.html"><small>← Anterior</small><span>3.2.2 Índice de Desarrollo Humano</span></a>
+      <a href="3.2.4.html" class="nx"><small>Siguiente →</small><span>3.2.4 Desarrollo urbano y rural</span></a>
+    </div>
+    <p class="src">Fuentes: INEGI, Pobreza multidimensional 2024 (13/08/2025) · México ¿cómo vamos? (2025) · BBVA Research (2025) · CONEVAL, Índice de Rezago Social · Social Progress Imperative, Índice de Progreso Social.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Desarrollo Sustentable (ACD-0908) · TecNM Campus Mazatlán</span>
+    <span>3.2.3 Índice de Desarrollo Social</span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.item').forEach(it=>{const t=it.querySelector('.trig'),p=it.querySelector('.panel');t.addEventListener('click',()=>{const o=it.classList.toggle('open');t.setAttribute('aria-expanded',o);p.style.maxHeight=o?p.scrollHeight+'px':null;});});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('[data-w]').forEach(b=>b.style.width=(b.dataset.w/70*100)+'%');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

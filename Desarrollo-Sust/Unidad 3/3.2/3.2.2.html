@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3.2.2 Índice de Desarrollo Humano | Desarrollo Sustentable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Dark Mode tecnológico — estilo compartido 3.2.x ===== */
+:root{--bg:#070b12;--s1:#0d1420;--s2:#111b2b;--bd:#1c2a3a;--bd2:#27405a;--tx:#e6edf3;--dim:#93a4b8;--faint:#5d6f84;--g:#00ff9c;--c:#00d4ff;--a:#ffb800;--red:#ff4d6d;--r:16px;--max:1140px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(0,212,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%)}
+img,svg{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;line-height:1.15}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 clamp(16px,5vw,40px)}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--g)}
+/* Navegación fija con pestañas entre páginas */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(7,11,18,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.nav-in{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px clamp(16px,5vw,40px);max-width:var(--max);margin:0 auto}
+.brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--g);white-space:nowrap}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{font-family:'JetBrains Mono',monospace;font-size:.78rem;padding:7px 12px;border:1px solid var(--bd);border-radius:8px;color:var(--dim);white-space:nowrap;transition:.2s}
+.tabs a:hover{border-color:var(--c);color:var(--c)}
+.tabs a.on{background:var(--g);color:#04110b;border-color:var(--g);font-weight:700}
+@media(max-width:700px){.brand{display:none}.nav-in{justify-content:center}}
+/* Hero */
+.hero{min-height:92svh;display:flex;align-items:center;padding:110px 0 60px;position:relative;overflow:hidden}
+.rings{position:absolute;right:-14%;top:50%;transform:translateY(-50%);width:min(72vw,620px);opacity:.55;pointer-events:none}
+.rings circle{fill:none;stroke:var(--c);stroke-opacity:.35}
+.spin{animation:spin 50s linear infinite;transform-origin:200px 200px}
+.spin2{animation:spin 80s linear infinite reverse;transform-origin:200px 200px}
+.pulse{animation:pulse 4s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{stroke-opacity:.9;stroke:var(--g)}}
+.hero-c{position:relative;z-index:2;max-width:760px}
+.chip{display:inline-flex;gap:8px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.08em;color:var(--g);border:1px solid rgba(0,255,156,.35);background:rgba(0,255,156,.08);padding:6px 12px;border-radius:999px;margin-bottom:20px}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.hero h1{font-size:clamp(2.1rem,6vw,3.8rem);margin-bottom:18px}
+.hero h1 span{background:linear-gradient(90deg,var(--g),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--dim);font-size:clamp(1rem,2vw,1.15rem);max-width:56ch;margin-bottom:28px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{font-weight:600;font-size:.92rem;padding:13px 22px;border-radius:10px;border:1px solid var(--bd2);display:inline-flex;gap:8px;align-items:center;transition:.25s}
+.btn-p{background:var(--g);color:#04110b;border-color:var(--g)}
+.btn-p:hover{box-shadow:0 0 0 4px rgba(0,255,156,.2),0 0 30px rgba(0,255,156,.35);transform:translateY(-2px)}
+.btn-g{color:var(--tx);background:var(--s1)}
+.btn-g:hover{border-color:var(--c);color:var(--c);transform:translateY(-2px)}
+/* Secciones */
+section{padding:clamp(56px,9vw,100px) 0}
+.head{max-width:680px;margin-bottom:34px}
+.head h2{font-size:clamp(1.7rem,4vw,2.4rem);margin-top:10px}
+.head p{color:var(--dim);margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.stat{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:.25s}
+.stat:hover{border-color:var(--g);transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,255,156,.08)}
+.stat b{display:block;font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,4vw,2.2rem);color:var(--g);line-height:1.2}
+.stat.c b{color:var(--c)}.stat.a b{color:var(--a)}.stat.r b{color:var(--red)}
+.stat span{color:var(--dim);font-size:.88rem}
+.fig{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:clamp(14px,3vw,24px);overflow:hidden}
+.fig img{width:100%;border-radius:10px}
+.fig figcaption{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--faint);margin-top:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.flow-ln{animation:dash 1.4s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-28}}
+/* Acordeón */
+.acc{display:flex;flex-direction:column;gap:12px}
+.item{border:1px solid var(--bd);border-radius:var(--r);background:var(--s1);overflow:hidden;transition:border-color .3s}
+.item.open,.item:hover{border-color:var(--c)}
+.trig{width:100%;display:flex;align-items:center;gap:14px;background:none;border:0;color:var(--tx);padding:18px clamp(14px,3vw,24px);cursor:pointer;text-align:left;font:inherit}
+.num{flex:none;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--g);border:1px solid rgba(0,255,156,.4);border-radius:8px;padding:4px 8px}
+.trig h3{flex:1;font-size:clamp(1rem,2vw,1.15rem);font-weight:600}
+.chev{flex:none;width:20px;height:20px;color:var(--faint);transition:transform .3s}
+.item.open .chev{transform:rotate(180deg);color:var(--c)}
+.panel{max-height:0;overflow:hidden;transition:max-height .45s ease}
+.pin{padding:0 clamp(14px,3vw,24px) 22px;color:var(--dim);font-size:.95rem}
+.pin p{margin-bottom:10px}.pin ul{margin:6px 0 10px 20px}.pin li{margin-bottom:6px}.pin strong{color:var(--tx)}
+.code{font-family:'JetBrains Mono',monospace;background:#050810;border:1px solid var(--bd);border-left:3px solid var(--g);border-radius:8px;padding:12px 14px;color:var(--g);font-size:.84rem;overflow-x:auto;margin:10px 0;white-space:pre}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:22px;transition:.25s}
+.card:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 10px 30px rgba(0,212,255,.08)}
+.card .ic{font-size:1.8rem;margin-bottom:10px}
+.card h3{font-size:1.05rem;margin-bottom:6px}
+.card p{font-size:.9rem;color:var(--dim)}
+.note{display:flex;gap:12px;border:1px solid rgba(255,184,0,.35);background:rgba(255,184,0,.07);border-radius:12px;padding:14px 16px;margin-top:22px;font-size:.92rem;color:var(--dim)}
+.note strong{color:var(--a)}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+.cta{border:1px solid var(--bd2);border-radius:20px;background:linear-gradient(135deg,rgba(0,255,156,.08),rgba(0,212,255,.06));padding:clamp(36px,7vw,72px) clamp(20px,5vw,56px);text-align:center}
+.cta h2{font-size:clamp(1.5rem,3.6vw,2.2rem);margin:10px 0 12px}
+.cta p{color:var(--dim);max-width:58ch;margin:0 auto 24px}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.pager a{border:1px solid var(--bd);border-radius:12px;padding:16px;background:var(--s1);transition:.25s;display:block}
+.pager a:hover{border-color:var(--g);transform:translateY(-2px)}
+.pager small{display:block;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em}
+.pager span{font-weight:600}
+.pager .nx{text-align:right}
+@media(max-width:560px){.pager{grid-template-columns:1fr}.pager .nx{text-align:left}}
+.src{font-size:.78rem;color:var(--faint);margin-top:26px;line-height:1.7}
+.src a{color:var(--c)}
+footer{border-top:1px solid var(--bd);padding:26px 0 44px;font-size:.8rem;color:var(--faint)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+/* Calculadora IDH */
+.calc{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+@media(max-width:860px){.calc{grid-template-columns:1fr}}
+.box{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:clamp(18px,3vw,26px)}
+.sl{margin-bottom:18px}
+.sl label{display:flex;justify-content:space-between;gap:10px;font-size:.9rem;color:var(--dim);margin-bottom:6px}
+.sl output{font-family:'JetBrains Mono',monospace;color:var(--c)}
+input[type=range]{width:100%;accent-color:var(--g)}
+.big{font-family:'JetBrains Mono',monospace;font-size:clamp(3rem,9vw,4.6rem);font-weight:700;color:var(--g);line-height:1}
+.cat{display:inline-block;margin:10px 0 18px;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:5px 10px;border-radius:6px;border:1px solid currentColor}
+.sub{margin-bottom:12px}
+.sub div{display:flex;justify-content:space-between;font-size:.82rem;color:var(--dim);margin-bottom:4px}
+.bar{height:8px;border-radius:99px;background:#050810;border:1px solid var(--bd);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--g),var(--c));transition:width .4s}
+.scale{display:flex;height:34px;border-radius:10px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;color:#04110b}
+.scale div{display:flex;align-items:center;justify-content:center;text-align:center}
+.scale-wrap{position:relative;margin:14px 0 40px}
+.mk{position:absolute;top:-6px;bottom:-6px;width:3px;background:#fff;box-shadow:0 0 10px #fff}
+.mk span{position:absolute;top:44px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--tx)}
+.tickrow{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--faint);margin-top:6px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="brand">&gt;_ Desarrollo Sustentable</div>
+    <div class="tabs">
+      <a href="index.html">↩ 3.2</a>
+      <a href="3.2.2.html" class="on">3.2.2 IDH</a>
+      <a href="3.2.3.html">3.2.3 IDS</a>
+      <a href="3.2.4.html">3.2.4 Urbano-Rural</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="rings" aria-hidden="true">
+    <svg viewBox="0 0 400 400">
+      <g class="spin"><circle cx="200" cy="200" r="185" stroke-dasharray="2 10"/><circle cx="200" cy="200" r="145" stroke-dasharray="1 6"/></g>
+      <g class="spin2"><circle cx="200" cy="200" r="105" stroke-dasharray="40 14"/></g>
+      <circle class="pulse" cx="200" cy="200" r="68"/>
+    </svg>
+  </div>
+  <div class="wrap">
+    <div class="hero-c">
+      <span class="chip"><i></i>Unidad 3 · Escenario socio-cultural</span>
+      <h1>3.2.2 Índice de <span>Desarrollo Humano</span></h1>
+      <p class="lead">Un solo número entre 0 y 1 que resume qué tan larga, sana, educada y digna es la vida de las personas en un país.</p>
+      <div class="btns">
+        <a href="#dimensiones" class="btn btn-p">Ver las 3 dimensiones ↓</a>
+        <a href="#calculadora" class="btn btn-g">Probar la calculadora</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== DATOS CLAVE ===== -->
+<section id="datos" style="padding-top:0">
+  <div class="wrap">
+    <div class="stats rv">
+      <div class="stat"><b>0.789</b><span>IDH de México en 2023 → desarrollo humano <strong>alto</strong></span></div>
+      <div class="stat c"><b>+18.1%</b><span>Lo que ha crecido el IDH de México desde 1990</span></div>
+      <div class="stat a"><b>0.71</b><span>IDH de las juventudes (12–29 años) en México: por debajo del general</span></div>
+      <div class="stat"><b>9.º</b><span>Lugar de Sinaloa en el IDH de las Juventudes (0.752)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DIMENSIONES ===== -->
+<section id="dimensiones">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// concepto</span>
+      <h2>¿Qué mide el IDH?</h2>
+      <p>El PNUD lo creó en 1990 para dejar de medir el progreso solo con dinero. Combina tres dimensiones básicas de la vida humana.</p>
+    </div>
+
+    <figure class="fig rv">
+      <svg viewBox="0 0 640 320" role="img" aria-label="Diagrama: salud, educación e ingreso se combinan en el IDH">
+        <defs><linearGradient id="gr" x1="0" x2="1"><stop offset="0" stop-color="#00ff9c"/><stop offset="1" stop-color="#00d4ff"/></linearGradient></defs>
+        <g class="flow-ln" stroke="url(#gr)" stroke-width="2.5" fill="none" stroke-dasharray="6 8">
+          <path d="M190 60 C330 60 340 160 430 160"/>
+          <path d="M190 160 L430 160"/>
+          <path d="M190 260 C330 260 340 160 430 160"/>
+        </g>
+        <g font-family="Inter, sans-serif">
+          <rect x="10" y="28" width="180" height="64" rx="12" fill="#111b2b" stroke="#27405a"/>
+          <text x="28" y="58" font-size="22">❤️</text><text x="62" y="56" fill="#e6edf3" font-size="15" font-weight="600">Salud</text><text x="62" y="76" fill="#93a4b8" font-size="11">Esperanza de vida</text>
+          <rect x="10" y="128" width="180" height="64" rx="12" fill="#111b2b" stroke="#27405a"/>
+          <text x="28" y="158" font-size="22">📚</text><text x="62" y="156" fill="#e6edf3" font-size="15" font-weight="600">Educación</text><text x="62" y="176" fill="#93a4b8" font-size="11">Años de escolaridad</text>
+          <rect x="10" y="228" width="180" height="64" rx="12" fill="#111b2b" stroke="#27405a"/>
+          <text x="28" y="258" font-size="22">💵</text><text x="62" y="256" fill="#e6edf3" font-size="15" font-weight="600">Nivel de vida</text><text x="62" y="276" fill="#93a4b8" font-size="11">Ingreso per cápita</text>
+        </g>
+        <circle cx="520" cy="160" r="92" fill="#0d1420" stroke="url(#gr)" stroke-width="3"/>
+        <circle cx="520" cy="160" r="108" fill="none" stroke="#00d4ff" stroke-opacity=".25" stroke-dasharray="3 7"/>
+        <text x="520" y="160" text-anchor="middle" fill="#e6edf3" font-family="Space Grotesk, sans-serif" font-size="40" font-weight="700">IDH</text>
+        <text x="520" y="190" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace" font-size="15">0 ──── 1</text>
+      </svg>
+      <figcaption>// Las tres dimensiones se normalizan y se combinan con una media geométrica</figcaption>
+    </figure>
+
+    <div class="cards rv" style="margin-top:16px">
+      <div class="card"><div class="ic">❤️</div><h3>Vida larga y saludable</h3><p>Esperanza de vida al nacer: cuántos años, en promedio, vivirá un recién nacido.</p></div>
+      <div class="card"><div class="ic">📚</div><h3>Conocimientos</h3><p>Años esperados de escolaridad (niños) y años promedio de escolaridad (adultos de 25+).</p></div>
+      <div class="card"><div class="ic">💵</div><h3>Nivel de vida digno</h3><p>Ingreso Nacional Bruto per cápita, ajustado por poder de compra (PPA).</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MAPA ===== -->
+<section id="mapa">
+  <div class="wrap two">
+    <div class="rv">
+      <span class="tag">// visualización global</span>
+      <h2 style="font-size:clamp(1.6rem,3.6vw,2.2rem);margin:10px 0 12px">El mundo según su IDH</h2>
+      <p style="color:var(--dim)">Los tonos más oscuros indican mayor desarrollo humano. Norteamérica, Europa y Oceanía concentran los valores muy altos; buena parte de África subsahariana sigue en niveles bajos.</p>
+      <div class="note"><span>💡</span><p><strong>Observa:</strong> México está en la categoría <strong>alto</strong>, muy cerca del umbral de 0.800 para ser “muy alto”.</p></div>
+    </div>
+    <figure class="fig rv">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Countries_by_Human_Development_Index_(2019).svg?width=1200" alt="Mapa mundial de países coloreados según su Índice de Desarrollo Humano" loading="lazy" style="background:#fff" onerror="this.closest('figure').style.display='none'">
+      <figcaption>// Mapa mundial del IDH (datos 2019) · Wikimedia Commons</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== CATEGORÍAS ===== -->
+<section id="categorias">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// escala</span>
+      <h2>Las 4 categorías del IDH</h2>
+      <p>El PNUD clasifica a los países según su valor. El marcador blanco muestra a México.</p>
+    </div>
+    <div class="box rv">
+      <div class="scale-wrap">
+        <div class="scale">
+          <div style="width:55%;background:var(--red)">BAJO &lt; 0.550</div>
+          <div style="width:15%;background:var(--a)">MEDIO</div>
+          <div style="width:10%;background:var(--c)">ALTO</div>
+          <div style="width:20%;background:var(--g)">MUY ALTO ≥ 0.800</div>
+        </div>
+        <div class="mk" style="left:78.9%"><span>México 0.789</span></div>
+      </div>
+      <div class="tickrow"><span>0.0</span><span>0.550</span><span>0.700</span><span>0.800</span><span>1.0</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ACORDEÓN ===== -->
+<section id="detalle">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// paso a paso</span>
+      <h2>Cómo funciona el IDH</h2>
+      <p>Abre cada bloque en orden: del origen al cálculo y sus limitaciones.</p>
+    </div>
+    <div class="acc">
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">01</span><h3>Origen: personas antes que dinero</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>El IDH aparece en el primer <strong>Informe sobre Desarrollo Humano del PNUD (1990)</strong>, impulsado por el economista Mahbub ul Haq con base en el enfoque de capacidades de Amartya Sen.</p>
+          <ul>
+            <li>Antes, el progreso se medía casi solo con el <strong>PIB per cápita</strong>.</li>
+            <li>La idea central: el desarrollo es ampliar las <strong>opciones y libertades</strong> de las personas.</li>
+            <li>Un país rico puede tener IDH bajo si su gente vive poco o no estudia.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">02</span><h3>Paso 1: convertir cada dato en un índice de 0 a 1</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>Cada indicador se compara contra un mínimo y un máximo fijos (“postes”):</p>
+          <div class="code">Índice = (valor real − mínimo) / (máximo − mínimo)</div>
+          <ul>
+            <li><strong>Esperanza de vida:</strong> mínimo 20 años, máximo 85.</li>
+            <li><strong>Años esperados de escolaridad:</strong> 0 a 18.</li>
+            <li><strong>Años promedio de escolaridad:</strong> 0 a 15.</li>
+            <li><strong>Ingreso per cápita (PPA):</strong> 100 a 75,000 dólares, usando logaritmo (cada dólar extra pesa menos cuando ya se tiene mucho).</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">03</span><h3>Paso 2: combinar con media geométrica</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>Los tres índices se multiplican y se saca raíz cúbica:</p>
+          <div class="code">IDH = ∛( I_salud × I_educación × I_ingreso )</div>
+          <ul>
+            <li>El índice de educación es el promedio de sus dos indicadores.</li>
+            <li>La media geométrica <strong>castiga los desequilibrios</strong>: un país no puede compensar mala salud con mucho ingreso.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">04</span><h3>Índices hermanos del IDH</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <ul>
+            <li><strong>IDH-D (ajustado por desigualdad):</strong> descuenta lo mal repartidos que están los logros entre la población.</li>
+            <li><strong>IDG (desarrollo de género):</strong> compara el IDH de mujeres y hombres.</li>
+            <li><strong>IDH-P (ajustado por presiones planetarias):</strong> descuenta las emisiones de CO₂ y la huella material por habitante. Ejemplo: Argentina pasa de 0.865 a 0.763 (−11.8%).</li>
+            <li><strong>IDH-J (juventudes, México 2025):</strong> adapta el IDH a personas de 12 a 29 años.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">05</span><h3>Limitaciones y relación con la sustentabilidad</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <ul>
+            <li>Es un <strong>promedio nacional</strong>: oculta brechas entre estados, municipios, zonas urbanas y rurales.</li>
+            <li>No mide calidad educativa, seguridad, libertades ni participación.</li>
+            <li>El IDH clásico no considera el <strong>costo ambiental</strong>: un país puede subir su IDH agotando recursos. Por eso existe el IDH-P.</li>
+            <li>Para el desarrollo sustentable, la meta es <strong>IDH alto con huella ecológica baja</strong>.</li>
+          </ul>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CALCULADORA ===== -->
+<section id="calculadora">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// simulador</span>
+      <h2>Calcula un IDH</h2>
+      <p>Mueve los controles y observa cómo cambia el índice. Los valores iniciales son un ejemplo cercano a un país de desarrollo alto.</p>
+    </div>
+    <div class="calc rv">
+      <div class="box">
+        <div class="sl"><label>❤️ Esperanza de vida (años)<output id="oLe">75</output></label><input type="range" id="le" min="20" max="85" step="0.5" value="75"></div>
+        <div class="sl"><label>🎒 Años esperados de escolaridad<output id="oEy">14</output></label><input type="range" id="ey" min="0" max="18" step="0.5" value="14"></div>
+        <div class="sl"><label>🎓 Años promedio de escolaridad<output id="oMy">9.5</output></label><input type="range" id="my" min="0" max="15" step="0.5" value="9.5"></div>
+        <div class="sl" style="margin-bottom:0"><label>💵 Ingreso per cápita (USD PPA)<output id="oGn">20,000</output></label><input type="range" id="gn" min="100" max="75000" step="100" value="20000"></div>
+      </div>
+      <div class="box">
+        <span class="tag">resultado</span>
+        <div class="big" id="idh">0.782</div>
+        <span class="cat" id="cat">ALTO</span>
+        <div class="sub"><div><span>Índice de salud</span><span id="tS"></span></div><div class="bar"><i id="bS"></i></div></div>
+        <div class="sub"><div><span>Índice de educación</span><span id="tE"></span></div><div class="bar"><i id="bE"></i></div></div>
+        <div class="sub"><div><span>Índice de ingreso</span><span id="tI"></span></div><div class="bar"><i id="bI"></i></div></div>
+      </div>
+    </div>
+    <div class="note rv"><span>🧪</span><p><strong>Reto:</strong> baja la esperanza de vida a 50 años sin tocar lo demás. ¿Cuánto cae el IDH aunque el ingreso siga alto?</p></div>
+  </div>
+</section>
+
+<!-- ===== CIERRE ===== -->
+<section id="cierre">
+  <div class="wrap">
+    <div class="cta rv">
+      <span class="tag">// idea clave</span>
+      <h2>Un país se desarrolla cuando su gente vive más, aprende más y vive mejor</h2>
+      <p>El IDH resume capacidades. El siguiente tema mira otra cara: si las personas tienen acceso real a sus derechos sociales.</p>
+      <a href="3.2.3.html" class="btn btn-p">Continuar: 3.2.3 Índice de Desarrollo Social →</a>
+    </div>
+    <div class="pager rv">
+      <a href="index.html"><small>← Anterior</small><span>3.2 Desarrollo humano</span></a>
+      <a href="3.2.3.html" class="nx"><small>Siguiente →</small><span>3.2.3 Índice de Desarrollo Social</span></a>
+    </div>
+    <p class="src">Fuentes: PNUD, Informe sobre Desarrollo Humano 2025 y notas técnicas del IDH · PNUD/UNFPA, Informe de Desarrollo Humano de las Juventudes en México (2025) · CEIEG Sinaloa (2025) · Mapa: Wikimedia Commons.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Desarrollo Sustentable (ACD-0908) · TecNM Campus Mazatlán</span>
+    <span>3.2.2 Índice de Desarrollo Humano</span>
+  </div>
+</footer>
+
+<script>
+// Acordeón
+document.querySelectorAll('.item').forEach(it=>{const t=it.querySelector('.trig'),p=it.querySelector('.panel');t.addEventListener('click',()=>{const o=it.classList.toggle('open');t.setAttribute('aria-expanded',o);p.style.maxHeight=o?p.scrollHeight+'px':null;});});
+// Animación al hacer scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+// Calculadora IDH
+const $=id=>document.getElementById(id);const cl=v=>Math.max(0,Math.min(1,v));
+function calc(){
+  const le=+$('le').value,ey=+$('ey').value,my=+$('my').value,gn=+$('gn').value;
+  $('oLe').textContent=le;$('oEy').textContent=ey;$('oMy').textContent=my;$('oGn').textContent=gn.toLocaleString('en-US');
+  const S=cl((le-20)/65),E=(cl(ey/18)+cl(my/15))/2,I=cl((Math.log(gn)-Math.log(100))/(Math.log(75000)-Math.log(100)));
+  const h=Math.cbrt(S*E*I);
+  $('idh').textContent=h.toFixed(3);
+  [['S',S],['E',E],['I',I]].forEach(([k,v])=>{$('t'+k).textContent=v.toFixed(3);$('b'+k).style.width=(v*100)+'%';});
+  let c='BAJO',col='var(--red)';if(h>=.8){c='MUY ALTO';col='var(--g)';}else if(h>=.7){c='ALTO';col='var(--c)';}else if(h>=.55){c='MEDIO';col='var(--a)';}
+  $('cat').textContent=c;$('cat').style.color=col;$('idh').style.color=col;
+}
+['le','ey','my','gn'].forEach(id=>$(id).addEventListener('input',calc));calc();
+</script>
+</body>
+</html>

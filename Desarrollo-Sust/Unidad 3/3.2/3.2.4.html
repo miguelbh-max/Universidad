@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3.2.4 Desarrollo Urbano y Rural | Desarrollo Sustentable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Dark Mode tecnológico — estilo compartido 3.2.x ===== */
+:root{--bg:#070b12;--s1:#0d1420;--s2:#111b2b;--bd:#1c2a3a;--bd2:#27405a;--tx:#e6edf3;--dim:#93a4b8;--faint:#5d6f84;--g:#00ff9c;--c:#00d4ff;--a:#ffb800;--red:#ff4d6d;--r:16px;--max:1140px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(0,212,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%)}
+img,svg{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;line-height:1.15}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 clamp(16px,5vw,40px)}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--g)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(7,11,18,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.nav-in{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px clamp(16px,5vw,40px);max-width:var(--max);margin:0 auto}
+.brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--g);white-space:nowrap}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{font-family:'JetBrains Mono',monospace;font-size:.78rem;padding:7px 12px;border:1px solid var(--bd);border-radius:8px;color:var(--dim);white-space:nowrap;transition:.2s}
+.tabs a:hover{border-color:var(--c);color:var(--c)}
+.tabs a.on{background:var(--g);color:#04110b;border-color:var(--g);font-weight:700}
+@media(max-width:700px){.brand{display:none}.nav-in{justify-content:center}}
+.hero{min-height:92svh;display:flex;align-items:center;padding:110px 0 60px;position:relative;overflow:hidden}
+.rings{position:absolute;right:-14%;top:50%;transform:translateY(-50%);width:min(72vw,620px);opacity:.55;pointer-events:none}
+.rings circle{fill:none;stroke:var(--c);stroke-opacity:.35}
+.spin{animation:spin 50s linear infinite;transform-origin:200px 200px}
+.spin2{animation:spin 80s linear infinite reverse;transform-origin:200px 200px}
+.pulse{animation:pulse 4s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{stroke-opacity:.9;stroke:var(--g)}}
+.hero-c{position:relative;z-index:2;max-width:760px}
+.chip{display:inline-flex;gap:8px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.08em;color:var(--g);border:1px solid rgba(0,255,156,.35);background:rgba(0,255,156,.08);padding:6px 12px;border-radius:999px;margin-bottom:20px}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.hero h1{font-size:clamp(2.1rem,6vw,3.8rem);margin-bottom:18px}
+.hero h1 span{background:linear-gradient(90deg,var(--g),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--dim);font-size:clamp(1rem,2vw,1.15rem);max-width:56ch;margin-bottom:28px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{font-weight:600;font-size:.92rem;padding:13px 22px;border-radius:10px;border:1px solid var(--bd2);display:inline-flex;gap:8px;align-items:center;transition:.25s}
+.btn-p{background:var(--g);color:#04110b;border-color:var(--g)}
+.btn-p:hover{box-shadow:0 0 0 4px rgba(0,255,156,.2),0 0 30px rgba(0,255,156,.35);transform:translateY(-2px)}
+.btn-g{color:var(--tx);background:var(--s1)}
+.btn-g:hover{border-color:var(--c);color:var(--c);transform:translateY(-2px)}
+section{padding:clamp(56px,9vw,100px) 0}
+.head{max-width:680px;margin-bottom:34px}
+.head h2{font-size:clamp(1.7rem,4vw,2.4rem);margin-top:10px}
+.head p{color:var(--dim);margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.stat{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:.25s}
+.stat:hover{border-color:var(--g);transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,255,156,.08)}
+.stat b{display:block;font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,4vw,2.2rem);color:var(--g);line-height:1.2}
+.stat.c b{color:var(--c)}.stat.a b{color:var(--a)}.stat.r b{color:var(--red)}
+.stat span{color:var(--dim);font-size:.88rem}
+.fig{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:clamp(14px,3vw,24px);overflow:hidden}
+.fig figcaption{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--faint);margin-top:12px}
+.acc{display:flex;flex-direction:column;gap:12px}
+.item{border:1px solid var(--bd);border-radius:var(--r);background:var(--s1);overflow:hidden;transition:border-color .3s}
+.item.open,.item:hover{border-color:var(--c)}
+.trig{width:100%;display:flex;align-items:center;gap:14px;background:none;border:0;color:var(--tx);padding:18px clamp(14px,3vw,24px);cursor:pointer;text-align:left;font:inherit}
+.num{flex:none;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--g);border:1px solid rgba(0,255,156,.4);border-radius:8px;padding:4px 8px}
+.trig h3{flex:1;font-size:clamp(1rem,2vw,1.15rem);font-weight:600}
+.chev{flex:none;width:20px;height:20px;color:var(--faint);transition:transform .3s}
+.item.open .chev{transform:rotate(180deg);color:var(--c)}
+.panel{max-height:0;overflow:hidden;transition:max-height .45s ease}
+.pin{padding:0 clamp(14px,3vw,24px) 22px;color:var(--dim);font-size:.95rem}
+.pin p{margin-bottom:10px}.pin ul{margin:6px 0 10px 20px}.pin li{margin-bottom:6px}.pin strong{color:var(--tx)}
+.note{display:flex;gap:12px;border:1px solid rgba(255,184,0,.35);background:rgba(255,184,0,.07);border-radius:12px;padding:14px 16px;margin-top:22px;font-size:.92rem;color:var(--dim)}
+.note strong{color:var(--a)}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+.cta{border:1px solid var(--bd2);border-radius:20px;background:linear-gradient(135deg,rgba(0,255,156,.08),rgba(0,212,255,.06));padding:clamp(36px,7vw,72px) clamp(20px,5vw,56px);text-align:center}
+.cta h2{font-size:clamp(1.5rem,3.6vw,2.2rem);margin:10px 0 12px}
+.cta p{color:var(--dim);max-width:58ch;margin:0 auto 24px}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.pager a{border:1px solid var(--bd);border-radius:12px;padding:16px;background:var(--s1);transition:.25s;display:block}
+.pager a:hover{border-color:var(--g);transform:translateY(-2px)}
+.pager small{display:block;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em}
+.pager span{font-weight:600}
+.pager .nx{text-align:right}
+@media(max-width:560px){.pager{grid-template-columns:1fr}.pager .nx{text-align:left}}
+.src{font-size:.78rem;color:var(--faint);margin-top:26px;line-height:1.7}
+footer{border-top:1px solid var(--bd);padding:26px 0 44px;font-size:.8rem;color:var(--faint)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+/* Ilustración ciudad-campo */
+.win{animation:win 3s ease-in-out infinite}
+.win.d2{animation-delay:1s}.win.d3{animation-delay:2s}
+@keyframes win{50%{opacity:.25}}
+.sun{animation:sunb 5s ease-in-out infinite;transform-origin:520px 70px}
+@keyframes sunb{50%{transform:scale(1.1)}}
+.cloud{animation:drift 18s linear infinite}
+@keyframes drift{from{transform:translateX(-60px)}to{transform:translateX(60px)}}
+/* Gráfica de urbanización */
+.cols{display:flex;align-items:flex-end;gap:clamp(6px,2vw,16px);height:260px;padding-top:24px;border-bottom:1px solid var(--bd2)}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.col i{display:block;width:100%;max-width:60px;height:0;border-radius:8px 8px 0 0;background:linear-gradient(180deg,var(--c),var(--g));transition:height 1.2s ease;position:relative}
+.col b{font-family:'JetBrains Mono',monospace;font-size:clamp(.62rem,1.6vw,.8rem);color:var(--tx);margin-bottom:6px}
+.yrs{display:flex;gap:clamp(6px,2vw,16px);margin-top:8px}
+.yrs span{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:clamp(.6rem,1.6vw,.76rem);color:var(--faint)}
+/* Tabla comparativa */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.cmp{grid-template-columns:1fr}}
+.cmp .box{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:22px}
+.cmp .u{border-top:3px solid var(--c)}.cmp .ru{border-top:3px solid var(--g)}
+.cmp h3{margin-bottom:12px}
+.row{display:flex;gap:10px;padding:10px 0;border-top:1px dashed var(--bd);font-size:.9rem;color:var(--dim)}
+.row:first-of-type{border-top:0}
+.row b{flex:none;width:110px;color:var(--tx);font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:22px;transition:.25s}
+.card:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 10px 30px rgba(0,212,255,.08)}
+.card .ic{font-size:1.8rem;margin-bottom:10px}
+.card h3{font-size:1.05rem;margin-bottom:6px}
+.card p{font-size:.9rem;color:var(--dim)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="brand">&gt;_ Desarrollo Sustentable</div>
+    <div class="tabs">
+      <a href="index.html">↩ 3.2</a>
+      <a href="3.2.2.html">3.2.2 IDH</a>
+      <a href="3.2.3.html">3.2.3 IDS</a>
+      <a href="3.2.4.html" class="on">3.2.4 Urbano-Rural</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="rings" aria-hidden="true">
+    <svg viewBox="0 0 400 400">
+      <g class="spin"><circle cx="200" cy="200" r="185" stroke-dasharray="2 10"/><circle cx="200" cy="200" r="145" stroke-dasharray="1 6"/></g>
+      <g class="spin2"><circle cx="200" cy="200" r="105" stroke-dasharray="40 14"/></g>
+      <circle class="pulse" cx="200" cy="200" r="68"/>
+    </svg>
+  </div>
+  <div class="wrap">
+    <div class="hero-c">
+      <span class="chip"><i></i>Unidad 3 · Escenario socio-cultural</span>
+      <h1>3.2.4 Desarrollo <span>Urbano y Rural</span></h1>
+      <p class="lead">8 de cada 10 mexicanos viven en ciudades. ¿Qué gana y qué pierde cada territorio, y cómo hacer que ambos se desarrollen sin agotar el ambiente?</p>
+      <div class="btns">
+        <a href="#contraste" class="btn btn-p">Ver ciudad vs. campo ↓</a>
+        <a href="#estrategias" class="btn btn-g">Estrategias sustentables</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="ilustracion" style="padding-top:0">
+  <div class="wrap">
+    <figure class="fig rv">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Ilustración: a la izquierda una ciudad con edificios, a la derecha un paisaje rural con casa, cultivos y árboles">
+        <defs>
+          <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1a2e"/><stop offset="1" stop-color="#13304a"/></linearGradient>
+          <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f2a2a"/><stop offset="1" stop-color="#1b4a3a"/></linearGradient>
+        </defs>
+        <rect x="0" y="0" width="320" height="300" fill="url(#sky1)"/>
+        <rect x="320" y="0" width="320" height="300" fill="url(#sky2)"/>
+        <!-- Ciudad -->
+        <g fill="#1c2a3a" stroke="#00d4ff" stroke-opacity=".5">
+          <rect x="20" y="120" width="50" height="150"/><rect x="78" y="70" width="60" height="200"/><rect x="146" y="140" width="44" height="130"/><rect x="198" y="95" width="56" height="175"/><rect x="262" y="150" width="46" height="120"/>
+        </g>
+        <g fill="#ffb800">
+          <rect class="win" x="30" y="135" width="8" height="8"/><rect class="win d2" x="50" y="160" width="8" height="8"/><rect class="win d3" x="90" y="90" width="8" height="8"/><rect class="win" x="115" y="120" width="8" height="8"/><rect class="win d2" x="90" y="170" width="8" height="8"/><rect class="win d3" x="158" y="160" width="8" height="8"/><rect class="win" x="210" y="110" width="8" height="8"/><rect class="win d2" x="232" y="150" width="8" height="8"/><rect class="win d3" x="275" y="170" width="8" height="8"/><rect class="win" x="290" y="200" width="8" height="8"/>
+        </g>
+        <g fill="#5d6f84" opacity=".5" class="cloud"><ellipse cx="120" cy="40" rx="40" ry="12"/><ellipse cx="220" cy="55" rx="30" ry="9"/></g>
+        <rect x="0" y="270" width="320" height="30" fill="#27405a"/>
+        <g stroke="#ffb800" stroke-width="3" stroke-dasharray="14 10"><line x1="0" y1="285" x2="320" y2="285"/></g>
+        <!-- Campo -->
+        <circle class="sun" cx="520" cy="70" r="28" fill="#ffb800"/>
+        <path d="M320 210 Q420 160 520 200 T640 190 L640 300 L320 300Z" fill="#1f6b47"/>
+        <path d="M320 240 Q450 210 640 235 L640 300 L320 300Z" fill="#2f8f5b"/>
+        <g stroke="#00ff9c" stroke-opacity=".5" stroke-width="2"><line x1="440" y1="255" x2="620" y2="255"/><line x1="430" y1="268" x2="625" y2="268"/><line x1="420" y1="282" x2="630" y2="282"/></g>
+        <rect x="352" y="205" width="52" height="38" fill="#e6edf3"/><path d="M346 207 L378 182 L410 207Z" fill="#ff4d6d"/><rect x="372" y="222" width="12" height="21" fill="#5d6f84"/>
+        <g><rect x="585" y="190" width="6" height="30" fill="#6b4a2b"/><circle cx="588" cy="180" r="18" fill="#00ff9c" fill-opacity=".7"/><rect x="548" y="200" width="5" height="24" fill="#6b4a2b"/><circle cx="550" cy="192" r="14" fill="#00ff9c" fill-opacity=".55"/></g>
+        <line x1="320" y1="0" x2="320" y2="300" stroke="#e6edf3" stroke-opacity=".25" stroke-dasharray="4 6"/>
+        <g font-family="JetBrains Mono, monospace" font-size="13" font-weight="700">
+          <rect x="14" y="14" width="118" height="26" rx="6" fill="#070b12" fill-opacity=".75"/><text x="24" y="32" fill="#00d4ff">URBANO 79%</text>
+          <rect x="334" y="14" width="108" height="26" rx="6" fill="#070b12" fill-opacity=".75"/><text x="344" y="32" fill="#00ff9c">RURAL 21%</text>
+        </g>
+      </svg>
+      <figcaption>// Distribución de la población de México, Censo de Población y Vivienda 2020 (INEGI)</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="criterio">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// definición oficial</span>
+      <h2>¿Cuándo una localidad es rural?</h2>
+      <p>El INEGI usa un criterio por número de habitantes.</p>
+    </div>
+    <div class="stats rv">
+      <div class="stat"><b>&lt; 2,500</b><span>habitantes: la localidad se considera <strong>rural</strong></span></div>
+      <div class="stat c"><b>≥ 2,500</b><span>habitantes (o ser cabecera municipal): <strong>urbana</strong></span></div>
+      <div class="stat a"><b>126 M</b><span>Población de México en 2020</span></div>
+      <div class="stat"><b>42.6%</b><span>Población urbana en 1950: hoy casi se duplicó</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="urbanizacion">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// tendencia histórica</span>
+      <h2>México se volvió urbano en 70 años</h2>
+      <p>Porcentaje de la población que vive en localidades urbanas.</p>
+    </div>
+    <div class="fig rv" id="chart">
+      <div class="cols">
+        <div class="col"><b>42.6</b><i data-h="42.6"></i></div>
+        <div class="col"><b>50.7</b><i data-h="50.7"></i></div>
+        <div class="col"><b>58.7</b><i data-h="58.7"></i></div>
+        <div class="col"><b>66.3</b><i data-h="66.3"></i></div>
+        <div class="col"><b>71.3</b><i data-h="71.3"></i></div>
+        <div class="col"><b>74.6</b><i data-h="74.6"></i></div>
+        <div class="col"><b>76.8</b><i data-h="76.8"></i></div>
+        <div class="col"><b>79</b><i data-h="79"></i></div>
+      </div>
+      <div class="yrs"><span>1950</span><span>1960</span><span>1970</span><span>1980</span><span>1990</span><span>2000</span><span>2010</span><span>2020</span></div>
+      <figcaption>// Fuente: INEGI, censos de población, vía SEMARNAT (1950–2010) e INEGI, Censo 2020</figcaption>
+    </div>
+    <div class="note rv"><span>💡</span><p><strong>¿Por qué?</strong> Industrialización, búsqueda de empleo y servicios. La migración del campo a la ciudad es un <strong>fenómeno poblacional</strong> que retomarás en el tema 3.3.</p></div>
+  </div>
+</section>
+
+<section id="contraste">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// comparativa</span>
+      <h2>Ciudad vs. campo</h2>
+      <p>Cada territorio tiene ventajas y retos distintos.</p>
+    </div>
+    <div class="cmp rv">
+      <div class="box u">
+        <h3>🏙️ Urbano</h3>
+        <div class="row"><b>Economía</b><span>Industria, comercio y servicios.</span></div>
+        <div class="row"><b>Servicios</b><span>Más hospitales, escuelas, internet y transporte.</span></div>
+        <div class="row"><b>Densidad</b><span>Mucha gente en poco espacio.</span></div>
+        <div class="row"><b>Reto ambiental</b><span>Basura, contaminación del aire, tráfico, islas de calor y alto consumo de agua y energía.</span></div>
+      </div>
+      <div class="box ru">
+        <h3>🌾 Rural</h3>
+        <div class="row"><b>Economía</b><span>Agricultura, ganadería, pesca y forestal.</span></div>
+        <div class="row"><b>Servicios</b><span>Menor acceso a salud, educación, drenaje e internet.</span></div>
+        <div class="row"><b>Densidad</b><span>Población dispersa en muchas localidades pequeñas.</span></div>
+        <div class="row"><b>Reto ambiental</b><span>Deforestación, erosión del suelo, uso de agroquímicos y sobreexplotación de agua.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="detalle">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// paso a paso</span>
+      <h2>Entender el desarrollo territorial</h2>
+    </div>
+    <div class="acc">
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">01</span><h3>¿Qué es el desarrollo urbano?</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>Es la <strong>planeación y crecimiento ordenado de las ciudades</strong>: uso de suelo, vivienda, transporte, agua, drenaje, áreas verdes y espacios públicos.</p>
+          <ul>
+            <li>Sin planeación, la ciudad se expande hacia zonas agrícolas, humedales o manglares.</li>
+            <li>La expansión dispersa obliga a recorrer más distancias en auto y aumenta las emisiones.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">02</span><h3>¿Qué es el desarrollo rural?</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <p>Es mejorar la <strong>calidad de vida de las comunidades del campo</strong> aprovechando sus recursos sin agotarlos.</p>
+          <ul>
+            <li>Incluye producción agropecuaria, caminos, servicios básicos, salud y educación.</li>
+            <li>El campo produce los alimentos y los servicios ambientales (agua, bosques, suelo) de los que depende la ciudad.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">03</span><h3>La brecha urbano-rural</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <ul>
+            <li>Las zonas rurales suelen tener <strong>más carencias sociales</strong> y menor desarrollo humano que las urbanas.</li>
+            <li>Por eso los estados con más población rural y dispersa (como Chiapas, Guerrero y Oaxaca) tienen la mayor pobreza.</li>
+            <li>La falta de oportunidades empuja la <strong>migración</strong> hacia las ciudades o al extranjero.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="item rv">
+        <button class="trig" aria-expanded="false"><span class="num">04</span><h3>Metas globales: ODS 11 y ODS 2</h3><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="panel"><div class="pin">
+          <ul>
+            <li><strong>ODS 11 · Ciudades y comunidades sostenibles:</strong> vivienda segura, transporte público, menos contaminación y más áreas verdes.</li>
+            <li><strong>ODS 2 · Hambre cero:</strong> agricultura sostenible y mejores ingresos para pequeños productores.</li>
+          </ul>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="estrategias">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="tag">// soluciones</span>
+      <h2>Estrategias sustentables</h2>
+      <p>Acciones para que ciudad y campo se desarrollen cuidando el ambiente.</p>
+    </div>
+    <div class="cards rv">
+      <div class="card"><div class="ic">🚌</div><h3>Movilidad sustentable</h3><p>Transporte público, ciclovías y ciudades compactas donde todo quede cerca.</p></div>
+      <div class="card"><div class="ic">🌳</div><h3>Infraestructura verde</h3><p>Parques, azoteas verdes y arbolado que reducen el calor y captan agua de lluvia.</p></div>
+      <div class="card"><div class="ic">♻️</div><h3>Gestión de residuos</h3><p>Separación, reciclaje y composta para reducir lo que llega al relleno sanitario.</p></div>
+      <div class="card"><div class="ic">🌱</div><h3>Agricultura sustentable</h3><p>Rotación de cultivos, abonos orgánicos y menos agroquímicos para conservar el suelo.</p></div>
+      <div class="card"><div class="ic">💧</div><h3>Riego eficiente</h3><p>Goteo y riego automatizado con sensores de humedad: el agua solo se usa cuando hace falta.</p></div>
+      <div class="card"><div class="ic">📡</div><h3>Tecnología para ambos</h3><p>Sensores IoT de calidad del aire en la ciudad y de clima y suelo en el campo.</p></div>
+    </div>
+    <div class="note rv"><span>🔧</span><p><strong>Conexión con tus prácticas:</strong> el sistema de riego automatizado con Arduino de esta unidad es un ejemplo directo de tecnología al servicio del desarrollo rural sustentable.</p></div>
+  </div>
+</section>
+
+<section id="cierre">
+  <div class="wrap">
+    <div class="cta rv">
+      <span class="tag">// idea clave</span>
+      <h2>Ciudad y campo dependen uno del otro</h2>
+      <p>La ciudad necesita los alimentos, el agua y los bosques del campo; el campo necesita los servicios y oportunidades de la ciudad. El desarrollo sustentable busca cerrar la brecha entre ambos.</p>
+      <a href="3.2.2.html" class="btn btn-p">Repasar desde 3.2.2 IDH ↺</a>
+    </div>
+    <div class="pager rv">
+      <a href="3.2.3.html"><small>← Anterior</small><span>3.2.3 Índice de Desarrollo Social</span></a>
+      <a href="../3.3/index.html" class="nx"><small>Siguiente tema →</small><span>3.3 Impacto de actividades humanas</span></a>
+    </div>
+    <p class="src">Fuentes: INEGI, Censo de Población y Vivienda 2020 · SEMARNAT, indicador de población urbana (criterio 2,500 habitantes, serie 1950–2010) · SEP, Nueva Escuela Mexicana · INEGI, Pobreza multidimensional 2024 · ONU, Objetivos de Desarrollo Sostenible.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Desarrollo Sustentable (ACD-0908) · TecNM Campus Mazatlán</span>
+    <span>3.2.4 Desarrollo urbano y rural</span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.item').forEach(it=>{const t=it.querySelector('.trig'),p=it.querySelector('.panel');t.addEventListener('click',()=>{const o=it.classList.toggle('open');t.setAttribute('aria-expanded',o);p.style.maxHeight=o?p.scrollHeight+'px':null;});});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('[data-h]').forEach(b=>b.style.height=(b.dataset.h*2.2)+'px');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
