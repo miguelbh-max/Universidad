@@ -32,22 +32,6 @@ strong{color:#fafafa}
 /* progreso */
 #progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue));z-index:60;box-shadow:0 0 10px var(--cyan)}
 
-/* sidebar */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);background:rgba(12,12,15,.96);border-right:1px solid var(--border);
-  padding:1.4rem 1rem;overflow-y:auto;z-index:50;backdrop-filter:blur(8px);transition:transform .3s ease}
-.brand{font-family:var(--f-head);font-weight:700;font-size:1.15rem;display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem}
-.brand .logo{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan-d),#1e3a8a);font-family:var(--f-mono);font-size:.8rem;box-shadow:0 0 14px rgba(34,211,238,.35)}
-.brand-sub{font-family:var(--f-mono);font-size:.72rem;color:var(--dim);margin-bottom:1.2rem;letter-spacing:.04em}
-.nav a{display:flex;gap:.65rem;align-items:baseline;padding:.48rem .65rem;border-radius:8px;color:var(--muted);text-decoration:none;font-size:.9rem;line-height:1.35;border-left:2px solid transparent;transition:.2s}
-.nav a .n{font-family:var(--f-mono);font-size:.72rem;color:var(--dim);min-width:1.4rem}
-.nav a:hover{background:var(--panel);color:var(--text)}
-.nav a.active{background:rgba(34,211,238,.08);color:var(--cyan);border-left-color:var(--cyan)}
-.nav a.active .n{color:var(--cyan)}
-.side-foot{margin-top:1.4rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.75rem;color:var(--dim);font-family:var(--f-mono)}
-.menu-btn{display:none;position:fixed;top:12px;right:12px;z-index:70;background:var(--panel2);border:1px solid var(--border2);color:var(--text);
-  border-radius:10px;padding:.5rem .8rem;font-family:var(--f-mono);font-size:.85rem;cursor:pointer}
-.scrim{display:none}
-
 /* main */
 main{padding:2.5rem clamp(1rem,4vw,3.5rem) 3rem}
 .wrap{max-width:1000px;margin:0 auto}
@@ -145,6 +129,50 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .osi-d p{margin:.5rem 0 .2rem}
 .osi-ex{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
 .osi-l.ipt{border-color:rgba(34,211,238,.45);box-shadow:0 0 0 1px rgba(34,211,238,.15)}
+
+/* simulador tipo Packet Tracer */
+.pt{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin:1.2rem 0 1.6rem}
+.pt-bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.pt-ctrl{display:flex;gap:.4rem;flex-wrap:wrap}
+.pt-ctrl button{font-family:var(--f-mono);font-size:.82rem;padding:.45rem .8rem;border-radius:8px;border:1px solid var(--border2);background:var(--panel2);color:var(--text);cursor:pointer}
+.pt-ctrl button:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan)}
+.pt-ctrl button:disabled{opacity:.4;cursor:default}
+.pt-ctrl .pri{background:var(--cyan);color:#06222a;border-color:var(--cyan);font-weight:600}
+.pt-ctrl .pri:hover:not(:disabled){color:#06222a}
+.pt-mode{font-family:var(--f-mono);font-size:.72rem;color:var(--amber);border:1px solid rgba(251,191,36,.4);border-radius:6px;padding:.2rem .5rem}
+.pt-stage{background:#0d1117;border:1px solid var(--border);border-radius:10px;background-image:radial-gradient(#1f2630 1px,transparent 1px);background-size:18px 18px}
+#ptsvg{min-width:720px;width:100%;height:auto;display:block}
+#ptsvg text{font-family:var(--f-mono);font-size:11.5px;fill:#a1a1aa}
+#ptsvg .dn{font-family:var(--f-head);font-size:13.5px;font-weight:600;fill:#e4e4e7}
+#ptsvg .ln{stroke:#2dd4bf;stroke-width:2.5}
+#ptsvg .pl{font-size:10px;fill:#5eead4}
+.pt-status{margin:.8rem 0;padding:.75rem 1rem;border-radius:10px;border:1px solid var(--border2);background:var(--panel2);font-size:.93rem;min-height:2.9rem}
+.pt-status b{font-family:var(--f-head)}
+.pt-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:.9rem}
+@media (max-width:860px){.pt-grid{grid-template-columns:1fr}}
+.pt-panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.pt-panel h5{font-family:var(--f-head);font-size:.88rem;padding:.5rem .8rem;background:#121216;border-bottom:1px solid var(--border);color:#fafafa}
+.pt-ev{max-height:250px;overflow:auto}
+.pt-ev table{min-width:0;font-size:.78rem;font-family:var(--f-mono)}
+.pt-ev th,.pt-ev td{padding:.35rem .5rem}
+.pt-ev tbody tr{cursor:pointer}
+.pt-ev tbody tr.sel{background:rgba(34,211,238,.1)}
+.pt-sq{display:inline-block;width:11px;height:9px;border-radius:2px;margin-right:.35rem;vertical-align:-1px}
+.pt-pdu{padding:.6rem .8rem;font-size:.82rem}
+.pt-pdu .lay{display:grid;grid-template-columns:4.6rem 1fr;gap:.6rem;padding:.32rem .45rem;border-radius:6px;border:1px solid transparent}
+.pt-pdu .lay span:first-child{font-family:var(--f-mono);color:var(--dim)}
+.pt-pdu .lay.look{border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.07)}
+.pt-pdu .lay.look span:first-child{color:var(--cyan)}
+.pt-pdu .lay.l7{border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.08)}
+.pt-pdu .lay.l7 span:first-child{color:var(--amber)}
+.pt-pdu .hint{font-size:.75rem;color:var(--dim);margin-top:.45rem}
+.pt-rules{font-family:var(--f-mono);font-size:.78rem;padding:.45rem}
+.pt-rules div{padding:.3rem .5rem;border-radius:6px;border:1px solid transparent;white-space:pre-wrap;word-break:break-word}
+.pt-rules .n{color:var(--dim);margin-right:.4rem}
+.pt-rules .hit-ok{border-color:rgba(52,211,153,.6);background:rgba(52,211,153,.1);color:#a7f3d0}
+.pt-rules .hit-no{border-color:rgba(248,113,113,.6);background:rgba(248,113,113,.1);color:#fecaca}
+.pt-rules .hit-rej{border-color:rgba(251,146,60,.6);background:rgba(251,146,60,.1);color:#fed7aa}
+.pt-leg{display:flex;flex-wrap:wrap;gap:.9rem;font-family:var(--f-mono);font-size:.74rem;color:var(--muted);margin-top:.7rem}
 
 /* anatomía */
 .anat{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 1.3rem}
@@ -303,6 +331,58 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
     <div class="osi-l"><div class="osi-n" style="background:#a78bfa">1</div><div class="osi-b"><div class="osi-top"><b>Física</b><span class="osi-pdu">PDU: Bits</span><span class="osi-tag hw">Hardware</span></div><div class="osi-d"><p>Transmite los bits como señales eléctricas, luz o radio: define cables, conectores, voltajes y frecuencias.</p><p class="osi-ex">Ejemplos: Cable UTP · fibra óptica · RJ-45 · tarjeta de red</p></div></div></div>
   </div>
   <div class="co co-blue"><span class="co-t">¿Dónde queda iptables?</span><p>iptables trabaja en las capas <strong>3 (Red)</strong> y <strong>4 (Transporte)</strong>: decide con IPs, protocolos, puertos y estado de conexión. No ve el contenido de la capa 7 (la URL, el usuario o la consulta SQL), y como el tráfico HTTPS va cifrado en la capa 6, tampoco podría leerlo. Para eso existen los firewalls de aplicación. En la práctica se usa también el modelo <strong>TCP/IP</strong> de 4 capas, que agrupa 5-6-7 en “Aplicación” y 1-2 en “Acceso a la red”.</p></div>
+
+  <h3>Simulación: el firewall en acción (modo simulación, estilo Packet Tracer)</h3>
+  <p>Elige un escenario y avanza <strong>paso a paso</strong> o reprodúcelo completo. Cada sobre es una PDU: haz clic en un evento de la lista para ver qué contiene en cada capa del modelo OSI y qué regla de iptables decidió su destino.</p>
+  <div class="pt">
+    <div class="seg" id="ptScen">
+      <button data-s="http" class="on">HTTP 80/TCP · permitido</button>
+      <button data-s="ssh">SSH 22/TCP · DROP</button>
+      <button data-s="mysql">MySQL 3306/TCP · REJECT</button>
+      <button data-s="dns">DNS 53/UDP · permitido</button>
+      <button data-s="icmp">Ping ICMP · DROP</button>
+      <button data-s="l7">Capa 7 · inyección SQL</button>
+    </div>
+    <div class="pt-bar">
+      <div class="pt-ctrl">
+        <button class="pri" id="ptPlay">▶ Reproducir</button>
+        <button id="ptStep">⏭ Siguiente paso</button>
+        <button id="ptReset">↺ Reiniciar</button>
+      </div>
+      <span class="pt-mode">⏱ Modo simulación</span>
+    </div>
+    <div class="pt-stage svg-scroll">
+      <svg id="ptsvg" viewBox="0 0 900 250" role="img" aria-label="Topología de simulación: PC, switch, firewall con iptables y servidor">
+        <line class="ln" x1="125" y1="110" x2="270" y2="110"/><line class="ln" x1="330" y1="110" x2="485" y2="110"/><line class="ln" x1="555" y1="110" x2="755" y2="110"/>
+        <text class="pl" x="130" y="102">Fa0</text><text class="pl" x="240" y="102">Fa0/1</text><text class="pl" x="335" y="102">Fa0/2</text><text class="pl" x="455" y="102">eth0</text><text class="pl" x="560" y="102">eth1</text><text class="pl" x="728" y="102">eth0</text>
+        <g><rect x="62" y="78" width="60" height="44" rx="5" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/><rect x="68" y="84" width="48" height="32" rx="2" fill="#0ea5e9" opacity=".35"/><rect x="84" y="122" width="16" height="8" fill="#64748b"/><rect x="74" y="130" width="36" height="4" rx="2" fill="#64748b"/>
+          <text class="dn" x="92" y="160" text-anchor="middle">PC-Alumno</text><text x="92" y="177" text-anchor="middle">192.168.1.20</text></g>
+        <g><rect x="270" y="94" width="60" height="32" rx="5" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/><g fill="#22c55e"><rect x="278" y="113" width="6" height="5"/><rect x="288" y="113" width="6" height="5"/><rect x="298" y="113" width="6" height="5"/><rect x="308" y="113" width="6" height="5"/><rect x="318" y="113" width="6" height="5"/></g><path d="M282 104 h36 M312 100 l6 4 -6 4 M288 100 l-6 4 6 4" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+          <text class="dn" x="300" y="160" text-anchor="middle">Switch</text><text x="300" y="177" text-anchor="middle">capa 2</text></g>
+        <g><rect x="485" y="76" width="70" height="68" rx="6" fill="#2a1414" stroke="#22d3ee" stroke-width="2"/><g stroke="#f87171" stroke-width="1.6" opacity=".9"><path d="M485 93 h70 M485 110 h70 M485 127 h70"/><path d="M508 76 v17 M532 76 v17 M497 93 v17 M520 93 v17 M543 93 v17 M508 110 v17 M532 110 v17 M497 127 v17 M520 127 v17 M543 127 v17"/></g>
+          <text class="dn" x="520" y="166" text-anchor="middle">Firewall Ubuntu</text><text x="520" y="183" text-anchor="middle">iptables · capas 3/4</text></g>
+        <g><rect x="755" y="66" width="56" height="86" rx="5" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/><g stroke="#475569" stroke-width="1.5"><path d="M763 84 h40 M763 100 h40 M763 116 h40 M763 132 h40"/></g><g fill="#22c55e"><circle cx="798" cy="76" r="2.2"/><circle cx="798" cy="92" r="2.2"/><circle cx="798" cy="108" r="2.2"/></g>
+          <text class="dn" x="783" y="174" text-anchor="middle">Servidor</text><text x="783" y="191" text-anchor="middle">10.0.0.80</text><text x="783" y="208" text-anchor="middle" style="fill:#fcd34d">Apache + WAF (capa 7)</text></g>
+        <g id="ptMarks"></g>
+        <g id="ptEnv" style="display:none"><rect x="-13" y="-9" width="26" height="18" rx="2.5" stroke="#0b0b0e" stroke-width="1.2"/><path d="M-13 -9 L0 2 L13 -9" fill="none" stroke="#0b0b0e" stroke-width="1.4"/></g>
+      </svg>
+    </div>
+    <div class="pt-status" id="ptStatus"></div>
+    <div class="pt-grid">
+      <div class="pt-panel"><h5>Lista de eventos</h5><div class="pt-ev"><table><thead><tr><th>#</th><th>Tiempo (s)</th><th>Último disp.</th><th>En disp.</th><th>Tipo</th><th>Info</th></tr></thead><tbody id="ptRows"></tbody></table></div></div>
+      <div class="pt-panel"><h5>Información de la PDU (modelo OSI)</h5><div class="pt-pdu" id="ptPdu"><p class="muted">Avanza la simulación y selecciona un evento.</p></div></div>
+    </div>
+    <div class="pt-panel" style="margin-top:.9rem"><h5>Reglas del firewall · sudo iptables -S FORWARD</h5><div class="pt-rules" id="ptRules"></div></div>
+    <div class="pt-leg"><span><i class="pt-sq" style="background:#60a5fa"></i>TCP</span><span><i class="pt-sq" style="background:#34d399"></i>HTTP (TCP + capa 7)</span><span><i class="pt-sq" style="background:#fbbf24"></i>UDP / DNS</span><span><i class="pt-sq" style="background:#f472b6"></i>ICMP</span><span>✓ aceptado · ✕ DROP · ↩ REJECT · 🛡 bloqueo capa 7 · ⏱ timeout</span></div>
+  </div>
+  <div class="co co-amber"><span class="co-t">Qué observar en cada protocolo</span>
+    <ul class="l">
+      <li><strong>TCP</strong> abre la conexión con el saludo de 3 vías (SYN → SYN-ACK → ACK). Con <code>DROP</code> el cliente reintenta y termina en <em>timeout</em>; con <code>REJECT --reject-with tcp-reset</code> recibe un RST y ve “Connection refused” al instante.</li>
+      <li><strong>UDP</strong> no tiene saludo: cada datagrama se evalúa solo. Aun así, conntrack recuerda la consulta y deja entrar la respuesta como ESTABLISHED.</li>
+      <li><strong>ICMP</strong> no tiene puertos; se filtra por tipo (<code>echo-request</code>). El equipo sigue encendido, pero “no contesta ping”.</li>
+      <li><strong>Capa 7:</strong> iptables deja pasar la inyección SQL porque va al puerto 80 permitido. Solo un firewall de aplicación lee la URL y la detiene.</li>
+    </ul>
+  </div>
 
   <h3>Filtrado de paquetes (capas 3 y 4) vs. firewall de aplicación (capa 7)</h3>
   <div class="grid">
@@ -1097,6 +1177,99 @@ lsmod | grep -E "usb_storage|uas"       # deben aparecer de nuevo</code></pre></
   /* ---------- Modelo OSI ---------- */
   document.querySelectorAll(".osi-l").forEach(l=>l.addEventListener("click",()=>l.classList.toggle("open")));
   document.querySelectorAll(".osi-l.ipt").forEach(l=>l.classList.add("open"));
+
+  /* ---------- Simulador tipo Packet Tracer ---------- */
+  (function(){
+    const DX=[92,300,520,783],DY=110,DN=["PC-Alumno","Switch","Firewall","Servidor"];
+    const COL={TCP:"#60a5fa",HTTP:"#34d399",UDP:"#fbbf24",DNS:"#fbbf24",ICMP:"#f472b6"};
+    const RULES=["-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT","-A FORWARD -p tcp --dport 80 -m conntrack --ctstate NEW -j ACCEPT","-A FORWARD -p udp --dport 53 -j ACCEPT","-A FORWARD -p tcp --dport 3306 -j REJECT --reject-with tcp-reset","-A FORWARD -p icmp --icmp-type echo-request -j DROP","-P FORWARD DROP        # política: lo que no coincide, se descarta"];
+    const C="192.168.1.20",S="10.0.0.80";
+    const P=o=>({7:o.app||"—",6:o.l6||"—",5:o.l5||"—",
+      4:o.proto==="ICMP"?"— ICMP no usa puertos":o.proto+" · puerto origen "+o.sp+" → destino "+o.dp+(o.fl?" · banderas ["+o.fl+"]":""),
+      3:"IPv4 · "+o.src+" → "+o.dst+" · protocolo "+(o.proto==="ICMP"?"ICMP (1) · "+o.icmp:o.proto==="TCP"?"TCP (6)":"UDP (17)")+" · TTL 64",
+      2:"Ethernet II · MAC origen → MAC del siguiente salto (la reescribe cada router)",1:"Bits sobre cable UTP (señal eléctrica)"});
+    const tq=(sp,dp,fl,src,dst,app,l5)=>P({proto:"TCP",sp,dp,fl,src,dst,app,l5});
+    const SC={
+      http:[
+        {p:[0,1,2],ty:"TCP",i:"SYN → :80",L:tq(51514,80,"SYN",C,S,"(sin datos: inicia el saludo de 3 vías)"),d:{r:"ok",rule:1,lk:[3,4],t:"Paquete NEW al puerto 80/TCP → coincide con la regla 2 → <b>ACCEPT</b>."}},
+        {p:[2,3],ty:"TCP",i:"SYN → :80",L:tq(51514,80,"SYN",C,S,"(sin datos)"),d:{r:"in",t:"Apache recibe la solicitud de conexión en el puerto 80."}},
+        {p:[3,2],ty:"TCP",i:"SYN-ACK",L:tq(80,51514,"SYN, ACK",S,C,"(sin datos)"),d:{r:"ok",rule:0,lk:[3,4],t:"Es la respuesta de una conexión conocida: conntrack la marca <b>ESTABLISHED</b> → regla 1."}},
+        {p:[2,1,0],ty:"TCP",i:"SYN-ACK",L:tq(80,51514,"SYN, ACK",S,C,"(sin datos)"),d:{r:"in",t:"El cliente responde ACK: el saludo de 3 vías termina."}},
+        {p:[0,1,2,3],ty:"HTTP",i:"GET /index.html",L:tq(51514,80,"ACK, PSH",C,S,"HTTP GET /index.html · Host: 10.0.0.80","Sesión TCP establecida"),d:{r:"ok",rule:0,lk:[3,4],t:"Ya es ESTABLISHED: entra por la regla 1. iptables no lee el GET, solo IP y puerto."}},
+        {p:[3,2,1,0],ty:"HTTP",i:"200 OK",L:tq(80,51514,"ACK, PSH",S,C,"HTTP/1.1 200 OK · text/html","Sesión TCP establecida"),d:{r:"ok",rule:0,t:"<b>Conexión exitosa:</b> el navegador muestra la página."}}],
+      ssh:[
+        {p:[0,1,2],ty:"TCP",i:"SYN → :22",L:tq(51600,22,"SYN",C,S,"(sin datos: intento de conexión SSH)"),d:{r:"drop",rule:5,lk:[3,4],t:"Ninguna regla menciona el puerto 22: el paquete llega al final de la cadena y la política <b>DROP</b> lo descarta en silencio."}},
+        {p:[0,1,2],ty:"TCP",i:"SYN → :22 (reintento)",dt:1,L:tq(51600,22,"SYN (retransmisión)",C,S,"(sin datos)"),d:{r:"drop",rule:5,lk:[3,4],t:"Sin respuesta, TCP retransmite el SYN. Se vuelve a descartar."}},
+        {p:[0],ty:"TCP",i:"Timeout",dt:20,L:tq(51600,22,"—",C,S,"ssh: connect to host 10.0.0.80 port 22: Connection timed out"),d:{r:"to",t:"<b>Connection timed out.</b> DROP no avisa: el cliente espera hasta agotar su tiempo."}}],
+      mysql:[
+        {p:[0,1,2],ty:"TCP",i:"SYN → :3306",L:tq(51700,3306,"SYN",C,S,"(sin datos: cliente mysql)"),d:{r:"rej",rule:3,lk:[3,4],t:"Coincide con la regla 4: <b>REJECT</b> con tcp-reset. El propio firewall fabrica una respuesta RST."}},
+        {p:[2,1,0],ty:"TCP",i:"RST, ACK",L:tq(3306,51700,"RST, ACK",S,C,"(generado por el firewall, MySQL nunca vio la petición)"),d:{r:"rej",t:"<b>ERROR 2003: Can't connect to MySQL server (Connection refused)</b> — inmediato, sin esperar timeout."}}],
+      dns:[
+        {p:[0,1,2],ty:"DNS",i:"Consulta A servidor.lab",L:P({proto:"UDP",sp:40123,dp:53,src:C,dst:S,app:"DNS query · servidor.lab · tipo A"}),d:{r:"ok",rule:2,lk:[3,4],t:"UDP no tiene saludo: este datagrama se evalúa solo. Puerto 53/UDP → regla 3 → <b>ACCEPT</b>."}},
+        {p:[2,3],ty:"DNS",i:"Consulta A servidor.lab",L:P({proto:"UDP",sp:40123,dp:53,src:C,dst:S,app:"DNS query · servidor.lab · tipo A"}),d:{r:"in",t:"El servidor DNS (bind9) busca el nombre en su zona."}},
+        {p:[3,2,1,0],ty:"DNS",i:"Respuesta 10.0.0.80",L:P({proto:"UDP",sp:53,dp:40123,src:S,dst:C,app:"DNS response · servidor.lab = 10.0.0.80"}),d:{r:"ok",rule:0,lk:[3,4],t:"conntrack también recuerda “conexiones” UDP: la respuesta entra como ESTABLISHED (regla 1). <b>Nombre resuelto.</b>"}}],
+      icmp:[
+        {p:[0,1,2],ty:"ICMP",i:"Echo Request seq=1",L:P({proto:"ICMP",src:C,dst:S,icmp:"tipo 8 Echo Request",app:"(ping no usa capa de aplicación)"}),d:{r:"drop",rule:4,lk:[3],t:"ICMP no tiene puertos: se filtra por tipo. <code>--icmp-type echo-request</code> → regla 5 → <b>DROP</b>."}},
+        {p:[0,1,2],ty:"ICMP",i:"Echo Request seq=2",dt:1,L:P({proto:"ICMP",src:C,dst:S,icmp:"tipo 8 Echo Request",app:"(ping no usa capa de aplicación)"}),d:{r:"drop",rule:4,lk:[3],t:"Segundo ping, mismo destino: descartado."}},
+        {p:[0],ty:"ICMP",i:"Request timed out",dt:3,L:P({proto:"ICMP",src:C,dst:S,icmp:"sin Echo Reply",app:"2 paquetes transmitidos, 0 recibidos, 100% packet loss"}),d:{r:"to",t:"<b>100% packet loss.</b> El servidor está encendido, pero no contesta ping."}}],
+      l7:[
+        {p:[0,1,2,3],ty:"TCP",i:"Saludo TCP → :80",L:tq(51800,80,"SYN",C,S,"(sin datos)"),d:{r:"ok",rule:1,lk:[3,4],t:"El saludo de 3 vías al puerto 80 está permitido (resumido en un paso)."}},
+        {p:[0,1,2],ty:"HTTP",i:"GET /login?user=' OR 1=1--",L:tq(51800,80,"ACK, PSH",C,S,"HTTP GET /login?user=' OR '1'='1'--  ← inyección SQL","Sesión TCP establecida"),d:{r:"ok",rule:0,lk:[3,4],t:"iptables solo ve <b>IP 10.0.0.80 y puerto 80</b>: para él es tráfico web normal → ACCEPT. No puede leer la URL de la capa 7."}},
+        {p:[2,3],ty:"HTTP",i:"GET /login?user=' OR 1=1--",L:tq(51800,80,"ACK, PSH",C,S,"HTTP GET /login?user=' OR '1'='1'--  ← inyección SQL","Sesión TCP establecida"),d:{r:"waf",lk:[7],t:"El <b>firewall de aplicación</b> (ModSecurity en Apache) lee la capa 7, reconoce el patrón de inyección SQL y bloquea la petición."}},
+        {p:[3,2,1,0],ty:"HTTP",i:"403 Forbidden",L:tq(80,51800,"ACK, PSH",S,C,"HTTP/1.1 403 Forbidden","Sesión TCP establecida"),d:{r:"waf7",rule:0,t:"El atacante recibe <b>403 Forbidden</b>. El ataque se detuvo en la capa 7, no en la 3/4."}}]
+    };
+    const MK={ok:["✓","#34d399"],in:["●","#22d3ee"],drop:["✕","#f87171"],rej:["↩","#fb923c"],to:["⏱","#a1a1aa"],waf:["🛡","#fbbf24"],waf7:["✕","#fbbf24"]};
+    const env=document.getElementById("ptEnv"),marks=document.getElementById("ptMarks"),rows=document.getElementById("ptRows"),pdu=document.getElementById("ptPdu"),rulesEl=document.getElementById("ptRules"),st=document.getElementById("ptStatus"),bPlay=document.getElementById("ptPlay"),bStep=document.getElementById("ptStep");
+    let sc="http",idx=0,busy=false,playing=false,time=0,log=[];
+    const ns="http://www.w3.org/2000/svg";
+    function drawRules(hit,res){rulesEl.innerHTML=RULES.map((r,i)=>{let c="";if(i===hit)c=res==="drop"?"hit-no":res==="rej"?"hit-rej":"hit-ok";return '<div class="'+c+'"><span class="n">'+(i<5?i+1:"P")+'</span>'+r.replace(/</g,"&lt;")+'</div>';}).join("");}
+    function showPdu(k){
+      const e=log[k];if(!e)return;
+      rows.querySelectorAll("tr").forEach((tr,j)=>tr.classList.toggle("sel",j===k));
+      const nm={7:"Aplicación",6:"Presentación",5:"Sesión",4:"Transporte",3:"Red",2:"Enlace",1:"Física"};
+      const lk=e.d.lk||[];
+      pdu.innerHTML=[7,6,5,4,3,2,1].map(n=>'<div class="lay'+(lk.includes(n)?(n===7?" l7":" look"):"")+'"><span>L'+n+' '+nm[n]+'</span><span></span></div>').join("")+'<p class="hint">'+(lk.length?(lk.includes(7)?"Resaltado ámbar: la capa que inspeccionó el WAF.":"Resaltado cian: las capas que revisó iptables para decidir."):"Esta PDU no pasó por una decisión de filtrado.")+'</p>';
+      pdu.querySelectorAll(".lay span:last-child").forEach((s,j)=>s.textContent=e.L[7-j]);
+      drawRules(e.d.rule,e.d.r);
+    }
+    function mark(dev,r){const m=MK[r];const old=document.getElementById("mk"+dev);if(old)old.remove();const g=document.createElementNS(ns,"g");g.id="mk"+dev;g.innerHTML='<circle cx="'+DX[dev]+'" cy="'+(DY-48)+'" r="13" fill="#0b0b0e" stroke="'+m[1]+'" stroke-width="2"/><text x="'+DX[dev]+'" y="'+(DY-43.5)+'" text-anchor="middle" style="font-size:13px;fill:'+m[1]+';font-family:sans-serif">'+m[0]+'</text>';marks.appendChild(g);}
+    function reset(){idx=0;time=0;log=[];busy=false;playing=false;marks.innerHTML="";rows.innerHTML="";env.style.display="none";
+      pdu.innerHTML='<p class="muted">Avanza la simulación y selecciona un evento.</p>';drawRules(-1);
+      st.innerHTML="Escenario listo. Pulsa <b>Siguiente paso</b> o <b>Reproducir</b>.";bStep.disabled=false;bPlay.disabled=false;bPlay.textContent="▶ Reproducir";}
+    function move(path,color,cb){
+      env.querySelector("rect").setAttribute("fill",color);
+      if(path.length<2){cb();return;}
+      env.style.display="";const segs=path.length-1,dur=650*segs;let t0=null;
+      const x0=DX[path[0]],x1=DX[path[path.length-1]];
+      (function fr(ts){if(t0===null)t0=ts;const k=Math.min(1,(ts-t0)/dur);const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+        env.setAttribute("transform","translate("+(x0+(x1-x0)*e)+","+DY+")");
+        if(k<1)requestAnimationFrame(fr);else cb();})(performance.now());
+    }
+    function step(){
+      const ev=SC[sc][idx];if(!ev||busy)return;busy=true;bStep.disabled=true;
+      move(ev.p,COL[ev.ty],()=>{
+        time+=ev.dt||0.004*ev.p.length;
+        const last=ev.p.length>1?DN[ev.p[ev.p.length-2]]:"—",at=DN[ev.p[ev.p.length-1]];
+        log.push(ev);const k=log.length-1;
+        const tr=document.createElement("tr");
+        tr.innerHTML="<td>"+(k+1)+"</td><td>"+time.toFixed(3)+"</td><td>"+last+"</td><td>"+at+'</td><td><i class="pt-sq" style="background:'+COL[ev.ty]+'"></i>'+ev.ty+"</td><td></td>";
+        tr.lastChild.textContent=ev.i;tr.addEventListener("click",()=>showPdu(k));rows.appendChild(tr);
+        rows.parentElement.parentElement.scrollTop=1e5;
+        mark(ev.p[ev.p.length-1],ev.d.r);
+        if(["drop","to","waf"].includes(ev.d.r))env.style.display="none";
+        st.innerHTML=MK[ev.d.r][0]+" <b>"+at+":</b> "+ev.d.t;
+        showPdu(k);idx++;busy=false;
+        const done=idx>=SC[sc].length;
+        if(done){bStep.disabled=true;bPlay.disabled=true;playing=false;bPlay.textContent="▶ Reproducir";env.style.display="none";}
+        else{bStep.disabled=playing;if(playing)setTimeout(()=>{if(playing)step();},900);}
+      });
+    }
+    bStep.addEventListener("click",step);
+    bPlay.addEventListener("click",()=>{if(playing){playing=false;bPlay.textContent="▶ Reproducir";bStep.disabled=busy;return;}playing=true;bPlay.textContent="⏸ Pausa";bStep.disabled=true;step();});
+    document.getElementById("ptReset").addEventListener("click",reset);
+    document.querySelectorAll("#ptScen button").forEach(b=>b.addEventListener("click",()=>{sc=b.dataset.s;document.querySelectorAll("#ptScen button").forEach(x=>x.classList.toggle("on",x===b));reset();}));
+    reset();
+  })();
 
   /* ---------- Simulador de trayectoria ---------- */
   const ROUTES={
