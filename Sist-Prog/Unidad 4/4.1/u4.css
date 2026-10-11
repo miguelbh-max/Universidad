@@ -200,3 +200,5 @@ ol.callouts li::before{content:counter(c);position:absolute;left:0;top:1px;width
 #optoLuz{transition:opacity .2s}
 .stp{fill:var(--card2);stroke:var(--line);stroke-width:2}
 .stp.on{fill:rgba(34,211,238,.25);stroke:var(--accent)}
+.hero h1.long{font-size:clamp(1.7rem,4.4vw,3rem);max-width:980px}
+.hero h1.long .num{font-size:clamp(2.4rem,6vw,4rem)}

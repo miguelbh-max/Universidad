@@ -13,131 +13,37 @@
 <body>
 <header class="topbar"><div class="wrap">
   <div class="brand">Sistemas <span>Programables</span> · 4.1</div>
-  <nav class="tabs" aria-label="Subtemas 4.1"><a href="../4.1.1/" class="">4.1.1 · Relevadores y puente H</a><a href="../4.1.2/" class="active">4.1.2 · Brownouts y debounce</a><a href="../4.1.3/" class="">4.1.3 · Drivers con interbloqueo</a></nav>
+  <nav class="tabs" aria-label="Subtemas 4.1"><a href="../4.1.1/" class="">4.1.1 · Modelado de relevadores y puentes H</a><a href="../4.1.2/" class="active">4.1.2 · Brownouts y debounce</a><a href="../4.1.3/" class="">4.1.3 · Drivers: arranque, paro e interbloqueo</a></nav>
 </div></header>
 <main>
 
 <section class="hero"><div class="wrap">
   <span class="kicker">Unidad 4 · Control de actuadores y lógica de procesos segura</span>
-  <h1><span class="num">4.1.2</span><br>Brownouts y rebotes</h1>
+  <h1 class="long"><span class="num">4.1.2</span><br>Consideraciones de software ante fenómenos físicos: caídas de voltaje (brownouts) y filtrado de rebotes (debounce)</h1>
   <p class="sub">El hardware real no es ideal: los contactos rebotan y el voltaje se cae. El software debe saberlo y protegerse.</p>
   <div class="chips">
-    <span class="chip"><i></i>Rebote de contactos</span>
-    <span class="chip"><i></i>Filtrado (debounce)</span>
-    <span class="chip c-sim"><i></i>Caídas de voltaje</span>
-    <span class="chip c-teo"><i></i>Detección de reinicio</span>
+    <span class="chip"><i></i>Fenómenos físicos</span>
+    <span class="chip c-sim"><i></i>Caídas de voltaje (brownouts)</span>
+    <span class="chip c-teo"><i></i>Filtrado de rebotes (debounce)</span>
   </div>
-  <div class="cta"><a class="btn" href="#intro">Empezar ↓</a><a class="btn ghost" href="#rebote">Simulador de rebote</a></div>
+  <div class="cta"><a class="btn" href="#intro">Empezar ↓</a><a class="btn ghost" href="#brownout">Caídas de voltaje</a></div>
 </div></section>
 
 <section id="intro"><div class="wrap">
   <span class="kicker reveal">Teoría</span>
-  <h2 class="reveal">El programa supone un mundo ideal</h2>
+  <h2 class="reveal">Consideraciones de software ante fenómenos físicos</h2>
   <div class="theory reveal">
-    <p>Cuando escribimos un programa asumimos que un botón cambia de estado <b>una sola vez</b> y que el voltaje es <b>siempre 5 V</b>. Ninguna de las dos cosas es cierta. Los fenómenos físicos producen señales falsas o reinicios, y si el software no los considera, el sistema se comporta de forma impredecible.</p>
+    <p>Cuando escribimos un programa asumimos que el voltaje es <b>siempre 5 V</b> y que un botón cambia de estado <b>una sola vez</b>. Ninguna de las dos cosas es cierta. Los fenómenos físicos producen señales falsas o reinicios, y si el software no los considera, el sistema se comporta de forma impredecible.</p>
   </div>
   <div class="vs">
-    <div class="card warn reveal"><span class="ico">🔘</span><h3>Rebote (bounce)</h3><p>Una pulsación se convierte en varias. Afecta a <b>entradas</b>: botones, interruptores, finales de carrera, contactos de relevador.</p></div>
-    <div class="card bad reveal"><span class="ico">📉</span><h3>Brownout</h3><p>El voltaje cae por un instante. Afecta a <b>todo el sistema</b>: reinicios, lecturas falsas, salidas que se activan solas.</p></div>
+    <div class="card bad reveal"><span class="ico">📉</span><h3>Caída de voltaje (brownout)</h3><p>El voltaje cae por un instante. Afecta a <b>todo el sistema</b>: reinicios, lecturas falsas, salidas que se activan solas.</p></div>
+    <div class="card warn reveal"><span class="ico">🔘</span><h3>Rebote de contactos (bounce)</h3><p>Una pulsación se convierte en varias. Afecta a <b>entradas</b>: botones, interruptores, finales de carrera, contactos de relevador.</p></div>
   </div>
 </div></section>
 
-<section id="rebote" style="background:var(--bg2)"><div class="wrap">
+<section id="brownout" style="background:var(--bg2)"><div class="wrap">
   <span class="kicker reveal">Parte 1</span>
-  <h2 class="reveal">Rebote de contactos</h2>
-  <div class="comp reveal">
-    <div class="pic"><svg viewBox="0 0 380 170" class="art" role="img" aria-label="Pulsador táctil visto desde arriba y en corte">
-  <rect x="30" y="30" width="100" height="100" rx="6" fill="#455a64" stroke="#263238" stroke-width="3"/>
-  <circle cx="80" cy="80" r="30" fill="#212121" stroke="#111" stroke-width="3"/>
-  <rect x="36" y="12" width="10" height="18" fill="#cfd8dc"/><rect x="114" y="12" width="10" height="18" fill="#cfd8dc"/><rect x="36" y="130" width="10" height="18" fill="#cfd8dc"/><rect x="114" y="130" width="10" height="18" fill="#cfd8dc"/>
-  <text x="80" y="164" text-anchor="middle" class="albl">vista superior (4 patas)</text>
-  <g id="pulsCorte">
-  <rect x="190" y="100" width="160" height="30" rx="4" fill="#455a64"/>
-  <rect x="210" y="96" width="40" height="8" fill="#ffca28"/><rect x="290" y="96" width="40" height="8" fill="#ffca28"/>
-  <path id="domo" d="M220 92 Q270 52 320 92" stroke="#cfd8dc" stroke-width="5" fill="none"/>
-  <rect x="250" y="30" width="40" height="34" rx="4" fill="#212121" id="vastago"/>
-  </g>
-  <text x="270" y="152" text-anchor="middle" class="albl">en corte: domo metálico</text>
-</svg><div style="text-align:center;margin-top:8px"><button class="tog" id="pulsBtn" type="button">Presionar</button></div></div>
-    <div class="theory">
-      <h3>Por qué rebota un botón</h3>
-      <p>Dentro del pulsador hay una lámina metálica en forma de domo. Al presionarla, el metal choca contra los contactos y, por su elasticidad, <b>rebota</b> varias veces antes de quedarse quieto. Lo mismo ocurre al soltarlo.</p>
-      <p>Cada rebote abre y cierra el circuito. Suele durar de <b>1 a 10 ms</b>, aunque en interruptores baratos o desgastados puede durar más.</p>
-      <p>El UNO R4 ejecuta millones de instrucciones por segundo: <b>ve cada rebote como una pulsación nueva</b>.</p>
-    </div>
-  </div>
-
-  <div class="sim reveal">
-    <div class="sim-h"><h3>Osciloscopio: señal cruda vs. filtrada</h3><button class="btn" id="bPress" type="button">Nueva pulsación</button></div>
-    <div class="sim-ctrl"><label class="rng">Ventana de estabilidad N <input type="range" id="bMs" min="0" max="50" value="25"> <span class="mono" id="bMsVal">25 ms</span></label></div>
-    <canvas id="bCanvas" height="230" aria-label="Señal cruda y señal filtrada del botón"></canvas>
-    <div class="out" id="bStats"></div>
-  </div>
-
-  <div class="grid g3">
-    <div class="card bad reveal"><span class="tag w">CONTADORES</span><h3>Cuentas de más</h3><p>Un contador de piezas registra 4 en lugar de 1.</p></div>
-    <div class="card bad reveal"><span class="tag w">ALTERNAR</span><h3>Encender/apagar</h3><p>Con un número par de rebotes, el LED regresa al estado anterior y “no hace nada”.</p></div>
-    <div class="card bad reveal"><span class="tag w">INTERRUPCIONES</span><h3>Ráfagas de eventos</h3><p>Una interrupción por flanco se dispara una vez por cada rebote.</p></div>
-  </div>
-
-  <h3 class="reveal" style="margin-top:28px">Conexión con resistencia pull-up interna</h3>
-  <div class="comp rev reveal">
-    <div class="pic"><svg viewBox="0 0 420 220" class="art" role="img" aria-label="Pulsador con resistencia pull-up interna">
-<rect x="10" y="10" width="400" height="200" rx="14" fill="#14171d" stroke="#2a303c"/>
-<rect x="30" y="40" width="150" height="140" rx="12" fill="#191d25" stroke="#22d3ee"/>
-<text x="105" y="62" text-anchor="middle" class="albl" style="fill:#22d3ee">UNO R4</text>
-<line x1="80" y1="80" x2="80" y2="96" stroke="#ef4444" stroke-width="3"/><text x="60" y="84" class="albl">5V</text>
-<rect x="72" y="96" width="16" height="36" rx="3" fill="none" stroke="#9aa3b2" stroke-width="2"/>
-<text x="96" y="118" class="albl">pull-up</text>
-<line x1="80" y1="132" x2="80" y2="150" stroke="#3b82f6" stroke-width="3"/><line x1="80" y1="150" x2="180" y2="150" stroke="#3b82f6" stroke-width="3"/>
-<text x="120" y="168" class="albl">D2</text>
-<line x1="180" y1="150" x2="250" y2="150" stroke="#3b82f6" stroke-width="3"/>
-<circle cx="250" cy="150" r="4" fill="#e8eaed"/><circle cx="310" cy="150" r="4" fill="#e8eaed"/>
-<line id="puBar" x1="250" y1="150" x2="306" y2="128" stroke="#e8eaed" stroke-width="3"/>
-<line x1="310" y1="150" x2="370" y2="150" stroke="#9aa3b2" stroke-width="3"/><line x1="370" y1="150" x2="370" y2="185" stroke="#9aa3b2" stroke-width="3"/>
-<line x1="355" y1="185" x2="385" y2="185" stroke="#9aa3b2" stroke-width="3"/><line x1="361" y1="192" x2="379" y2="192" stroke="#9aa3b2" stroke-width="3"/>
-<text x="280" y="120" text-anchor="middle" class="albl">pulsador</text><text x="370" y="208" text-anchor="middle" class="albl">GND</text>
-<text x="300" y="60" text-anchor="middle" class="albl" id="puTxt" style="font-size:13px;fill:#4ade80">suelto → HIGH</text>
-</svg><div style="text-align:center;margin-top:8px"><button class="tog" id="puBtn" type="button">Presionar</button></div></div>
-    <div class="theory">
-      <p>El UNO R4 tiene resistencias <b>pull-up</b> internas que se activan con el modo <b>INPUT_PULLUP</b>. El pin queda en HIGH a través de la resistencia y el botón lo conecta a GND.</p>
-      <p>Resultado: la lógica se <b>invierte</b>. Suelto = HIGH, presionado = LOW. No se necesita resistencia externa y la entrada nunca queda “flotando” (captando ruido).</p>
-    </div>
-  </div>
-
-  <h3 class="reveal" style="margin-top:28px">Cómo se filtra: la ventana de estabilidad</h3>
-  <div class="figure reveal"><svg viewBox="0 0 760 230" class="art" role="img" aria-label="Algoritmo de ventana de estabilidad">
-<rect x="0" y="0" width="760" height="230" rx="14" fill="#0b0d11"/>
-<text x="20" y="28" class="albl" style="fill:#fbbf24">lectura cruda</text>
-<path d="M20 50 H140 V110 H160 V50 H175 V110 H190 V50 H198 V110 H740" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
-<text x="20" y="150" class="albl" style="fill:#22d3ee">estado aceptado</text>
-<path d="M20 170 H448 V210 H740" fill="none" stroke="#22d3ee" stroke-width="2.5"/>
-<line x1="140" y1="40" x2="140" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="160" y1="40" x2="160" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="175" y1="40" x2="175" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="190" y1="40" x2="190" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="198" y1="40" x2="198" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/>
-<rect x="198" y="120" width="250" height="18" rx="4" fill="rgba(74,222,128,.15)" stroke="#4ade80"/>
-<text x="323" y="133" text-anchor="middle" class="albl" style="fill:#4ade80">N ms sin cambios → se acepta</text>
-<text x="210" y="82" class="albl" style="fill:#a78bfa">← cada cambio reinicia el cronómetro</text>
-<text x="600" y="100" text-anchor="middle" class="albl">el programa ve UNA pulsación</text>
-</svg></div>
-  <ol class="steps">
-    <li class="reveal">Se lee el pin en cada vuelta del programa.</li>
-    <li class="reveal">Si la lectura <b>cambió</b> respecto a la anterior, se anota la hora (con <b>millis()</b>): el cronómetro vuelve a cero.</li>
-    <li class="reveal">Si la lectura lleva <b>N ms sin cambiar</b> y es distinta al estado aceptado, se acepta como el nuevo estado.</li>
-    <li class="reveal">Solo en ese momento se genera el evento “se presionó” o “se soltó”.</li>
-  </ol>
-
-  <div class="tblwrap reveal"><table class="tbl">
-    <tr><th>Técnica</th><th>Cómo funciona</th><th>Ventaja</th><th>Desventaja</th></tr>
-    <tr><td><b>Retardo con delay()</b></td><td class="w">Leer, esperar 50 ms, volver a leer.</td><td class="w">Muy simple.</td><td class="w">Congela el programa: nada más funciona durante la espera.</td></tr>
-    <tr><td><b>Ventana de tiempo</b></td><td class="w">Aceptar el cambio tras N ms estables, medidos con millis().</td><td class="w">No bloquea; preciso.</td><td class="w">Requiere guardar estado por cada botón.</td></tr>
-    <tr><td><b>Contador / integrador</b></td><td class="w">Sumar al leer 1 y restar al leer 0; cambiar al llegar a un límite.</td><td class="w">Tolera ruido aislado.</td><td class="w">Depende de muestrear a ritmo constante.</td></tr>
-    <tr><td><b>Hardware RC + Schmitt</b></td><td class="w">Un capacitor suaviza la señal y una compuerta Schmitt (74HC14) la limpia.</td><td class="w">La señal llega limpia al micro.</td><td class="w">Componentes extra por cada entrada.</td></tr>
-  </table></div>
-  <div class="note info reveal"><b>¿Qué valor de N?</b> Entre 10 y 50 ms es lo habitual. Muy corto deja pasar rebotes; muy largo hace que el botón se sienta lento o que se pierdan pulsaciones rápidas.</div>
-</div></section>
-
-<section id="brownout"><div class="wrap">
-  <span class="kicker reveal">Parte 2</span>
-  <h2 class="reveal">Brownout: caída de voltaje</h2>
+  <h2 class="reveal">Caídas de voltaje (brownouts)</h2>
   <div class="def reveal"><b>Brownout</b> es una disminución temporal del voltaje de alimentación por debajo del mínimo necesario para que un circuito funcione correctamente, sin llegar a cortarse por completo. Puede durar solo unos milisegundos.</div>
   <div class="theory reveal">
     <p>Un microcontrolador necesita un voltaje mínimo para ejecutar instrucciones. Si el voltaje baja de ese umbral, puede <b>reiniciarse</b> o, peor aún, <b>seguir funcionando de forma errática</b>: leer mal los registros, corromper memoria o activar salidas sin razón.</p>
@@ -230,14 +136,107 @@
   </div>
 </div></section>
 
+<section id="rebote"><div class="wrap">
+  <span class="kicker reveal">Parte 2</span>
+  <h2 class="reveal">Filtrado de rebotes (debounce)</h2>
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 380 170" class="art" role="img" aria-label="Pulsador táctil visto desde arriba y en corte">
+  <rect x="30" y="30" width="100" height="100" rx="6" fill="#455a64" stroke="#263238" stroke-width="3"/>
+  <circle cx="80" cy="80" r="30" fill="#212121" stroke="#111" stroke-width="3"/>
+  <rect x="36" y="12" width="10" height="18" fill="#cfd8dc"/><rect x="114" y="12" width="10" height="18" fill="#cfd8dc"/><rect x="36" y="130" width="10" height="18" fill="#cfd8dc"/><rect x="114" y="130" width="10" height="18" fill="#cfd8dc"/>
+  <text x="80" y="164" text-anchor="middle" class="albl">vista superior (4 patas)</text>
+  <g id="pulsCorte">
+  <rect x="190" y="100" width="160" height="30" rx="4" fill="#455a64"/>
+  <rect x="210" y="96" width="40" height="8" fill="#ffca28"/><rect x="290" y="96" width="40" height="8" fill="#ffca28"/>
+  <path id="domo" d="M220 92 Q270 52 320 92" stroke="#cfd8dc" stroke-width="5" fill="none"/>
+  <rect x="250" y="30" width="40" height="34" rx="4" fill="#212121" id="vastago"/>
+  </g>
+  <text x="270" y="152" text-anchor="middle" class="albl">en corte: domo metálico</text>
+</svg><div style="text-align:center;margin-top:8px"><button class="tog" id="pulsBtn" type="button">Presionar</button></div></div>
+    <div class="theory">
+      <h3>Por qué rebota un botón</h3>
+      <p>Dentro del pulsador hay una lámina metálica en forma de domo. Al presionarla, el metal choca contra los contactos y, por su elasticidad, <b>rebota</b> varias veces antes de quedarse quieto. Lo mismo ocurre al soltarlo.</p>
+      <p>Cada rebote abre y cierra el circuito. Suele durar de <b>1 a 10 ms</b>, aunque en interruptores baratos o desgastados puede durar más.</p>
+      <p>El UNO R4 ejecuta millones de instrucciones por segundo: <b>ve cada rebote como una pulsación nueva</b>.</p>
+    </div>
+  </div>
+
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Osciloscopio: señal cruda vs. filtrada</h3><button class="btn" id="bPress" type="button">Nueva pulsación</button></div>
+    <div class="sim-ctrl"><label class="rng">Ventana de estabilidad N <input type="range" id="bMs" min="0" max="50" value="25"> <span class="mono" id="bMsVal">25 ms</span></label></div>
+    <canvas id="bCanvas" height="230" aria-label="Señal cruda y señal filtrada del botón"></canvas>
+    <div class="out" id="bStats"></div>
+  </div>
+
+  <div class="grid g3">
+    <div class="card bad reveal"><span class="tag w">CONTADORES</span><h3>Cuentas de más</h3><p>Un contador de piezas registra 4 en lugar de 1.</p></div>
+    <div class="card bad reveal"><span class="tag w">ALTERNAR</span><h3>Encender/apagar</h3><p>Con un número par de rebotes, el LED regresa al estado anterior y “no hace nada”.</p></div>
+    <div class="card bad reveal"><span class="tag w">INTERRUPCIONES</span><h3>Ráfagas de eventos</h3><p>Una interrupción por flanco se dispara una vez por cada rebote.</p></div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:28px">Conexión con resistencia pull-up interna</h3>
+  <div class="comp rev reveal">
+    <div class="pic"><svg viewBox="0 0 420 220" class="art" role="img" aria-label="Pulsador con resistencia pull-up interna">
+<rect x="10" y="10" width="400" height="200" rx="14" fill="#14171d" stroke="#2a303c"/>
+<rect x="30" y="40" width="150" height="140" rx="12" fill="#191d25" stroke="#22d3ee"/>
+<text x="105" y="62" text-anchor="middle" class="albl" style="fill:#22d3ee">UNO R4</text>
+<line x1="80" y1="80" x2="80" y2="96" stroke="#ef4444" stroke-width="3"/><text x="60" y="84" class="albl">5V</text>
+<rect x="72" y="96" width="16" height="36" rx="3" fill="none" stroke="#9aa3b2" stroke-width="2"/>
+<text x="96" y="118" class="albl">pull-up</text>
+<line x1="80" y1="132" x2="80" y2="150" stroke="#3b82f6" stroke-width="3"/><line x1="80" y1="150" x2="180" y2="150" stroke="#3b82f6" stroke-width="3"/>
+<text x="120" y="168" class="albl">D2</text>
+<line x1="180" y1="150" x2="250" y2="150" stroke="#3b82f6" stroke-width="3"/>
+<circle cx="250" cy="150" r="4" fill="#e8eaed"/><circle cx="310" cy="150" r="4" fill="#e8eaed"/>
+<line id="puBar" x1="250" y1="150" x2="306" y2="128" stroke="#e8eaed" stroke-width="3"/>
+<line x1="310" y1="150" x2="370" y2="150" stroke="#9aa3b2" stroke-width="3"/><line x1="370" y1="150" x2="370" y2="185" stroke="#9aa3b2" stroke-width="3"/>
+<line x1="355" y1="185" x2="385" y2="185" stroke="#9aa3b2" stroke-width="3"/><line x1="361" y1="192" x2="379" y2="192" stroke="#9aa3b2" stroke-width="3"/>
+<text x="280" y="120" text-anchor="middle" class="albl">pulsador</text><text x="370" y="208" text-anchor="middle" class="albl">GND</text>
+<text x="300" y="60" text-anchor="middle" class="albl" id="puTxt" style="font-size:13px;fill:#4ade80">suelto → HIGH</text>
+</svg><div style="text-align:center;margin-top:8px"><button class="tog" id="puBtn" type="button">Presionar</button></div></div>
+    <div class="theory">
+      <p>El UNO R4 tiene resistencias <b>pull-up</b> internas que se activan con el modo <b>INPUT_PULLUP</b>. El pin queda en HIGH a través de la resistencia y el botón lo conecta a GND.</p>
+      <p>Resultado: la lógica se <b>invierte</b>. Suelto = HIGH, presionado = LOW. No se necesita resistencia externa y la entrada nunca queda “flotando” (captando ruido).</p>
+    </div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:28px">Cómo se filtra: la ventana de estabilidad</h3>
+  <div class="figure reveal"><svg viewBox="0 0 760 230" class="art" role="img" aria-label="Algoritmo de ventana de estabilidad">
+<rect x="0" y="0" width="760" height="230" rx="14" fill="#0b0d11"/>
+<text x="20" y="28" class="albl" style="fill:#fbbf24">lectura cruda</text>
+<path d="M20 50 H140 V110 H160 V50 H175 V110 H190 V50 H198 V110 H740" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
+<text x="20" y="150" class="albl" style="fill:#22d3ee">estado aceptado</text>
+<path d="M20 170 H448 V210 H740" fill="none" stroke="#22d3ee" stroke-width="2.5"/>
+<line x1="140" y1="40" x2="140" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="160" y1="40" x2="160" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="175" y1="40" x2="175" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="190" y1="40" x2="190" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="198" y1="40" x2="198" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/>
+<rect x="198" y="120" width="250" height="18" rx="4" fill="rgba(74,222,128,.15)" stroke="#4ade80"/>
+<text x="323" y="133" text-anchor="middle" class="albl" style="fill:#4ade80">N ms sin cambios → se acepta</text>
+<text x="210" y="82" class="albl" style="fill:#a78bfa">← cada cambio reinicia el cronómetro</text>
+<text x="600" y="100" text-anchor="middle" class="albl">el programa ve UNA pulsación</text>
+</svg></div>
+  <ol class="steps">
+    <li class="reveal">Se lee el pin en cada vuelta del programa.</li>
+    <li class="reveal">Si la lectura <b>cambió</b> respecto a la anterior, se anota la hora (con <b>millis()</b>): el cronómetro vuelve a cero.</li>
+    <li class="reveal">Si la lectura lleva <b>N ms sin cambiar</b> y es distinta al estado aceptado, se acepta como el nuevo estado.</li>
+    <li class="reveal">Solo en ese momento se genera el evento “se presionó” o “se soltó”.</li>
+  </ol>
+
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Técnica</th><th>Cómo funciona</th><th>Ventaja</th><th>Desventaja</th></tr>
+    <tr><td><b>Retardo con delay()</b></td><td class="w">Leer, esperar 50 ms, volver a leer.</td><td class="w">Muy simple.</td><td class="w">Congela el programa: nada más funciona durante la espera.</td></tr>
+    <tr><td><b>Ventana de tiempo</b></td><td class="w">Aceptar el cambio tras N ms estables, medidos con millis().</td><td class="w">No bloquea; preciso.</td><td class="w">Requiere guardar estado por cada botón.</td></tr>
+    <tr><td><b>Contador / integrador</b></td><td class="w">Sumar al leer 1 y restar al leer 0; cambiar al llegar a un límite.</td><td class="w">Tolera ruido aislado.</td><td class="w">Depende de muestrear a ritmo constante.</td></tr>
+    <tr><td><b>Hardware RC + Schmitt</b></td><td class="w">Un capacitor suaviza la señal y una compuerta Schmitt (74HC14) la limpia.</td><td class="w">La señal llega limpia al micro.</td><td class="w">Componentes extra por cada entrada.</td></tr>
+  </table></div>
+  <div class="note info reveal"><b>¿Qué valor de N?</b> Entre 10 y 50 ms es lo habitual. Muy corto deja pasar rebotes; muy largo hace que el botón se sienta lento o que se pierdan pulsaciones rápidas.</div>
+</div></section>
+
 <section id="resumen" style="background:var(--bg2)"><div class="wrap">
   <span class="kicker reveal">Resumen</span>
   <h2 class="reveal">Fenómeno físico → respuesta del software</h2>
   <div class="tblwrap reveal"><table class="tbl">
     <tr><th>Fenómeno</th><th>Dónde aparece</th><th>Respuesta del software</th><th>Apoyo de hardware</th></tr>
+    <tr><td><b>Brownout</b></td><td class="w">Arranque de motores, bobinas, WiFi</td><td class="w">Estado seguro, causa del reinicio, rampas, escalonar cargas, watchdog</td><td class="w">Fuente separada, tierra común, capacitores</td></tr>
     <tr><td><b>Rebote</b></td><td class="w">Botones, interruptores, finales de carrera</td><td class="w">Ventana de estabilidad con millis(), sin bloquear</td><td class="w">RC + compuerta Schmitt</td></tr>
     <tr><td><b>Entrada flotante</b></td><td class="w">Pines sin conexión definida</td><td class="w">Usar INPUT_PULLUP</td><td class="w">Resistencia pull-up o pull-down</td></tr>
-    <tr><td><b>Brownout</b></td><td class="w">Arranque de motores, bobinas, WiFi</td><td class="w">Estado seguro, causa del reinicio, rampas, escalonar cargas, watchdog</td><td class="w">Fuente separada, tierra común, capacitores</td></tr>
   </table></div>
 </div></section>
 

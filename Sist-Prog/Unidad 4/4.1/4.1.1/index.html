@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>4.1.1 Relevadores y puentes H · Sistemas Programables</title>
+<title>4.1.1 Modelado por software de módulos de relevadores optoacoplados y puentes H (DC / Stepper) · Sistemas Programables</title>
 <meta name="description" content="Modelado por software de módulos de relevadores optoacoplados y puentes H (DC / Stepper) con Arduino UNO R4 WiFi.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,26 +13,26 @@
 <body>
 <header class="topbar"><div class="wrap">
   <div class="brand">Sistemas <span>Programables</span> · 4.1</div>
-  <nav class="tabs" aria-label="Subtemas 4.1"><a href="../4.1.1/" class="active">4.1.1 · Relevadores y puente H</a><a href="../4.1.2/" class="">4.1.2 · Brownouts y debounce</a><a href="../4.1.3/" class="">4.1.3 · Drivers con interbloqueo</a></nav>
+  <nav class="tabs" aria-label="Subtemas 4.1"><a href="../4.1.1/" class="active">4.1.1 · Modelado de relevadores y puentes H</a><a href="../4.1.2/" class="">4.1.2 · Brownouts y debounce</a><a href="../4.1.3/" class="">4.1.3 · Drivers: arranque, paro e interbloqueo</a></nav>
 </div></header>
 <main>
 
 <section class="hero"><div class="wrap">
   <span class="kicker">Unidad 4 · Control de actuadores y lógica de procesos segura</span>
-  <h1><span class="num">4.1.1</span><br>Relevadores y puentes H, modelados en software</h1>
+  <h1 class="long"><span class="num">4.1.1</span><br>Modelado por software de módulos de relevadores optoacoplados y puentes H (DC / Stepper)</h1>
   <p class="sub">Cómo el Arduino UNO R4 WiFi controla cargas de potencia, y cómo convertir ese hardware en un modelo claro y seguro dentro del programa.</p>
   <div class="chips">
-    <span class="chip"><i></i>Relevador optoacoplado</span>
-    <span class="chip"><i></i>Puente H L298N</span>
-    <span class="chip c-sim"><i></i>Motor DC</span>
-    <span class="chip c-teo"><i></i>Motor a pasos</span>
+    <span class="chip"><i></i>Modelado por software</span>
+    <span class="chip"><i></i>Relevadores optoacoplados</span>
+    <span class="chip c-sim"><i></i>Puente H · motor DC</span>
+    <span class="chip c-teo"><i></i>Puente H · motor a pasos</span>
   </div>
   <div class="cta"><a class="btn" href="#modelo">Empezar ↓</a><a class="btn ghost" href="#puente-h">Simulador del puente H</a></div>
 </div></section>
 
 <section id="modelo"><div class="wrap">
   <span class="kicker reveal">Teoría</span>
-  <h2 class="reveal">¿Qué es modelar un módulo por software?</h2>
+  <h2 class="reveal">Modelado por software: ¿qué significa?</h2>
   <div class="theory reveal">
     <p>Un <b>modelo</b> es una representación simplificada de algo real que conserva solo lo que importa para controlarlo. Cuando modelamos un relevador o un puente H, no simulamos la física completa: describimos sus <b>estados posibles</b>, las <b>órdenes</b> que acepta y las <b>reglas</b> que nunca deben romperse.</p>
     <p>El resto del programa ya no escribe niveles de voltaje en pines sueltos; le habla al modelo con órdenes que tienen significado (<b>encender</b>, <b>adelante</b>, <b>frenar</b>). El modelo se encarga de traducirlas a lo que el hardware entiende.</p>
@@ -105,7 +105,7 @@
 
 <section id="relevador"><div class="wrap">
   <span class="kicker reveal">Parte 1</span>
-  <h2 class="reveal">Módulo de relevador optoacoplado</h2>
+  <h2 class="reveal">Módulos de relevadores optoacoplados</h2>
   <div class="theory reveal">
     <p>Un <b>relevador</b> (relé) es un interruptor que se acciona con un <b>electroimán</b>. Al pasar corriente por su bobina, el campo magnético atrae una lámina metálica (armadura) que cambia la posición de los contactos. Así, una señal pequeña controla un circuito independiente que puede ser de corriente alterna o de mayor potencia.</p>
   </div>
@@ -191,6 +191,8 @@
     <p class="out" id="relTxt"></p>
   </div>
 
+  <h3 class="reveal" style="margin-top:28px">Modelo en software del relevador</h3>
+  <div class="figure reveal"><svg viewBox="0 0 760 230" class="art" role="img" aria-label="Modelo en software del relevador"><defs><marker id="r1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker></defs><rect x="95" y="78" width="150" height="64" rx="32" fill="#191d25" stroke="#9aa3b2" stroke-width="2.5"/><text x="170" y="108" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:14px;font-weight:800">APAGADO</text><text x="170" y="126" text-anchor="middle" class="albl">COM–NC · estado seguro</text><rect x="515" y="78" width="150" height="64" rx="32" fill="#191d25" stroke="#4ade80" stroke-width="2.5"/><text x="590" y="108" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:14px;font-weight:800">ENCENDIDO</text><text x="590" y="126" text-anchor="middle" class="albl">COM–NO · carga activa</text><path d="M245 92 Q380 30 515 92" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#r1)"/><text x="380" y="52" text-anchor="middle" class="albl" style="fill:#4ade80">encender</text><path d="M515 128 Q380 190 245 128" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#r1)"/><text x="380" y="182" text-anchor="middle" class="albl" style="fill:#f87171">apagar</text><text x="170" y="178" text-anchor="middle" class="albl" style="fill:#fbbf24">estado inicial</text><text x="380" y="215" text-anchor="middle" class="albl">Regla del modelo: entre un cambio y otro debe pasar un tiempo mínimo; si no, la orden se rechaza.</text></svg></div>
   <div class="tblwrap reveal"><table class="tbl">
     <tr><th>Característica típica (relevador de 5 V)</th><th>Valor</th><th>Qué implica para el software</th></tr>
     <tr><td>Corriente de la bobina</td><td class="c">≈ 70 mA</td><td class="w">Nunca se conecta directo a un pin: se usa el módulo.</td></tr>
@@ -202,7 +204,7 @@
 
 <section id="puente-h" style="background:var(--bg2)"><div class="wrap">
   <span class="kicker reveal">Parte 2</span>
-  <h2 class="reveal">Puente H: sentido y velocidad de un motor DC</h2>
+  <h2 class="reveal">Puente H con motor DC</h2>
   <div class="theory reveal">
     <p>Un relevador solo enciende o apaga. Un motor de corriente directa necesita además <b>cambiar de sentido</b> (invirtiendo la polaridad) y <b>variar su velocidad</b>. El <b>puente H</b> resuelve ambas cosas con cuatro interruptores electrónicos dispuestos en forma de letra H, con el motor en el travesaño.</p>
   </div>
@@ -262,6 +264,8 @@
     <tr><td class="c">0</td><td class="c">x</td><td class="c">x</td><td><span class="badge b-mut">LIBRE</span></td><td>Dejar libre (sin energía)</td></tr>
   </table></div>
 
+  <h3 class="reveal" style="margin-top:28px">Modelo en software del puente H con motor DC</h3>
+  <div class="figure reveal"><svg viewBox="0 0 760 300" class="art" role="img" aria-label="Modelo en software del puente H con motor DC"><defs><marker id="h1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker></defs><rect x="305" y="18" width="150" height="64" rx="32" fill="#191d25" stroke="#9aa3b2" stroke-width="2.5"/><text x="380" y="48" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:14px;font-weight:800">LIBRE</text><text x="380" y="66" text-anchor="middle" class="albl">sin energía (seguro)</text><rect x="75" y="138" width="150" height="64" rx="32" fill="#191d25" stroke="#4ade80" stroke-width="2.5"/><text x="150" y="168" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:14px;font-weight:800">ADELANTE</text><text x="150" y="186" text-anchor="middle" class="albl">IN1=1 · IN2=0 · PWM</text><rect x="535" y="138" width="150" height="64" rx="32" fill="#191d25" stroke="#4ade80" stroke-width="2.5"/><text x="610" y="168" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:14px;font-weight:800">ATRÁS</text><text x="610" y="186" text-anchor="middle" class="albl">IN1=0 · IN2=1 · PWM</text><rect x="305" y="218" width="150" height="64" rx="32" fill="#191d25" stroke="#fbbf24" stroke-width="2.5"/><text x="380" y="248" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:14px;font-weight:800">FRENO</text><text x="380" y="266" text-anchor="middle" class="albl">IN1=IN2 · ENA=1</text><path d="M310 70 L200 136" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#h1)"/><text x="230" y="92" text-anchor="middle" class="albl" style="fill:#4ade80">adelante(vel)</text><path d="M450 70 L560 136" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#h1)"/><text x="540" y="92" text-anchor="middle" class="albl" style="fill:#4ade80">atrás(vel)</text><path d="M200 204 L305 240" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#h1)"/><text x="225" y="238" text-anchor="middle" class="albl" style="fill:#fbbf24">frenar</text><path d="M560 204 L455 240" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#h1)"/><text x="540" y="238" text-anchor="middle" class="albl" style="fill:#fbbf24">frenar</text><path d="M380 216 L380 86" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#h1)"/><text x="405" y="150" text-anchor="middle" class="albl" style="fill:#9aa3b2">libre</text><text x="380" y="292" text-anchor="middle" class="albl">Regla del modelo: para invertir el sentido siempre se pasa por FRENO; nunca de ADELANTE a ATRÁS directamente.</text></svg></div>
   <div class="grid g3">
     <div class="card warn reveal"><span class="ico">🛑</span><h3>Freno ≠ libre</h3><p><b>Freno:</b> une las terminales del motor; su propia fuerza contraelectromotriz lo detiene rápido. <b>Libre:</b> sin energía, gira por inercia.</p></div>
     <div class="card bad reveal"><span class="ico">⚡</span><h3>Cortocircuito (shoot-through)</h3><p>Si S1 y S2 (o S3 y S4) conducen a la vez, la fuente queda en corto. Un buen modelo nunca permite esa combinación.</p></div>
@@ -303,9 +307,9 @@
 
 <section id="pasos" style="background:var(--bg2)"><div class="wrap">
   <span class="kicker reveal">Parte 3</span>
-  <h2 class="reveal">Motor a pasos (stepper)</h2>
+  <h2 class="reveal">Puente H con motor a pasos (Stepper)</h2>
   <div class="theory reveal">
-    <p>Un <b>motor a pasos</b> no gira de forma continua: avanza un ángulo fijo cada vez que se energiza la siguiente bobina en la secuencia. Contando pasos se conoce la posición <b>sin necesidad de sensor</b>, siempre que el motor no pierda pasos por exceso de carga o de velocidad.</p>
+    <p>El motor a pasos <b>bipolar</b> se controla con <b>dos puentes H</b> (los dos canales del L298N), uno por bobina. Un <b>motor a pasos</b> no gira de forma continua: avanza un ángulo fijo cada vez que se energiza la siguiente bobina en la secuencia. Contando pasos se conoce la posición <b>sin necesidad de sensor</b>, siempre que el motor no pierda pasos por exceso de carga o de velocidad.</p>
   </div>
   <div class="gallery reveal">
     <figure><svg viewBox="0 0 220 180" class="art" role="img" aria-label="Ilustración de un motor a pasos bipolar tipo NEMA 17">
@@ -352,6 +356,8 @@
     <tr><td>Medio paso</td><td>Alterna 1 y 2</td><td>Variable</td><td>El doble de posiciones</td></tr>
     <tr><td>Micropaso</td><td>Corrientes graduadas</td><td>Suave</td><td>Muy alta (requiere drivers especiales, no el L298N)</td></tr>
   </table></div>
+  <h3 class="reveal" style="margin-top:28px">Modelo en software del motor a pasos</h3>
+  <div class="figure reveal"><svg viewBox="0 0 760 210" class="art" role="img" aria-label="Modelo en software del motor a pasos"><rect x="20" y="20" width="720" height="150" rx="16" fill="#191d25" stroke="#a78bfa"/><text x="380" y="48" text-anchor="middle" class="albl" style="fill:#a78bfa;font-size:14px;font-weight:800">LO QUE EL MODELO RECUERDA</text><rect x="40" y="66" width="160" height="80" rx="12" fill="#14171d" stroke="#2a303c"/><text x="120" y="98" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Posición</text><text x="120" y="120" text-anchor="middle" class="albl">pasos contados</text><rect x="220" y="66" width="160" height="80" rx="12" fill="#14171d" stroke="#2a303c"/><text x="300" y="98" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Paso de la secuencia</text><text x="300" y="120" text-anchor="middle" class="albl">qué bobinas activar</text><rect x="400" y="66" width="160" height="80" rx="12" fill="#14171d" stroke="#2a303c"/><text x="480" y="98" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Dirección</text><text x="480" y="120" text-anchor="middle" class="albl">+1 o −1</text><rect x="580" y="66" width="160" height="80" rx="12" fill="#14171d" stroke="#2a303c"/><text x="660" y="98" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Velocidad</text><text x="660" y="120" text-anchor="middle" class="albl">tiempo entre pasos</text><text x="380" y="196" text-anchor="middle" class="albl">Sin sensor, la posición solo es cierta mientras el motor no pierda pasos.</text></svg></div>
   <div class="grid g3">
     <div class="card reveal"><span class="tag">NEMA 17</span><h3>1.8° por paso</h3><p>200 pasos por vuelta completa.</p></div>
     <div class="card reveal"><span class="tag">28BYJ-48</span><h3>≈ 2048 pasos</h3><p>Por vuelta del eje de salida, gracias a su reductor de 1:64 (en paso completo).</p></div>
@@ -361,7 +367,7 @@
 
 <section id="resumen"><div class="wrap">
   <span class="kicker reveal">Resumen</span>
-  <h2 class="reveal">El modelo de cada módulo</h2>
+  <h2 class="reveal">Modelado por software de cada módulo</h2>
   <div class="tblwrap reveal"><table class="tbl">
     <tr><th>Módulo</th><th>Estados</th><th>Órdenes</th><th>Restricciones</th><th>Estado seguro</th></tr>
     <tr><td><b>Relevador</b></td><td class="w">Apagado · Encendido</td><td class="w">encender, apagar</td><td class="w">Tiempo mínimo entre cambios; nunca PWM; traducir “activo en bajo”.</td><td>Apagado</td></tr>
