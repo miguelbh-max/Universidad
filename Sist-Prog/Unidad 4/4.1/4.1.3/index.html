@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.1.3 Drivers con interbloqueo · Sistemas Programables</title>
+<meta name="description" content="Creación de controladores (drivers) orientados a objetos con métodos de arranque, paro e interbloqueo en Arduino UNO R4 WiFi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../u4.css">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div class="brand">Sistemas <span>Programables</span> · 4.1</div>
+  <nav class="tabs" aria-label="Subtemas 4.1"><a href="../4.1.1/" class="">4.1.1 · Relevadores y puente H</a><a href="../4.1.2/" class="">4.1.2 · Brownouts y debounce</a><a href="../4.1.3/" class="active">4.1.3 · Drivers con interbloqueo</a></nav>
+</div></header>
+<main>
+
+<section class="hero"><div class="wrap">
+  <span class="kicker">Unidad 4 · Control de actuadores y lógica de procesos segura</span>
+  <h1><span class="num">4.1.3</span><br>Drivers orientados a objetos</h1>
+  <p class="sub">Clases con arranque, paro e interbloqueo: el programa dice "no" antes de que ocurra el daño.</p>
+  <div class="chips">
+    <span class="chip"><i></i>Físico: L298N + motor DC + servomotor</span>
+    <span class="chip"><i></i>Físico: 3 pulsadores + 2 LEDs</span>
+    <span class="chip sim"><i></i>Tinkercad: todo el circuito</span>
+  </div>
+  <div class="cta"><a class="btn" href="#practica">Ir a la práctica ↓</a><a class="btn ghost" href="#simulador">Probar el interbloqueo</a></div>
+</div></section>
+
+<section id="objetivo"><div class="wrap">
+  <span class="kicker reveal">Objetivo</span>
+  <h2 class="reveal">Tres ideas que sostienen todo</h2>
+  <p class="lead reveal">Juntas las clases de 4.1.1 y 4.1.2 y les agregas reglas: así se programa una máquina que no se lastima a sí misma ni a quien la usa.</p>
+  <div class="grid g3">
+    <div class="card reveal"><span class="ico">🧩</span><h3>Driver</h3><p>Una clase que esconde pines y tiempos, y ofrece verbos: <span class="mono">arrancar()</span>, <span class="mono">parar()</span>.</p></div>
+    <div class="card vio reveal"><span class="ico">🔗</span><h3>Interfaz común</h3><p>Todos los actuadores heredan de <span class="mono">Actuador</span>: cualquiera se puede detener con la misma llamada.</p></div>
+    <div class="card warn reveal"><span class="ico">🔒</span><h3>Interbloqueo</h3><p>Una regla que impide combinaciones peligrosas, como arrancar la banda con la guarda abierta.</p></div>
+  </div>
+</div></section>
+
+<section id="diseno" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Diseño</span>
+  <h2 class="reveal">Clases y reglas</h2>
+  <div class="figure reveal"><svg class="dg" viewBox="0 0 760 470" role="img" aria-label="Diagrama de clases de los drivers"><defs><marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0L12 6L0 12z" fill="#14171d" stroke="#22d3ee" stroke-width="1.5"/></marker><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10" fill="none" stroke="#a78bfa" stroke-width="1.5"/></marker></defs><rect class="bx hl" x="250" y="10" width="260" height="134" rx="12"/><text class="s" x="380.0" y="28">«interfaz»</text><text class="t" x="380.0" y="46">Actuador</text><line class="ln" x1="250" y1="56" x2="510" y2="56"/><text class="m" x="264" y="78">+ begin()</text><text class="m" x="264" y="98">+ parar()</text><text class="m" x="264" y="118">+ actualizar()</text><text class="m" x="264" y="138">+ enReposo(): bool</text><rect class="bx" x="20" y="220" width="260" height="100" rx="12"/><text class="t" x="150.0" y="242">MotorDC</text><line class="ln" x1="20" y1="252" x2="280" y2="252"/><text class="m" x="34" y="274">+ arrancar(): bool</text><text class="m" x="34" y="294">+ parar()  freno→libre</text><text class="m" x="34" y="314">+ estado(): Estado</text><rect class="bx" x="480" y="220" width="260" height="100" rx="12"/><text class="t" x="610.0" y="242">Compuerta</text><line class="ln" x1="480" y1="252" x2="740" y2="252"/><text class="m" x="494" y="274">+ abrir() / cerrar()</text><text class="m" x="494" y="294">+ parar()  se congela</text><text class="m" x="494" y="314">+ estaCerrada(): bool</text><rect class="bx" x="230" y="380" width="300" height="60" rx="12"/><text class="t" x="380.0" y="402">Interbloqueo</text><line class="ln" x1="230" y1="412" x2="530" y2="412"/><text class="m" x="244" y="434">+ pedirArranque() · paroEmergencia()</text><line x1="150" y1="220" x2="330" y2="148" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#tri)"/><line x1="610" y1="220" x2="430" y2="148" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#tri)"/><line x1="300" y1="380" x2="190" y2="322" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arr)"/><line x1="460" y1="380" x2="570" y2="322" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arr)"/><text class="s" x="200" y="190">hereda</text><text class="s" x="560" y="190">hereda</text><text class="s" x="215" y="362">controla</text><text class="s" x="545" y="362">controla</text></svg><p class="figcap">Interbloqueo no mueve pines: solo decide si una orden se permite y se la pasa al driver.</p></div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Orden</th><th>Se permite si…</th><th>Si no…</th></tr>
+    <tr><td><span class="badge b-ok">ARRANCAR</span></td><td class="w">la guarda está cerrada y quieta, y el motor ya se detuvo por completo</td><td>se rechaza + 3 parpadeos rojos</td></tr>
+    <tr><td><span class="badge b-warn">ABRIR GUARDA</span></td><td class="w">el motor está detenido (no en marcha ni frenando)</td><td>se rechaza + 3 parpadeos rojos</td></tr>
+    <tr><td><span class="badge b-acc">CERRAR GUARDA</span></td><td class="w">siempre</td><td>—</td></tr>
+    <tr><td><span class="badge b-bad">PARAR</span></td><td class="w"><b>siempre</b>: el paro nunca se bloquea</td><td>—</td></tr>
+    <tr><td><span class="badge b-bad">EMERGENCIA</span></td><td class="w">siempre (PARAR sostenido 1 s): frena el motor y congela la guarda</td><td>—</td></tr>
+  </table></div>
+  <div class="grid g3">
+    <div class="card ok reveal"><span class="tag">PRINCIPIO 1</span><h3>Estado seguro por defecto</h3><p>Cada <span class="mono">begin()</span> deja su actuador quieto y sin energía.</p></div>
+    <div class="card bad reveal"><span class="tag w">PRINCIPIO 2</span><h3>Parar nunca falla</h3><p>Arrancar puede ser rechazado; parar, jamás.</p></div>
+    <div class="card reveal"><span class="tag">PRINCIPIO 3</span><h3>Rechazo explícito</h3><p>Si algo no se permite, se avisa con el motivo. Nada falla en silencio.</p></div>
+  </div>
+</div></section>
+
+<section id="simulador"><div class="wrap">
+  <span class="kicker reveal">Simulador</span>
+  <h2 class="reveal">Intenta romper las reglas</h2>
+  <p class="lead reveal">Misma lógica que el sketch: prueba arrancar con la guarda abierta o abrirla con la banda en marcha.</p>
+  <div class="sim reveal" id="iSim">
+    <div class="sim-h"><h3>Celda: banda + guarda</h3>
+      <div><span class="badge b-mut" id="iMotSt">PARADO</span><span class="badge b-acc" id="iGuaSt">CERRADA</span>
+      <span class="led g" id="iLedV" title="LED verde"></span> <span class="led r" id="iLedR" title="LED rojo"></span></div></div>
+    <div class="grid g2" style="align-items:start">
+      <div><svg viewBox="0 0 420 170" role="img" aria-label="Motor y guarda simulados" style="width:100%;height:auto;display:block">
+  <circle class="motor" cx="90" cy="80" r="44"/>
+  <g id="iRotor" class="rotor"><line x1="90" y1="50" x2="90" y2="110"/><line x1="60" y1="80" x2="120" y2="80"/></g>
+  <text class="lbl" x="90" y="152" text-anchor="middle">Banda (motor DC)</text>
+  <path d="M370 120 A110 110 0 0 0 260 10" fill="none" stroke="#2a303c" stroke-width="2" stroke-dasharray="5 5"/>
+  <rect x="236" y="116" width="48" height="22" rx="6" fill="#1f2430" stroke="#2a303c"/>
+  <g id="iArm"><line x1="260" y1="120" x2="390" y2="120" stroke="#fbbf24" stroke-width="8" stroke-linecap="round"/></g>
+  <circle cx="260" cy="120" r="8" fill="#a78bfa"/>
+  <text class="lbl" x="330" y="152" text-anchor="middle">Guarda (servo) · <tspan id="iAng">0°</tspan></text>
+</svg>
+        <div class="sim-ctrl" style="margin-top:12px">
+          <button class="tog grn" id="iArr" type="button">ARRANCAR</button>
+          <button class="tog red" id="iPar" type="button">PARAR</button>
+          <button class="tog" id="iGua" type="button">ABRIR GUARDA</button>
+          <button class="tog red" id="iEme" type="button">EMERGENCIA</button>
+        </div></div>
+      <div><p class="out" style="margin:0 0 8px">Monitor serie</p><ul class="log" id="iLog"></ul></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="codigo" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Código</span>
+  <h2 class="reveal">Los drivers, clase por clase</h2>
+  <details class="acc reveal"><summary>Boton (de la práctica 4.1.2, sin cambios)</summary><div class="acc-b"><div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Boton.h</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-bot">// ===== Driver de un pulsador con filtro de rebote (sin delay) =====
+class Boton {
+  public:
+    Boton(uint8_t pin, unsigned long estableMs = 25) : _pin(pin), _estableMs(estableMs) {}
+
+    void begin() {
+      pinMode(_pin, INPUT_PULLUP);              // suelto = HIGH, presionado = LOW
+      _cruda = _estado = (digitalRead(_pin) == HIGH);
+      _tCambio = millis();
+    }
+
+    // Llamar en CADA vuelta de loop(). Nunca usa delay().
+    void actualizar() {
+      _bajada = _subida = false;
+      bool lectura = (digitalRead(_pin) == HIGH);
+      if (lectura != _cruda) {                  // la señal cambió: puede ser rebote
+        _cruda = lectura;
+        _tCambio = millis();                    // reinicia el cronómetro de estabilidad
+        if (!lectura) _caidasCrudas++;
+      }
+      if (lectura != _estado &amp;&amp; millis() - _tCambio &gt;= _estableMs) {
+        _estado = lectura;                      // estable el tiempo suficiente: se acepta
+        if (!_estado) { _bajada = true; _tPresion = millis(); }
+        else          { _subida = true; }
+      }
+    }
+
+    bool sePresiono()     const { return _bajada; }
+    bool seSolto()        const { return _subida; }
+    bool estaPresionado() const { return !_estado; }
+    unsigned long tiempoPresionado() const { return estaPresionado() ? millis() - _tPresion : 0; }
+    unsigned long caidasCrudas()     const { return _caidasCrudas; }
+
+  private:
+    uint8_t _pin;
+    unsigned long _estableMs, _tCambio = 0, _tPresion = 0, _caidasCrudas = 0;
+    bool _cruda = true, _estado = true, _bajada = false, _subida = false;   // true = HIGH
+};</code></pre></div></div></details>
+  <details class="acc reveal" open><summary>Actuador · la interfaz</summary><div class="acc-b"><div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Actuador.h</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-act">// ===== Interfaz común: todo actuador sabe pararse =====
+class Actuador {
+  public:
+    virtual void begin() = 0;
+    virtual void parar() = 0;            // obligatorio y NUNCA se bloquea
+    virtual void actualizar() = 0;       // avanza sin delay(); llamar en cada loop()
+    virtual bool enReposo() const = 0;   // true = no se está moviendo
+};</code></pre></div>
+    <p style="color:var(--muted)"><span class="mono">= 0</span> significa "obligatorio": una clase que herede y no implemente <span class="mono">parar()</span> no compila.</p></div></details>
+  <details class="acc reveal"><summary>MotorDC · freno y luego libre</summary><div class="acc-b"><div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; MotorDC.h</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-mot">// ===== Driver del motor DC (L298N / L293D) =====
+class MotorDC : public Actuador {
+  public:
+    enum class Estado { PARADO, MARCHA, FRENANDO };
+
+    MotorDC(uint8_t en, uint8_t in1, uint8_t in2, uint8_t velocidad)
+      : _en(en), _in1(in1), _in2(in2), _vel(velocidad) {}
+
+    void begin() override {
+      pinMode(_en, OUTPUT);
+      pinMode(_in1, OUTPUT);
+      pinMode(_in2, OUTPUT);
+      _salidas(false, false, 0);             // estado seguro: sin energía
+    }
+
+    bool arrancar() {
+      if (_estado != Estado::PARADO) return false;   // no re-arrancar mientras frena
+      _salidas(true, false, _vel);
+      _estado = Estado::MARCHA;
+      return true;
+    }
+
+    void parar() override {
+      if (_estado != Estado::MARCHA) return;  // ya parado o frenando
+      _salidas(true, true, 255);              // freno dinámico
+      _estado = Estado::FRENANDO;
+      _t = millis();
+    }
+
+    void actualizar() override {
+      if (_estado == Estado::FRENANDO &amp;&amp; millis() - _t &gt;= FRENO_MS) {
+        _salidas(false, false, 0);            // libera el puente H
+        _estado = Estado::PARADO;
+      }
+    }
+
+    bool enReposo() const override { return _estado == Estado::PARADO; }
+    Estado estado() const { return _estado; }
+
+  private:
+    static constexpr unsigned long FRENO_MS = 400;
+    uint8_t _en, _in1, _in2, _vel;
+    Estado _estado = Estado::PARADO;
+    unsigned long _t = 0;
+
+    void _salidas(bool a, bool b, uint8_t pwm) {
+      analogWrite(_en, 0);
+      digitalWrite(_in1, a ? HIGH : LOW);
+      digitalWrite(_in2, b ? HIGH : LOW);
+      analogWrite(_en, pwm);
+    }
+};</code></pre></div></div></details>
+  <details class="acc reveal"><summary>Compuerta · servo que se mueve sin bloquear</summary><div class="acc-b"><div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Compuerta.h</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-com">// ===== Driver de la guarda (servomotor) =====
+#include &lt;Servo.h&gt;
+
+class Compuerta : public Actuador {
+  public:
+    Compuerta(uint8_t pin, uint8_t angCerrada, uint8_t angAbierta)
+      : _pin(pin), _cerrada(angCerrada), _abierta(angAbierta) {}
+
+    void begin() override {
+      _actual = _objetivo = _cerrada;
+      _servo.attach(_pin);
+      _servo.write(_actual);                  // de inmediato a la posición segura
+    }
+
+    void abrir()  { _objetivo = _abierta; }
+    void cerrar() { _objetivo = _cerrada; }
+    void parar() override { _objetivo = _actual; }   // se congela donde esté
+
+    void actualizar() override {              // 1° cada 15 ms: movimiento suave
+      if (_actual == _objetivo || millis() - _t &lt; PASO_MS) return;
+      _t = millis();
+      if (_objetivo &gt; _actual) _actual++; else _actual--;
+      _servo.write(_actual);
+    }
+
+    bool enReposo()    const override { return _actual == _objetivo; }
+    bool estaCerrada() const { return enReposo() &amp;&amp; _actual == _cerrada; }
+    bool vaACerrar()   const { return _objetivo == _cerrada; }
+
+  private:
+    static constexpr unsigned long PASO_MS = 15;
+    Servo _servo;
+    uint8_t _pin, _cerrada, _abierta, _actual = 0, _objetivo = 0;
+    unsigned long _t = 0;
+};</code></pre></div>
+    <p style="color:var(--muted)">El servo no avisa su posición. Moviéndolo de 1° en 1° el programa <b>siempre sabe</b> dónde está, y puede congelarlo a medio camino.</p></div></details>
+  <details class="acc reveal"><summary>Interbloqueo · las reglas</summary><div class="acc-b"><div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Interbloqueo.h</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-int">// ===== Interbloqueo: decide qué órdenes son seguras =====
+class Interbloqueo {
+  public:
+    Interbloqueo(MotorDC&amp; motor, Compuerta&amp; guarda)
+      : _motor(motor), _guarda(guarda), _todos{&amp;motor, &amp;guarda} {}
+
+    bool pedirArranque() {
+      if (!_guarda.estaCerrada()) return _rechazo(F(&quot;ARRANCAR: la guarda no esta cerrada&quot;));
+      if (!_motor.arrancar())     return _rechazo(F(&quot;ARRANCAR: el motor aun no se detiene&quot;));
+      Serial.println(F(&quot;OK  motor en marcha&quot;));
+      return true;
+    }
+
+    bool pedirAbrirGuarda() {
+      if (!_motor.enReposo()) return _rechazo(F(&quot;ABRIR: el motor sigue en movimiento&quot;));
+      _guarda.abrir();
+      Serial.println(F(&quot;OK  abriendo guarda&quot;));
+      return true;
+    }
+
+    void pedirCerrarGuarda() {               // cerrar siempre es seguro
+      _guarda.cerrar();
+      Serial.println(F(&quot;OK  cerrando guarda&quot;));
+    }
+
+    void paro() {                            // el paro nunca se rechaza
+      _motor.parar();
+      Serial.println(F(&quot;PARO&quot;));
+    }
+
+    void paroEmergencia() {
+      for (Actuador* a : _todos) a-&gt;parar(); // polimorfismo: cada uno sabe pararse
+      Serial.println(F(&quot;!!! PARO DE EMERGENCIA&quot;));
+    }
+
+  private:
+    MotorDC&amp; _motor;
+    Compuerta&amp; _guarda;
+    Actuador* _todos[2];
+
+    bool _rechazo(const __FlashStringHelper* motivo) {
+      Serial.print(F(&quot;RECHAZADO  &quot;));
+      Serial.println(motivo);
+      return false;
+    }
+};</code></pre></div></div></details>
+</div></section>
+
+<section id="practica"><div class="wrap">
+  <span class="kicker reveal">Práctica 4.1.3</span>
+  <h2 class="reveal">Celda con guarda de seguridad</h2>
+  <p class="lead reveal">Una banda (motor DC) que solo puede funcionar con la guarda (servo) cerrada.</p>
+  <div class="legend reveal"><span><i class="dot d-vcc"></i>Alimentación</span><span><i class="dot d-gnd"></i>GND</span><span><i class="dot d-data"></i>Señal</span><span><i class="dot d-mot"></i>Motor</span></div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Componente</th><th>Conexión</th></tr>
+    <tr><td><i class="dot d-data"></i>L298N ENA / IN1 / IN2</td><td>D5 (sin jumper) / D8 / D7</td></tr>
+    <tr><td><i class="dot d-mot"></i>L298N OUT1 / OUT2</td><td>Motor DC</td></tr>
+    <tr><td><i class="dot d-vcc"></i>L298N +12V · <i class="dot d-gnd"></i>GND</td><td>Fuente externa 7–12 V · GND común con el Arduino</td></tr>
+    <tr><td><i class="dot d-data"></i>Servo señal (naranja)</td><td>D9</td></tr>
+    <tr><td><i class="dot d-vcc"></i>Servo + (rojo) · <i class="dot d-gnd"></i>− (café)</td><td>5 V de fuente externa · GND común (en Tinkercad: 5V del Arduino)</td></tr>
+    <tr><td><i class="dot d-data"></i>Pulsadores</td><td>ARRANCAR D2 · PARAR D3 · GUARDA D4 — cada uno a GND</td></tr>
+    <tr><td><i class="dot d-data"></i>LEDs + 220 Ω</td><td>Verde D12 (marcha) · Rojo D11 (rechazo)</td></tr>
+  </table></div>
+  <div class="note"><b>¿Por qué fuente aparte para el servo?</b> Su arranque, sumado al del motor, es el escenario clásico de brownout del tema 4.1.2.</div>
+  <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Programa principal</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-main">// ===== Práctica 4.1.3 — Programa principal =====
+// Pega ANTES de esto: Boton, Actuador, MotorDC, Compuerta e Interbloqueo.
+const uint8_t PIN_ENA = 5, PIN_IN1 = 8, PIN_IN2 = 7, PIN_SERVO = 9;
+const uint8_t BTN_ARRANCAR = 2, BTN_PARAR = 3, BTN_GUARDA = 4;
+const uint8_t LED_VERDE = 12, LED_ROJO = 11;
+
+MotorDC      banda(PIN_ENA, PIN_IN1, PIN_IN2, 180);
+Compuerta    guarda(PIN_SERVO, 0, 90);            // 0° = cerrada, 90° = abierta
+Interbloqueo seguridad(banda, guarda);
+Boton bArrancar(BTN_ARRANCAR), bParar(BTN_PARAR), bGuarda(BTN_GUARDA);
+
+uint8_t parpadeos = 0;                            // parpadeos pendientes del LED rojo
+unsigned long tLed = 0;
+bool ledRojo = false, emergenciaHecha = false;
+
+void avisarRechazo(uint8_t veces) { parpadeos = veces; }
+
+void setup() {
+  pinMode(LED_VERDE, OUTPUT);
+  pinMode(LED_ROJO, OUTPUT);
+  banda.begin();                                  // 1) motor sin energía
+  guarda.begin();                                 // 2) guarda en posición cerrada conocida
+  bArrancar.begin(); bParar.begin(); bGuarda.begin();
+  Serial.begin(115200);
+  Serial.println(F(&quot;ARRANCAR=D2  PARAR=D3 (1 s = emergencia)  GUARDA=D4&quot;));
+}
+
+void loop() {
+  // 1) Leer entradas
+  bArrancar.actualizar(); bParar.actualizar(); bGuarda.actualizar();
+
+  // 2) Toda orden pasa por el interbloqueo
+  if (bArrancar.sePresiono() &amp;&amp; !seguridad.pedirArranque()) avisarRechazo(3);
+
+  if (bParar.sePresiono()) seguridad.paro();
+  if (bParar.tiempoPresionado() &gt;= 1000 &amp;&amp; !emergenciaHecha) {
+    seguridad.paroEmergencia();
+    emergenciaHecha = true;
+    avisarRechazo(6);
+  }
+  if (bParar.seSolto()) emergenciaHecha = false;
+
+  if (bGuarda.sePresiono()) {
+    if (guarda.vaACerrar()) { if (!seguridad.pedirAbrirGuarda()) avisarRechazo(3); }
+    else seguridad.pedirCerrarGuarda();
+  }
+
+  // 3) Cada driver avanza por su cuenta (sin delay)
+  banda.actualizar();
+  guarda.actualizar();
+
+  // 4) Indicadores
+  digitalWrite(LED_VERDE, banda.estado() == MotorDC::Estado::MARCHA ? HIGH : LOW);
+  if (parpadeos &gt; 0 &amp;&amp; millis() - tLed &gt;= 150) {
+    tLed = millis();
+    ledRojo = !ledRojo;
+    digitalWrite(LED_ROJO, ledRojo ? HIGH : LOW);
+    if (!ledRojo) parpadeos--;
+  }
+}</code></pre></div>
+  <div class="reveal" style="margin:8px 0 24px"><button class="btn copyall" type="button" data-all="c-bot,c-act,c-mot,c-com,c-int,c-main">📋 Copiar sketch completo (6 bloques)</button></div>
+  <ol class="steps">
+    <li class="reveal"><b>Tinkercad:</b> Arduino Uno, L293D, motor DC, batería 9 V, servo, 3 pulsadores y 2 LEDs (L293D conectado como en 4.1.1).</li>
+    <li class="reveal"><b>Simula</b> con el sketch completo y abre el Monitor serie.</li>
+    <li class="reveal"><b>Recorre la tabla de reglas:</b> provoca cada rechazo y verifica que aparezca su motivo.</li>
+    <li class="reveal"><b>Emergencia:</b> mientras la guarda se mueve, mantén PARAR 1 s. Comprueba que se congela y que ya no puedes arrancar.</li>
+    <li class="reveal"><b>Laboratorio:</b> pasa el circuito al UNO R4 WiFi con L298N, motor y servo con fuente externa y tierra común.</li>
+  </ol>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card ok reveal"><span class="tag">ENTREGABLE</span><h3>Evidencias</h3><ul class="clean"><li>Video: 3 rechazos distintos + paro de emergencia</li><li>Código en tu repositorio de prácticas</li><li>Respuesta: ¿por qué <span class="mono">parar()</span> nunca debe poder rechazarse?</li></ul></div>
+    <div class="card vio reveal"><span class="tag v">RETO</span><h3>Tiempo máximo de marcha</h3><p>Agrega al interbloqueo una regla: si la banda lleva 10 s en marcha, se para sola. Sin <span class="mono">delay()</span>.</p></div>
+  </div>
+</div></section>
+
+<div class="wrap"><div class="pager"><a class="btn ghost" href="../4.1.2/">← Tema anterior: 4.1.2 Brownouts y debounce</a><span></span></div></div>
+</main>
+<footer>Sistemas Programables (SCC-1023) · Unidad 4: Control de actuadores y lógica de procesos segura · Arduino UNO R4 WiFi</footer>
+<script src="../u4.js"></script>
+<script>
+/* ===== Simulador del interbloqueo: mismas reglas que el sketch ===== */
+(function(){
+  var g=function(id){return document.getElementById(id)};
+  var CERR=0,ABI=90,motor='PARADO',tF=0,act=0,obj=0,log=g('iLog');
+  function msg(t,ok){var li=document.createElement('li');li.className=ok?'ok':'bad';li.textContent=(ok?'OK  ':'RECHAZADO  ')+t;log.prepend(li);while(log.children.length>8)log.lastChild.remove();}
+  function blink(n){var r=g('iLedR');r.classList.remove('blink','blink6');void r.offsetWidth;r.classList.add(n>3?'blink6':'blink');}
+  function rechazo(t){msg(t,false);blink(3);}
+  var cerrada=function(){return act===obj&&act===CERR};
+  function frenar(){if(motor==='MARCHA'){motor='FRENANDO';tF=performance.now();}}
+  g('iArr').onclick=function(){
+    if(!cerrada())return rechazo('ARRANCAR: la guarda no está cerrada');
+    if(motor!=='PARADO')return rechazo('ARRANCAR: el motor aún no se detiene');
+    motor='MARCHA';msg('motor en marcha',true);};
+  g('iPar').onclick=function(){frenar();msg('PARO',true);};
+  g('iGua').onclick=function(){
+    if(obj===CERR){if(motor!=='PARADO')return rechazo('ABRIR: el motor sigue en movimiento');obj=ABI;msg('abriendo guarda',true);}
+    else{obj=CERR;msg('cerrando guarda',true);}};
+  g('iEme').onclick=function(){frenar();obj=act;msg('!!! PARO DE EMERGENCIA',true);blink(6);};
+  function render(){
+    g('iArm').setAttribute('transform','rotate('+(-act)+' 260 120)');g('iAng').textContent=act+'°';
+    var gs,gc;
+    if(act===obj){gs=act===CERR?'CERRADA':act===ABI?'ABIERTA':'DETENIDA';gc=act===CERR?'b-acc':act===ABI?'b-warn':'b-bad';}
+    else{gs=obj>act?'ABRIENDO…':'CERRANDO…';gc='b-vio';}
+    var gst=g('iGuaSt');gst.textContent=gs;gst.className='badge '+gc;
+    var ms=g('iMotSt');ms.textContent=motor;ms.className='badge '+(motor==='MARCHA'?'b-ok':motor==='FRENANDO'?'b-warn':'b-mut');
+    g('iRotor').style.animationPlayState=motor==='MARCHA'?'running':'paused';
+    g('iLedV').classList.toggle('on',motor==='MARCHA');
+    g('iGua').textContent=obj===CERR?'ABRIR GUARDA':'CERRAR GUARDA';
+  }
+  var acc=0,last=performance.now();
+  function tick(now){
+    acc+=now-last;last=now;if(acc>2000)acc=2000;
+    while(acc>=15){acc-=15;if(act!==obj)act+=obj>act?1:-1;}
+    if(motor==='FRENANDO'&&now-tF>=400)motor='PARADO';
+    render();requestAnimationFrame(tick);
+  }
+  msg('Listo. Guarda cerrada, banda detenida',true);
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
