@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zona Desmilitarizada (DMZ) | Sistemas Operativos I</title>
+<meta name="description" content="Qué es una zona desmilitarizada (DMZ) en redes: origen, zonas de confianza, arquitecturas, simulaciones de tráfico y de ataque, e implementación con iptables.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090b;--bg2:#0c0c0f;--panel:#141417;--panel2:#1b1b20;--border:#27272a;--border2:#3f3f46;
+  --text:#e4e4e7;--muted:#a1a1aa;--dim:#71717a;
+  --cyan:#22d3ee;--cyan-d:#0891b2;--blue:#60a5fa;--violet:#a78bfa;--pink:#f472b6;
+  --green:#34d399;--amber:#fbbf24;--red:#f87171;--orange:#fb923c;
+  --wan:#f87171;--dmz:#fbbf24;--lan:#34d399;
+  --term:#0a0a0c;--radius:12px;
+  --f-head:"Space Grotesk",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  background-image:radial-gradient(circle at 85% -10%,rgba(251,191,36,.07),transparent 40%),radial-gradient(circle at 0% 30%,rgba(34,211,238,.05),transparent 35%)}
+a{color:var(--cyan)}
+code{font-family:var(--f-mono)}
+:not(pre)>code{background:#1f1f25;border:1px solid var(--border);color:#a5f3fc;padding:.08rem .38rem;border-radius:5px;font-size:.86em}
+strong{color:#fafafa}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--wan),var(--dmz),var(--lan));z-index:60}
+main{padding:2.5rem clamp(1rem,4vw,3.5rem) 3rem}
+.wrap{max-width:1000px;margin:0 auto}
+
+/* hero */
+.hero{padding:2rem 0 2.6rem;border-bottom:1px solid var(--border);margin-bottom:2.5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+.chip{font-family:var(--f-mono);font-size:.72rem;padding:.25rem .65rem;border-radius:999px;border:1px solid var(--border2);color:var(--muted);background:var(--panel)}
+.chip.c{color:var(--amber);border-color:rgba(251,191,36,.45)}
+.kinetic{font-family:var(--f-head);font-weight:700;font-size:clamp(2.2rem,6vw,4rem);line-height:1.05;letter-spacing:-.02em}
+.kinetic .ch{display:inline-block;opacity:0;transform:translateY(.6em) rotate(6deg);animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards}
+.kinetic .accent{color:var(--amber);text-shadow:0 0 24px rgba(251,191,36,.35)}
+@keyframes rise{to{opacity:1;transform:none}}
+.lead{font-size:1.1rem;color:var(--muted);max-width:760px;margin-top:1rem}
+.toc{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.5rem}
+.toc a{font-family:var(--f-mono);font-size:.76rem;text-decoration:none;color:var(--muted);border:1px solid var(--border);background:var(--panel);border-radius:8px;padding:.3rem .6rem}
+.toc a:hover{color:var(--amber);border-color:rgba(251,191,36,.5)}
+
+/* secciones */
+section.sec{padding:1rem 0 2.8rem;border-bottom:1px solid var(--border);margin-bottom:2.2rem}
+.sec-h{display:flex;align-items:center;gap:.9rem;margin-bottom:1.2rem}
+.sec-num{font-family:var(--f-mono);font-size:.85rem;color:var(--amber);border:1px solid rgba(251,191,36,.45);border-radius:8px;padding:.2rem .55rem;background:rgba(251,191,36,.06)}
+h2{font-family:var(--f-head);font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.01em;line-height:1.2}
+h3{font-family:var(--f-head);font-size:1.22rem;margin:2rem 0 .7rem;color:#fafafa}
+h4{font-family:var(--f-head);font-size:1.02rem;margin:1rem 0 .4rem}
+p{margin-bottom:1rem}
+ul.l,ol.l{margin:0 0 1rem 1.3rem}
+ul.l li,ol.l li{margin-bottom:.4rem}
+.muted{color:var(--muted)}
+
+/* figuras */
+figure.fig{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1rem;margin:1.2rem 0 1.5rem}
+figure.fig svg{width:100%;height:auto;display:block}
+figcaption{font-size:.85rem;color:var(--muted);margin-top:.7rem;padding-top:.6rem;border-top:1px dashed var(--border)}
+figcaption b{color:var(--text)}
+.svg-scroll{overflow-x:auto}
+.svg-scroll svg{min-width:700px}
+svg text{font-family:var(--f-mono)}
+
+/* tarjetas */
+.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:1rem 0 1.4rem}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;border-top:3px solid var(--border2)}
+.card h4{margin-top:0}
+.card p,.card li{font-size:.93rem;color:#d4d4d8}
+.card ul{margin-left:1.1rem}
+.card .tag{font-family:var(--f-mono);font-size:.72rem;color:var(--dim);display:block;margin-bottom:.3rem}
+.card.wan{border-top-color:var(--wan)}.card.wan h4{color:var(--wan)}
+.card.dmz{border-top-color:var(--dmz)}.card.dmz h4{color:var(--dmz)}
+.card.lan{border-top-color:var(--lan)}.card.lan h4{color:var(--lan)}
+
+/* tablas */
+.tbl-wrap{overflow-x:auto;margin:1rem 0 1.4rem;border:1px solid var(--border);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:560px}
+th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--panel2);font-family:var(--f-head);font-weight:600;color:#fafafa;font-size:.9rem}
+tr:last-child td{border-bottom:none}
+
+/* callouts */
+.co{border:1px solid;border-left-width:4px;border-radius:10px;padding:.9rem 1.1rem;margin:1.1rem 0 1.3rem;font-size:.95rem}
+.co .co-t{font-family:var(--f-head);font-weight:600;display:block;margin-bottom:.3rem}
+.co p:last-child,.co ul:last-child{margin-bottom:0}
+.co-red{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.35);border-left-color:var(--red)}.co-red .co-t{color:var(--red)}
+.co-blue{background:rgba(96,165,250,.07);border-color:rgba(96,165,250,.3);border-left-color:var(--blue)}.co-blue .co-t{color:var(--blue)}
+.co-amber{background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.3);border-left-color:var(--amber)}.co-amber .co-t{color:var(--amber)}
+
+/* código */
+.cb{background:var(--term);border:1px solid var(--border);border-radius:10px;margin:1rem 0 1.3rem;overflow:hidden}
+.cb-head{display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:#121216;border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:5px}.dots i{width:10px;height:10px;border-radius:50%;display:block}
+.dots i:nth-child(1){background:#ef4444}.dots i:nth-child(2){background:#f59e0b}.dots i:nth-child(3){background:#10b981}
+.cb-title{font-family:var(--f-mono);font-size:.74rem;color:var(--dim);flex:1}
+.copy{font-family:var(--f-mono);font-size:.72rem;background:var(--panel2);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:.2rem .6rem;cursor:pointer}
+.copy:hover{border-color:var(--amber);color:var(--amber)}
+.cb pre{padding:1rem 1.1rem;overflow-x:auto;font-family:var(--f-mono);font-size:.85rem;line-height:1.6}
+.cb .cm{color:#71717a;font-style:italic}
+
+/* controles */
+.lab{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin:1.2rem 0 1.5rem}
+.lab-title{font-family:var(--f-head);font-weight:600;display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(251,191,36,.6)}70%{box-shadow:0 0 0 10px rgba(251,191,36,0)}100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}}
+.seg{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.8rem}
+.seg button,.btn{font-family:var(--f-body);font-size:.88rem;padding:.48rem .85rem;border-radius:9px;border:1px solid var(--border2);background:var(--panel2);color:var(--muted);cursor:pointer;transition:.2s}
+.seg button:hover,.btn:hover:not(:disabled){color:var(--text);border-color:var(--dim)}
+.seg button.on{color:#1f1400;background:var(--amber);border-color:var(--amber);font-weight:600}
+.btn.pri{background:var(--amber);color:#1f1400;border-color:var(--amber);font-weight:600}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:.9rem;align-items:flex-end;margin-bottom:.9rem}
+.row label{font-family:var(--f-mono);font-size:.74rem;color:var(--dim);display:flex;flex-direction:column;gap:.3rem}
+.row select{font-family:var(--f-body);font-size:.92rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:.45rem .6rem;min-width:170px}
+.stage{background:#0d1117;border:1px solid var(--border);border-radius:10px;background-image:radial-gradient(#1f2630 1px,transparent 1px);background-size:18px 18px}
+.verdict{margin-top:.8rem;padding:.8rem 1rem;border-radius:10px;border:1px solid var(--border2);background:var(--panel2);font-size:.93rem;min-height:3rem}
+.verdict b.ok{color:var(--green)}.verdict b.no{color:var(--red)}.verdict b.mid{color:var(--amber)}
+.verdict code{white-space:normal;word-break:break-word}
+
+/* matriz */
+.mx td,.mx th{text-align:center;font-family:var(--f-mono);font-size:.8rem}
+.mx td:first-child,.mx th:first-child{text-align:left}
+.mx .y{color:var(--green)}.mx .n{color:var(--red)}.mx .p{color:var(--amber)}
+
+/* pasos ataque */
+.steps{display:grid;gap:.45rem;margin-top:.9rem;list-style:none}
+.steps li{font-size:.9rem;background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:.55rem .8rem;opacity:.35;transition:.3s}
+.steps li.on{opacity:1;border-color:var(--border2)}
+.steps li.bad{border-color:rgba(248,113,113,.5)}
+.steps li.good{border-color:rgba(52,211,153,.5)}
+
+/* quiz */
+.q{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin:.8rem 0}
+.q p{font-weight:500;margin-bottom:.6rem}
+.q .opts{display:grid;gap:.4rem}
+.q button{text-align:left;font-family:var(--f-body);font-size:.92rem;padding:.55rem .8rem;border-radius:8px;border:1px solid var(--border2);background:var(--panel2);color:var(--text);cursor:pointer}
+.q button.ok{border-color:var(--green);background:rgba(52,211,153,.1)}
+.q button.no{border-color:var(--red);background:rgba(248,113,113,.1)}
+.q .fb{font-size:.88rem;color:var(--muted);margin-top:.5rem;min-height:1.2rem}
+
+/* checklist */
+.check{list-style:none;display:grid;gap:.45rem;margin:1rem 0}
+.check li{display:flex;gap:.6rem;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:.55rem .8rem;font-size:.93rem}
+.check li::before{content:"✓";color:var(--green);font-weight:700}
+.check.bad li::before{content:"✕";color:var(--red)}
+
+/* FAQ */
+.acc{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:1rem 0}
+.acc-i+.acc-i{border-top:1px solid var(--border)}
+.acc-q{width:100%;text-align:left;background:var(--panel);color:var(--text);border:none;padding:1rem 1.2rem;font-family:var(--f-head);font-size:1rem;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;gap:1rem}
+.acc-q:hover{background:var(--panel2)}
+.acc-q .ic{font-family:var(--f-mono);color:var(--amber);transition:transform .3s}
+.acc-i.open .ic{transform:rotate(45deg)}
+.acc-a{max-height:0;overflow:hidden;transition:max-height .35s ease;background:var(--bg2)}
+.acc-a-in{padding:1rem 1.2rem;font-size:.95rem;color:#d4d4d8}
+
+/* laboratorio sin IPs */
+.story{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1rem 0 1.3rem}
+.story .card p{margin-bottom:.4rem}
+.lab-step{display:flex;align-items:center;gap:.7rem;margin:1.6rem 0 .6rem}
+.lab-step .n{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;background:var(--amber);color:#1f1400;font-weight:700;font-family:var(--f-mono);flex-shrink:0}
+.lab-step h3{margin:0}
+.tray{display:flex;flex-wrap:wrap;gap:.5rem;min-height:3.2rem;padding:.7rem;border:1px dashed var(--border2);border-radius:10px;background:var(--bg2);margin-bottom:.8rem}
+.tray:empty::after{content:"✓ Todos los equipos están ubicados";color:var(--dim);font-size:.85rem;align-self:center}
+.item{font-size:.88rem;padding:.45rem .75rem;border-radius:9px;border:1px solid var(--border2);background:var(--panel2);color:var(--text);cursor:grab;user-select:none;transition:.15s}
+.item.sel{outline:2px solid var(--amber);outline-offset:2px}
+.item.good{border-color:var(--green);background:rgba(52,211,153,.1)}
+.item.bad{border-color:var(--red);background:rgba(248,113,113,.1)}
+.zones{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+@media (max-width:760px){.zones{grid-template-columns:1fr}}
+.zone{border:2px dashed;border-radius:12px;padding:.7rem;min-height:150px;transition:.15s;cursor:pointer}
+.zone h4{margin:0 0 .2rem;font-size:.98rem}
+.zone small{display:block;color:var(--dim);font-size:.76rem;margin-bottom:.5rem}
+.zone .drop{display:flex;flex-wrap:wrap;gap:.45rem}
+.zone.z-inet{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.04)}.zone.z-inet h4{color:var(--wan)}
+.zone.z-dmz{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.04)}.zone.z-dmz h4{color:var(--dmz)}
+.zone.z-lan{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.04)}.zone.z-lan h4{color:var(--lan)}
+.zone.over{transform:scale(1.01);box-shadow:0 0 0 3px rgba(251,191,36,.25)}
+.fbk{margin-top:.7rem;font-size:.9rem;padding:.65rem .9rem;border-radius:9px;background:var(--panel2);border:1px solid var(--border2);min-height:2.6rem}
+.sw{display:grid;gap:.5rem}
+.sw label{display:flex;align-items:center;gap:.8rem;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;cursor:pointer;font-size:.93rem}
+.sw label.good{border-color:rgba(52,211,153,.55)}.sw label.bad{border-color:rgba(248,113,113,.55)}
+.sw input{display:none}
+.sw .tg{width:44px;height:24px;border-radius:999px;background:#3f3f46;position:relative;flex-shrink:0;transition:.2s}
+.sw .tg::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+.tg{background:var(--green)}
+.sw input:checked+.tg::after{left:23px}
+.sw .st{margin-left:auto;font-family:var(--f-mono);font-size:.72rem;color:var(--dim);white-space:nowrap}
+.sw .why{display:block;font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.tests{display:flex;flex-wrap:wrap;gap:.45rem;margin:.8rem 0}
+.report{margin-top:1rem;padding:1rem 1.1rem;border-radius:12px;border:1px solid var(--border2);background:var(--panel2)}
+.report ul{margin:.4rem 0 0 1.2rem}
+.report .big{font-family:var(--f-head);font-size:1.3rem;font-weight:700}
+
+.gl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem;margin:.8rem 0 1rem}
+.gl div{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:.7rem .85rem;font-size:.9rem}
+.gl b{display:block;font-family:var(--f-head);font-size:.98rem;margin-bottom:.15rem}
+.gl span{color:var(--muted)}
+.how{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:.75rem 1rem;margin:.4rem 0 .9rem;font-size:.92rem}
+.how b{color:var(--amber)}
+.how ul{margin:.35rem 0 0 1.2rem}
+.eq{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.5rem;margin:.4rem 0 .9rem}
+.eq div{background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:.55rem .75rem;font-size:.86rem;color:var(--muted)}
+.eq b{color:var(--text)}
+.sw .sub{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--dim);margin-top:.15rem}
+.tests .btn small{display:block;font-size:.7rem;color:var(--dim);margin-top:.1rem}
+.legend2{display:flex;flex-wrap:wrap;gap:.9rem;font-size:.82rem;color:var(--muted);margin:.6rem 0}
+/* footer */
+.foot{margin-top:2rem;color:var(--dim);font-size:.85rem}
+.foot-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin-bottom:1.2rem}
+.foot-nav a{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;color:var(--text)}
+.foot-nav a:hover{border-color:var(--amber)}
+.foot-nav small{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--dim)}
+
+@keyframes dash{to{stroke-dashoffset:-24}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.kinetic .ch{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<main><div class="wrap">
+
+<header class="hero">
+  <div class="chips">
+    <span class="chip c">Unidad 4 · Seguridad perimetral</span>
+    <span class="chip">Firewall · iptables</span>
+    <span class="chip">Zonas de confianza</span>
+  </div>
+  <h1 class="kinetic" id="kinetic" data-text="Zona Desmilitarizada DMZ" data-accent="DMZ"></h1>
+  <p class="lead">La DMZ es la “sala de espera” de una red: el lugar donde se colocan los servidores que el mundo exterior necesita visitar, separados de la red interna donde vive la información valiosa. Si un servidor público cae, el atacante se queda encerrado en esa sala.</p>
+  <nav class="toc">
+    <a href="#s0">00 Empieza aquí</a><a href="#s1">01 Origen</a><a href="#s2">02 Qué es</a><a href="#s3">03 Arquitecturas</a><a href="#s4">04 Simulador de tráfico</a><a href="#s5">05 Simulador de ataque</a><a href="#s6">06 Aplicación de 3 capas</a><a href="#s7">07 Con iptables</a><a href="#s8">08 Buenas prácticas</a><a href="#s9">09 Autoevaluación</a><a href="#s10">10 FAQ</a>
+  </nav>
+</header>
+
+<!-- 00 -->
+<section class="sec" id="s0">
+  <div class="sec-h"><span class="sec-num">00</span><h2>Empieza aquí: la DMZ sin IPs, con un ejemplo real</h2></div>
+  <p>Antes de hablar de direcciones, puertos o comandos, entendamos <strong>para qué sirve</strong> una DMZ con un negocio concreto.</p>
+
+  <div class="co co-amber"><span class="co-t">El caso: Papelería “La Estrella” vende en línea</span>
+    <p>La papelería tiene una <strong>tienda web</strong> donde los clientes compran, un <strong>correo</strong> donde reciben pedidos y un <strong>DNS público</strong> para que su dominio funcione. Además guarda una <strong>base de datos</strong> con nombres, direcciones y pagos de sus clientes, tiene la <strong>PC de la caja</strong> y un <strong>servidor de respaldos</strong>.</p>
+    <p>Problema: la tienda <em>tiene</em> que estar abierta a todo internet… incluidos los hackers. ¿Cómo la abren sin exponer la información de sus clientes?</p>
+  </div>
+
+  <div class="story">
+    <div class="card wan"><span class="tag">Sin DMZ</span><h4>Todo en la misma red</h4><p>La tienda web está junto a la base de datos y la caja. Si un hacker encuentra una falla en la tienda, desde ahí “salta” a todo lo demás.</p><p class="muted">Como dejar que los clientes entren directo a la bodega y a la caja fuerte.</p></div>
+    <div class="card dmz"><span class="tag">Con DMZ</span><h4>Una sala aparte para lo público</h4><p>La tienda, el correo y el DNS viven en una zona separada. El firewall deja que internet los visite, pero <strong>no</strong> deja que esa zona entre a la red interna.</p><p class="muted">Como un mostrador: atiendes al cliente sin dejarlo pasar a la bodega.</p></div>
+    <div class="card lan"><span class="tag">Para qué sirve</span><h4>Contener el daño</h4><p>La DMZ no evita todos los ataques: evita que un ataque a lo público se convierta en un robo de lo privado.</p><p class="muted">Publicar servicios · proteger la red interna · limitar lo que logra un intruso.</p></div>
+  </div>
+
+  <h3>Antes de empezar: 6 palabras que vas a usar</h3>
+  <p class="muted">No necesitas saber de redes. Piensa en la empresa como si fuera un edificio.</p>
+  <div class="gl">
+    <div><b>🖧 Red</b><span>Varias computadoras conectadas que pueden mandarse mensajes entre sí. Como las oficinas de un mismo edificio.</span></div>
+    <div><b>🌍 Internet</b><span>La red de todo el mundo. Es “la calle”: ahí está cualquier persona, buena o mala.</span></div>
+    <div><b>🗄️ Servidor</b><span>Una computadora que siempre está encendida dando un servicio a otros: mostrar la tienda, recibir correos, guardar datos.</span></div>
+    <div><b>🧱 Firewall</b><span>El guardia de seguridad de la entrada. Revisa cada mensaje y decide si lo deja pasar o no.</span></div>
+    <div><b>🚪 Puerta (regla)</b><span>Un permiso del firewall: “de este lugar a este otro, sí se puede pasar” (abierta) o “no se puede” (cerrada).</span></div>
+    <div><b>🦹 Hacker</b><span>Alguien en internet que intenta entrar donde no debe para robar o dañar información.</span></div>
+  </div>
+  <div class="co co-blue"><span class="co-t">Entonces, ¿qué es la DMZ?</span><p>Es una <strong>zona aparte</strong> dentro de la empresa, separada por el firewall, donde se ponen <strong>solo</strong> las computadoras que la gente de internet necesita visitar. Así la empresa queda dividida en tres lugares: <strong>Internet</strong> (la calle), la <strong>DMZ</strong> (el mostrador que atiende al público) y la <strong>red interna</strong> (la bodega y la oficina, solo para empleados).</p></div>
+
+  <div class="lab">
+    <div class="lab-title"><span class="pulse"></span>Laboratorio: diseña la red de “La Estrella”</div>
+
+    <div class="lab-step"><span class="n">1</span><h3>Acomoda cada equipo en su zona</h3></div>
+    <p>Primero conoce lo que tiene la papelería:</p>
+    <div class="eq">
+      <div><b>🛒 Tienda web:</b> la página donde los clientes ven productos y compran.</div>
+      <div><b>✉️ Correo:</b> la computadora que recibe los correos que mandan los clientes.</div>
+      <div><b>🌐 DNS público:</b> el “directorio” que le dice a internet dónde está la tienda cuando alguien escribe su nombre.</div>
+      <div><b>🗄️ BD clientes y pagos:</b> la base de datos con nombres, direcciones y pagos. Lo más valioso.</div>
+      <div><b>💻 PC de la caja:</b> la computadora donde trabaja el empleado.</div>
+      <div><b>💾 Respaldos:</b> las copias de seguridad de toda la información.</div>
+    </div>
+    <div class="how"><b>¿Cómo decido dónde va cada uno?</b> Hazte una pregunta:
+      <ul>
+        <li><strong>¿Cualquier persona de internet necesita usarlo?</strong> → va en la <strong>DMZ</strong> (el mostrador).</li>
+        <li><strong>¿Es privado y solo lo usan los empleados?</strong> → va en la <strong>red interna</strong> (la bodega).</li>
+        <li><strong>Internet</strong> es la calle: ningún equipo de la empresa debe quedar ahí sin protección.</li>
+      </ul>
+      <p style="margin:.4rem 0 0"><b>Cómo moverlos:</b> arrastra cada equipo con el mouse hasta su zona. En celular o tableta: toca el equipo y después toca la zona. Si se pinta <span style="color:var(--green)">verde</span> está bien; si se pinta <span style="color:var(--red)">rojo</span>, lee la explicación y muévelo.</p>
+    </div>
+    <div class="tray" id="tray"></div>
+    <div class="zones">
+      <div class="zone z-inet" data-z="inet"><h4>🌍 Internet</h4><small>afuera de la empresa: nadie la controla</small><div class="drop"></div></div>
+      <div class="zone z-dmz" data-z="dmz"><h4>🏪 DMZ</h4><small>lo que el público debe poder visitar</small><div class="drop"></div></div>
+      <div class="zone z-lan" data-z="lan"><h4>🔒 Red interna</h4><small>lo privado de la empresa</small><div class="drop"></div></div>
+    </div>
+    <div class="fbk" id="placeFb">Coloca los 6 equipos. Te diré si cada uno quedó bien y por qué.</div>
+
+    <div class="lab-step"><span class="n">2</span><h3>Abre o cierra las puertas del firewall</h3></div>
+    <div class="how"><b>¿Qué estás decidiendo?</b> Cada interruptor es una <strong>pregunta</strong> que el guardia (firewall) necesita saber. La flecha gris indica <strong>quién quiere pasar → a dónde</strong>.
+      <ul>
+        <li><span style="color:var(--green)">Verde (ABIERTA)</span> = sí, déjalo pasar.</li>
+        <li>Gris (CERRADA) = no, detenlo en la entrada.</li>
+      </ul>
+      <p style="margin:.4rem 0 0">Un firewall recién comprado puede venir con todo abierto, como aquí. Tu trabajo es <strong>cerrar lo peligroso sin romper lo que el negocio necesita</strong>. Pista: piensa si el negocio <em>necesita</em> ese paso para funcionar.</p>
+    </div>
+    <div class="sw" id="sw"></div>
+
+    <div class="lab-step"><span class="n">3</span><h3>Prueba tu diseño</h3></div>
+    <div class="how"><b>¿Cómo leo la prueba?</b> Al pulsar un botón verás un <strong>sobre</strong> (un mensaje) viajar por la red:
+      <ul>
+        <li>Si el sobre pasa por el firewall y aparece <span style="color:var(--green)">✓</span>, el guardia lo dejó pasar.</li>
+        <li>Si se detiene y aparece <span style="color:var(--red)">✕</span>, el guardia lo bloqueó.</li>
+        <li>Si un equipo se pinta de <span style="color:var(--red)">rojo</span>, el hacker lo controla.</li>
+        <li>Si dos equipos están en la <strong>misma zona</strong>, el sobre va directo: entre ellos <strong>no hay guardia</strong>.</li>
+      </ul>
+      <p style="margin:.4rem 0 0"><b>Meta:</b> las 3 primeras pruebas (las del negocio) deben salir <span style="color:var(--green)">✓</span> y las 2 del hacker deben quedar <strong>bloqueadas</strong>. Abajo de la red aparece una explicación de lo que pasó.</p>
+    </div>
+    <div class="tests" id="tests">
+      <button class="btn" data-t="buy">🛒 Un cliente compra en la tienda<small>debe funcionar ✓</small></button>
+      <button class="btn" data-t="mail">✉️ Llega un correo con un pedido<small>debe funcionar ✓</small></button>
+      <button class="btn" data-t="office">💻 La caja consulta los pedidos<small>debe funcionar ✓</small></button>
+      <button class="btn" data-t="hackweb">🦹 Un hacker ataca la tienda web<small>no debe llegar a lo privado ✕</small></button>
+      <button class="btn" data-t="hacklan">🦹 Un hacker intenta entrar directo a la red interna<small>debe bloquearse ✕</small></button>
+    </div>
+    <div class="stage svg-scroll"><svg id="nl" viewBox="0 0 900 380" role="img" aria-label="Red de la papelería con zonas Internet, DMZ y red interna"></svg></div>
+    <div class="verdict" id="nlTxt">Ubica los equipos, ajusta las puertas y elige una prueba.</div>
+
+    <div class="row" style="margin-top:1rem"><button class="btn pri" id="grade">📋 Evaluar mi diseño</button><button class="btn" id="nlReset">↺ Empezar de nuevo</button></div>
+    <div id="report"></div>
+  </div>
+
+  <div class="co co-blue"><span class="co-t">Lo que debes llevarte</span>
+    <ul class="l">
+      <li>Lo que <strong>el público visita</strong> va en la DMZ; lo que <strong>es valioso</strong> va en la red interna.</li>
+      <li>Entre equipos de la <strong>misma zona no hay firewall</strong>: por eso no se mezclan servidores públicos con información privada.</li>
+      <li>La puerta clave que debe quedar cerrada es <strong>DMZ → red interna</strong>. La única excepción es la tienda consultando su base de datos, y solo para eso.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 01 -->
+<section class="sec" id="s1">
+  <div class="sec-h"><span class="sec-num">01</span><h2>Origen del término y analogía</h2></div>
+  <p>El nombre viene de la geografía militar. Una <strong>zona desmilitarizada</strong> es una franja de territorio entre dos países en conflicto donde ninguno puede tener tropas ni armas. La más conocida separa a Corea del Norte y Corea del Sur desde 1953: mide unos 250 km de largo y 4 km de ancho, y funciona como un colchón que impide el contacto directo entre ambos ejércitos.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 900 260" role="img" aria-label="Ilustración de una zona desmilitarizada entre dos territorios">
+      <defs>
+        <pattern id="wire" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 7 L7 0 L14 7 L7 14 Z" fill="none" stroke="#52525b" stroke-width="1"/></pattern>
+      </defs>
+      <rect x="0" y="0" width="330" height="260" fill="#2a1414"/>
+      <rect x="570" y="0" width="330" height="260" fill="#10241c"/>
+      <rect x="330" y="0" width="240" height="260" fill="#2a2210"/>
+      <rect x="322" y="0" width="10" height="260" fill="url(#wire)"/><rect x="568" y="0" width="10" height="260" fill="url(#wire)"/>
+      <line x1="330" y1="0" x2="330" y2="260" stroke="#f87171" stroke-width="2" stroke-dasharray="6 5"/>
+      <line x1="570" y1="0" x2="570" y2="260" stroke="#34d399" stroke-width="2" stroke-dasharray="6 5"/>
+      <line x1="450" y1="0" x2="450" y2="260" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="3 6" opacity=".7"/>
+      <g fill="#3f3f46"><path d="M60 190 l30 -40 l30 40z"/><path d="M110 200 l25 -35 l25 35z"/><path d="M760 190 l30 -40 l30 40z"/><path d="M810 200 l25 -35 l25 35z"/></g>
+      <g><rect x="140" y="95" width="26" height="40" fill="#52525b"/><rect x="134" y="88" width="38" height="10" fill="#71717a"/><rect x="730" y="95" width="26" height="40" fill="#52525b"/><rect x="724" y="88" width="38" height="10" fill="#71717a"/></g>
+      <g fill="#a3a3a3" opacity=".8"><circle cx="400" cy="200" r="5"/><circle cx="420" cy="215" r="4"/><circle cx="500" cy="190" r="5"/><path d="M470 140 q10 -30 20 0z" fill="#4d7c0f"/><path d="M380 120 q12 -34 24 0z" fill="#4d7c0f"/><path d="M520 230 q10 -28 20 0z" fill="#4d7c0f"/></g>
+      <text x="165" y="40" text-anchor="middle" style="fill:#fca5a5;font-size:15px;font-family:'Space Grotesk',sans-serif;font-weight:600">Territorio A</text>
+      <text x="450" y="40" text-anchor="middle" style="fill:#fcd34d;font-size:15px;font-family:'Space Grotesk',sans-serif;font-weight:600">Zona desmilitarizada</text>
+      <text x="450" y="60" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">sin tropas · acceso controlado</text>
+      <text x="735" y="40" text-anchor="middle" style="fill:#6ee7b7;font-size:15px;font-family:'Space Grotesk',sans-serif;font-weight:600">Territorio B</text>
+      <text x="165" y="240" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">puesto de vigilancia</text>
+      <text x="735" y="240" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">puesto de vigilancia</text>
+    </svg>
+    <figcaption><b>Figura 1.</b> Una zona desmilitarizada geográfica: una franja neutral, vigilada en ambos bordes, que evita el contacto directo entre dos territorios.</figcaption>
+  </figure>
+
+  <p>En redes la idea es la misma, con una diferencia importante: la DMZ informática <strong>no es tierra de nadie</strong>. Es una red intermedia, muy vigilada, donde se colocan los servicios que deben ser visibles desde internet.</p>
+
+  <h3>Analogía: un banco</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Analogía de un banco: calle, sala de atención y bóveda">
+      <rect x="10" y="30" width="250" height="200" rx="12" fill="#2a1414" stroke="#f87171"/>
+      <rect x="300" y="30" width="290" height="200" rx="12" fill="#2a2210" stroke="#fbbf24"/>
+      <rect x="630" y="30" width="260" height="200" rx="12" fill="#10241c" stroke="#34d399"/>
+      <text x="135" y="60" text-anchor="middle" style="fill:#fca5a5;font-size:15px;font-family:'Space Grotesk',sans-serif;font-weight:600">La calle</text>
+      <text x="445" y="60" text-anchor="middle" style="fill:#fcd34d;font-size:15px;font-family:'Space Grotesk',sans-serif;font-weight:600">Sala de atención (ventanillas)</text>
+      <text x="760" y="60" text-anchor="middle" style="fill:#6ee7b7;font-size:15px;font-family:'Space Grotesk',sans-serif;font-weight:600">Oficinas y bóveda</text>
+      <g fill="#a1a1aa"><circle cx="80" cy="130" r="12"/><rect x="68" y="145" width="24" height="40" rx="8"/><circle cx="140" cy="125" r="12"/><rect x="128" y="140" width="24" height="40" rx="8"/><circle cx="195" cy="135" r="12"/><rect x="183" y="150" width="24" height="40" rx="8"/></g>
+      <g><rect x="340" y="110" width="210" height="16" fill="#52525b"/><rect x="350" y="126" width="12" height="60" fill="#3f3f46"/><rect x="528" y="126" width="12" height="60" fill="#3f3f46"/><circle cx="400" cy="92" r="11" fill="#fbbf24"/><circle cx="490" cy="92" r="11" fill="#fbbf24"/></g>
+      <g><rect x="710" y="95" width="100" height="100" rx="10" fill="#1f2937" stroke="#6ee7b7"/><circle cx="760" cy="145" r="26" fill="none" stroke="#6ee7b7" stroke-width="3"/><path d="M760 125 v40 M740 145 h40" stroke="#6ee7b7" stroke-width="3"/></g>
+      <path d="M262 130 h36" stroke="#fbbf24" stroke-width="3"/><text x="280" y="120" text-anchor="middle" style="fill:#fcd34d;font-size:11px">entra</text>
+      <path d="M592 130 h36" stroke="#f87171" stroke-width="3"/><path d="M602 120 l16 20 M618 120 l-16 20" stroke="#f87171" stroke-width="3"/>
+      <text x="445" y="212" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">el cliente es atendido aquí, nunca pasa adentro</text>
+      <text x="760" y="215" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">solo personal autorizado</text>
+    </svg>
+    <figcaption><b>Figura 2.</b> El cliente (internet) entra a la sala de ventanillas (DMZ) y recibe servicio, pero no puede pasar a la bóveda (LAN). Los cajeros sí pueden consultar la bóveda por un canal controlado.</figcaption>
+  </figure>
+</section>
+
+<!-- 02 -->
+<section class="sec" id="s2">
+  <div class="sec-h"><span class="sec-num">02</span><h2>¿Qué es una DMZ en redes?</h2></div>
+  <p>Una <strong>DMZ</strong> (también llamada <em>red perimetral</em> o <em>subred apantallada</em>) es un segmento de red separado por un firewall, ubicado entre la red pública (internet) y la red privada de la organización. En ella se colocan los servidores que reciben conexiones del exterior. El firewall aplica reglas distintas para cada par de zonas, de modo que comprometer un servidor de la DMZ <strong>no da acceso automático</strong> a la red interna.</p>
+
+  <h3>Las tres zonas de confianza</h3>
+  <div class="grid">
+    <div class="card wan"><span class="tag">Confianza: ninguna</span><h4>WAN / Internet</h4><p>Todo lo que está fuera de la organización. Cualquier paquete puede ser un ataque.</p><ul><li>Clientes, buscadores, bots</li><li>Atacantes y escáneres</li></ul></div>
+    <div class="card dmz"><span class="tag">Confianza: media</span><h4>DMZ</h4><p>Servidores que <strong>deben</strong> ser accesibles desde fuera. Se asume que algún día pueden ser comprometidos.</p><ul><li>Servidor web (Apache, Nginx)</li><li>Correo (SMTP), DNS público</li><li>Proxy inverso, VPN, FTP público</li></ul></div>
+    <div class="card lan"><span class="tag">Confianza: alta</span><h4>LAN interna</h4><p>Lo que nunca debe tocar internet directamente.</p><ul><li>Bases de datos, archivos</li><li>Equipos de usuarios</li><li>Controlador de dominio, respaldos</li></ul></div>
+  </div>
+
+  <div class="co co-red"><span class="co-t">Principio clave: asumir la brecha</span><p>Un servidor expuesto a internet recibe escaneos y ataques todo el día. La DMZ no impide que lo comprometan; garantiza que, si ocurre, el daño quede <strong>contenido</strong>. Por eso la regla de oro es: <strong>la DMZ nunca inicia conexiones hacia la LAN</strong>, salvo excepciones mínimas y documentadas.</p></div>
+
+  <h3>Reglas básicas de tráfico</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Dirección</th><th>¿Permitido?</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr><td>Internet → DMZ</td><td>Solo servicios publicados (80, 443, 25, 53)</td><td>Es la razón de existir de la DMZ.</td></tr>
+      <tr><td>Internet → LAN</td><td>Nunca</td><td>La red interna es invisible desde fuera.</td></tr>
+      <tr><td>LAN → DMZ</td><td>Sí (administración, consulta)</td><td>Los administradores mantienen los servidores.</td></tr>
+      <tr><td>LAN → Internet</td><td>Sí, con NAT</td><td>Los usuarios navegan normalmente.</td></tr>
+      <tr><td>DMZ → Internet</td><td>Limitado (DNS, actualizaciones, correo saliente)</td><td>Un servidor comprometido no debe poder descargar herramientas libremente.</td></tr>
+      <tr><td>DMZ → LAN</td><td>No (salvo un “agujero” puntual, ej. web → BD por 3306)</td><td>Es lo que contiene un ataque.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 03 -->
+<section class="sec" id="s3">
+  <div class="sec-h"><span class="sec-num">03</span><h2>Arquitecturas de DMZ</h2></div>
+  <p>Hay dos diseños formales y uno que se llama “DMZ” sin serlo. Selecciona cada uno para ver su topología.</p>
+  <div class="lab">
+    <div class="seg" id="archBtns">
+      <button data-a="one" class="on">Un firewall (tres patas)</button>
+      <button data-a="two">Dos firewalls (back-to-back)</button>
+      <button data-a="host">“DMZ host” del módem casero</button>
+    </div>
+    <div class="stage svg-scroll"><svg id="arch" viewBox="0 0 900 330" role="img" aria-label="Diagrama de arquitectura de DMZ"></svg></div>
+    <div class="verdict" id="archTxt"></div>
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Criterio</th><th>Un firewall (three-legged)</th><th>Dos firewalls (back-to-back)</th></tr></thead>
+    <tbody>
+      <tr><td>Equipos</td><td>1 firewall con 3 interfaces (WAN, DMZ, LAN)</td><td>Firewall externo (WAN↔DMZ) + firewall interno (DMZ↔LAN)</td></tr>
+      <tr><td>Costo y complejidad</td><td>Bajo; ideal para PyMEs y laboratorios</td><td>Mayor; dos equipos y dos conjuntos de reglas</td></tr>
+      <tr><td>Punto único de falla</td><td>Sí: si cae o se configura mal, se exponen todas las zonas</td><td>No: un atacante debe vencer dos firewalls</td></tr>
+      <tr><td>Buena práctica</td><td>Reglas muy estrictas en la cadena FORWARD</td><td>Usar marcas o sistemas distintos en cada firewall (una vulnerabilidad no sirve para ambos)</td></tr>
+      <tr><td>Implementación en Ubuntu</td><td>Un equipo con iptables y 3 NICs</td><td>Dos equipos con iptables, o iptables + otro producto</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 04 -->
+<section class="sec" id="s4">
+  <div class="sec-h"><span class="sec-num">04</span><h2>Simulador de tráfico entre zonas</h2></div>
+  <p>Elige origen, destino y servicio, y envía el paquete. El firewall aplica la política de la DMZ y muestra la regla de iptables que lo decide.</p>
+  <div class="lab">
+    <div class="lab-title"><span class="pulse"></span>Enviar un paquete</div>
+    <div class="row">
+      <label>Origen<select id="sO"><option value="inet">Internet (WAN)</option><option value="dmz">Servidor web (DMZ)</option><option value="lan">PC interna (LAN)</option></select></label>
+      <label>Destino<select id="sD"><option value="dmz">Servidor web (DMZ)</option><option value="lan">Servidor BD (LAN)</option><option value="inet">Internet (WAN)</option></select></label>
+      <label>Servicio<select id="sS"><option value="web">HTTP/HTTPS · TCP 80/443</option><option value="ssh">SSH · TCP 22</option><option value="mysql">MySQL · TCP 3306</option><option value="dns">DNS · UDP 53</option><option value="smtp">Correo SMTP · TCP 25</option></select></label>
+      <button class="btn pri" id="sGo">Enviar paquete ▶</button>
+    </div>
+    <div class="stage svg-scroll">
+      <svg id="sim" viewBox="0 0 900 330" role="img" aria-label="Topología del simulador: Internet, firewall, DMZ y LAN">
+        <rect x="20" y="95" width="200" height="140" rx="14" fill="#2a1414" stroke="#f87171" stroke-width="1.5"/>
+        <rect x="640" y="18" width="240" height="135" rx="14" fill="#2a2210" stroke="#fbbf24" stroke-width="1.5"/>
+        <rect x="640" y="178" width="240" height="135" rx="14" fill="#10241c" stroke="#34d399" stroke-width="1.5"/>
+        <line x1="220" y1="165" x2="380" y2="165" stroke="#52525b" stroke-width="3"/>
+        <line x1="500" y1="140" x2="640" y2="85" stroke="#52525b" stroke-width="3"/>
+        <line x1="500" y1="190" x2="640" y2="245" stroke="#52525b" stroke-width="3"/>
+        <text x="120" y="122" text-anchor="middle" style="fill:#fca5a5;font-size:14px;font-family:'Space Grotesk',sans-serif;font-weight:600">Internet</text>
+        <g><circle cx="120" cy="170" r="30" fill="none" stroke="#fca5a5" stroke-width="1.5"/><ellipse cx="120" cy="170" rx="13" ry="30" fill="none" stroke="#fca5a5" stroke-width="1.2"/><path d="M90 170 h60 M95 155 h50 M95 185 h50" stroke="#fca5a5" stroke-width="1.2"/></g>
+        <text x="120" y="222" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">cualquier IP</text>
+        <rect x="380" y="115" width="120" height="100" rx="12" fill="#0f1a1d" stroke="#22d3ee" stroke-width="2"/>
+        <g stroke="#f87171" stroke-width="1.4" opacity=".85"><path d="M390 140 h100 M390 160 h100 M390 180 h100"/><path d="M415 140 v20 M445 140 v20 M475 140 v20 M430 160 v20 M460 160 v20 M415 180 v20 M445 180 v20 M475 180 v20"/></g>
+        <text x="440" y="240" text-anchor="middle" style="fill:#e4e4e7;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:600">Firewall Ubuntu</text>
+        <text x="440" y="257" text-anchor="middle" style="fill:#a1a1aa;font-size:10.5px">eth0 WAN · eth1 DMZ · eth2 LAN</text>
+        <text x="660" y="42" style="fill:#fcd34d;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:600">DMZ · 10.0.0.0/24</text>
+        <g><rect x="740" y="58" width="44" height="64" rx="4" fill="#1e293b" stroke="#fbbf24"/><path d="M746 72h32M746 86h32M746 100h32" stroke="#475569" stroke-width="1.5"/></g>
+        <text x="760" y="140" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">Web 10.0.0.80</text>
+        <text x="660" y="202" style="fill:#6ee7b7;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:600">LAN · 172.16.0.0/24</text>
+        <g><ellipse cx="710" cy="232" rx="22" ry="7" fill="#1e293b" stroke="#34d399"/><path d="M688 232 v40 a22 7 0 0 0 44 0 v-40" fill="#1e293b" stroke="#34d399"/><ellipse cx="710" cy="252" rx="22" ry="7" fill="none" stroke="#34d399" opacity=".5"/></g>
+        <text x="710" y="298" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">BD 172.16.0.10</text>
+        <g><rect x="805" y="228" width="50" height="34" rx="3" fill="#1e293b" stroke="#34d399"/><rect x="823" y="262" width="14" height="8" fill="#34d399" opacity=".6"/></g>
+        <text x="830" y="298" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">PC 172.16.0.50</text>
+        <g id="simX" style="display:none"><circle cx="440" cy="100" r="15" fill="#2a0f12" stroke="#f87171" stroke-width="2"/><path d="M433 93l14 14M447 93l-14 14" stroke="#f87171" stroke-width="3"/></g>
+        <g id="simOK" style="display:none"><circle cx="440" cy="100" r="15" fill="#0b2a1e" stroke="#34d399" stroke-width="2"/><path d="M432 100l6 6 11-12" stroke="#34d399" stroke-width="3" fill="none"/></g>
+        <g id="pkt" style="display:none"><rect x="-13" y="-9" width="26" height="18" rx="3" fill="#22d3ee" stroke="#0b0b0e"/><path d="M-13 -9 L0 2 L13 -9" fill="none" stroke="#0b0b0e" stroke-width="1.4"/></g>
+      </svg>
+    </div>
+    <div class="verdict" id="simTxt">Elige una combinación y pulsa <b>Enviar paquete</b>.</div>
+  </div>
+
+  <h3>Matriz completa de la política</h3>
+  <p class="muted">Lo mismo que el simulador, de un vistazo. ✓ permitido · ✕ bloqueado · ◐ permitido con restricción.</p>
+  <div class="tbl-wrap"><table class="mx" id="matrix"></table></div>
+</section>
+
+<!-- 05 -->
+<section class="sec" id="s5">
+  <div class="sec-h"><span class="sec-num">05</span><h2>Simulador de ataque: red plana vs. DMZ</h2></div>
+  <p>Un atacante encuentra una vulnerabilidad en el servidor web y toma control de él. ¿Qué puede hacer después? Compara los dos diseños con el mismo ataque, paso a paso.</p>
+  <div class="lab">
+    <div class="seg" id="atkMode">
+      <button data-m="flat" class="on">Red plana (sin DMZ)</button>
+      <button data-m="dmz">Con DMZ</button>
+    </div>
+    <div class="row"><button class="btn pri" id="atkStep">Siguiente paso ▶</button><button class="btn" id="atkReset">↺ Reiniciar</button></div>
+    <div class="stage svg-scroll"><svg id="atk" viewBox="0 0 900 320" role="img" aria-label="Simulación de movimiento lateral de un atacante"></svg></div>
+    <ol class="steps" id="atkSteps"></ol>
+  </div>
+  <div class="co co-blue"><span class="co-t">Concepto: movimiento lateral</span><p>Después de entrar por un equipo, el atacante intenta “saltar” a otros equipos de la misma red para llegar a lo valioso. En una red plana nada se lo impide. La DMZ convierte ese salto en un cruce por el firewall, donde la política lo bloquea y lo registra.</p></div>
+</section>
+
+<!-- 06 -->
+<section class="sec" id="s6">
+  <div class="sec-h"><span class="sec-num">06</span><h2>La aplicación de 3 capas: el “agujero” controlado</h2></div>
+  <p>Un sitio web real casi siempre necesita su base de datos. Si la BD está en la LAN y la DMZ no puede hablar con la LAN, ¿cómo funciona la página? Con una <strong>excepción mínima</strong>: solo la IP del servidor web, solo hacia la IP de la BD, solo al puerto 3306.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 900 220" role="img" aria-label="Flujo de una aplicación de tres capas a través de la DMZ">
+      <rect x="15" y="60" width="160" height="100" rx="12" fill="#2a1414" stroke="#f87171"/><text x="95" y="100" text-anchor="middle" style="fill:#fca5a5;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:600">Navegador</text><text x="95" y="122" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">capa de presentación</text>
+      <rect x="250" y="60" width="90" height="100" rx="10" fill="#0f1a1d" stroke="#22d3ee"/><text x="295" y="115" text-anchor="middle" style="fill:#67e8f9;font-size:12px">FW</text>
+      <rect x="410" y="60" width="170" height="100" rx="12" fill="#2a2210" stroke="#fbbf24"/><text x="495" y="100" text-anchor="middle" style="fill:#fcd34d;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:600">Apache + PHP</text><text x="495" y="122" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">DMZ · lógica</text>
+      <rect x="640" y="60" width="90" height="100" rx="10" fill="#0f1a1d" stroke="#22d3ee"/><text x="685" y="115" text-anchor="middle" style="fill:#67e8f9;font-size:12px">FW</text>
+      <rect x="790" y="60" width="100" height="100" rx="12" fill="#10241c" stroke="#34d399"/><text x="840" y="100" text-anchor="middle" style="fill:#6ee7b7;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:600">MySQL</text><text x="840" y="122" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">LAN · datos</text>
+      <g fill="none" stroke-width="3" stroke-dasharray="8 6" style="animation:dash 1s linear infinite"><path d="M175 95 H250" stroke="#34d399"/><path d="M340 95 H410" stroke="#34d399"/><path d="M580 95 H640" stroke="#fbbf24"/><path d="M730 95 H790" stroke="#fbbf24"/></g>
+      <text x="292" y="185" text-anchor="middle" style="fill:#6ee7b7;font-size:11px">TCP 80/443 desde cualquier IP</text>
+      <text x="715" y="185" text-anchor="middle" style="fill:#fcd34d;font-size:11px">TCP 3306 solo 10.0.0.80 → 172.16.0.10</text>
+      <text x="450" y="30" text-anchor="middle" style="fill:#a1a1aa;font-size:11px">El navegador nunca habla con MySQL: solo el servidor web lo hace</text>
+    </svg>
+    <figcaption><b>Figura 3.</b> Presentación (internet), lógica (DMZ) y datos (LAN). El único cruce DMZ → LAN es un “pinhole” de un puerto, entre dos IPs concretas.</figcaption>
+  </figure>
+  <div class="co co-amber"><span class="co-t">Cómo se reduce el riesgo del agujero</span>
+    <ul class="l">
+      <li>El usuario de MySQL que usa la web tiene permisos mínimos (solo su base, sin <code>GRANT</code>, sin <code>FILE</code>).</li>
+      <li>MySQL solo acepta a ese usuario desde <code>10.0.0.80</code> (<code>'web'@'10.0.0.80'</code>).</li>
+      <li>La regla de iptables registra con <code>LOG</code> cualquier otro intento DMZ → LAN.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="sec" id="s7">
+  <div class="sec-h"><span class="sec-num">07</span><h2>Implementación con iptables (un firewall, tres patas)</h2></div>
+  <p>Firewall Ubuntu con tres tarjetas: <code>eth0</code> WAN (192.168.1.1), <code>eth1</code> DMZ (10.0.0.1), <code>eth2</code> LAN (172.16.0.1). En VirtualBox cámbialas por los nombres reales (<code>enp0s3</code>, <code>enp0s8</code>, <code>enp0s9</code>). El detalle de cada opción está en la página <a href="../4.1/index.html">4.1 iptables</a>.</p>
+  <div class="cb" data-t="nano dmz-3patas.sh"><pre><code>#!/bin/bash
+WAN=eth0; DMZ=eth1; LAN=eth2
+WEB=10.0.0.80; BD=172.16.0.10; LAN_NET=172.16.0.0/24
+
+# Enrutamiento activado
+sysctl -w net.ipv4.ip_forward=1
+
+# Reset seguro y políticas restrictivas
+iptables -P INPUT ACCEPT; iptables -P FORWARD ACCEPT
+iptables -F; iptables -t nat -F; iptables -X
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+
+# El propio firewall: loopback, respuestas y SSH solo desde la LAN
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i $LAN -p tcp --dport 22 -j ACCEPT
+
+# Respuestas de conexiones ya permitidas (en todas direcciones)
+iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Internet -> DMZ: solo web publicada (con DNAT)
+iptables -t nat -A PREROUTING -i $WAN -p tcp -m multiport --dports 80,443 -j DNAT --to-destination $WEB
+iptables -A FORWARD -i $WAN -o $DMZ -d $WEB -p tcp -m multiport --dports 80,443 -j ACCEPT
+
+# DMZ -> LAN: solo el agujero web -> BD por 3306
+iptables -A FORWARD -i $DMZ -o $LAN -s $WEB -d $BD -p tcp --dport 3306 -j ACCEPT
+# Cualquier otro intento DMZ -> LAN: registrar y bloquear
+iptables -A FORWARD -i $DMZ -o $LAN -j LOG --log-prefix "DMZ->LAN BLOQ: "
+iptables -A FORWARD -i $DMZ -o $LAN -j DROP
+
+# DMZ -> Internet: solo DNS y actualizaciones
+iptables -A FORWARD -i $DMZ -o $WAN -p udp --dport 53 -j ACCEPT
+iptables -A FORWARD -i $DMZ -o $WAN -p tcp -m multiport --dports 80,443 -j ACCEPT
+
+# LAN -> DMZ y LAN -> Internet: permitido
+iptables -A FORWARD -i $LAN -o $DMZ -j ACCEPT
+iptables -A FORWARD -i $LAN -o $WAN -j ACCEPT
+
+# NAT de salida para LAN y DMZ
+iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE
+
+# Internet -> LAN: no hay ninguna regla, la política DROP lo bloquea</code></pre></div>
+  <div class="cb" data-t="bash — comprobaciones"><pre><code># Desde Internet (192.168.1.10): debe mostrar la página de la DMZ
+curl http://192.168.1.1
+# Desde el servidor web (DMZ): la BD responde, la PC interna no
+nc -zv 172.16.0.10 3306
+ping -c 2 172.16.0.50
+# En el firewall: ver los intentos bloqueados
+sudo journalctl -k | grep "DMZ->LAN"
+sudo iptables -L FORWARD -v -n --line-numbers</code></pre></div>
+</section>
+
+<!-- 08 -->
+<section class="sec" id="s8">
+  <div class="sec-h"><span class="sec-num">08</span><h2>Buenas prácticas y errores comunes</h2></div>
+  <div class="grid">
+    <div><h4 style="color:var(--green)">Hacer</h4>
+      <ul class="check">
+        <li>Política por defecto DROP en FORWARD y abrir solo lo necesario.</li>
+        <li>Endurecer cada servidor de la DMZ: solo los servicios publicados, actualizaciones al día.</li>
+        <li>Registrar (LOG) todo intento DMZ → LAN y revisarlo.</li>
+        <li>Administrar la DMZ solo desde la LAN, nunca desde internet.</li>
+        <li>Usar un proxy inverso o WAF delante del servidor web.</li>
+        <li>Respaldar la configuración del firewall (<code>iptables-save</code>).</li>
+      </ul></div>
+    <div><h4 style="color:var(--red)">Evitar</h4>
+      <ul class="check bad">
+        <li>Poner la base de datos en la DMZ “porque así es más fácil”.</li>
+        <li>Reglas DMZ → LAN amplias (toda la subred, todos los puertos).</li>
+        <li>Reutilizar contraseñas entre servidores de la DMZ y la LAN.</li>
+        <li>Abrir SSH de la DMZ hacia internet.</li>
+        <li>Confundir la “DMZ host” del módem con una DMZ real.</li>
+        <li>Olvidar IPv6: filtrar también con <code>ip6tables</code>.</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="sec" id="s9">
+  <div class="sec-h"><span class="sec-num">09</span><h2>Autoevaluación</h2></div>
+  <div id="quiz"></div>
+  <p class="muted" id="qScore"></p>
+</section>
+
+<!-- 10 -->
+<section class="sec" id="s10">
+  <div class="sec-h"><span class="sec-num">10</span><h2>Preguntas frecuentes</h2></div>
+  <div class="acc">
+    <div class="acc-i"><button class="acc-q">¿La DMZ hace seguros a los servidores que están dentro?<span class="ic">+</span></button><div class="acc-a"><div class="acc-a-in">No. Los servidores de la DMZ siguen expuestos y deben endurecerse. La DMZ protege a la <strong>LAN</strong> limitando lo que puede hacer un servidor comprometido.</div></div></div>
+    <div class="acc-i"><button class="acc-q">¿Es lo mismo la opción “DMZ” de mi módem de casa?<span class="ic">+</span></button><div class="acc-a"><div class="acc-a-in">No. La “DMZ host” de un módem reenvía todos los puertos a un solo equipo que sigue dentro de tu red local. No hay separación: si ese equipo cae, el atacante ya está en tu LAN. Es más riesgosa que abrir puertos específicos.</div></div></div>
+    <div class="acc-i"><button class="acc-q">¿Por qué la DMZ no puede iniciar conexiones a la LAN, pero la LAN sí a la DMZ?<span class="ic">+</span></button><div class="acc-a"><div class="acc-a-in">Porque la confianza va de mayor a menor: la LAN (confiable) administra la DMZ (semiconfiable). Las respuestas de la DMZ a esas conexiones sí pasan gracias a la regla <code>ESTABLISHED,RELATED</code>, pero la DMZ nunca puede <em>abrir</em> una conexión nueva hacia adentro.</div></div></div>
+    <div class="acc-i"><button class="acc-q">¿Dónde va el servidor de correo, DNS o VPN?<span class="ic">+</span></button><div class="acc-a"><div class="acc-a-in">Los servicios que reciben conexiones de internet (SMTP, DNS público, concentrador VPN, proxy inverso) van en la DMZ. Los buzones, el DNS interno y los datos se quedan en la LAN.</div></div></div>
+    <div class="acc-i"><button class="acc-q">¿Qué tiene que ver esto con Sistemas Operativos?<span class="ic">+</span></button><div class="acc-a"><div class="acc-a-in">El firewall de una DMZ es un sistema operativo (Linux) usando su subsistema de red del kernel: Netfilter decide en cada hook si reenvía un paquete entre interfaces. Configurar la DMZ es administrar el SO como router con <code>ip_forward</code>, iptables y servicios de systemd.</div></div></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-nav">
+    <a href="../4.1/index.html"><small>← Anterior · 4.1</small>¿Qué es iptables y cómo opera en el kernel?</a>
+    <a href="#s1"><small>↑ Inicio</small>Volver al principio</a>
+  </div>
+  <p>Sistemas Operativos I (AEC-1061) · Instituto Tecnológico de Mazatlán · Ilustraciones y simulaciones integradas en la página: funcionan sin conexión a internet.</p>
+</footer>
+
+</div></main>
+
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+
+/* título cinético */
+const k=document.getElementById("kinetic");let ci=0;
+k.dataset.text.split(" ").forEach((w,wi,a)=>{const ws=document.createElement("span");ws.style.whiteSpace="nowrap";if(w===k.dataset.accent)ws.className="accent";
+  [...w].forEach(c=>{const s=document.createElement("span");s.className="ch";s.textContent=c;s.style.animationDelay=(ci++*45)+"ms";ws.appendChild(s);});
+  k.appendChild(ws);if(wi<a.length-1)k.appendChild(document.createTextNode(" "));});
+
+/* progreso */
+const pr=document.getElementById("progress");
+addEventListener("scroll",()=>{const h=document.documentElement;pr.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%";},{passive:true});
+
+/* código: comentarios y copiar */
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+document.querySelectorAll(".cb").forEach(cb=>{
+  const code=cb.querySelector("code"),raw=code.textContent;
+  code.innerHTML=raw.split("\n").map(l=>/^\s*#/.test(l)?'<span class="cm">'+esc(l)+'</span>':esc(l)).join("\n");
+  const hd=document.createElement("div");hd.className="cb-head";
+  hd.innerHTML='<span class="dots"><i></i><i></i><i></i></span><span class="cb-title"></span><button class="copy" type="button">Copiar</button>';
+  hd.querySelector(".cb-title").textContent=cb.dataset.t;cb.prepend(hd);
+  hd.querySelector(".copy").addEventListener("click",e=>{const b=e.currentTarget;
+    const ok=()=>{b.textContent="✓ Copiado";setTimeout(()=>b.textContent="Copiar",1500);};
+    const fb=()=>{const t=document.createElement("textarea");t.value=raw;document.body.appendChild(t);t.select();try{document.execCommand("copy");ok();}catch(_){}t.remove();};
+    if(navigator.clipboard&&isSecureContext)navigator.clipboard.writeText(raw).then(ok,fb);else fb();});
+});
+
+/* ---------- Arquitecturas ---------- */
+const A=document.getElementById("arch"),AT=document.getElementById("archTxt");
+const box=(x,y,w,h,f,s,t,sub)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="12" fill="'+f+'" stroke="'+s+'" stroke-width="1.5"/><text x="'+(x+w/2)+'" y="'+(y+h/2-2)+'" text-anchor="middle" style="fill:#e4e4e7;font-size:13px;font-family:\'Space Grotesk\',sans-serif;font-weight:600">'+t+'</text>'+(sub?'<text x="'+(x+w/2)+'" y="'+(y+h/2+16)+'" text-anchor="middle" style="fill:#a1a1aa;font-size:10.5px">'+sub+'</text>':'');
+const fw=(x,y,t)=>'<rect x="'+x+'" y="'+y+'" width="110" height="80" rx="10" fill="#0f1a1d" stroke="#22d3ee" stroke-width="2"/><g stroke="#f87171" stroke-width="1.3" opacity=".85"><path d="M'+(x+8)+' '+(y+22)+'h94M'+(x+8)+' '+(y+40)+'h94M'+(x+8)+' '+(y+58)+'h94"/></g><text x="'+(x+55)+'" y="'+(y+100)+'" text-anchor="middle" style="fill:#67e8f9;font-size:11.5px">'+t+'</text>';
+const ln=(x1,y1,x2,y2,c)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(c||"#52525b")+'" stroke-width="3"/>';
+const ARCH={
+  one:{svg:ln(200,165,385,165)+ln(495,140,640,80)+ln(495,190,640,250)+box(20,110,180,110,"#2a1414","#f87171","Internet","WAN")+fw(385,125,"Firewall · 3 interfaces")+box(640,25,240,110,"#2a2210","#fbbf24","DMZ","web · correo · DNS")+box(640,195,240,110,"#10241c","#34d399","LAN interna","BD · usuarios · archivos"),
+    t:"<b class='mid'>Un firewall, tres patas.</b> Un solo equipo con tres interfaces separa las tres zonas y decide todo en su cadena FORWARD. Es el diseño del laboratorio: barato y fácil, pero ese firewall es un <b>punto único de falla</b>."},
+  two:{svg:ln(170,165,230,165)+ln(340,165,380,165)+ln(560,165,600,165)+ln(710,165,740,165)+box(10,110,160,110,"#2a1414","#f87171","Internet","WAN")+fw(230,125,"Firewall externo")+box(380,95,180,140,"#2a2210","#fbbf24","DMZ","entre los dos firewalls")+fw(600,125,"Firewall interno")+box(740,110,150,110,"#10241c","#34d399","LAN","red privada"),
+    t:"<b class='ok'>Dos firewalls (back-to-back).</b> La DMZ queda “emparedada”. Para llegar a la LAN, un atacante debe vencer dos firewalls; si son de fabricantes o sistemas distintos, la misma vulnerabilidad no sirve para ambos. Es el diseño de bancos y gobiernos."},
+  host:{svg:ln(200,165,330,165)+box(20,110,180,110,"#2a1414","#f87171","Internet","WAN")+'<rect x="330" y="125" width="130" height="80" rx="10" fill="#1e293b" stroke="#a1a1aa"/><text x="395" y="170" text-anchor="middle" style="fill:#e4e4e7;font-size:13px">Módem/Router</text>'+'<rect x="520" y="40" width="360" height="250" rx="14" fill="#10241c" stroke="#34d399" stroke-dasharray="6 5"/><text x="700" y="66" text-anchor="middle" style="fill:#6ee7b7;font-size:13px">Una sola red local 192.168.1.0/24</text>'+ln(460,165,560,120)+ln(460,165,560,215)+box(560,85,150,70,"#2a2210","#fbbf24","“DMZ host”","todos los puertos")+box(560,180,150,70,"#1b1b20","#34d399","Tus PCs","misma red")+box(730,130,130,70,"#1b1b20","#34d399","Celulares","misma red")+'<path d="M635 155 L635 180" stroke="#f87171" stroke-width="3" stroke-dasharray="6 4" style="animation:dash 1s linear infinite"/>',
+    t:"<b class='no'>No es una DMZ real.</b> La opción “DMZ host” del módem reenvía todo el tráfico de internet a un equipo que sigue <b>dentro de la misma red</b> que tus PCs. No hay firewall entre ellos: si ese equipo cae, el atacante ya está en tu LAN."}
+};
+function arch(a){A.innerHTML=ARCH[a].svg;AT.innerHTML=ARCH[a].t;document.querySelectorAll("#archBtns button").forEach(b=>b.classList.toggle("on",b.dataset.a===a));}
+document.querySelectorAll("#archBtns button").forEach(b=>b.addEventListener("click",()=>arch(b.dataset.a)));arch("one");
+
+/* ---------- Simulador de tráfico ---------- */
+const SV={web:{n:"HTTP/HTTPS",p:"tcp",d:"-m multiport --dports 80,443"},ssh:{n:"SSH",p:"tcp",d:"--dport 22"},mysql:{n:"MySQL",p:"tcp",d:"--dport 3306"},dns:{n:"DNS",p:"udp",d:"--dport 53"},smtp:{n:"SMTP",p:"tcp",d:"--dport 25"}};
+const IF={inet:"$WAN",dmz:"$DMZ",lan:"$LAN"},ZN={inet:"Internet",dmz:"DMZ",lan:"LAN"};
+function policy(o,d,s){
+  if(o==="inet"&&d==="dmz"){if(s==="web")return["y","Servicio publicado: el DNAT lleva la petición al servidor web y FORWARD la autoriza."];
+    if(s==="smtp"||s==="dns")return["y","Servicio publicado (correo o DNS público en la DMZ)."];
+    return["n","El servicio no está publicado. Internet solo ve 80/443, 25 y 53 en la DMZ."];}
+  if(o==="inet"&&d==="lan")return["n","Internet nunca entra a la LAN: no existe ninguna regla, la política DROP lo descarta."];
+  if(o==="dmz"&&d==="lan"){if(s==="mysql")return["p","Agujero controlado: solo 10.0.0.80 → 172.16.0.10 por 3306, para que la web consulte su BD."];
+    return["n","Regla de oro: la DMZ no inicia conexiones hacia la LAN. Se registra con LOG y se descarta."];}
+  if(o==="dmz"&&d==="inet"){if(s==="dns"||s==="web"||s==="smtp")return["p","Salida limitada: consultas DNS, actualizaciones y correo saliente."];
+    return["n","Un servidor de la DMZ no necesita abrir "+SV[s].n+" hacia internet: bloqueado para frenar la exfiltración."];}
+  if(o==="lan"&&d==="dmz")return["y","La LAN (más confiable) puede administrar y usar la DMZ."];
+  if(o==="lan"&&d==="inet")return["y","Los usuarios navegan con NAT (MASQUERADE)."];
+  return["n",""];
+}
+const PT={inet:[120,170],fw:[440,165],dmz:[760,90],lan:[710,250]};
+const sO=document.getElementById("sO"),sD=document.getElementById("sD"),sS=document.getElementById("sS"),sT=document.getElementById("simTxt"),pkt=document.getElementById("pkt"),sX=document.getElementById("simX"),sOK=document.getElementById("simOK"),go=document.getElementById("sGo");
+function syncDest(){[...sD.options].forEach(op=>{op.disabled=op.value===sO.value;});if(sD.value===sO.value)sD.value=[...sD.options].find(o=>!o.disabled).value;}
+sO.addEventListener("change",syncDest);syncDest();
+function anim(a,b,ms,cb){let t0=null;pkt.style.display="";(function f(ts){if(t0===null)t0=ts;const k=Math.min(1,(ts-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+  pkt.setAttribute("transform","translate("+(a[0]+(b[0]-a[0])*e)+","+(a[1]+(b[1]-a[1])*e)+")");if(k<1)requestAnimationFrame(f);else cb&&cb();})(performance.now());}
+go.addEventListener("click",()=>{
+  const o=sO.value,d=sD.value,s=sS.value,[r,why]=policy(o,d,s);
+  go.disabled=true;sX.style.display=sOK.style.display="none";
+  pkt.querySelector("rect").setAttribute("fill",s==="dns"?"#fbbf24":s==="mysql"?"#a78bfa":"#22d3ee");
+  sT.innerHTML="Paquete "+SV[s].n+" de <b>"+ZN[o]+"</b> hacia <b>"+ZN[d]+"</b>…";
+  anim(PT[o],PT.fw,800,()=>{
+    const rule=r==="n"?(o==="dmz"&&d==="lan"?"iptables -A FORWARD -i $DMZ -o $LAN -j LOG --log-prefix \"DMZ->LAN BLOQ: \"\niptables -A FORWARD -i $DMZ -o $LAN -j DROP":"-P FORWARD DROP   (ninguna regla coincide)")
+      :"iptables -A FORWARD -i "+IF[o]+" -o "+IF[d]+(o==="dmz"&&d==="lan"?" -s 10.0.0.80 -d 172.16.0.10":"")+" -p "+SV[s].p+" "+SV[s].d+" -j ACCEPT";
+    const lab=r==="y"?'<b class="ok">✓ PERMITIDO</b>':r==="p"?'<b class="mid">◐ PERMITIDO CON RESTRICCIÓN</b>':'<b class="no">✕ BLOQUEADO</b>';
+    const fin=()=>{sT.innerHTML=lab+" — "+why+'<br><code>'+esc(rule).replace(/\n/g,"<br>")+'</code>';go.disabled=false;};
+    if(r==="n"){pkt.style.display="none";sX.style.display="";fin();}
+    else{sOK.style.display="";anim(PT.fw,PT[d],800,()=>{pkt.style.display="none";fin();});}
+  });
+});
+/* matriz */
+const pairs=[["inet","dmz"],["inet","lan"],["dmz","lan"],["dmz","inet"],["lan","dmz"],["lan","inet"]],SY={y:"✓",n:"✕",p:"◐"};
+document.getElementById("matrix").innerHTML="<thead><tr><th>Origen → destino</th>"+Object.keys(SV).map(s=>"<th>"+SV[s].n+"</th>").join("")+"</tr></thead><tbody>"+
+  pairs.map(([o,d])=>"<tr><td>"+ZN[o]+" → "+ZN[d]+"</td>"+Object.keys(SV).map(s=>{const r=policy(o,d,s)[0];return '<td class="'+r+'">'+SY[r]+"</td>";}).join("")+"</tr>").join("")+"</tbody>";
+
+/* ---------- Simulador de ataque ---------- */
+const K=document.getElementById("atk"),KS=document.getElementById("atkSteps"),kStep=document.getElementById("atkStep");
+const node=(x,y,c,t,sub,id)=>'<g id="'+id+'"><rect x="'+(x-55)+'" y="'+(y-32)+'" width="110" height="64" rx="10" fill="#1b1b20" stroke="'+c+'" stroke-width="1.6"/><text x="'+x+'" y="'+(y-4)+'" text-anchor="middle" style="fill:#e4e4e7;font-size:12.5px;font-family:\'Space Grotesk\',sans-serif;font-weight:600">'+t+'</text><text x="'+x+'" y="'+(y+14)+'" text-anchor="middle" style="fill:#a1a1aa;font-size:10.5px">'+sub+'</text></g>';
+const MODES={
+  flat:{base:'<rect x="250" y="20" width="630" height="285" rx="14" fill="#10241c" stroke="#34d399" stroke-dasharray="6 5"/><text x="565" y="44" text-anchor="middle" style="fill:#6ee7b7;font-size:12px">Una sola red interna (red plana)</text>'+
+      node(90,160,"#f87171","Atacante","internet","a0")+'<rect x="200" y="140" width="40" height="40" rx="6" fill="#0f1a1d" stroke="#22d3ee"/><text x="220" y="200" text-anchor="middle" style="fill:#67e8f9;font-size:10px">router</text>'+
+      node(360,160,"#fbbf24","Servidor web","expuesto","nWeb")+node(560,90,"#34d399","Base de datos","clientes","nBD")+node(560,235,"#34d399","PC finanzas","usuario","nPC")+node(780,160,"#34d399","Respaldos","servidor","nBK"),
+    steps:[["Exploit al servidor web","El atacante aprovecha una vulnerabilidad en la aplicación web y obtiene una shell.",[["a0","nWeb"]],["nWeb"],"bad"],
+      ["Reconocimiento interno","Desde el servidor web escanea la red: todos los equipos están en la misma subred y responden.",[["nWeb","nBD"],["nWeb","nPC"],["nWeb","nBK"]],[],"bad"],
+      ["Movimiento lateral","Llega a la base de datos, a la PC de finanzas y al servidor de respaldos. Nada lo detiene.",[["nWeb","nBD"],["nWeb","nPC"],["nWeb","nBK"]],["nBD","nPC","nBK"],"bad"],
+      ["Resultado","Robo de datos y ransomware en toda la organización. Un solo servidor vulnerable comprometió todo.",[],["nBD","nPC","nBK"],"bad"]]},
+  dmz:{base:'<rect x="250" y="20" width="200" height="285" rx="14" fill="#2a2210" stroke="#fbbf24" stroke-dasharray="6 5"/><text x="350" y="44" text-anchor="middle" style="fill:#fcd34d;font-size:12px">DMZ</text>'+
+      '<rect x="600" y="20" width="280" height="285" rx="14" fill="#10241c" stroke="#34d399" stroke-dasharray="6 5"/><text x="740" y="44" text-anchor="middle" style="fill:#6ee7b7;font-size:12px">LAN interna</text>'+
+      '<rect x="485" y="110" width="80" height="100" rx="10" fill="#0f1a1d" stroke="#22d3ee" stroke-width="2"/><g stroke="#f87171" stroke-width="1.3"><path d="M492 135h66M492 160h66M492 185h66"/></g><text x="525" y="228" text-anchor="middle" style="fill:#67e8f9;font-size:10.5px">firewall</text>'+
+      node(90,160,"#f87171","Atacante","internet","a0")+node(350,160,"#fbbf24","Servidor web","DMZ","nWeb")+node(740,90,"#34d399","Base de datos","solo :3306","nBD")+node(690,240,"#34d399","PC finanzas","LAN","nPC")+node(820,240,"#34d399","Respaldos","LAN","nBK"),
+    steps:[["Exploit al servidor web","El atacante aprovecha la misma vulnerabilidad y obtiene una shell en el servidor web de la DMZ.",[["a0","nWeb"]],["nWeb"],"bad"],
+      ["Reconocimiento interno","Intenta escanear la LAN: el firewall descarta cada paquete DMZ → LAN y lo registra con LOG.",[["nWeb","fwx"]],[],"good"],
+      ["Intento de movimiento lateral","SSH, SMB o RDP hacia la PC y los respaldos: <b>bloqueados</b>. Solo existe el agujero web → BD por 3306, con un usuario de MySQL de permisos mínimos.",[["nWeb","fwx"],["nWeb","nBD"]],[],"good"],
+      ["Resultado","El daño queda contenido en la DMZ. El administrador ve las alertas “DMZ->LAN BLOQ”, aísla el servidor web y lo restaura.",[],[],"good"]]}
+};
+const C={a0:[90,160],nWeb:[350,160],nBD:[560,90],nPC:[560,235],nBK:[780,160],fwx:[525,160]};
+let mode="flat",st=0;
+function center(id){if(mode==="dmz"){const m={a0:[90,160],nWeb:[350,160],nBD:[740,90],nPC:[690,240],nBK:[820,240],fwx:[525,160]};return m[id];}return id==="nWeb"?[360,160]:id==="nBD"?[560,90]:id==="nPC"?[560,235]:id==="nBK"?[780,160]:C[id];}
+function atkReset(){st=0;K.innerHTML=MODES[mode].base+'<g id="atkL"></g>';
+  KS.innerHTML=MODES[mode].steps.map(s=>"<li><b>"+s[0]+":</b> "+s[1]+"</li>").join("");kStep.disabled=false;
+  document.querySelectorAll("#atkMode button").forEach(b=>b.classList.toggle("on",b.dataset.m===mode));}
+kStep.addEventListener("click",()=>{
+  const S=MODES[mode].steps[st];if(!S)return;
+  const L=document.getElementById("atkL");if(S[2].length)L.innerHTML="";
+  S[2].forEach(([a,b])=>{const p=center(a),q=center(b),blocked=b==="fwx"||(mode==="dmz"&&b==="nBD");
+    const ln=document.createElementNS(NS,"path");ln.setAttribute("d","M"+p[0]+" "+p[1]+" L"+q[0]+" "+q[1]);ln.setAttribute("stroke",b==="fwx"?"#f87171":blocked?"#fbbf24":"#f87171");
+    ln.setAttribute("stroke-width","3");ln.setAttribute("fill","none");ln.setAttribute("stroke-dasharray","8 6");ln.style.animation="dash 1s linear infinite";L.appendChild(ln);
+    if(b==="fwx"){const x=document.createElementNS(NS,"g");x.innerHTML='<circle cx="525" cy="90" r="15" fill="#2a0f12" stroke="#f87171" stroke-width="2"/><path d="M518 83l14 14M532 83l-14 14" stroke="#f87171" stroke-width="3"/>';L.appendChild(x);}});
+  S[3].forEach(id=>{const r=document.querySelector("#"+id+" rect");if(r){r.setAttribute("stroke","#f87171");r.setAttribute("fill","#2a0f12");}});
+  const li=KS.children[st];li.classList.add("on",S[4]);st++;
+  if(st>=MODES[mode].steps.length)kStep.disabled=true;
+});
+document.getElementById("atkReset").addEventListener("click",atkReset);
+document.querySelectorAll("#atkMode button").forEach(b=>b.addEventListener("click",()=>{mode=b.dataset.m;atkReset();}));
+atkReset();
+
+/* ---------- Laboratorio sin IPs ---------- */
+(function(){
+  const IT={web:{t:"🛒 Tienda web",ok:"dmz",y:"Correcto: el público debe verla, pero si la atacan queda aislada en la DMZ.",n:{inet:"Sin firewall delante, cualquiera la ataca y no hay nada que la proteja.",lan:"Si la tienda está en la red interna, cuando la hackeen el atacante ya está adentro, junto a la BD y la caja."}},
+    mail:{t:"✉️ Correo",ok:"dmz",y:"Correcto: recibe mensajes de todo internet, así que va en la zona pública vigilada.",n:{inet:"Un servidor de la empresa nunca va sin firewall.",lan:"Recibe conexiones de cualquier parte del mundo: si está en la red interna, abre un camino hacia adentro."}},
+    dns:{t:"🌐 DNS público",ok:"dmz",y:"Correcto: responde a todo internet cuál es la dirección de la tienda.",n:{inet:"Sin firewall, queda expuesto por completo.",lan:"Todo internet le pregunta cosas: no debe estar en la red privada."}},
+    bd:{t:"🗄️ BD clientes y pagos",ok:"lan",y:"Correcto: es lo más valioso. Nadie de internet necesita hablar con ella directamente.",n:{inet:"¡Los datos de clientes y pagos quedarían a la vista de todo el mundo!",dmz:"Si un hacker toma la tienda, la BD quedaría en su misma zona, sin firewall de por medio."}},
+    pc:{t:"💻 PC de la caja",ok:"lan",y:"Correcto: es un equipo de trabajo, nadie de fuera debe alcanzarlo.",n:{inet:"La PC quedaría expuesta a cualquier atacante.",dmz:"La DMZ es para servidores públicos; una PC de trabajo ahí queda junto a lo más atacado."}},
+    bk:{t:"💾 Respaldos",ok:"lan",y:"Correcto: los respaldos son el último salvavidas ante un ataque o ransomware.",n:{inet:"Los respaldos expuestos pueden ser robados o cifrados.",dmz:"Si cae la tienda, el atacante podría borrar o cifrar también los respaldos."}}};
+  const SW=[
+    {k:"pub",t:"¿Las personas de internet pueden visitar la tienda, el correo y el DNS?",s:"Internet → DMZ",ok:true,why:"Debe quedar ABIERTA: si la cierras, nadie puede comprar. Para eso existe la DMZ."},
+    {k:"in",t:"¿Las personas de internet pueden entrar a la red interna (base de datos, caja, respaldos)?",s:"Internet → Red interna",ok:false,why:"Debe quedar CERRADA: un cliente no necesita entrar a la bodega, y un hacker tampoco debe poder."},
+    {k:"dl",t:"¿Los equipos de la DMZ pueden entrar libremente a la red interna?",s:"DMZ → Red interna",ok:false,why:"Debe quedar CERRADA. Es la regla más importante: si hackean la tienda, el hacker no puede brincar a lo privado."},
+    {k:"wb",t:"¿La tienda web puede consultar la base de datos? (solo para guardar y leer pedidos)",s:"Tienda web → Base de datos (excepción)",ok:true,why:"Debe quedar ABIERTA como única excepción: sin ella la tienda no puede guardar pedidos. Es un permiso pequeño y vigilado."},
+    {k:"ld",t:"¿Los empleados pueden entrar a la DMZ para administrar y actualizar la tienda?",s:"Red interna → DMZ",ok:true,why:"Debe quedar ABIERTA: los empleados son de confianza y deben poder mantener los servidores."},
+    {k:"li",t:"¿Los empleados pueden navegar en internet?",s:"Red interna → Internet",ok:true,why:"Debe quedar ABIERTA: la oficina necesita internet para trabajar."}];
+  let place={},sel=null;
+  const tray=document.getElementById("tray"),fb=document.getElementById("placeFb"),swEl=document.getElementById("sw"),svg=document.getElementById("nl"),txt=document.getElementById("nlTxt"),rep=document.getElementById("report");
+  function mkItem(k){const d=document.createElement("div");d.className="item";d.textContent=IT[k].t;d.draggable=true;d.dataset.k=k;
+    d.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",k);});
+    d.addEventListener("click",e=>{e.stopPropagation();if(sel&&sel!==k&&place[k]){putItem(sel,place[k]);return;}document.querySelectorAll(".item.sel").forEach(x=>x.classList.remove("sel"));if(sel===k){sel=null;return;}sel=k;d.classList.add("sel");});
+    return d;}
+  function putItem(k,z){place[k]=z;const el=document.querySelector('.item[data-k="'+k+'"]');
+    document.querySelector('.zone[data-z="'+z+'"] .drop').appendChild(el);el.classList.remove("sel","good","bad");
+    const good=IT[k].ok===z;el.classList.add(good?"good":"bad");
+    fb.innerHTML=(good?'<b class="ok" style="color:var(--green)">✓ '+IT[k].t+':</b> '+IT[k].y:'<b style="color:var(--red)">✕ '+IT[k].t+':</b> '+IT[k].n[z]+" Intenta otra zona.");
+    sel=null;draw();}
+  document.querySelectorAll(".zone").forEach(z=>{
+    z.addEventListener("dragover",e=>{e.preventDefault();z.classList.add("over");});
+    z.addEventListener("dragleave",()=>z.classList.remove("over"));
+    z.addEventListener("drop",e=>{e.preventDefault();z.classList.remove("over");const k=e.dataTransfer.getData("text/plain");if(IT[k])putItem(k,z.dataset.z);});
+    z.addEventListener("click",()=>{if(sel)putItem(sel,z.dataset.z);});});
+  function build(){place={};sel=null;tray.innerHTML="";document.querySelectorAll(".zone .drop").forEach(d=>d.innerHTML="");
+    Object.keys(IT).sort(()=>Math.random()-.5).forEach(k=>tray.appendChild(mkItem(k)));
+    swEl.innerHTML=SW.map(s=>'<label data-k="'+s.k+'"><input type="checkbox" checked><span class="tg"></span><span>'+s.t+'<span class="sub">'+s.s+'</span><span class="why" style="display:none">'+s.why+'</span></span><span class="st">ABIERTA</span></label>').join("");
+    swEl.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{i.parentElement.querySelector(".st").textContent=i.checked?"ABIERTA":"CERRADA";i.parentElement.classList.remove("good","bad");i.parentElement.querySelector(".why").style.display="none";}));
+    fb.textContent="Coloca los 6 equipos. Te diré si cada uno quedó bien y por qué.";rep.innerHTML="";txt.textContent="Ubica los equipos, ajusta las puertas y elige una prueba.";draw();}
+  const on=k=>swEl.querySelector('label[data-k="'+k+'"] input').checked;
+
+  /* dibujo */
+  const FW=[330,190];let POS={};
+  function draw(){
+    let s='<rect x="15" y="15" width="225" height="350" rx="14" fill="#2a1414" stroke="#f87171" stroke-dasharray="6 5"/><text x="127" y="38" text-anchor="middle" style="fill:#fca5a5;font-size:13px;font-family:\'Space Grotesk\',sans-serif;font-weight:600">Internet</text>'+
+      '<rect x="430" y="15" width="455" height="165" rx="14" fill="#2a2210" stroke="#fbbf24" stroke-dasharray="6 5"/><text x="657" y="38" text-anchor="middle" style="fill:#fcd34d;font-size:13px;font-family:\'Space Grotesk\',sans-serif;font-weight:600">DMZ</text>'+
+      '<rect x="430" y="200" width="455" height="165" rx="14" fill="#10241c" stroke="#34d399" stroke-dasharray="6 5"/><text x="657" y="223" text-anchor="middle" style="fill:#6ee7b7;font-size:13px;font-family:\'Space Grotesk\',sans-serif;font-weight:600">Red interna</text>'+
+      '<line x1="240" y1="190" x2="290" y2="190" stroke="#52525b" stroke-width="3"/><line x1="370" y1="175" x2="430" y2="100" stroke="#52525b" stroke-width="3"/><line x1="370" y1="205" x2="430" y2="285" stroke="#52525b" stroke-width="3"/>'+
+      '<rect x="290" y="150" width="80" height="80" rx="10" fill="#0f1a1d" stroke="#22d3ee" stroke-width="2"/><g stroke="#f87171" stroke-width="1.3"><path d="M298 172h64M298 190h64M298 208h64"/></g><text x="330" y="250" text-anchor="middle" style="fill:#67e8f9;font-size:11px">firewall</text>';
+    POS={cli:[127,75],hk:[127,320]};
+    const slots={inet:[[75,150],[180,150],[75,235],[180,235],[127,190],[127,270]],dmz:[[510,80],[657,80],[800,80],[510,140],[657,140],[800,140]],lan:[[510,265],[657,265],[800,265],[510,325],[657,325],[800,325]]};
+    const used={inet:0,dmz:0,lan:0};
+    const nd=(x,y,t,c,id)=>'<g id="nd-'+id+'"><rect x="'+(x-62)+'" y="'+(y-21)+'" width="124" height="42" rx="9" fill="#1b1b20" stroke="'+c+'" stroke-width="1.5"/><text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" style="fill:#e4e4e7;font-size:11.5px;font-family:sans-serif">'+t+'</text></g>';
+    s+=nd(127,75,"🧑 Cliente","#a1a1aa","cli")+nd(127,320,"🦹 Hacker","#f87171","hk");
+    Object.keys(place).forEach(k=>{const z=place[k],p=slots[z][used[z]++]||slots[z][0];POS[k]=p;s+=nd(p[0],p[1],IT[k].t,IT[k].ok===z?"#3f3f46":"#f87171",k);});
+    s+='<g id="nlFx"></g><g id="nlPk" style="display:none"><rect x="-12" y="-8" width="24" height="16" rx="3" fill="#22d3ee" stroke="#0b0b0e"/><path d="M-12 -8 L0 2 L12 -8" fill="none" stroke="#0b0b0e" stroke-width="1.3"/></g>';
+    svg.innerHTML=s;
+  }
+  /* motor de reglas */
+  function zoneOf(k){return k==="cli"||k==="hk"?"inet":place[k];}
+  function allowed(a,b){const za=zoneOf(a),zb=zoneOf(b);
+    if(za===zb)return[true,"están en la misma zona, así que no hay guardia entre ellos"];
+    if(za==="inet"&&zb==="dmz")return[on("pub"),on("pub")?"la puerta Internet → DMZ está abierta":"cerraste la puerta Internet → DMZ"];
+    if(za==="inet"&&zb==="lan")return[on("in"),on("in")?"dejaste ABIERTA la puerta Internet → red interna":"la puerta Internet → red interna está cerrada"];
+    if(za==="dmz"&&zb==="lan"){if(on("dl"))return[true,"dejaste ABIERTA la puerta DMZ → red interna"];if(a==="web"&&b==="bd"&&on("wb"))return[true,"excepción tienda → base de datos"];return[false,"la puerta DMZ → red interna está cerrada"];}
+    if(za==="lan"&&zb==="dmz")return[on("ld"),on("ld")?"la puerta red interna → DMZ está abierta":"cerraste la puerta red interna → DMZ"];
+    if(za==="lan"&&zb==="inet")return[on("li"),""];
+    if(za==="dmz"&&zb==="inet")return[true,""];
+    return[false,""];}
+  const pk=()=>document.getElementById("nlPk"),fx=()=>document.getElementById("nlFx");
+  function mv(pts,col,cb){const p=pk();p.querySelector("rect").setAttribute("fill",col);p.style.display="";let i=0;
+    (function seg(){if(i>=pts.length-1){cb();return;}const a=pts[i],b=pts[i+1];let t0=null;
+      (function f(ts){if(t0===null)t0=ts;const k=Math.min(1,(ts-t0)/550),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+        p.setAttribute("transform","translate("+(a[0]+(b[0]-a[0])*e)+","+(a[1]+(b[1]-a[1])*e)+")");if(k<1)requestAnimationFrame(f);else{i++;seg();}})(performance.now());})();}
+  function mark(x,y,ok,amber){const g=document.createElementNS(NS,"g");const c=ok?(amber?"#fbbf24":"#34d399"):"#f87171";
+    g.innerHTML='<circle cx="'+x+'" cy="'+y+'" r="13" fill="#0b0b0e" stroke="'+c+'" stroke-width="2"/><text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" style="fill:'+c+';font-size:14px;font-family:sans-serif">'+(ok?(amber?"!":"✓"):"✕")+'</text>';fx().appendChild(g);}
+  function hit(k){const r=document.querySelector("#nd-"+k+" rect");if(r){r.setAttribute("fill","#3a1010");r.setAttribute("stroke","#f87171");r.setAttribute("stroke-width","2.5");}}
+  /* envía un paquete de a a b; cb(resultado) */
+  function send(a,b,col,cb){const [ok,why]=allowed(a,b),A=POS[a],B=POS[b];
+    const same=zoneOf(a)===zoneOf(b);
+    if(same){mv([A,B],col,()=>{mark(B[0],B[1]-30,true);cb(true,why);});return;}
+    if(ok)mv([A,FW,B],col,()=>{mark(FW[0],FW[1]-55,true);cb(true,why);});
+    else mv([A,FW],col,()=>{pk().style.display="none";mark(FW[0],FW[1]-55,false);cb(false,why);});}
+  const missing=ks=>ks.filter(k=>!place[k]).map(k=>IT[k].t);
+  let busy=false;
+  function run(t){
+    if(busy)return;
+    const need={buy:["web","bd"],mail:["mail"],office:["pc","web"],hackweb:["web","bd","pc","bk"],hacklan:["bd","pc","bk"]}[t];
+    const miss=missing(need);if(miss.length){txt.innerHTML='<b class="mid">Falta ubicar:</b> '+miss.join(", ")+" (paso 1).";return;}
+    busy=true;draw();
+    const done=h=>{txt.innerHTML=h;busy=false;};
+    if(t==="buy"){txt.textContent="El cliente abre la tienda y paga…";
+      send("cli","web","#22d3ee",(ok,w)=>{if(!ok)return done('<b class="no">✕ La tienda no carga:</b> '+w+". ¡Perdiste la venta! Los clientes deben poder visitar la tienda.");
+        send("web","bd","#a78bfa",(ok2,w2)=>done(ok2?'<b class="ok">✓ Venta realizada.</b> El cliente llegó a la tienda ('+w+') y la tienda guardó el pedido en la base de datos ('+w2+').':'<b class="no">✕ La tienda abre, pero no puede guardar el pedido:</b> '+w2+". La tienda necesita su excepción hacia la base de datos."));});}
+    if(t==="mail"){send("cli","mail","#fbbf24",(ok,w)=>done(ok?'<b class="ok">✓ Pedido recibido por correo</b> ('+w+').':'<b class="no">✕ El correo rebota:</b> '+w+"."));}
+    if(t==="office"){send("pc","web","#34d399",(ok,w)=>done(ok?'<b class="ok">✓ La caja revisa los pedidos en la tienda</b> ('+w+').':'<b class="no">✕ La caja no puede entrar a la tienda:</b> '+w+". El personal de confianza necesita administrar la DMZ."));}
+    if(t==="hacklan"){const tg=["bd","pc","bk"];let res=[],i=0;txt.textContent="El hacker intenta conectarse directo a los equipos privados…";
+      (function nx(){if(i>=tg.length){const lost=res.filter(r=>r[1]);
+        return done(lost.length?'<b class="no">✕ El hacker entró directo a:</b> '+lost.map(r=>IT[r[0]].t).join(", ")+". Motivo: "+res.find(r=>r[1])[2]+".":'<b class="ok">✓ Bloqueado.</b> Desde internet nadie alcanza la red interna: '+res[0][2]+".");}
+        const k=tg[i++];send("hk",k,"#f87171",(ok,w)=>{if(ok)hit(k);res.push([k,ok,w]);setTimeout(nx,250);});})();}
+    if(t==="hackweb"){txt.textContent="El hacker ataca la tienda web…";
+      send("hk","web","#f87171",(ok,w)=>{if(!ok)return done('<b class="mid">! El hacker no llegó, pero la tienda tampoco funciona para los clientes</b> ('+w+"). Cerrar todo no es la solución.");
+        hit("web");txt.innerHTML='<b class="no">El hacker tomó control de la tienda.</b> Es normal que la tienda sea atacada: está abierta a todo internet. Lo importante es lo que pasa ahora: intenta brincar a lo privado…';
+        const tg=["bd","pc","bk"];let res=[],i=0;
+        setTimeout(function nx(){if(i>=tg.length){
+          const full=res.filter(r=>r[1]&&!(r[0]==="bd"&&r[2].startsWith("excepción")));const part=res.find(r=>r[1]&&r[0]==="bd"&&r[2].startsWith("excepción"));
+          let h=full.length?'<b class="no">✕ Movimiento lateral exitoso:</b> el hacker llegó a '+full.map(r=>IT[r[0]].t).join(", ")+" ("+full[0][2]+"). Un solo servidor hackeado comprometió la información privada.":'<b class="ok">✓ Ataque contenido en la DMZ.</b> El hacker controla la tienda, pero el guardia no lo dejó brincar a la red interna: la base de datos, la caja y los respaldos están a salvo. ¡Para esto sirve la DMZ!';
+          if(part&&!full.length)h+=" La tienda conserva su acceso limitado a la base de datos (solo consultas de pedidos): por eso esa excepción debe ser mínima y con permisos reducidos.";
+          return done(h);}
+          const k=tg[i++];send("web",k,"#f87171",(ok,w)=>{if(ok&&!(k==="bd"&&w.startsWith("excepción")))hit(k);if(ok&&k==="bd"&&w.startsWith("excepción")){const r=document.querySelector("#nd-bd rect");if(r)r.setAttribute("stroke","#fbbf24");}res.push([k,ok,w]);setTimeout(nx,250);});},700);});}
+  }
+  document.querySelectorAll("#tests button").forEach(b=>b.addEventListener("click",()=>run(b.dataset.t)));
+  document.getElementById("nlReset").addEventListener("click",build);
+  document.getElementById("grade").addEventListener("click",()=>{
+    const ks=Object.keys(IT),pOk=ks.filter(k=>place[k]===IT[k].ok).length,pMiss=ks.filter(k=>!place[k]).length;
+    let sOk=0;swEl.querySelectorAll("label").forEach(l=>{const s=SW.find(x=>x.k===l.dataset.k),good=l.querySelector("input").checked===s.ok;if(good)sOk++;
+      l.classList.toggle("good",good);l.classList.toggle("bad",!good);l.querySelector(".why").style.display="block";});
+    const tot=pOk+sOk,max=ks.length+SW.length;
+    const tips=[];ks.forEach(k=>{if(!place[k])tips.push("Falta ubicar "+IT[k].t+".");else if(place[k]!==IT[k].ok)tips.push(IT[k].t+": "+IT[k].n[place[k]]);});
+    SW.forEach(s=>{if(on(s.k)!==s.ok)tips.push("Puerta “"+s.s+"”: "+s.why);});
+    rep.innerHTML='<div class="report"><div class="big">'+(tot===max?"🏆 Diseño perfecto":tot>=max-3?"👍 Casi lo logras":"🔧 Hay que corregir")+" · "+tot+" / "+max+'</div><p class="muted" style="margin:.3rem 0 0">Equipos bien ubicados: '+pOk+"/"+ks.length+(pMiss?" ("+pMiss+" sin ubicar)":"")+" · Puertas correctas: "+sOk+"/"+SW.length+"</p>"+(tips.length?"<ul>"+tips.map(t=>"<li>"+t+"</li>").join("")+"</ul>":'<p style="margin:.5rem 0 0">Tu red publica la tienda, protege los datos de los clientes y contiene un ataque. Eso es exactamente para lo que sirve una DMZ.</p>')+"</div>";
+  });
+  build();
+})();
+
+/* ---------- Quiz ---------- */
+const Q=[
+  ["¿Dónde debe ir el servidor web público de la escuela?",["En la LAN, junto a la base de datos","En la DMZ","Directamente en internet, sin firewall"],1,"En la DMZ: debe ser accesible desde fuera, pero aislado de la LAN."],
+  ["¿Qué tráfico es la “regla de oro” bloquear?",["LAN → DMZ","Internet → DMZ por el puerto 443","DMZ → LAN (conexiones nuevas)"],2,"La DMZ nunca inicia conexiones hacia la LAN; así se contiene un servidor comprometido."],
+  ["La opción “DMZ host” de un módem casero…",["Es igual a una DMZ empresarial","Expone un equipo que sigue dentro de la misma red local","Bloquea todos los puertos"],1,"No hay separación de red: si ese equipo cae, el atacante ya está en la LAN."],
+  ["¿Qué ventaja tiene la arquitectura de dos firewalls?",["Es más barata","El atacante debe vencer dos firewalls distintos","No necesita reglas"],1,"Elimina el punto único de falla, sobre todo si los firewalls son de sistemas distintos."],
+  ["La web en la DMZ necesita su base de datos en la LAN. ¿Qué regla es correcta?",["Permitir DMZ → LAN en todos los puertos","Permitir solo 10.0.0.80 → 172.16.0.10 por TCP 3306","Mover la base de datos a internet"],1,"Un agujero mínimo: una IP origen, una IP destino, un puerto."]
+];
+let score=0,answered=0;
+const QZ=document.getElementById("quiz");
+Q.forEach((q,i)=>{const d=document.createElement("div");d.className="q";d.innerHTML="<p>"+(i+1)+". "+q[0]+'</p><div class="opts"></div><div class="fb"></div>';
+  q[1].forEach((o,j)=>{const b=document.createElement("button");b.textContent=o;b.addEventListener("click",()=>{if(d.dataset.done)return;d.dataset.done=1;answered++;
+    const ok=j===q[2];if(ok)score++;b.classList.add(ok?"ok":"no");if(!ok)d.querySelectorAll("button")[q[2]].classList.add("ok");
+    d.querySelector(".fb").textContent=(ok?"✓ Correcto. ":"✕ Incorrecto. ")+q[3];
+    if(answered===Q.length)document.getElementById("qScore").textContent="Resultado: "+score+" de "+Q.length+" correctas.";});
+    d.querySelector(".opts").appendChild(b);});
+  QZ.appendChild(d);});
+
+/* FAQ */
+document.querySelectorAll(".acc-q").forEach(q=>q.addEventListener("click",()=>{const i=q.parentElement,a=i.querySelector(".acc-a"),o=i.classList.toggle("open");a.style.maxHeight=o?a.scrollHeight+"px":"0";}));
+})();
+</script>
+</body>
+</html>
