@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.2.3 Controladores P y PID con anti-windup · Sistemas Programables</title>
+<meta name="description" content="Implementación algorítmica de controladores Proporcional (P) y PID con protección anti-windup, con el sensor DHT11 y Arduino UNO R4 WiFi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../u4.css">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div class="brand">Sistemas <span>Programables</span> · 4.2</div>
+  <nav class="tabs" aria-label="Subtemas 4.2"><a href="../4.2.1/" class="">4.2.1 · Rampas de velocidad</a><a href="../4.2.2/" class="">4.2.2 · Encoders en cuadratura</a><a href="../4.2.3/" class="active">4.2.3 · Controladores P y PID</a></nav>
+</div></header>
+<main>
+
+<section class="hero"><div class="wrap">
+  <span class="kicker">Unidad 4 · 4.2 Perfilado de movimiento y control en lazo cerrado</span>
+  <h1 class="long"><span class="num">4.2.3</span><br>Implementación algorítmica de controladores Proporcional (P) y PID con protección anti-windup</h1>
+  <p class="sub">El programa mide, compara y corrige continuamente. Ejemplo del tema: mantener una temperatura con el sensor DHT11.</p>
+  <div class="chips">
+    <span class="chip"><i></i>Sensor DHT11</span>
+    <span class="chip"><i></i>Lazo cerrado</span>
+    <span class="chip c-sim"><i></i>Control P y PID</span>
+    <span class="chip c-teo"><i></i>Anti-windup</span>
+  </div>
+  <div class="cta"><a class="btn" href="#teoria">Empezar ↓</a><a class="btn ghost" href="#sim">Simulador PID</a></div>
+</div></section>
+
+<section id="teoria"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Control en lazo cerrado</h2>
+  <div class="vs">
+    <div class="card warn reveal"><span class="tag w">LAZO ABIERTO</span><h3>Ordena y confía</h3><p>“Calefactor al 50 %” sin medir el resultado. Si cambia el ambiente, la temperatura cambia y el programa no se entera.</p></div>
+    <div class="card ok reveal"><span class="tag">LAZO CERRADO</span><h3>Mide y corrige</h3><p>Mide la temperatura, la compara con la deseada y ajusta el calefactor según el <b>error</b>.</p></div>
+  </div>
+  <div class="figure reveal"><svg viewBox="0 0 780 260" class="art" role="img" aria-label="Diagrama de bloques del control en lazo cerrado de temperatura"><defs><marker id="la" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker></defs><text x="40" y="58" text-anchor="middle" class="albl" style="fill:#a78bfa">referencia</text><text x="40" y="76" text-anchor="middle" class="albl" style="fill:#a78bfa">(ej. 35 °C)</text><circle cx="120" cy="70" r="18" fill="#191d25" stroke="#e8eaed" stroke-width="2"/><text x="120" y="76" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:16px">Σ</text><text x="104" y="104" class="albl" style="fill:#f87171">−</text><text x="92" y="60" class="albl" style="fill:#4ade80">+</text><rect x="190" y="38" width="140" height="64" rx="12" fill="#191d25" stroke="#22d3ee" stroke-width="2"/><text x="260.0" y="66" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Controlador</text><text x="260.0" y="85" text-anchor="middle" class="albl">P · PI · PID</text><rect x="380" y="38" width="150" height="64" rx="12" fill="#191d25" stroke="#fbbf24" stroke-width="2"/><text x="455.0" y="66" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Actuador</text><text x="455.0" y="85" text-anchor="middle" class="albl">calefactor (PWM)</text><rect x="580" y="38" width="170" height="64" rx="12" fill="#191d25" stroke="#f87171" stroke-width="2"/><text x="665.0" y="66" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Planta</text><text x="665.0" y="85" text-anchor="middle" class="albl">aire de la cámara</text><rect x="380" y="168" width="150" height="64" rx="12" fill="#191d25" stroke="#4ade80" stroke-width="2"/><text x="455.0" y="196" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:700">Sensor</text><text x="455.0" y="215" text-anchor="middle" class="albl">DHT11</text><path d="M70 70 L100 70" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#la)"/><path d="M138 70 L188 70" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#la)"/><text x="163" y="62" text-anchor="middle" class="albl">error</text><path d="M330 70 L378 70" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#la)"/><text x="354" y="62" text-anchor="middle" class="albl">u</text><path d="M530 70 L578 70" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#la)"/><text x="554" y="62" text-anchor="middle" class="albl">calor</text><path d="M750 70 L770 70 L770 200 L532 200" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#la)"/><text x="700" y="192" text-anchor="middle" class="albl">temperatura real</text><path d="M380 200 L120 200 L120 90" fill="none" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#la)"/><text x="250" y="192" text-anchor="middle" class="albl">temperatura medida (realimentación)</text><text x="390" y="252" text-anchor="middle" class="albl">El controlador compara lo que se quiere con lo que se mide y corrige con el actuador.</text></svg></div>
+  <div class="grid g4">
+    <div class="card reveal"><span class="tag">r</span><h3>Referencia</h3><p>El valor deseado (setpoint): 35 °C.</p></div>
+    <div class="card reveal"><span class="tag">y</span><h3>Medición</h3><p>Lo que reporta el DHT11.</p></div>
+    <div class="card reveal"><span class="tag">e</span><h3>Error</h3><p>e = r − y. Positivo: falta calor.</p></div>
+    <div class="card reveal"><span class="tag">u</span><h3>Salida de control</h3><p>Lo que se envía al actuador: PWM de 0 a 255.</p></div>
+  </div>
+</div></section>
+
+<section id="sensor" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Sensor del tema</span>
+  <h2 class="reveal">El DHT11 dentro de un lazo de control</h2>
+  <div class="comp reveal">
+    <div class="pic" style="max-width:280px;margin:0 auto"><svg viewBox="0 0 220 230" class="art" role="img" aria-label="Ilustración del sensor de temperatura y humedad DHT11"><rect x="50" y="10" width="120" height="150" rx="8" fill="#1e88e5" stroke="#0d47a1" stroke-width="3"/><rect x="62" y="22" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="22" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="22" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="22" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="22" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="22" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="37" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="37" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="37" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="37" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="37" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="37" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="52" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="52" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="52" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="52" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="52" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="52" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="67" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="67" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="67" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="67" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="67" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="67" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="82" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="82" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="82" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="82" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="82" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="82" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="97" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="97" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="97" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="97" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="97" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="97" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="112" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="112" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="112" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="112" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="112" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="112" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="127" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="127" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="127" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="127" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="127" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="127" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="62" y="142" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="79" y="142" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="96" y="142" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="113" y="142" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="130" y="142" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="147" y="142" width="11" height="8" rx="2" fill="#0d47a1"/><rect x="40" y="160" width="140" height="22" rx="3" fill="#1565c0"/><rect x="78" y="182" width="5" height="26" fill="#cfd8dc"/><text x="80" y="224" text-anchor="middle" class="albl">VCC</text><rect x="108" y="182" width="5" height="26" fill="#cfd8dc"/><text x="110" y="224" text-anchor="middle" class="albl">DATA</text><rect x="138" y="182" width="5" height="26" fill="#cfd8dc"/><text x="140" y="224" text-anchor="middle" class="albl">GND</text></svg><p class="cap">Ilustración del sensor DHT11</p></div>
+    <div class="theory">
+      <p>El <b>DHT11</b> mide temperatura y humedad y envía los datos en formato digital por un solo pin (DATA). Sus características condicionan directamente el diseño del controlador:</p>
+    </div>
+  </div>
+  <div class="tblwrap reveal"><table class="tbl">
+        <tr><th>Característica</th><th>Valor típico</th><th>Efecto en el control</th></tr>
+        <tr><td>Rango</td><td class="c">0 – 50 °C</td><td class="w">La referencia debe quedar dentro del rango.</td></tr>
+        <tr><td>Resolución</td><td class="c">1 °C</td><td class="w">El error “salta” de grado en grado.</td></tr>
+        <tr><td>Exactitud</td><td class="c">± 2 °C</td><td class="w">No se puede exigir más precisión que la del sensor.</td></tr>
+        <tr><td>Lecturas</td><td class="c">1 por segundo</td><td class="w">El controlador se ejecuta cada 1 s (periodo de muestreo).</td></tr>
+      </table></div>
+  <div class="note info reveal"><b>Buena noticia:</b> la temperatura cambia lento (decenas de segundos), así que un muestreo de 1 s es suficiente. Con un sistema rápido, como la velocidad de un motor, el DHT11 no serviría.</div>
+</div></section>
+
+<section id="p"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Controlador Proporcional (P)</h2>
+  <div class="def reveal"><b>u = Kp · e</b> — la salida es proporcional al error. Mucho error, mucha acción; poco error, poca acción.</div>
+  <div class="theory reveal">
+    <p>Es el controlador más simple. Su ganancia <b>Kp</b> decide qué tan fuerte reacciona. Su limitación: cuando el error es cero, la salida también es cero. Como el calefactor necesita algo de potencia para compensar las pérdidas de calor, la temperatura se queda <b>un poco por debajo</b> de la referencia. Esa diferencia permanente se llama <b>error en estado estacionario</b>.</p>
+  </div>
+  <div class="grid g3">
+    <div class="card reveal"><span class="tag">Kp BAJO</span><h3>Lento</h3><p>Sube despacio y se queda lejos de la referencia.</p></div>
+    <div class="card ok reveal"><span class="tag">Kp MEDIO</span><h3>Razonable</h3><p>Responde bien, pero mantiene un error pequeño.</p></div>
+    <div class="card bad reveal"><span class="tag w">Kp ALTO</span><h3>Oscila</h3><p>Se pasa, corrige de más y la temperatura sube y baja.</p></div>
+  </div>
+</div></section>
+
+<section id="pid" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Controlador PID</h2>
+  <div class="def reveal"><b>u = Kp·e + Ki·∑e·Δt + Kd·Δe/Δt</b> — suma de tres acciones: presente, pasado y futuro del error.</div>
+  <div class="grid g3">
+    <div class="card reveal"><span class="tag">P · PRESENTE</span><h3>Proporcional</h3><p>Reacciona al error de ahora. Da la fuerza principal.</p></div>
+    <div class="card vio reveal"><span class="tag v">I · PASADO</span><h3>Integral</h3><p>Acumula el error a lo largo del tiempo. Mientras quede error, sigue aumentando la salida: <b>elimina el error en estado estacionario</b>.</p></div>
+    <div class="card warn reveal"><span class="tag w">D · FUTURO</span><h3>Derivativa</h3><p>Mira qué tan rápido cambia el error y frena antes de pasarse. Es sensible al ruido.</p></div>
+  </div>
+  <h3 class="reveal" style="margin-top:28px">Implementación algorítmica (en cada periodo de muestreo)</h3>
+  <ol class="steps">
+    <li class="reveal">Cada <b>Δt</b> (1 s con el DHT11), sin retardos bloqueantes: leer la temperatura <b>y</b>.</li>
+    <li class="reveal">Calcular el error: <b>e = r − y</b>.</li>
+    <li class="reveal">Término P: <b>Kp · e</b>.</li>
+    <li class="reveal">Término I: sumar <b>e · Δt</b> a un acumulador y multiplicarlo por <b>Ki</b> (con anti-windup, ver abajo).</li>
+    <li class="reveal">Término D: <b>Kd ·</b> (cambio de la medición) ÷ Δt, con signo negativo. Derivar la <b>medición</b> en vez del error evita un “golpe” cuando cambia la referencia.</li>
+    <li class="reveal">Sumar los tres términos y <b>limitar</b> el resultado al rango del actuador (0 – 255).</li>
+    <li class="reveal">Enviar u al actuador y guardar la medición para el siguiente ciclo.</li>
+  </ol>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Al aumentar…</th><th>Velocidad de respuesta</th><th>Sobrepaso</th><th>Error estacionario</th><th>Estabilidad</th></tr>
+    <tr><td><b>Kp</b></td><td>Más rápida</td><td>Aumenta</td><td>Disminuye</td><td>Empeora</td></tr>
+    <tr><td><b>Ki</b></td><td>Más rápida</td><td>Aumenta</td><td>Lo elimina</td><td>Empeora</td></tr>
+    <tr><td><b>Kd</b></td><td>Poco cambio</td><td>Disminuye</td><td>Sin efecto</td><td>Mejora (si no hay ruido)</td></tr>
+  </table></div>
+  <div class="note reveal"><b>Con el DHT11:</b> la resolución de 1 °C hace que la derivada sea “a saltos”. Por eso en temperatura suele bastar un <b>PI</b> (Kd = 0 o muy pequeño).</div>
+</div></section>
+
+<section id="windup"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Windup y protección anti-windup</h2>
+  <div class="def reveal"><b>Windup</b> (saturación del integrador): cuando el actuador ya está al máximo y el error persiste, el término integral sigue acumulando sin que eso sirva de nada. Al llegar a la referencia, ese “exceso guardado” tarda en descargarse y provoca un <b>sobrepaso grande</b>.</div>
+  <div class="figure reveal"><svg viewBox="0 0 760 270" class="art" role="img" aria-label="Efecto windup del integrador cuando el actuador se satura">
+<rect x="0" y="0" width="760" height="270" rx="14" fill="#0b0d11"/>
+<line x1="50" y1="230" x2="740" y2="230" stroke="#2a303c"/><line x1="50" y1="20" x2="50" y2="230" stroke="#2a303c"/>
+<line x1="50" y1="80" x2="740" y2="80" stroke="#a78bfa" stroke-dasharray="6 5"/><text x="736" y="72" text-anchor="end" class="albl" style="fill:#a78bfa">referencia</text>
+<path d="M50 200 C200 190 280 110 340 60 C380 30 430 40 470 70 C520 105 560 95 600 82 L740 80" fill="none" stroke="#f87171" stroke-width="3"/>
+<path d="M50 200 C200 190 300 120 380 88 C420 80 470 80 740 80" fill="none" stroke="#4ade80" stroke-width="3"/>
+<rect x="60" y="236" width="300" height="20" rx="4" fill="rgba(251,191,36,.12)" stroke="#fbbf24"/><text x="210" y="250" text-anchor="middle" class="albl" style="fill:#fbbf24">calefactor al 100 % (saturado)</text>
+<text x="230" y="40" class="albl" style="fill:#f87171">sin anti-windup: se pasa de largo</text>
+<text x="470" y="110" class="albl" style="fill:#4ade80">con anti-windup: llega sin sobrepaso grande</text>
+<text x="20" y="30" class="albl">°C</text>
+</svg></div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Técnica anti-windup</th><th>Cómo funciona</th></tr>
+    <tr><td><b>Integración condicional (clamping)</b></td><td class="w">Si la salida está saturada y el error empujaría aún más hacia la saturación, se deja de acumular la integral.</td></tr>
+    <tr><td><b>Límite del integrador</b></td><td class="w">El término integral nunca puede pasar de cierto valor (por ejemplo, el rango del PWM).</td></tr>
+    <tr><td><b>Retrocálculo (back-calculation)</b></td><td class="w">La diferencia entre la salida calculada y la saturada se usa para “descargar” el integrador.</td></tr>
+  </table></div>
+</div></section>
+
+<section id="sim" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Simulador</span>
+  <h2 class="reveal">Control de temperatura con DHT11</h2>
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Cámara con calefactor · muestreo de 1 s</h3><span id="pBadge" class="badge b-mut">—</span></div>
+    <div class="sim-ctrl">
+      <button class="tog on" data-ctl="P" type="button">P</button>
+      <button class="tog" data-ctl="PI" type="button">PI</button>
+      <button class="tog" data-ctl="PID" type="button">PID</button>
+      <button class="tog on" id="pAw" type="button">Anti-windup: SÍ</button>
+      <button class="tog" id="pQ" type="button">Medición DHT11 (1 °C): NO</button>
+    </div>
+    <div class="sim-ctrl">
+      <label class="rng">Referencia <input type="range" id="pR" min="25" max="45" value="35"> <span class="mono" id="pRV">35 °C</span></label>
+      <label class="rng">Kp <input type="range" id="pKp" min="0" max="120" value="40"> <span class="mono" id="pKpV">40</span></label>
+      <label class="rng">Ki <input type="range" id="pKi" min="0" max="20" step="0.5" value="3"> <span class="mono" id="pKiV">3</span></label>
+      <label class="rng">Kd <input type="range" id="pKd" min="0" max="200" step="5" value="0"> <span class="mono" id="pKdV">0</span></label>
+    </div>
+    <canvas id="pCv" height="300" aria-label="Temperatura y salida del calefactor en el tiempo"></canvas>
+    <div class="kpi"><div><b id="kY">25.0 °C</b><span>temperatura actual</span></div><div><b id="kE">—</b><span>error final</span></div><div><b id="kOv">—</b><span>sobrepaso máximo</span></div><div><b id="kU">0 %</b><span>salida del calefactor</span></div></div>
+    <p class="out">La simulación avanza 15 minutos en unos segundos. Modelo térmico simplificado (ambiente de 25 °C). Cambia el modo o las ganancias y se reinicia.</p>
+  </div>
+</div></section>
+
+<section id="sintonia"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Sintonización manual paso a paso</h2>
+  <ol class="steps">
+    <li class="reveal">Empieza con <b>Ki = 0</b> y <b>Kd = 0</b>.</li>
+    <li class="reveal">Sube <b>Kp</b> hasta que la respuesta sea rápida pero sin oscilar demasiado. Quedará un error pequeño.</li>
+    <li class="reveal">Sube <b>Ki</b> poco a poco hasta eliminar ese error. Si aparece mucho sobrepaso, bájalo.</li>
+    <li class="reveal">Activa el <b>anti-windup</b> y prueba un cambio grande de referencia.</li>
+    <li class="reveal">Solo si hay sobrepaso que no se corrige, agrega un <b>Kd</b> pequeño, considerando el ruido del sensor.</li>
+  </ol>
+</div></section>
+
+<section id="resumen" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Resumen</span>
+  <h2 class="reveal">Lo esencial</h2>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Concepto</th><th>Idea clave</th></tr>
+    <tr><td><b>Lazo cerrado</b></td><td class="w">Medir, comparar con la referencia y corregir continuamente.</td></tr>
+    <tr><td><b>Control P</b></td><td class="w">Acción proporcional al error; deja un error en estado estacionario.</td></tr>
+    <tr><td><b>Control PID</b></td><td class="w">P reacciona, I elimina el error acumulado, D anticipa y frena.</td></tr>
+    <tr><td><b>Muestreo</b></td><td class="w">El algoritmo se ejecuta a intervalos fijos (1 s con DHT11) sin bloquear el programa.</td></tr>
+    <tr><td><b>Anti-windup</b></td><td class="w">Evita que el integrador crezca mientras el actuador está saturado.</td></tr>
+  </table></div>
+</div></section>
+
+<div class="wrap"><div class="pager"><a class="btn ghost" href="../4.2.2/">← Tema anterior: 4.2.2 Encoders en cuadratura</a><span></span></div></div>
+</main>
+<footer>Sistemas Programables (SCC-1023) · Unidad 4 · 4.2 Perfilado de movimiento y control en lazo cerrado · Arduino UNO R4 WiFi</footer>
+<script src="../u4.js"></script>
+<script>
+(function(){
+  var g=function(id){return document.getElementById(id)};
+  var cv=g('pCv'),ctx=cv.getContext('2d'),ctl='P',aw=true,quant=false;
+  var TS=1,DUR=900,TAMB=25,TAU=120,KH=30,DEAD=3;
+  function sim(){
+    var r=+g('pR').value,kp=+g('pKp').value,ki=ctl==='P'?0:+g('pKi').value,kd=ctl==='PID'?+g('pKd').value:0;
+    var T=TAMB,I=0,yPrev=null,us=[],ys=[],ymax=-1e9,buf=[];
+    for(var k=0;k<DEAD;k++)buf.push(0);
+    for(var t=0;t<=DUR;t+=TS){
+      var y=quant?Math.round(T):T;
+      var e=r-y;
+      var d=yPrev===null?0:-(y-yPrev)/TS;
+      var uRaw=kp*e+ki*I+kd*d;
+      var u=Math.max(0,Math.min(255,uRaw));
+      var sat=(uRaw>255&&e>0)||(uRaw<0&&e<0);
+      if(!(aw&&sat))I+=e*TS;
+      if(aw)I=Math.max(-255/(ki||1),Math.min(255/(ki||1),I));
+      yPrev=y;
+      buf.push(u);var ud=buf.shift();
+      T+=TS*(-(T-TAMB)+KH*ud/255*((r>0)?1:1))/TAU;
+      us.push(u);ys.push(T);if(T>ymax)ymax=T;
+    }
+    return {r:r,us:us,ys:ys,ov:Math.max(0,ymax-r),ef:r-ys[ys.length-1]};
+  }
+  var res=null,shown=0,anim=null;
+  function draw(n){
+    var w=cv.clientWidth,h=300,dpr=window.devicePixelRatio||1;
+    cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    var L=46,R=w-46,top=16,bot=h-28,N=res.ys.length;
+    var X=function(i){return L+(R-L)*i/(N-1)},Y=function(v){return bot-(bot-top)*(v-20)/(60-20)},YU=function(u){return bot-(bot-top)*u/255};
+    ctx.font='11px Inter,sans-serif';ctx.strokeStyle='#232833';ctx.fillStyle='#6b7280';
+    for(var v=20;v<=60;v+=10){ctx.beginPath();ctx.moveTo(L,Y(v));ctx.lineTo(R,Y(v));ctx.stroke();ctx.fillText(v+' °C',4,Y(v)+4);}
+    ctx.fillStyle='#fbbf24';ctx.fillText('PWM',R+6,top+8);ctx.fillText('255',R+6,YU(255)+14);ctx.fillText('0',R+6,bot);
+    for(var m=0;m<=15;m+=5){ctx.fillStyle='#6b7280';ctx.fillText(m+' min',X(m*60/TS)-12,h-8);}
+    ctx.setLineDash([6,5]);ctx.strokeStyle='#a78bfa';ctx.beginPath();ctx.moveTo(L,Y(res.r));ctx.lineTo(R,Y(res.r));ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(251,191,36,.8)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(var i=0;i<n;i++){i?ctx.lineTo(X(i),YU(res.us[i])):ctx.moveTo(X(i),YU(res.us[i]));}ctx.stroke();
+    ctx.strokeStyle='#22d3ee';ctx.lineWidth=2.8;ctx.beginPath();
+    for(var j=0;j<n;j++){j?ctx.lineTo(X(j),Y(res.ys[j])):ctx.moveTo(X(j),Y(res.ys[j]));}ctx.stroke();
+    ctx.fillStyle='#22d3ee';ctx.fillText('temperatura',L+6,top+10);ctx.fillStyle='#fbbf24';ctx.fillText('salida del calefactor',L+90,top+10);ctx.fillStyle='#a78bfa';ctx.fillText('referencia',L+226,top+10);
+    var i2=Math.max(0,n-1);
+    g('kY').textContent=res.ys[i2].toFixed(1)+' °C';g('kU').textContent=Math.round(res.us[i2]/255*100)+' %';
+    if(n>=N){g('kE').textContent=res.ef.toFixed(1)+' °C';g('kOv').textContent=res.ov.toFixed(1)+' °C';
+      var b=g('pBadge');
+      if(res.ov>3){b.textContent='SOBREPASO GRANDE';b.className='badge b-bad';}
+      else if(Math.abs(res.ef)>1){b.textContent='ERROR ESTACIONARIO';b.className='badge b-warn';}
+      else{b.textContent='BUEN CONTROL';b.className='badge b-ok';}}
+    else{g('kE').textContent='…';g('kOv').textContent='…';g('pBadge').textContent='SIMULANDO';g('pBadge').className='badge b-acc';}
+  }
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function run(){
+    ['pR','pKp','pKi','pKd'].forEach(function(i){g(i+'V').textContent=g(i).value+(i==='pR'?' °C':'');});
+    res=sim();if(anim)cancelAnimationFrame(anim);
+    if(reduce){draw(res.ys.length);return;}
+    var t0=performance.now();
+    (function st(now){var n=Math.min(res.ys.length,Math.floor((now-t0)/2500*res.ys.length));draw(Math.max(2,n));if(n<res.ys.length)anim=requestAnimationFrame(st);})(t0);
+  }
+  ['pR','pKp','pKi','pKd'].forEach(function(i){g(i).oninput=run;});
+  document.querySelectorAll('[data-ctl]').forEach(function(b){b.onclick=function(){ctl=b.dataset.ctl;
+    document.querySelectorAll('[data-ctl]').forEach(function(x){x.classList.toggle('on',x===b)});run();}});
+  g('pAw').onclick=function(){aw=!aw;g('pAw').textContent='Anti-windup: '+(aw?'SÍ':'NO');g('pAw').classList.toggle('on',aw);run();};
+  g('pQ').onclick=function(){quant=!quant;g('pQ').textContent='Medición DHT11 (1 °C): '+(quant?'SÍ':'NO');g('pQ').classList.toggle('on',quant);run();};
+  window.addEventListener('resize',function(){if(res)draw(res.ys.length);});
+  run();
+})();
+</script>
+</body>
+</html>

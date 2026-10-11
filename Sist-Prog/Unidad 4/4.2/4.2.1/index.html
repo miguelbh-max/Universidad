@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.2.1 Rampas de velocidad sin retardos bloqueantes · Sistemas Programables</title>
+<meta name="description" content="Generación de curvas suaves de aceleración y desaceleración (rampas de velocidad en software) sin retardos bloqueantes con Arduino UNO R4 WiFi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../u4.css">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div class="brand">Sistemas <span>Programables</span> · 4.2</div>
+  <nav class="tabs" aria-label="Subtemas 4.2"><a href="../4.2.1/" class="active">4.2.1 · Rampas de velocidad</a><a href="../4.2.2/" class="">4.2.2 · Encoders en cuadratura</a><a href="../4.2.3/" class="">4.2.3 · Controladores P y PID</a></nav>
+</div></header>
+<main>
+
+<section class="hero"><div class="wrap">
+  <span class="kicker">Unidad 4 · 4.2 Perfilado de movimiento y control en lazo cerrado</span>
+  <h1 class="long"><span class="num">4.2.1</span><br>Generación de curvas suaves de aceleración/desaceleración (rampas de velocidad en software) sin retardos bloqueantes</h1>
+  <p class="sub">Un motor no debe pasar de 0 a máxima velocidad de golpe. El software le da una curva suave, sin congelar el programa.</p>
+  <div class="chips">
+    <span class="chip"><i></i>Motor DC + L298N</span>
+    <span class="chip"><i></i>Perfiles de velocidad</span>
+    <span class="chip c-sim"><i></i>Aceleración y desaceleración</span>
+    <span class="chip c-teo"><i></i>Programación no bloqueante</span>
+  </div>
+  <div class="cta"><a class="btn" href="#teoria">Empezar ↓</a><a class="btn ghost" href="#sim">Simulador de rampa</a></div>
+</div></section>
+
+<section id="teoria"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Curvas de aceleración y desaceleración</h2>
+  <div class="def reveal"><b>Perfil de movimiento</b>: la forma en que la velocidad de un actuador cambia con el tiempo para pasar de un valor a otro. Una <b>rampa</b> es un perfil donde la velocidad cambia de manera gradual, a una tasa controlada (la <b>aceleración</b>).</div>
+  <div class="theory reveal">
+    <p>Cuando se aplica el voltaje completo a un motor detenido, este pide su <b>corriente de arranque</b>, varias veces mayor que la normal. Eso provoca caídas de voltaje, golpes mecánicos en engranes y bandas, derrapes en ruedas y movimientos bruscos en la carga.</p>
+    <p>Con una rampa, el programa sube el ciclo de trabajo del PWM <b>poco a poco</b> hasta la velocidad deseada y, al detenerse, lo baja de la misma manera.</p>
+  </div>
+  <div class="grid g4">
+    <div class="card reveal"><span class="ico">⚡</span><h3>Menos corriente</h3><p>Se evita el pico de arranque y los brownouts vistos en 4.1.2.</p></div>
+    <div class="card reveal"><span class="ico">⚙️</span><h3>Menos desgaste</h3><p>Engranes, ejes y acoplamientos no reciben golpes.</p></div>
+    <div class="card reveal"><span class="ico">🛞</span><h3>Más tracción</h3><p>Las ruedas no patinan y la carga no se vuelca.</p></div>
+    <div class="card reveal"><span class="ico">🎯</span><h3>Más precisión</h3><p>Se puede predecir cuánto tarda y cuánto avanza el sistema.</p></div>
+  </div>
+</div></section>
+
+<section id="hardware" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Hardware del tema</span>
+  <h2 class="reveal">Motor DC controlado con el L298N</h2>
+  <div class="gallery reveal">
+    <figure><svg viewBox="0 0 420 320" class="art" role="img" aria-label="Ilustración del módulo puente H L298N"><rect x="40" y="20" width="340" height="280" rx="10" fill="#c62828" stroke="#8e0000" stroke-width="3"/><rect x="140" y="30" width="140" height="120" rx="4" fill="#212121"/><rect x="146" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="161" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="176" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="191" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="206" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="221" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="236" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="251" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="266" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="170" y="150" width="80" height="26" rx="2" fill="#1b1b1b"/><text x="210" y="168" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#bdbdbd">L298N</text><rect x="48" y="60" width="42" height="84" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="69" cy="82" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="62" y1="82" x2="76" y2="82" stroke="#455a64" stroke-width="3"/><circle cx="69" cy="122" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="62" y1="122" x2="76" y2="122" stroke="#455a64" stroke-width="3"/><rect x="330" y="60" width="42" height="84" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="351" cy="82" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="344" y1="82" x2="358" y2="82" stroke="#455a64" stroke-width="3"/><circle cx="351" cy="122" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="344" y1="122" x2="358" y2="122" stroke="#455a64" stroke-width="3"/><text x="69" y="160" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">Motor A</text><text x="351" y="160" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">Motor B</text><rect x="60" y="230" width="126" height="44" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="81" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="74" y1="252" x2="88" y2="252" stroke="#455a64" stroke-width="3"/><text x="81" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">+12V</text><circle cx="123" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="116" y1="252" x2="130" y2="252" stroke="#455a64" stroke-width="3"/><text x="123" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">GND</text><circle cx="165" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="158" y1="252" x2="172" y2="252" stroke="#455a64" stroke-width="3"/><text x="165" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">+5V</text><rect x="210" y="236" width="150" height="20" rx="2" fill="#1b1b1b"/><rect x="220" y="243" width="7" height="7" fill="#c9a227"/><text x="223" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">ENA</text><rect x="244" y="243" width="7" height="7" fill="#c9a227"/><text x="247" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN1</text><rect x="268" y="243" width="7" height="7" fill="#c9a227"/><text x="271" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN2</text><rect x="292" y="243" width="7" height="7" fill="#c9a227"/><text x="295" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN3</text><rect x="316" y="243" width="7" height="7" fill="#c9a227"/><text x="319" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN4</text><rect x="340" y="243" width="7" height="7" fill="#c9a227"/><text x="343" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">ENB</text><rect x="214" y="230" width="18" height="12" rx="2" fill="#fdd835"/><rect x="334" y="230" width="18" height="12" rx="2" fill="#fdd835"/><rect x="100" y="186" width="30" height="24" rx="2" fill="#212121"/><rect x="104" y="178" width="22" height="8" fill="#9e9e9e"/><text x="115" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ffebee">78M05</text><rect x="150" y="196" width="18" height="12" rx="2" fill="#fdd835"/><text x="159" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ffebee">5V-EN</text><circle cx="290" cy="196" r="14" fill="#212121" stroke="#9e9e9e" stroke-width="2"/><path d="M276 196 a14 14 0 0 1 8 -12.7" stroke="#bdbdbd" stroke-width="3" fill="none"/><circle cx="325" cy="196" r="14" fill="#212121" stroke="#9e9e9e" stroke-width="2"/><path d="M311 196 a14 14 0 0 1 8 -12.7" stroke="#bdbdbd" stroke-width="3" fill="none"/></svg><figcaption><span class="ft">Puente H L298N</span>Recibe el PWM del Arduino en el pin ENA y entrega la potencia al motor.</figcaption></figure>
+    <figure><svg viewBox="0 0 260 150" class="art" role="img" aria-label="Ilustración de un motor de corriente directa">
+  <rect x="30" y="35" width="150" height="80" rx="36" fill="#b0bec5" stroke="#78909c" stroke-width="3"/>
+  <rect x="40" y="45" width="130" height="10" rx="5" fill="#eceff1" opacity=".6"/>
+  <rect x="170" y="50" width="26" height="50" rx="6" fill="#90a4ae" stroke="#78909c" stroke-width="2"/>
+  <rect x="196" y="70" width="44" height="10" rx="3" fill="#cfd8dc" stroke="#90a4ae"/>
+  <rect x="18" y="50" width="16" height="50" rx="4" fill="#ffd54f" stroke="#c9a227"/>
+  <line x1="18" y1="62" x2="2" y2="62" stroke="#ef4444" stroke-width="4"/><line x1="18" y1="88" x2="2" y2="88" stroke="#1b1b1b" stroke-width="4"/>
+  <text x="105" y="140" text-anchor="middle" class="albl">motor DC con escobillas</text>
+</svg><figcaption><span class="ft">Motor DC</span>Su velocidad sigue al voltaje promedio que le entrega el L298N.</figcaption></figure>
+  </div>
+  <div class="theory reveal" style="margin-top:20px">
+    <p>El Arduino UNO R4 WiFi envía el <b>PWM</b> al pin ENA del L298N. El valor de 0 a 255 fija el voltaje promedio que recibe el motor y, con él, su velocidad. La rampa consiste en cambiar ese valor gradualmente.</p>
+  </div>
+</div></section>
+
+<section id="perfiles"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Tipos de perfiles de velocidad</h2>
+  <div class="figure reveal"><svg viewBox="0 0 760 250" class="art" role="img" aria-label="Comparación de perfiles de velocidad: escalón, trapezoidal y curva S">
+<rect x="0" y="0" width="760" height="250" rx="14" fill="#0b0d11"/>
+<g transform="translate(20,20)">
+<rect width="220" height="190" rx="12" fill="#14171d" stroke="#2a303c"/>
+<line x1="20" y1="160" x2="205" y2="160" stroke="#2a303c"/><line x1="20" y1="20" x2="20" y2="160" stroke="#2a303c"/>
+<path d="M20 160 H60 V40 H150 V160 H205" fill="none" stroke="#f87171" stroke-width="3"/>
+<text x="110" y="182" text-anchor="middle" class="albl" style="fill:#e8eaed;font-weight:700">Escalón (sin rampa)</text>
+<text x="26" y="16" class="albl">velocidad</text></g><g transform="translate(270,20)">
+<rect width="220" height="190" rx="12" fill="#14171d" stroke="#2a303c"/>
+<line x1="20" y1="160" x2="205" y2="160" stroke="#2a303c"/><line x1="20" y1="20" x2="20" y2="160" stroke="#2a303c"/>
+<path d="M20 160 H40 L90 40 H130 L180 160 H205" fill="none" stroke="#fbbf24" stroke-width="3"/>
+<text x="110" y="182" text-anchor="middle" class="albl" style="fill:#e8eaed;font-weight:700">Trapezoidal (lineal)</text>
+<text x="26" y="16" class="albl">velocidad</text></g><g transform="translate(520,20)">
+<rect width="220" height="190" rx="12" fill="#14171d" stroke="#2a303c"/>
+<line x1="20" y1="160" x2="205" y2="160" stroke="#2a303c"/><line x1="20" y1="20" x2="20" y2="160" stroke="#2a303c"/>
+<path d="M20 160 H35 C60 160 70 40 95 40 H120 C145 40 155 160 180 160 H205" fill="none" stroke="#4ade80" stroke-width="3"/>
+<text x="110" y="182" text-anchor="middle" class="albl" style="fill:#e8eaed;font-weight:700">Curva S</text>
+<text x="26" y="16" class="albl">velocidad</text></g>
+<text x="380" y="240" text-anchor="middle" class="albl">tiempo →</text>
+</svg></div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Perfil</th><th>Cómo cambia la velocidad</th><th>Ventaja</th><th>Desventaja</th></tr>
+    <tr><td><b>Escalón</b></td><td class="w">Salto instantáneo al valor final.</td><td class="w">Respuesta inmediata.</td><td class="w">Pico de corriente y golpe mecánico.</td></tr>
+    <tr><td><b>Trapezoidal</b></td><td class="w">Sube en línea recta, se mantiene y baja en línea recta. La aceleración es constante.</td><td class="w">Fácil de calcular; es el más usado.</td><td class="w">Cambio brusco de aceleración en las esquinas (sacudida).</td></tr>
+    <tr><td><b>Curva S</b></td><td class="w">La aceleración también aumenta y disminuye poco a poco.</td><td class="w">Movimiento muy suave, sin sacudidas.</td><td class="w">Más cálculos y la rampa dura un poco más.</td></tr>
+  </table></div>
+  <div class="note info reveal"><b>Sacudida (jerk):</b> es la rapidez con la que cambia la aceleración. La curva S la limita; por eso se usa en elevadores, impresoras 3D y robots.</div>
+</div></section>
+
+<section id="nobloq" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Sin retardos bloqueantes</h2>
+  <div class="theory reveal">
+    <p>La forma ingenua de hacer una rampa es subir un poco el PWM y <b>esperar</b> con un retardo, repetidamente. Mientras el programa espera, <b>no hace nada más</b>: no lee botones, sensores ni comunicaciones. Una rampa de 2 segundos sería un programa “congelado” por 2 segundos.</p>
+    <p>La forma correcta es <b>cooperativa</b>: el programa consulta el reloj interno con <b>millis()</b> en cada vuelta y solo cambia la velocidad cuando ya pasó el intervalo. El resto del tiempo sigue atendiendo todo lo demás.</p>
+  </div>
+  <div class="figure reveal"><svg viewBox="0 0 760 270" class="art" role="img" aria-label="Línea de tiempo: retardo bloqueante contra programa cooperativo con millis">
+<rect x="0" y="0" width="760" height="270" rx="14" fill="#0b0d11"/>
+<text x="20" y="30" class="albl" style="fill:#f87171;font-size:13px;font-weight:700">Con delay(): el programa se detiene en cada escalón</text>
+<rect x="30" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="60" y="67" text-anchor="middle" class="albl">espera</text><rect x="100" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="130" y="67" text-anchor="middle" class="albl">espera</text><rect x="170" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="200" y="67" text-anchor="middle" class="albl">espera</text><rect x="240" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="270" y="67" text-anchor="middle" class="albl">espera</text><rect x="310" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="340" y="67" text-anchor="middle" class="albl">espera</text><rect x="380" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="410" y="67" text-anchor="middle" class="albl">espera</text><rect x="450" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="480" y="67" text-anchor="middle" class="albl">espera</text><rect x="520" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="550" y="67" text-anchor="middle" class="albl">espera</text><rect x="590" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="620" y="67" text-anchor="middle" class="albl">espera</text><rect x="660" y="45" width="60" height="34" rx="6" fill="rgba(248,113,113,.15)" stroke="#f87171"/><text x="690" y="67" text-anchor="middle" class="albl">espera</text>
+<line x1="430" y1="40" x2="430" y2="110" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4 4"/>
+<text x="430" y="125" text-anchor="middle" class="albl" style="fill:#fbbf24">se presiona PARO… y nadie lo lee</text>
+<text x="20" y="165" class="albl" style="fill:#4ade80;font-size:13px;font-weight:700">Con millis(): cada vuelta de loop() revisa todo y sale rápido</text>
+<rect x="30" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="65" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="100" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="135" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="170" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="205" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="240" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="275" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="310" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="345" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="380" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="415" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="450" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="485" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="520" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="555" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="590" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="625" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="660" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/><rect x="695" y="180" width="29" height="34" rx="5" fill="rgba(74,222,128,.12)" stroke="#4ade80"/>
+<text x="380" y="235" text-anchor="middle" class="albl">en cada vuelta: ¿pasó el intervalo? → sube un escalón · lee botones · lee sensores · actualiza pantalla</text>
+<line x1="430" y1="175" x2="430" y2="220" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4 4"/>
+<text x="430" y="258" text-anchor="middle" class="albl" style="fill:#4ade80">el PARO se atiende en milisegundos</text>
+</svg></div>
+</div></section>
+
+<section id="calculo"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Cómo se construye la rampa</h2>
+  <div class="figure reveal"><svg viewBox="0 0 760 260" class="art" role="img" aria-label="Rampa construida con escalones de tiempo fijo">
+<rect x="0" y="0" width="760" height="260" rx="14" fill="#0b0d11"/>
+<line x1="60" y1="210" x2="730" y2="210" stroke="#2a303c"/><line x1="60" y1="30" x2="60" y2="210" stroke="#2a303c"/>
+<text x="22" y="40" class="albl">PWM</text><text x="700" y="232" class="albl">tiempo</text>
+<path d="M60 210 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M112 195 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M164 180 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M216 165 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M268 150 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M320 135 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M372 120 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M424 105 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M476 90 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M528 75 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/><path d="M580 60 h52 v-15" fill="none" stroke="#22d3ee" stroke-width="2.5"/>
+<line x1="60" y1="210" x2="632" y2="45" stroke="#fbbf24" stroke-dasharray="6 5"/>
+<path d="M164 180 h52" stroke="#a78bfa" stroke-width="2"/><text x="190" y="196" text-anchor="middle" class="albl" style="fill:#a78bfa">intervalo (ej. 20 ms)</text>
+<path d="M226 165 v-15" stroke="#4ade80" stroke-width="3"/><text x="232" y="160" class="albl" style="fill:#4ade80">Δ (ej. +5)</text>
+<text x="640" y="40" class="albl" style="fill:#fbbf24">velocidad objetivo</text>
+</svg></div>
+  <ol class="steps">
+    <li class="reveal">El programa guarda dos valores: la <b>velocidad actual</b> y la <b>velocidad objetivo</b>.</li>
+    <li class="reveal">Cada <b>intervalo</b> fijo (por ejemplo, 20 ms) compara ambas.</li>
+    <li class="reveal">Si la actual es menor, la sube un <b>escalón Δ</b>; si es mayor, la baja. Nunca pasa del objetivo.</li>
+    <li class="reveal">Envía el nuevo valor al L298N. Cuando son iguales, la rampa terminó.</li>
+    <li class="reveal">Si llega un nuevo objetivo a mitad de la rampa, la rampa simplemente cambia de dirección a partir del valor actual.</li>
+  </ol>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Escalón Δ</th><th>Intervalo</th><th>Aceleración</th><th>De 0 a 255 tarda…</th></tr>
+    <tr><td class="c">1</td><td class="c">10 ms</td><td class="c">100 /s</td><td class="c">2.55 s</td></tr>
+    <tr><td class="c">5</td><td class="c">20 ms</td><td class="c">250 /s</td><td class="c">1.02 s</td></tr>
+    <tr><td class="c">10</td><td class="c">20 ms</td><td class="c">500 /s</td><td class="c">0.51 s</td></tr>
+  </table></div>
+  <div class="note info reveal"><b>Fórmula:</b> tiempo de rampa = (diferencia de velocidad ÷ Δ) × intervalo. Escalones pequeños y frecuentes dan una rampa más suave que escalones grandes y espaciados.</div>
+</div></section>
+
+<section id="sim" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Simulador</span>
+  <h2 class="reveal">Rampa de velocidad del motor DC</h2>
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Velocidad objetivo vs. velocidad aplicada</h3><span class="badge b-acc" id="rEst">DETENIDO</span></div>
+    <div class="sim-ctrl">
+      <label class="rng">Objetivo <input type="range" id="rObj" min="0" max="255" value="200"> <span class="mono" id="rObjV">200</span></label>
+      <label class="rng">Δ por escalón <input type="range" id="rDel" min="1" max="40" value="5"> <span class="mono" id="rDelV">5</span></label>
+    </div>
+    <div class="sim-ctrl">
+      <button class="tog grn" id="rGo" type="button">ARRANCAR</button>
+      <button class="tog red" id="rStop" type="button">PARO (desacelerar)</button>
+      <button class="tog" id="rMode" type="button">Modo: con rampa</button>
+    </div>
+    <canvas id="rCv" height="260" aria-label="Gráfica de velocidad y corriente en el tiempo"></canvas>
+    <div class="kpi"><div><b id="kPwm">0</b><span>PWM aplicado</span></div><div><b id="kPico">0 %</b><span>pico de corriente estimado</span></div><div><b id="kT">0.00 s</b><span>duración de la última rampa</span></div></div>
+    <p class="out">Intervalo fijo de 20 ms. Prueba el modo “sin rampa” y observa el pico de corriente. La gráfica es ilustrativa.</p>
+  </div>
+</div></section>
+
+<section id="consideraciones"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Consideraciones prácticas con el motor DC</h2>
+  <div class="grid g3">
+    <div class="card warn reveal"><span class="tag w">ZONA MUERTA</span><h3>El motor no arranca con PWM bajo</h3><p>Por la fricción, por debajo de cierto valor (a menudo 60–90 de 255) el motor zumba pero no gira. La rampa puede empezar en ese valor mínimo.</p></div>
+    <div class="card reveal"><span class="tag">DESACELERACIÓN</span><h3>Bajar también con rampa</h3><p>Detener poco a poco evita que la carga siga empujando al motor y que haya golpes. Para emergencias se usa el freno, no la rampa.</p></div>
+    <div class="card bad reveal"><span class="tag w">INVERSIÓN</span><h3>Pasar siempre por cero</h3><p>Para cambiar de sentido: desacelerar hasta 0, cambiar IN1/IN2 y volver a acelerar.</p></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card ok reveal"><span class="tag">BUENA PRÁCTICA</span><h3>Una rampa por actuador</h3><p>Cada motor lleva su propia velocidad actual, objetivo e intervalo. Así varios motores aceleran a la vez sin estorbarse.</p></div>
+    <div class="card reveal"><span class="tag">CONEXIÓN</span><h3>Con lo que sigue</h3><p>Una rampa es <b>lazo abierto</b>: no mide la velocidad real. En 4.2.2 se mide con un encoder y en 4.2.3 se corrige con un controlador.</p></div>
+  </div>
+</div></section>
+
+<section id="resumen" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Resumen</span>
+  <h2 class="reveal">Lo esencial</h2>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Concepto</th><th>Idea clave</th></tr>
+    <tr><td><b>Rampa</b></td><td class="w">Cambiar la velocidad de forma gradual con una aceleración controlada.</td></tr>
+    <tr><td><b>Perfil trapezoidal</b></td><td class="w">Acelerar, mantener y desacelerar en línea recta.</td></tr>
+    <tr><td><b>Curva S</b></td><td class="w">Suaviza también la aceleración; elimina las sacudidas.</td></tr>
+    <tr><td><b>No bloqueante</b></td><td class="w">Usar millis() e intervalos; nunca detener el programa con retardos.</td></tr>
+    <tr><td><b>Parámetros</b></td><td class="w">Escalón Δ e intervalo definen la aceleración y la duración de la rampa.</td></tr>
+  </table></div>
+</div></section>
+
+<div class="wrap"><div class="pager"><a class="btn ghost" href="../../4.1/4.1.3/">← Tema anterior: 4.1.3 Drivers con interbloqueo</a><a class="btn ghost" href="../4.2.2/">Siguiente: 4.2.2 Encoders en cuadratura →</a></div></div>
+</main>
+<footer>Sistemas Programables (SCC-1023) · Unidad 4 · 4.2 Perfilado de movimiento y control en lazo cerrado · Arduino UNO R4 WiFi</footer>
+<script src="../u4.js"></script>
+<script>
+(function(){
+  var g=function(id){return document.getElementById(id)};
+  var cv=g('rCv'),ctx=cv.getContext('2d'),obj=g('rObj'),del=g('rDel');
+  var rampa=true,objetivo=0,vel=0,hist=[],cur=[],t=0,acc=0,last=performance.now(),tIni=null,pico=0,motor=0;
+  var N=300;for(var i=0;i<N;i++){hist.push(0);cur.push(0);}
+  function lbl(){g('rObjV').textContent=obj.value;g('rDelV').textContent=del.value;}
+  obj.oninput=function(){lbl();if(objetivo>0)objetivo=+obj.value;tIni=performance.now();};
+  del.oninput=lbl;
+  g('rGo').onclick=function(){objetivo=+obj.value;tIni=performance.now();pico=0;};
+  g('rStop').onclick=function(){objetivo=0;tIni=performance.now();};
+  g('rMode').onclick=function(){rampa=!rampa;g('rMode').textContent='Modo: '+(rampa?'con rampa':'sin rampa (escalón)');g('rMode').classList.toggle('on',!rampa);};
+  function step(){ /* cada 20 ms */
+    var d=+del.value;
+    if(!rampa)vel=objetivo;
+    else if(vel<objetivo)vel=Math.min(objetivo,vel+d);
+    else if(vel>objetivo)vel=Math.max(objetivo,vel-d);
+    var prev=motor;motor+= (vel-motor)*0.12;          /* inercia del motor */
+    var i=Math.max(0,(vel-motor))*0.9+motor*0.15;       /* corriente ~ diferencia + carga */
+    if(i>pico)pico=i;
+    if(tIni!==null&&vel===objetivo){g('kT').textContent=((performance.now()-tIni)/1000).toFixed(2)+' s';tIni=null;}
+    hist.push(vel);hist.shift();cur.push(i);cur.shift();
+  }
+  function draw(){
+    var w=cv.clientWidth,h=260,dpr=window.devicePixelRatio||1;
+    cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    var L=40,R=w-10,top=16,bot=h-22,X=function(i){return L+(R-L)*i/(N-1)},Y=function(v){return bot-(bot-top)*v/255};
+    ctx.strokeStyle='#232833';ctx.fillStyle='#6b7280';ctx.font='11px Inter,sans-serif';
+    [0,64,128,192,255].forEach(function(v){ctx.beginPath();ctx.moveTo(L,Y(v));ctx.lineTo(R,Y(v));ctx.stroke();ctx.fillText(v,6,Y(v)+4);});
+    ctx.fillText('últimos 6 s',R-70,h-6);
+    ctx.setLineDash([6,5]);ctx.strokeStyle='#a78bfa';ctx.beginPath();ctx.moveTo(L,Y(objetivo));ctx.lineTo(R,Y(objetivo));ctx.stroke();ctx.setLineDash([]);
+    function line(arr,col,sc){ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();arr.forEach(function(v,i){var y=Y(Math.min(255,v*sc));i?ctx.lineTo(X(i),y):ctx.moveTo(X(i),y)});ctx.stroke();}
+    line(cur,'#f87171',1);line(hist,'#22d3ee',1);
+    ctx.fillStyle='#22d3ee';ctx.fillText('PWM aplicado',L+6,top+10);ctx.fillStyle='#f87171';ctx.fillText('corriente (relativa)',L+100,top+10);ctx.fillStyle='#a78bfa';ctx.fillText('objetivo',L+230,top+10);
+  }
+  function loop(now){
+    acc+=now-last;last=now;if(acc>500)acc=500;
+    while(acc>=20){acc-=20;step();}
+    g('kPwm').textContent=Math.round(vel);g('kPico').textContent=Math.round(pico/255*100)+' %';
+    var e=g('rEst');
+    if(vel===0&&objetivo===0){e.textContent='DETENIDO';e.className='badge b-mut';}
+    else if(vel<objetivo){e.textContent='ACELERANDO';e.className='badge b-warn';}
+    else if(vel>objetivo){e.textContent='DESACELERANDO';e.className='badge b-vio';}
+    else{e.textContent='VELOCIDAD CONSTANTE';e.className='badge b-ok';}
+    draw();requestAnimationFrame(loop);
+  }
+  lbl();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
