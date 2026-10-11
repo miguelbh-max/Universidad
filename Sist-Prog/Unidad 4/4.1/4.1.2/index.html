@@ -20,98 +20,157 @@
 <section class="hero"><div class="wrap">
   <span class="kicker">Unidad 4 · Control de actuadores y lógica de procesos segura</span>
   <h1><span class="num">4.1.2</span><br>Brownouts y rebotes</h1>
-  <p class="sub">La física no es ideal: los contactos rebotan y el voltaje se cae. El software lo detecta y lo compensa.</p>
+  <p class="sub">El hardware real no es ideal: los contactos rebotan y el voltaje se cae. El software debe saberlo y protegerse.</p>
   <div class="chips">
-    <span class="chip"><i></i>Físico: pulsadores + LEDs</span>
-    <span class="chip sim"><i></i>Tinkercad: mismo circuito (sin rebote real)</span>
-    <span class="chip teo"><i></i>UNO R4: registros de reinicio</span>
+    <span class="chip"><i></i>Rebote de contactos</span>
+    <span class="chip"><i></i>Filtrado (debounce)</span>
+    <span class="chip c-sim"><i></i>Caídas de voltaje</span>
+    <span class="chip c-teo"><i></i>Detección de reinicio</span>
   </div>
-  <div class="cta"><a class="btn" href="#practica">Ir a la práctica ↓</a><a class="btn ghost" href="#rebote">Simulador de rebote</a></div>
+  <div class="cta"><a class="btn" href="#intro">Empezar ↓</a><a class="btn ghost" href="#rebote">Simulador de rebote</a></div>
 </div></section>
 
-<section id="objetivo"><div class="wrap">
-  <span class="kicker reveal">Objetivo</span>
-  <h2 class="reveal">Dos fenómenos que engañan al programa</h2>
-  <p class="lead reveal">El código asume señales limpias y voltaje estable. En el mundo real ninguna de las dos cosas está garantizada.</p>
-  <div class="grid g2">
-    <div class="card warn reveal"><span class="ico">🔘</span><h3>Rebote (bounce)</h3><p>Presionas una vez y el programa cuenta cuatro. Lo resuelve el <b>software</b>.</p></div>
-    <div class="card bad reveal"><span class="ico">📉</span><h3>Brownout</h3><p>Arranca el motor, cae el voltaje y el Arduino se reinicia. El software lo <b>previene y lo detecta</b>, el hardware lo corrige.</p></div>
+<section id="intro"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">El programa supone un mundo ideal</h2>
+  <div class="theory reveal">
+    <p>Cuando escribimos un programa asumimos que un botón cambia de estado <b>una sola vez</b> y que el voltaje es <b>siempre 5 V</b>. Ninguna de las dos cosas es cierta. Los fenómenos físicos producen señales falsas o reinicios, y si el software no los considera, el sistema se comporta de forma impredecible.</p>
+  </div>
+  <div class="vs">
+    <div class="card warn reveal"><span class="ico">🔘</span><h3>Rebote (bounce)</h3><p>Una pulsación se convierte en varias. Afecta a <b>entradas</b>: botones, interruptores, finales de carrera, contactos de relevador.</p></div>
+    <div class="card bad reveal"><span class="ico">📉</span><h3>Brownout</h3><p>El voltaje cae por un instante. Afecta a <b>todo el sistema</b>: reinicios, lecturas falsas, salidas que se activan solas.</p></div>
   </div>
 </div></section>
 
 <section id="rebote" style="background:var(--bg2)"><div class="wrap">
   <span class="kicker reveal">Parte 1</span>
   <h2 class="reveal">Rebote de contactos</h2>
-  <div class="grid g3">
-    <div class="card reveal"><span class="tag">QUÉ PASA</span><h3>Metal que rebota</h3><p>Las láminas del botón chocan y rebotan durante <b>1 a 20 ms</b> antes de quedarse quietas.</p></div>
-    <div class="card reveal"><span class="tag">POR QUÉ IMPORTA</span><h3>loop() es muy rápido</h3><p>El micro lee el pin miles de veces por milisegundo: ve cada rebote como una pulsación nueva.</p></div>
-    <div class="card ok reveal"><span class="tag">SOLUCIÓN</span><h3>Exigir estabilidad</h3><p>Aceptar un cambio solo si la lectura se mantiene igual <b>N ms seguidos</b>, medidos con <span class="mono">millis()</span>.</p></div>
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 380 170" class="art" role="img" aria-label="Pulsador táctil visto desde arriba y en corte">
+  <rect x="30" y="30" width="100" height="100" rx="6" fill="#455a64" stroke="#263238" stroke-width="3"/>
+  <circle cx="80" cy="80" r="30" fill="#212121" stroke="#111" stroke-width="3"/>
+  <rect x="36" y="12" width="10" height="18" fill="#cfd8dc"/><rect x="114" y="12" width="10" height="18" fill="#cfd8dc"/><rect x="36" y="130" width="10" height="18" fill="#cfd8dc"/><rect x="114" y="130" width="10" height="18" fill="#cfd8dc"/>
+  <text x="80" y="164" text-anchor="middle" class="albl">vista superior (4 patas)</text>
+  <g id="pulsCorte">
+  <rect x="190" y="100" width="160" height="30" rx="4" fill="#455a64"/>
+  <rect x="210" y="96" width="40" height="8" fill="#ffca28"/><rect x="290" y="96" width="40" height="8" fill="#ffca28"/>
+  <path id="domo" d="M220 92 Q270 52 320 92" stroke="#cfd8dc" stroke-width="5" fill="none"/>
+  <rect x="250" y="30" width="40" height="34" rx="4" fill="#212121" id="vastago"/>
+  </g>
+  <text x="270" y="152" text-anchor="middle" class="albl">en corte: domo metálico</text>
+</svg><div style="text-align:center;margin-top:8px"><button class="tog" id="pulsBtn" type="button">Presionar</button></div></div>
+    <div class="theory">
+      <h3>Por qué rebota un botón</h3>
+      <p>Dentro del pulsador hay una lámina metálica en forma de domo. Al presionarla, el metal choca contra los contactos y, por su elasticidad, <b>rebota</b> varias veces antes de quedarse quieto. Lo mismo ocurre al soltarlo.</p>
+      <p>Cada rebote abre y cierra el circuito. Suele durar de <b>1 a 10 ms</b>, aunque en interruptores baratos o desgastados puede durar más.</p>
+      <p>El UNO R4 ejecuta millones de instrucciones por segundo: <b>ve cada rebote como una pulsación nueva</b>.</p>
+    </div>
   </div>
 
   <div class="sim reveal">
-    <div class="sim-h"><h3>Simulador: ventana de estabilidad</h3><button class="btn" id="bPress" type="button">Nueva pulsación</button></div>
-    <div class="sim-ctrl"><label class="rng">Ventana N <input type="range" id="bMs" min="0" max="50" value="25"> <span class="mono" id="bMsVal">25 ms</span></label></div>
+    <div class="sim-h"><h3>Osciloscopio: señal cruda vs. filtrada</h3><button class="btn" id="bPress" type="button">Nueva pulsación</button></div>
+    <div class="sim-ctrl"><label class="rng">Ventana de estabilidad N <input type="range" id="bMs" min="0" max="50" value="25"> <span class="mono" id="bMsVal">25 ms</span></label></div>
     <canvas id="bCanvas" height="230" aria-label="Señal cruda y señal filtrada del botón"></canvas>
     <div class="out" id="bStats"></div>
   </div>
 
-  <h3 class="reveal" style="margin-top:28px">El driver en C++</h3>
-  <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Boton.h · clase</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-bot">// ===== Driver de un pulsador con filtro de rebote (sin delay) =====
-class Boton {
-  public:
-    Boton(uint8_t pin, unsigned long estableMs = 25) : _pin(pin), _estableMs(estableMs) {}
+  <div class="grid g3">
+    <div class="card bad reveal"><span class="tag w">CONTADORES</span><h3>Cuentas de más</h3><p>Un contador de piezas registra 4 en lugar de 1.</p></div>
+    <div class="card bad reveal"><span class="tag w">ALTERNAR</span><h3>Encender/apagar</h3><p>Con un número par de rebotes, el LED regresa al estado anterior y “no hace nada”.</p></div>
+    <div class="card bad reveal"><span class="tag w">INTERRUPCIONES</span><h3>Ráfagas de eventos</h3><p>Una interrupción por flanco se dispara una vez por cada rebote.</p></div>
+  </div>
 
-    void begin() {
-      pinMode(_pin, INPUT_PULLUP);              // suelto = HIGH, presionado = LOW
-      _cruda = _estado = (digitalRead(_pin) == HIGH);
-      _tCambio = millis();
-    }
+  <h3 class="reveal" style="margin-top:28px">Conexión con resistencia pull-up interna</h3>
+  <div class="comp rev reveal">
+    <div class="pic"><svg viewBox="0 0 420 220" class="art" role="img" aria-label="Pulsador con resistencia pull-up interna">
+<rect x="10" y="10" width="400" height="200" rx="14" fill="#14171d" stroke="#2a303c"/>
+<rect x="30" y="40" width="150" height="140" rx="12" fill="#191d25" stroke="#22d3ee"/>
+<text x="105" y="62" text-anchor="middle" class="albl" style="fill:#22d3ee">UNO R4</text>
+<line x1="80" y1="80" x2="80" y2="96" stroke="#ef4444" stroke-width="3"/><text x="60" y="84" class="albl">5V</text>
+<rect x="72" y="96" width="16" height="36" rx="3" fill="none" stroke="#9aa3b2" stroke-width="2"/>
+<text x="96" y="118" class="albl">pull-up</text>
+<line x1="80" y1="132" x2="80" y2="150" stroke="#3b82f6" stroke-width="3"/><line x1="80" y1="150" x2="180" y2="150" stroke="#3b82f6" stroke-width="3"/>
+<text x="120" y="168" class="albl">D2</text>
+<line x1="180" y1="150" x2="250" y2="150" stroke="#3b82f6" stroke-width="3"/>
+<circle cx="250" cy="150" r="4" fill="#e8eaed"/><circle cx="310" cy="150" r="4" fill="#e8eaed"/>
+<line id="puBar" x1="250" y1="150" x2="306" y2="128" stroke="#e8eaed" stroke-width="3"/>
+<line x1="310" y1="150" x2="370" y2="150" stroke="#9aa3b2" stroke-width="3"/><line x1="370" y1="150" x2="370" y2="185" stroke="#9aa3b2" stroke-width="3"/>
+<line x1="355" y1="185" x2="385" y2="185" stroke="#9aa3b2" stroke-width="3"/><line x1="361" y1="192" x2="379" y2="192" stroke="#9aa3b2" stroke-width="3"/>
+<text x="280" y="120" text-anchor="middle" class="albl">pulsador</text><text x="370" y="208" text-anchor="middle" class="albl">GND</text>
+<text x="300" y="60" text-anchor="middle" class="albl" id="puTxt" style="font-size:13px;fill:#4ade80">suelto → HIGH</text>
+</svg><div style="text-align:center;margin-top:8px"><button class="tog" id="puBtn" type="button">Presionar</button></div></div>
+    <div class="theory">
+      <p>El UNO R4 tiene resistencias <b>pull-up</b> internas que se activan con el modo <b>INPUT_PULLUP</b>. El pin queda en HIGH a través de la resistencia y el botón lo conecta a GND.</p>
+      <p>Resultado: la lógica se <b>invierte</b>. Suelto = HIGH, presionado = LOW. No se necesita resistencia externa y la entrada nunca queda “flotando” (captando ruido).</p>
+    </div>
+  </div>
 
-    // Llamar en CADA vuelta de loop(). Nunca usa delay().
-    void actualizar() {
-      _bajada = _subida = false;
-      bool lectura = (digitalRead(_pin) == HIGH);
-      if (lectura != _cruda) {                  // la señal cambió: puede ser rebote
-        _cruda = lectura;
-        _tCambio = millis();                    // reinicia el cronómetro de estabilidad
-        if (!lectura) _caidasCrudas++;
-      }
-      if (lectura != _estado &amp;&amp; millis() - _tCambio &gt;= _estableMs) {
-        _estado = lectura;                      // estable el tiempo suficiente: se acepta
-        if (!_estado) { _bajada = true; _tPresion = millis(); }
-        else          { _subida = true; }
-      }
-    }
+  <h3 class="reveal" style="margin-top:28px">Cómo se filtra: la ventana de estabilidad</h3>
+  <div class="figure reveal"><svg viewBox="0 0 760 230" class="art" role="img" aria-label="Algoritmo de ventana de estabilidad">
+<rect x="0" y="0" width="760" height="230" rx="14" fill="#0b0d11"/>
+<text x="20" y="28" class="albl" style="fill:#fbbf24">lectura cruda</text>
+<path d="M20 50 H140 V110 H160 V50 H175 V110 H190 V50 H198 V110 H740" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
+<text x="20" y="150" class="albl" style="fill:#22d3ee">estado aceptado</text>
+<path d="M20 170 H448 V210 H740" fill="none" stroke="#22d3ee" stroke-width="2.5"/>
+<line x1="140" y1="40" x2="140" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="160" y1="40" x2="160" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="175" y1="40" x2="175" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="190" y1="40" x2="190" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/><line x1="198" y1="40" x2="198" y2="215" stroke="#a78bfa" stroke-dasharray="3 4"/>
+<rect x="198" y="120" width="250" height="18" rx="4" fill="rgba(74,222,128,.15)" stroke="#4ade80"/>
+<text x="323" y="133" text-anchor="middle" class="albl" style="fill:#4ade80">N ms sin cambios → se acepta</text>
+<text x="210" y="82" class="albl" style="fill:#a78bfa">← cada cambio reinicia el cronómetro</text>
+<text x="600" y="100" text-anchor="middle" class="albl">el programa ve UNA pulsación</text>
+</svg></div>
+  <ol class="steps">
+    <li class="reveal">Se lee el pin en cada vuelta del programa.</li>
+    <li class="reveal">Si la lectura <b>cambió</b> respecto a la anterior, se anota la hora (con <b>millis()</b>): el cronómetro vuelve a cero.</li>
+    <li class="reveal">Si la lectura lleva <b>N ms sin cambiar</b> y es distinta al estado aceptado, se acepta como el nuevo estado.</li>
+    <li class="reveal">Solo en ese momento se genera el evento “se presionó” o “se soltó”.</li>
+  </ol>
 
-    bool sePresiono()     const { return _bajada; }
-    bool seSolto()        const { return _subida; }
-    bool estaPresionado() const { return !_estado; }
-    unsigned long tiempoPresionado() const { return estaPresionado() ? millis() - _tPresion : 0; }
-    unsigned long caidasCrudas()     const { return _caidasCrudas; }
-
-  private:
-    uint8_t _pin;
-    unsigned long _estableMs, _tCambio = 0, _tPresion = 0, _caidasCrudas = 0;
-    bool _cruda = true, _estado = true, _bajada = false, _subida = false;   // true = HIGH
-};</code></pre></div>
-  <details class="acc reveal"><summary>¿Y por qué no usar delay(50) después de leer?</summary><div class="acc-b">
-    <ul class="clean"><li>Durante esos 50 ms el programa no hace nada más: ni motores, ni sensores, ni otros botones.</li><li>Con <span class="mono">millis()</span> el filtro cuesta microsegundos por vuelta y todo lo demás sigue funcionando.</li><li>Alternativa en hardware: capacitor + resistencia + compuerta Schmitt. Funciona, pero cuesta componentes en cada botón.</li></ul>
-  </div></details>
-  <div class="note"><b>Tinkercad:</b> sus botones son ideales y no rebotan. El efecto solo se ve con pulsadores reales.</div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Técnica</th><th>Cómo funciona</th><th>Ventaja</th><th>Desventaja</th></tr>
+    <tr><td><b>Retardo con delay()</b></td><td class="w">Leer, esperar 50 ms, volver a leer.</td><td class="w">Muy simple.</td><td class="w">Congela el programa: nada más funciona durante la espera.</td></tr>
+    <tr><td><b>Ventana de tiempo</b></td><td class="w">Aceptar el cambio tras N ms estables, medidos con millis().</td><td class="w">No bloquea; preciso.</td><td class="w">Requiere guardar estado por cada botón.</td></tr>
+    <tr><td><b>Contador / integrador</b></td><td class="w">Sumar al leer 1 y restar al leer 0; cambiar al llegar a un límite.</td><td class="w">Tolera ruido aislado.</td><td class="w">Depende de muestrear a ritmo constante.</td></tr>
+    <tr><td><b>Hardware RC + Schmitt</b></td><td class="w">Un capacitor suaviza la señal y una compuerta Schmitt (74HC14) la limpia.</td><td class="w">La señal llega limpia al micro.</td><td class="w">Componentes extra por cada entrada.</td></tr>
+  </table></div>
+  <div class="note info reveal"><b>¿Qué valor de N?</b> Entre 10 y 50 ms es lo habitual. Muy corto deja pasar rebotes; muy largo hace que el botón se sienta lento o que se pierdan pulsaciones rápidas.</div>
 </div></section>
 
 <section id="brownout"><div class="wrap">
   <span class="kicker reveal">Parte 2</span>
   <h2 class="reveal">Brownout: caída de voltaje</h2>
-  <p class="lead reveal">Una baja momentánea de voltaje, más corta que un parpadeo, basta para que el micro se reinicie o lea basura.</p>
-  <div class="grid g3">
-    <div class="card bad reveal"><span class="tag w">CAUSAS</span><ul class="clean"><li>Arranque de motores y servos</li><li>Bobinas de relevadores</li><li>USB o fuente débil</li><li>Cables delgados o largos</li></ul></div>
-    <div class="card warn reveal"><span class="tag w">SÍNTOMAS</span><ul class="clean"><li>Reinicios "misteriosos"</li><li>Caracteres basura en Serial</li><li>Lecturas analógicas falsas</li><li>Salidas que parpadean solas</li></ul></div>
-    <div class="card reveal"><span class="tag">PISTA</span><h3>Cuándo ocurre</h3><p>Si el reinicio coincide <b>siempre</b> con el arranque del motor, casi seguro es un brownout.</p></div>
+  <div class="def reveal"><b>Brownout</b> es una disminución temporal del voltaje de alimentación por debajo del mínimo necesario para que un circuito funcione correctamente, sin llegar a cortarse por completo. Puede durar solo unos milisegundos.</div>
+  <div class="theory reveal">
+    <p>Un microcontrolador necesita un voltaje mínimo para ejecutar instrucciones. Si el voltaje baja de ese umbral, puede <b>reiniciarse</b> o, peor aún, <b>seguir funcionando de forma errática</b>: leer mal los registros, corromper memoria o activar salidas sin razón.</p>
+  </div>
+
+  <h3 class="reveal" style="margin-top:20px">Cómo se alimenta el UNO R4 WiFi</h3>
+  <div class="figure reveal"><svg viewBox="0 0 760 300" class="art" role="img" aria-label="Mapa de alimentación del Arduino UNO R4 WiFi">
+<defs><marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ef4444"/></marker></defs>
+<rect x="10" y="30" width="160" height="70" rx="12" fill="#191d25" stroke="#ef4444"/><text x="90" y="60" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px">USB-C</text><text x="90" y="80" text-anchor="middle" class="albl">5 V de la computadora</text>
+<rect x="10" y="180" width="160" height="70" rx="12" fill="#191d25" stroke="#ef4444"/><text x="90" y="210" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px">Jack / VIN</text><text x="90" y="230" text-anchor="middle" class="albl">6 – 24 V</text>
+<rect x="230" y="180" width="140" height="70" rx="12" fill="#191d25" stroke="#a78bfa"/><text x="300" y="210" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px">Regulador</text><text x="300" y="230" text-anchor="middle" class="albl">baja a 5 V</text>
+<rect x="430" y="105" width="110" height="70" rx="12" fill="#191d25" stroke="#fbbf24"/><text x="485" y="135" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px">Riel 5 V</text><text x="485" y="155" text-anchor="middle" class="albl">de la placa</text>
+<rect x="600" y="20" width="150" height="70" rx="12" fill="#191d25" stroke="#22d3ee"/><text x="675" y="50" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px">RA4M1</text><text x="675" y="70" text-anchor="middle" class="albl">tu programa (5 V)</text>
+<rect x="600" y="105" width="150" height="70" rx="12" fill="#191d25" stroke="#22d3ee"/><text x="675" y="135" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px">ESP32-S3</text><text x="675" y="155" text-anchor="middle" class="albl">WiFi / BLE (3.3 V)</text>
+<rect x="600" y="190" width="150" height="70" rx="12" fill="#191d25" stroke="#f87171"/><text x="675" y="220" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px">Pin 5V</text><text x="675" y="240" text-anchor="middle" class="albl">lo que conectes afuera</text>
+<line x1="170" y1="65" x2="428" y2="130" stroke="#ef4444" stroke-width="2.5" marker-end="url(#pa)"/>
+<line x1="170" y1="215" x2="228" y2="215" stroke="#ef4444" stroke-width="2.5" marker-end="url(#pa)"/>
+<line x1="370" y1="215" x2="428" y2="155" stroke="#ef4444" stroke-width="2.5" marker-end="url(#pa)"/>
+<line x1="540" y1="125" x2="598" y2="60" stroke="#ef4444" stroke-width="2.5" marker-end="url(#pa)"/>
+<line x1="540" y1="140" x2="598" y2="140" stroke="#ef4444" stroke-width="2.5" marker-end="url(#pa)"/>
+<line x1="540" y1="155" x2="598" y2="222" stroke="#ef4444" stroke-width="2.5" marker-end="url(#pa)"/>
+<text x="380" y="290" text-anchor="middle" class="albl">Todo comparte el mismo riel de 5 V: si una carga lo hunde, el microcontrolador lo siente.</text>
+</svg></div>
+
+  <div class="grid g4">
+    <div class="card bad reveal"><span class="ico">⚙️</span><h3>Arranque de motores</h3><p>Al arrancar, un motor pide varias veces su corriente normal.</p></div>
+    <div class="card bad reveal"><span class="ico">🧲</span><h3>Bobinas</h3><p>Relevadores y servos producen picos al conmutar o moverse.</p></div>
+    <div class="card warn reveal"><span class="ico">📶</span><h3>WiFi del ESP32-S3</h3><p>Al transmitir, el coprocesador produce picos breves de corriente.</p></div>
+    <div class="card warn reveal"><span class="ico">🔌</span><h3>Fuente y cables</h3><p>Puertos USB débiles, cables delgados o largos y protoboards con mal contacto.</p></div>
   </div>
 
   <div class="sim reveal">
-    <div class="sim-h"><h3>Voltaje del Arduino al arrancar el motor</h3><span id="vRes"></span></div>
+    <div class="sim-h"><h3>Voltaje del Arduino al arrancar un motor</h3><span id="vRes"></span></div>
     <div class="sim-ctrl">
       <button class="tog on" data-esc="directo" type="button">Arranque directo</button>
       <button class="tog" data-esc="rampa" type="button">Rampa suave</button>
@@ -122,148 +181,64 @@ class Boton {
     <p class="out" style="font-size:.8rem">Gráfica ilustrativa: los valores reales dependen de la fuente, el motor y el cableado.</p>
   </div>
 
-  <h3 class="reveal" style="margin-top:28px">Lo que hace el software</h3>
-  <ol class="steps">
-    <li class="reveal"><b>Estado seguro al arrancar:</b> lo primero en <span class="mono">setup()</span> es apagar todas las salidas. Si hubo reinicio, nada arranca solo.</li>
-    <li class="reveal"><b>Detectar la causa del reinicio:</b> el RA4M1 del R4 guarda en registros por qué se reinició.</li>
-    <li class="reveal"><b>Rampas de arranque:</b> subir el PWM poco a poco reduce el pico de corriente.</li>
-    <li class="reveal"><b>Escalonar cargas:</b> no encender motor, servo y relevador en la misma vuelta de <span class="mono">loop()</span>.</li>
-    <li class="reveal"><b>Watchdog:</b> si el programa se congela, se reinicia solo (se ve en el tema 4.3).</li>
-  </ol>
-  <div class="card bad reveal" style="margin-top:16px"><span class="tag w">LO QUE EL SOFTWARE NO ARREGLA</span><ul class="clean"><li>Motores y servos con fuente propia, nunca del pin 5V del Arduino</li><li>Tierra común entre fuentes</li><li>Cables cortos y gruesos para la potencia</li><li>Capacitor cerca de la carga</li></ul></div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Síntoma</th><th>Qué está pasando</th></tr>
+    <tr><td>La placa se reinicia cuando arranca el motor</td><td class="w">El voltaje cayó por debajo del umbral de reinicio.</td></tr>
+    <tr><td>Caracteres extraños en el Monitor serie</td><td class="w">El reinicio cortó la comunicación a la mitad.</td></tr>
+    <tr><td>Lecturas analógicas que saltan</td><td class="w">El ADC usa la alimentación como referencia: si cae el voltaje, cambia la escala.</td></tr>
+    <tr><td>Un servo o relevador se mueve solo</td><td class="w">Al reiniciar, los pines quedan un instante sin configurar.</td></tr>
+    <tr><td>Datos guardados que se corrompen</td><td class="w">La escritura en memoria se interrumpió a la mitad.</td></tr>
+  </table></div>
 
-  <div class="grid g2" style="margin-top:8px">
-    <div><div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Rampa no bloqueante</span><button class="copy" type="button">Copiar</button></div><pre><code>// Arranque suave: la velocidad sube de 5 en 5 cada 20 ms (0 → 200 en 0.8 s)
-const uint8_t PIN_ENA = 5;
-int velActual = 0, velObjetivo = 200;
-unsigned long tRampa = 0;
-
-void actualizarRampa() {                 // llamar en cada vuelta de loop()
-  if (velActual == velObjetivo || millis() - tRampa &lt; 20) return;
-  tRampa = millis();
-  int paso = velObjetivo - velActual;
-  if (paso &gt; 5)  paso = 5;
-  if (paso &lt; -5) paso = -5;
-  velActual += paso;
-  analogWrite(PIN_ENA, velActual);
-}</code></pre></div></div>
-    <div><div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Causa del reinicio · UNO R4</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-causa">// ===== Causa del último reinicio (solo UNO R4: registros del RA4M1) =====
-#if defined(ARDUINO_ARCH_RENESAS)
-uint8_t causaReinicio() {
-  uint8_t causa;
-  if (R_SYSTEM-&gt;RSTSR0_b.LVD0RF || R_SYSTEM-&gt;RSTSR0_b.LVD1RF || R_SYSTEM-&gt;RSTSR0_b.LVD2RF)
-    causa = 3;                                   // bajo voltaje (brownout)
-  else if (R_SYSTEM-&gt;RSTSR1_b.WDTRF || R_SYSTEM-&gt;RSTSR1_b.IWDTRF)
-    causa = 4;                                   // watchdog
-  else if (R_SYSTEM-&gt;RSTSR1_b.SWRF)
-    causa = 2;                                   // reinicio por software
-  else if (R_SYSTEM-&gt;RSTSR2_b.CWSF == 0)
-    causa = 1;                                   // arranque en frío (se conectó la energía)
-  else
-    causa = 5;                                   // arranque en caliente (botón RESET)
-  R_SYSTEM-&gt;RSTSR0 = 0;                          // limpiar banderas para el siguiente arranque
-  R_SYSTEM-&gt;RSTSR1 = 0;
-  R_SYSTEM-&gt;RSTSR2_b.CWSF = 1;                   // desde ahora, todo reinicio será &quot;en caliente&quot;
-  return causa;
-}
-void reiniciarPorSoftware() { NVIC_SystemReset(); }
-#else                                            // Tinkercad / UNO R3
-uint8_t causaReinicio() { return 0; }
-void reiniciarPorSoftware() { Serial.println(F(&quot;Reinicio por software: solo en UNO R4&quot;)); }
-#endif</code></pre></div></div>
+  <h3 class="reveal" style="margin-top:28px">La protección dentro del RA4M1</h3>
+  <div class="theory reveal">
+    <p>El microcontrolador del UNO R4 tiene un circuito de <b>reinicio por encendido (POR)</b> y circuitos de <b>detección de voltaje (LVD0, LVD1 y LVD2)</b>. Vigilan la alimentación y pueden <b>reiniciar</b> el micro, o avisar con una interrupción, cuando el voltaje baja de un umbral.</p>
+    <p>Es mejor un reinicio limpio que un programa funcionando con voltaje insuficiente. Además, el micro guarda en unos <b>registros de estado</b> la causa del último reinicio (encendido, bajo voltaje, watchdog, software o botón RESET), y el programa puede leerla al arrancar.</p>
   </div>
-  <div class="note info reveal"><b>Dato:</b> si el voltaje cae muy bajo, el micro lo registra como un <b>arranque en frío</b> (como si se hubiera desconectado), aunque nadie tocó el cable. Ver "arranque en frío" sin haber desconectado nada es la señal de alarma.</div>
+
+  <h3 class="reveal" style="margin-top:28px">Qué hace el software</h3>
+  <ol class="steps">
+    <li class="reveal"><b>Estado seguro al arrancar:</b> lo primero en setup() es poner todas las salidas en un estado seguro. Si hubo un reinicio inesperado, nada arranca solo.</li>
+    <li class="reveal"><b>Leer la causa del reinicio:</b> distinguir un arranque normal de uno provocado por bajo voltaje y registrarlo o avisar.</li>
+    <li class="reveal"><b>Rampas de arranque:</b> subir el PWM poco a poco en lugar de pasar de 0 a 255 de golpe reduce el pico de corriente.</li>
+    <li class="reveal"><b>Escalonar las cargas:</b> no encender motor, servo y relevador al mismo tiempo.</li>
+    <li class="reveal"><b>No escribir en memoria</b> justo cuando arrancan las cargas.</li>
+    <li class="reveal"><b>Watchdog:</b> si el programa se congela, se reinicia solo.</li>
+  </ol>
+
+  <h3 class="reveal" style="margin-top:28px">Lo que el software no puede arreglar</h3>
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 240 150" class="art" role="img" aria-label="Capacitor electrolítico y capacitor cerámico">
+  <rect x="40" y="20" width="60" height="90" rx="10" fill="#263238" stroke="#90a4ae" stroke-width="2"/>
+  <rect x="40" y="20" width="14" height="90" fill="#b0bec5" opacity=".7"/>
+  <text x="77" y="70" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#cfd8dc" transform="rotate(-90 77 70)">470µF</text>
+  <line x1="60" y1="110" x2="60" y2="135" stroke="#cfd8dc" stroke-width="3"/><line x1="82" y1="110" x2="82" y2="140" stroke="#cfd8dc" stroke-width="3"/>
+  <ellipse cx="170" cy="62" rx="26" ry="22" fill="#f9a825" stroke="#c49000" stroke-width="2"/>
+  <text x="170" y="66" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#3e2723">104</text>
+  <line x1="160" y1="82" x2="160" y2="135" stroke="#cfd8dc" stroke-width="3"/><line x1="180" y1="82" x2="180" y2="135" stroke="#cfd8dc" stroke-width="3"/>
+  <text x="70" y="150" text-anchor="middle" class="albl">electrolítico</text><text x="170" y="150" text-anchor="middle" class="albl">cerámico 100 nF</text>
+</svg></div>
+    <div>
+      <ul class="clean">
+        <li><b>Fuente separada</b> para motores y servos: nunca desde el pin 5V del Arduino.</li>
+        <li><b>Tierra común</b> entre la fuente de potencia y el Arduino.</li>
+        <li><b>Capacitor electrolítico</b> (cientos de µF) cerca del driver del motor, como reserva de energía.</li>
+        <li><b>Capacitor cerámico de 100 nF</b> en las terminales del motor para filtrar el ruido de alta frecuencia.</li>
+        <li><b>Cables cortos y gruesos</b> para la parte de potencia.</li>
+      </ul>
+    </div>
+  </div>
 </div></section>
 
-<section id="practica" style="background:var(--bg2)"><div class="wrap">
-  <span class="kicker reveal">Práctica 4.1.2</span>
-  <h2 class="reveal">Contador honesto y detector de reinicios</h2>
-  <p class="lead reveal">El LED verde cambia en cada pulsación filtrada. El LED rojo parpadea al arrancar tantas veces como indique la causa del último reinicio.</p>
+<section id="resumen" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Resumen</span>
+  <h2 class="reveal">Fenómeno físico → respuesta del software</h2>
   <div class="tblwrap reveal"><table class="tbl">
-    <tr><th>Componente</th><th>Conexión</th></tr>
-    <tr><td><i class="dot d-data"></i>Pulsador</td><td>D2 ↔ GND (usa <span class="mono">INPUT_PULLUP</span>, sin resistencia)</td></tr>
-    <tr><td><i class="dot d-data"></i>LED verde</td><td>D12 → 220 Ω → LED → <i class="dot d-gnd"></i>GND</td></tr>
-    <tr><td><i class="dot d-data"></i>LED rojo</td><td>D11 → 220 Ω → LED → <i class="dot d-gnd"></i>GND</td></tr>
+    <tr><th>Fenómeno</th><th>Dónde aparece</th><th>Respuesta del software</th><th>Apoyo de hardware</th></tr>
+    <tr><td><b>Rebote</b></td><td class="w">Botones, interruptores, finales de carrera</td><td class="w">Ventana de estabilidad con millis(), sin bloquear</td><td class="w">RC + compuerta Schmitt</td></tr>
+    <tr><td><b>Entrada flotante</b></td><td class="w">Pines sin conexión definida</td><td class="w">Usar INPUT_PULLUP</td><td class="w">Resistencia pull-up o pull-down</td></tr>
+    <tr><td><b>Brownout</b></td><td class="w">Arranque de motores, bobinas, WiFi</td><td class="w">Estado seguro, causa del reinicio, rampas, escalonar cargas, watchdog</td><td class="w">Fuente separada, tierra común, capacitores</td></tr>
   </table></div>
-  <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Programa principal</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-main">// ===== Práctica 4.1.2 — Programa principal =====
-// Pega ANTES de esto la clase Boton y el bloque causaReinicio().
-const uint8_t PIN_BTN = 2, LED_VERDE = 12, LED_ROJO = 11;
-Boton boton(PIN_BTN, 25);             // prueba con 0, 5, 25 y 60 ms
-
-const char* const NOMBRES[] = {
-  &quot;desconocida (no es UNO R4)&quot;, &quot;arranque en frio&quot;, &quot;software&quot;,
-  &quot;bajo voltaje (brownout)&quot;, &quot;watchdog&quot;, &quot;arranque en caliente (RESET)&quot;
-};
-
-unsigned long pulsaciones = 0, tLed = 0;
-bool verde = false, ledRojo = false, reinicioPedido = false;
-uint8_t parpadeos = 0;
-
-void setup() {
-  uint8_t causa = causaReinicio();    // 1) leerla ANTES que cualquier otra cosa
-  pinMode(LED_VERDE, OUTPUT);
-  pinMode(LED_ROJO, OUTPUT);
-  digitalWrite(LED_VERDE, LOW);       // 2) estado seguro: todo apagado
-  digitalWrite(LED_ROJO, LOW);
-  boton.begin();
-  parpadeos = causa;                  // 3) el LED rojo &quot;dice&quot; la causa
-
-  Serial.begin(115200);
-  unsigned long t0 = millis();
-  while (!Serial &amp;&amp; millis() - t0 &lt; 2000) {}   // espera breve al Monitor serie
-  Serial.print(F(&quot;Causa del ultimo reinicio: &quot;));
-  Serial.println(NOMBRES[causa]);
-}
-
-void loop() {
-  boton.actualizar();
-
-  if (boton.sePresiono()) {
-    pulsaciones++;
-    verde = !verde;
-    digitalWrite(LED_VERDE, verde ? HIGH : LOW);
-    Serial.print(F(&quot;Pulsaciones filtradas: &quot;)); Serial.print(pulsaciones);
-    Serial.print(F(&quot;  | caidas crudas: &quot;));     Serial.println(boton.caidasCrudas());
-  }
-
-  // Mantener presionado 3 s = reinicio por software
-  if (boton.tiempoPresionado() &gt;= 3000 &amp;&amp; !reinicioPedido) {
-    reinicioPedido = true;
-    Serial.println(F(&quot;Reiniciando por software...&quot;));
-    Serial.flush();
-    reiniciarPorSoftware();
-  }
-  if (boton.seSolto()) reinicioPedido = false;
-
-  // Parpadeo no bloqueante: 1=frio 2=software 3=bajo voltaje 4=watchdog 5=RESET
-  if (parpadeos &gt; 0 &amp;&amp; millis() - tLed &gt;= 300) {
-    tLed = millis();
-    ledRojo = !ledRojo;
-    digitalWrite(LED_ROJO, ledRojo ? HIGH : LOW);
-    if (!ledRojo) parpadeos--;
-  }
-}</code></pre></div>
-  <div class="reveal" style="margin:8px 0 24px"><button class="btn copyall" type="button" data-all="c-bot,c-causa,c-main">📋 Copiar sketch completo (3 bloques)</button></div>
-  <div class="tblwrap reveal"><table class="tbl">
-    <tr><th>Parpadeos del LED rojo</th><th>Causa</th></tr>
-    <tr><td class="c">1</td><td>Arranque en frío (se conectó la energía)</td></tr>
-    <tr><td class="c">2</td><td>Reinicio por software</td></tr>
-    <tr><td class="c">3</td><td>Bajo voltaje (brownout)</td></tr>
-    <tr><td class="c">4</td><td>Watchdog</td></tr>
-    <tr><td class="c">5</td><td>Arranque en caliente (botón RESET)</td></tr>
-  </table></div>
-  <ol class="steps">
-    <li class="reveal"><b>Arma el circuito</b> y sube el sketch completo al UNO R4 WiFi.</li>
-    <li class="reveal"><b>Rebote:</b> con <span class="mono">Boton boton(PIN_BTN, 0)</span> presiona 20 veces y anota pulsaciones filtradas y caídas crudas. Repite con 5, 25 y 60 ms.</li>
-    <li class="reveal"><b>Arranque en frío:</b> desconecta y conecta el USB. Cuenta los parpadeos rojos.</li>
-    <li class="reveal"><b>Software:</b> mantén el botón 3 s. Al volver, cuenta los parpadeos.</li>
-    <li class="reveal"><b>RESET:</b> presiona <b>una sola vez</b> el botón RESET de la placa (dos toques seguidos la ponen en modo de carga).</li>
-  </ol>
-  <div class="note"><b>Tinkercad:</b> el mismo sketch compila en el Uno R3 gracias al <span class="mono">#if</span>: la parte del botón funciona y la causa sale como "desconocida".</div>
-  <div class="grid g2" style="margin-top:16px">
-    <div class="card ok reveal"><span class="tag">ENTREGABLE</span><h3>Evidencias</h3><ul class="clean"><li>Tabla de pulsaciones con 0 / 5 / 25 / 60 ms</li><li>Tabla de causas observadas en cada prueba</li><li>Conclusión: ¿qué pasa con 60 ms si presionas rápido?</li></ul></div>
-    <div class="card vio reveal"><span class="tag v">RETO</span><h3>Doble clic</h3><p>Agrega a <span class="mono">Boton</span> un método <span class="mono">dobleClic()</span> que detecte dos pulsaciones en menos de 400 ms, sin <span class="mono">delay()</span>.</p></div>
-  </div>
 </div></section>
 
 <div class="wrap"><div class="pager"><a class="btn ghost" href="../4.1.1/">← Tema anterior: 4.1.1 Relevadores y puente H</a><a class="btn ghost" href="../4.1.3/">Siguiente: 4.1.3 Drivers con interbloqueo →</a></div></div>
@@ -271,7 +246,21 @@ void loop() {
 <footer>Sistemas Programables (SCC-1023) · Unidad 4: Control de actuadores y lógica de procesos segura · Arduino UNO R4 WiFi</footer>
 <script src="../u4.js"></script>
 <script>
-/* ===== Simulador de rebote: misma lógica que la clase Boton ===== */
+/* Pulsador en corte */
+(function(){
+  var b=document.getElementById('pulsBtn'),v=document.getElementById('vastago'),d=document.getElementById('domo'),on=false;
+  b.onclick=function(){on=!on;v.style.transform=on?'translateY(34px)':'none';
+    d.setAttribute('d',on?'M220 92 Q270 112 320 92':'M220 92 Q270 52 320 92');
+    b.textContent=on?'Soltar':'Presionar';b.classList.toggle('on',on);};
+})();
+/* Pull-up */
+(function(){
+  var b=document.getElementById('puBtn'),bar=document.getElementById('puBar'),t=document.getElementById('puTxt'),on=false;
+  b.onclick=function(){on=!on;bar.setAttribute('y2',on?150:128);bar.setAttribute('x2',on?310:306);
+    t.textContent=on?'presionado → LOW':'suelto → HIGH';t.style.fill=on?'#f87171':'#4ade80';
+    b.textContent=on?'Soltar':'Presionar';b.classList.toggle('on',on);};
+})();
+/* Simulador de rebote */
 (function(){
   var cv=document.getElementById('bCanvas'),ctx=cv.getContext('2d'),sl=document.getElementById('bMs'),
       val=document.getElementById('bMsVal'),st=document.getElementById('bStats');
@@ -279,10 +268,10 @@ void loop() {
   function gen(){
     edges=[];var t=6+Math.random()*3,fin=t+2+Math.random()*10;edges.push(t);
     for(;;){t+=0.25+Math.random()*1.6;if(t>=fin)break;edges.push(t);}
-    if(edges.length%2===0)edges.push(t);          // termina en LOW
+    if(edges.length%2===0)edges.push(t);
     var r=44+Math.random()*6,fin2=r+1+Math.random()*7;edges.push(r);
     for(;;){r+=0.25+Math.random()*1.5;if(r>=fin2)break;edges.push(r);}
-    if(edges.length%2===1)edges.push(r);          // termina en HIGH
+    if(edges.length%2===1)edges.push(r);
   }
   function raw(t){var n=0;for(var i=0;i<edges.length;i++){if(edges[i]<=t)n++;else break;}return n%2===0?1:0;}
   function filtrar(N){
@@ -299,7 +288,7 @@ void loop() {
     cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
     var L=12,R=w-12,X=function(t){return L+(R-L)*t/T};
     ctx.strokeStyle='#232833';ctx.lineWidth=1;ctx.fillStyle='#6b7280';ctx.font='11px Inter,sans-serif';
-    for(var t=0;t<=T;t+=10){var x=X(t);ctx.beginPath();ctx.moveTo(x,18);ctx.lineTo(x,h-24);ctx.stroke();ctx.fillText(t+' ms',x+3,h-8);}
+    for(var t=0;t<=T;t+=10){var x=X(t);ctx.beginPath();ctx.moveTo(x,18);ctx.lineTo(x,h-24);ctx.stroke();ctx.fillText(t+' ms',t===T?x-38:x+3,h-8);}
     function trace(top,col,label,fn){
       var yH=top,yL=top+58,prev=null;
       ctx.fillStyle=col;ctx.font='600 12px Inter,sans-serif';ctx.fillText(label,L+4,top-6);
@@ -309,19 +298,17 @@ void loop() {
       ctx.lineTo(X(T),prev?yH:yL);ctx.stroke();
     }
     var f=filtrar(N);
-    trace(34,'#fbbf24','Lectura cruda del pin D2',function(i){return raw(i*DT)});
-    trace(136,'#22d3ee','Estado aceptado por Boton',function(i){return f.out[i]});
+    trace(34,'#fbbf24','Lectura cruda del pin',function(i){return raw(i*DT)});
+    trace(136,'#22d3ee','Estado aceptado (filtrado)',function(i){return f.out[i]});
     var msg=f.acept===1?'<span class="badge b-ok">Correcto: una pulsación = un evento</span>'
            :f.acept===0?'<span class="badge b-bad">¡Pulsación perdida! La ventana es más larga que la pulsación</span>'
            :'<span class="badge b-bad">Se contó '+f.acept+' veces: falta filtro</span>';
     st.innerHTML='<span class="badge b-warn">Caídas crudas: '+f.caidas+'</span><span class="badge b-acc">Retardo de respuesta: '+(f.ret===null?'—':f.ret.toFixed(1)+' ms')+'</span><br>'+msg;
   }
   document.getElementById('bPress').onclick=function(){gen();draw()};
-  sl.oninput=draw;window.addEventListener('resize',draw);
-  gen();draw();
+  sl.oninput=draw;window.addEventListener('resize',draw);gen();draw();
 })();
-
-/* ===== Gráfica de brownout (ilustrativa) ===== */
+/* Brownout */
 (function(){
   var cv=document.getElementById('vCanvas'),ctx=cv.getContext('2d'),res=document.getElementById('vRes'),desc=document.getElementById('vDesc');
   var btns=document.querySelectorAll('[data-esc]'),UMBRAL=4.0,esc='directo',raf=null;
@@ -359,8 +346,7 @@ void loop() {
     (function step(now){var p=Math.min(1,(now-t0)/900);draw(p);if(p<1)raf=requestAnimationFrame(step);})(t0);
   }
   btns.forEach(function(b){b.onclick=function(){esc=b.dataset.esc;btns.forEach(function(x){x.classList.toggle('on',x===b)});run();}});
-  window.addEventListener('resize',function(){draw(1)});
-  run();
+  window.addEventListener('resize',function(){draw(1)});run();
 })();
 </script>
 </body>
