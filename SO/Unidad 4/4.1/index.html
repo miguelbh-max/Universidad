@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4.1 iptables en Ubuntu — Firewall, DMZ y Hardening | Sistemas Operativos I</title>
+<meta name="description" content="Plataforma interactiva: iptables en Ubuntu desde la sintaxis básica hasta el control de servicios, DMZ y hardening del host. Sistemas Operativos I (AEC-1061), ITM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090b; --bg2:#0c0c0f; --panel:#141417; --panel2:#1b1b20; --border:#27272a; --border2:#3f3f46;
+  --text:#e4e4e7; --muted:#a1a1aa; --dim:#71717a;
+  --cyan:#22d3ee; --cyan-d:#0891b2; --blue:#60a5fa; --violet:#a78bfa; --pink:#f472b6;
+  --green:#34d399; --amber:#fbbf24; --red:#f87171; --orange:#fb923c;
+  --term:#0a0a0c;
+  --sidebar:280px; --radius:12px;
+  --f-head:"Space Grotesk",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  background-image:radial-gradient(circle at 80% -10%,rgba(34,211,238,.08),transparent 40%),radial-gradient(circle at 0% 30%,rgba(96,165,250,.05),transparent 35%);}
+a{color:var(--cyan)}
+code{font-family:var(--f-mono)}
+:not(pre)>code{background:#1f1f25;border:1px solid var(--border);color:#a5f3fc;padding:.08rem .38rem;border-radius:5px;font-size:.86em;white-space:nowrap}
+strong{color:#fafafa}
+
+/* progreso */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue));z-index:60;box-shadow:0 0 10px var(--cyan)}
+
+/* sidebar */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);background:rgba(12,12,15,.96);border-right:1px solid var(--border);
+  padding:1.4rem 1rem;overflow-y:auto;z-index:50;backdrop-filter:blur(8px);transition:transform .3s ease}
+.brand{font-family:var(--f-head);font-weight:700;font-size:1.15rem;display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem}
+.brand .logo{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan-d),#1e3a8a);font-family:var(--f-mono);font-size:.8rem;box-shadow:0 0 14px rgba(34,211,238,.35)}
+.brand-sub{font-family:var(--f-mono);font-size:.72rem;color:var(--dim);margin-bottom:1.2rem;letter-spacing:.04em}
+.nav a{display:flex;gap:.65rem;align-items:baseline;padding:.48rem .65rem;border-radius:8px;color:var(--muted);text-decoration:none;font-size:.9rem;line-height:1.35;border-left:2px solid transparent;transition:.2s}
+.nav a .n{font-family:var(--f-mono);font-size:.72rem;color:var(--dim);min-width:1.4rem}
+.nav a:hover{background:var(--panel);color:var(--text)}
+.nav a.active{background:rgba(34,211,238,.08);color:var(--cyan);border-left-color:var(--cyan)}
+.nav a.active .n{color:var(--cyan)}
+.side-foot{margin-top:1.4rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.75rem;color:var(--dim);font-family:var(--f-mono)}
+.menu-btn{display:none;position:fixed;top:12px;right:12px;z-index:70;background:var(--panel2);border:1px solid var(--border2);color:var(--text);
+  border-radius:10px;padding:.5rem .8rem;font-family:var(--f-mono);font-size:.85rem;cursor:pointer}
+.scrim{display:none}
+
+/* main */
+main{margin-left:var(--sidebar);padding:2.5rem clamp(1rem,4vw,3.5rem) 3rem;max-width:calc(var(--sidebar) + 1060px)}
+.wrap{max-width:1000px}
+
+/* hero */
+.hero{padding:2.2rem 0 2.6rem;border-bottom:1px solid var(--border);margin-bottom:2.5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+.chip{font-family:var(--f-mono);font-size:.72rem;padding:.25rem .65rem;border-radius:999px;border:1px solid var(--border2);color:var(--muted);background:var(--panel)}
+.chip.c{color:var(--cyan);border-color:rgba(34,211,238,.4)}
+.kinetic{font-family:var(--f-head);font-weight:700;font-size:clamp(2.2rem,6vw,4rem);line-height:1.05;letter-spacing:-.02em}
+.kinetic .ch{display:inline-block;opacity:0;transform:translateY(.6em) rotate(6deg);animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards}
+.kinetic .accent{color:var(--cyan);text-shadow:0 0 24px rgba(34,211,238,.35)}
+@keyframes rise{to{opacity:1;transform:none}}
+.hero .lead{font-size:1.1rem;color:var(--muted);max-width:760px;margin-top:1rem}
+.hero-term{margin-top:1.6rem;font-family:var(--f-mono);font-size:.88rem;background:var(--term);border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;max-width:640px;color:#d4d4d8}
+.hero-term .p{color:var(--green)} .hero-term .cur{display:inline-block;width:8px;height:1em;background:var(--cyan);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* secciones */
+section.sec{padding:1rem 0 2.8rem;border-bottom:1px solid var(--border);margin-bottom:2.2rem}
+.sec-h{display:flex;align-items:center;gap:.9rem;margin-bottom:1.2rem}
+.sec-num{font-family:var(--f-mono);font-size:.85rem;color:var(--cyan);border:1px solid rgba(34,211,238,.4);border-radius:8px;padding:.2rem .55rem;background:rgba(34,211,238,.06)}
+h2{font-family:var(--f-head);font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.01em;line-height:1.2}
+h3{font-family:var(--f-head);font-size:1.22rem;margin:2rem 0 .7rem;color:#fafafa}
+h4{font-family:var(--f-head);font-size:1.02rem;margin:1.2rem 0 .4rem;color:var(--cyan)}
+p{margin-bottom:1rem}
+ul.l,ol.l{margin:0 0 1rem 1.3rem}
+ul.l li,ol.l li{margin-bottom:.4rem}
+.muted{color:var(--muted)}
+
+/* grid / tarjetas */
+.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:1rem 0 1.4rem}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;transition:.25s}
+.card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.card h4{margin-top:0}
+.card p{font-size:.93rem;color:var(--muted);margin-bottom:.4rem}
+.card .tag{font-family:var(--f-mono);font-size:.7rem;color:var(--dim)}
+
+/* tablas */
+.tbl-wrap{overflow-x:auto;margin:1rem 0 1.4rem;border:1px solid var(--border);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:560px}
+th,td{padding:.65rem .85rem;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--panel2);font-family:var(--f-head);font-weight:600;color:#fafafa;font-size:.9rem}
+tr:last-child td{border-bottom:none}
+td code{white-space:nowrap}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+
+/* bloques de código */
+.cb{background:var(--term);border:1px solid var(--border);border-radius:10px;margin:1rem 0 1.3rem;overflow:hidden}
+.cb-head{display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:#121216;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.dots{display:flex;gap:5px;margin-right:.3rem}.dots i{width:10px;height:10px;border-radius:50%;display:block}
+.dots i:nth-child(1){background:#ef4444}.dots i:nth-child(2){background:#f59e0b}.dots i:nth-child(3){background:#10b981}
+.cb-title{font-family:var(--f-mono);font-size:.74rem;color:var(--dim);flex:1;min-width:120px}
+.badge{font-family:var(--f-mono);font-size:.68rem;padding:.12rem .5rem;border-radius:999px;border:1px solid;white-space:nowrap}
+.b-sudo{color:#fca5a5;border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.08)}
+.b-file{color:#fcd34d;border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.08)}
+.b-user{color:#6ee7b7;border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.08)}
+.b-script{color:#c4b5fd;border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.08)}
+.b-out{color:#93c5fd;border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.08)}
+.copy{font-family:var(--f-mono);font-size:.72rem;background:var(--panel2);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:.2rem .6rem;cursor:pointer;transition:.2s}
+.copy:hover{border-color:var(--cyan);color:var(--cyan)}
+.copy.ok{border-color:var(--green);color:var(--green)}
+.cb pre{padding:1rem 1.1rem;overflow-x:auto;font-family:var(--f-mono);font-size:.86rem;line-height:1.6;color:#e4e4e7}
+.cb pre .cm{color:#71717a;font-style:italic}
+.cb pre .sb{color:#f472b6}
+
+/* callouts */
+.co{border:1px solid;border-left-width:4px;border-radius:10px;padding:.9rem 1.1rem;margin:1.1rem 0 1.3rem;font-size:.95rem}
+.co .co-t{font-family:var(--f-head);font-weight:600;display:block;margin-bottom:.3rem}
+.co p:last-child,.co ul:last-child{margin-bottom:0}
+.co-red{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.35);border-left-color:var(--red)}
+.co-red .co-t{color:var(--red)}
+.co-blue{background:rgba(96,165,250,.07);border-color:rgba(96,165,250,.3);border-left-color:var(--blue)}
+.co-blue .co-t{color:var(--blue)}
+.co-amber{background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.3);border-left-color:var(--amber)}
+.co-amber .co-t{color:var(--amber)}
+.co-green{background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3);border-left-color:var(--green)}
+.co-green .co-t{color:var(--green)}
+
+/* anatomía */
+.anat{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 1.3rem}
+.anat span{font-family:var(--f-mono);font-size:.82rem;padding:.4rem .7rem;border-radius:8px;border:1px dashed var(--border2);background:var(--panel)}
+
+/* diagrama de flujo */
+.lab-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.2rem;margin:1.2rem 0 1.5rem}
+.lab-title{font-family:var(--f-head);font-weight:600;display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem}
+.lab-title .pulse{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(34,211,238,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(34,211,238,0)}100%{box-shadow:0 0 0 0 rgba(34,211,238,0)}}
+.seg{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.seg button{font-family:var(--f-body);font-size:.88rem;padding:.5rem .9rem;border-radius:9px;border:1px solid var(--border2);background:var(--panel2);color:var(--muted);cursor:pointer;transition:.2s}
+.seg button:hover{color:var(--text);border-color:var(--dim)}
+.seg button.on{color:#06222a;background:var(--cyan);border-color:var(--cyan);font-weight:600}
+.svg-scroll{overflow-x:auto}
+.svg-scroll svg{min-width:760px;width:100%;height:auto;display:block}
+#flow .node rect,#flow .node polygon{fill:#18181c;stroke:#3f3f46;stroke-width:1.5;transition:all .35s}
+#flow .node text{fill:#a1a1aa;font-family:var(--f-mono);font-size:12px;transition:fill .35s}
+#flow .node .t{font-family:var(--f-head);font-size:15px;font-weight:600;fill:#d4d4d8}
+#flow .edge{stroke:#3f3f46;stroke-width:2;fill:none;transition:stroke .35s}
+#flow .edge-l{fill:#71717a;font-family:var(--f-mono);font-size:10.5px}
+#flow .node.on rect,#flow .node.on polygon{fill:rgba(34,211,238,.12);stroke:var(--cyan);filter:drop-shadow(0 0 7px rgba(34,211,238,.55))}
+#flow .node.on text{fill:#cffafe}#flow .node.on .t{fill:#fff}
+#flow .edge.on{stroke:var(--cyan);stroke-dasharray:7 5;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-24}}
+.steps{display:grid;gap:.5rem;margin-top:1rem;counter-reset:st}
+.steps li{list-style:none;font-size:.9rem;background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:.55rem .8rem .55rem 2.6rem;position:relative;opacity:.35;transition:.3s}
+.steps li::before{counter-increment:st;content:counter(st);position:absolute;left:.7rem;top:.5rem;width:1.35rem;height:1.35rem;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.72rem;background:var(--border2);color:var(--text)}
+.steps li.on{opacity:1;border-color:rgba(34,211,238,.4)}
+.steps li.on::before{background:var(--cyan);color:#06222a}
+
+/* explorador de sintaxis */
+.rule-line{display:flex;flex-wrap:wrap;gap:.45rem;padding:1.1rem;background:var(--term);border:1px solid var(--border);border-radius:12px;font-family:var(--f-mono);font-size:clamp(.85rem,1.6vw,1.02rem)}
+.tok{padding:.4rem .7rem;border-radius:8px;border:1px solid;cursor:pointer;transition:all .2s;user-select:none;outline:none}
+.tok:hover,.tok:focus,.tok.on{transform:translateY(-2px)}
+.k-cmd{color:#e4e4e7;border-color:#52525b;background:rgba(161,161,170,.08)}
+.k-table{color:#c4b5fd;border-color:rgba(167,139,250,.5);background:rgba(167,139,250,.08)}
+.k-chain{color:#93c5fd;border-color:rgba(96,165,250,.5);background:rgba(96,165,250,.08)}
+.k-proto{color:#fcd34d;border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.08)}
+.k-match{color:#67e8f9;border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.08)}
+.k-mod{color:#f9a8d4;border-color:rgba(244,114,182,.5);background:rgba(244,114,182,.08)}
+.k-drop{color:#fca5a5;border-color:rgba(248,113,113,.55);background:rgba(248,113,113,.1)}
+.k-acc{color:#6ee7b7;border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.1)}
+.tok.on{box-shadow:0 0 0 2px currentColor,0 0 18px currentColor}
+.tok-card{margin-top:1rem;background:var(--panel2);border:1px solid var(--border2);border-radius:12px;padding:1rem 1.15rem;min-height:130px;position:relative}
+.tok-card::before{content:"";position:absolute;top:-8px;left:var(--arrow,40px);width:14px;height:14px;background:var(--panel2);border-left:1px solid var(--border2);border-top:1px solid var(--border2);transform:rotate(45deg);transition:left .25s}
+.verdict code,.acc-a-in code{white-space:normal;word-break:break-word}
+.tok-card .tk{font-family:var(--f-mono);font-size:1rem;color:var(--cyan)}
+.tok-card .cat{font-family:var(--f-mono);font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-left:.5rem}
+.tok-card dl{display:grid;grid-template-columns:auto 1fr;gap:.35rem .9rem;margin-top:.6rem;font-size:.92rem}
+.tok-card dt{color:var(--muted);font-weight:600}
+.tok-card dd{color:var(--text)}
+.legend{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.8rem;font-size:.78rem;color:var(--muted);font-family:var(--f-mono)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:.35rem;vertical-align:-1px;background:currentColor}
+
+/* DMZ */
+#dmz text{font-family:var(--f-mono);fill:#a1a1aa;font-size:12px}
+#dmz .tt{font-family:var(--f-head);font-weight:600;font-size:14px;fill:#e4e4e7}
+#dmz .box{fill:#18181c;stroke:#3f3f46;stroke-width:1.5}
+#dmz .fwbox{fill:#0f1a1d;stroke:var(--cyan);stroke-width:1.8}
+#dmz .zone{fill:none;stroke-dasharray:6 6;stroke-width:1.5}
+#dmz .link{stroke:#52525b;stroke-width:3}
+#dmz .flow{fill:none;stroke-width:3.5;opacity:.18;transition:opacity .3s}
+#dmz .flow.ok{stroke:var(--green)}#dmz .flow.no{stroke:var(--red)}
+#dmz .flow.on{opacity:1;stroke-dasharray:9 6;animation:dash .9s linear infinite}
+#dmz .xmark{opacity:.25;transition:opacity .3s}#dmz .xmark.on{opacity:1}
+.verdict{margin-top:.9rem;padding:.8rem 1rem;border-radius:10px;border:1px solid var(--border2);background:var(--panel2);font-size:.93rem;min-height:3.2rem}
+.verdict b.ok{color:var(--green)} .verdict b.no{color:var(--red)}
+
+/* ejercicios */
+.ex{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.3rem;margin:1.3rem 0}
+.ex-h{display:flex;gap:.8rem;align-items:center;margin-bottom:.6rem}
+.ex-n{font-family:var(--f-mono);font-size:.78rem;background:linear-gradient(135deg,var(--cyan-d),#1e3a8a);padding:.25rem .6rem;border-radius:7px}
+.ex-h h3{margin:0}
+
+/* FAQ acordeón */
+.acc{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:1rem 0}
+.acc-i+.acc-i{border-top:1px solid var(--border)}
+.acc-q{width:100%;text-align:left;background:var(--panel);color:var(--text);border:none;padding:1rem 1.2rem;font-family:var(--f-head);font-size:1rem;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;gap:1rem;align-items:center}
+.acc-q:hover{background:var(--panel2)}
+.acc-q .ic{font-family:var(--f-mono);color:var(--cyan);transition:transform .3s;flex-shrink:0}
+.acc-i.open .acc-q .ic{transform:rotate(45deg)}
+.acc-a{max-height:0;overflow:hidden;transition:max-height .35s ease;background:var(--bg2)}
+.acc-a-in{padding:1rem 1.2rem;font-size:.95rem;color:#d4d4d8}
+.acc-a-in p:last-child{margin-bottom:0}
+
+/* checklist */
+.check{list-style:none;display:grid;gap:.45rem;margin:1rem 0}
+.check label{display:flex;gap:.6rem;align-items:flex-start;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:.55rem .8rem;cursor:pointer;font-size:.93rem}
+.check input{accent-color:var(--cyan);margin-top:.35rem}
+.check input:checked+span{color:var(--dim);text-decoration:line-through}
+
+/* footer */
+.foot{margin-top:2rem;padding:1.5rem 0 1rem;color:var(--dim);font-size:.85rem}
+.foot-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin-bottom:1.2rem}
+.foot-nav a{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;color:var(--text);transition:.2s}
+.foot-nav a:hover{border-color:var(--cyan)}
+.foot-nav small{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--dim)}
+.foot-nav .disabled{opacity:.45;pointer-events:none}
+
+/* responsive */
+@media (max-width:980px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none;box-shadow:20px 0 50px rgba(0,0,0,.6)}
+  .menu-btn{display:block}
+  .scrim.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:45}
+  main{margin-left:0;padding-top:3.5rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.kinetic .ch{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<button class="menu-btn" id="menuBtn" aria-label="Abrir menú">☰ Índice</button>
+<div class="scrim" id="scrim"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><span class="logo">ipt</span>iptables · Ubuntu</div>
+  <div class="brand-sub">SO I · AEC-1061 · Unidad 4</div>
+  <nav class="nav" id="nav">
+    <a href="#s1"><span class="n">01</span>Introducción a iptables</a>
+    <a href="#s2"><span class="n">02</span>Instalación y preparación</a>
+    <a href="#s3"><span class="n">03</span>Reset total y recuperación</a>
+    <a href="#s4"><span class="n">04</span>Tablas, cadenas y trayectoria</a>
+    <a href="#s5"><span class="n">05</span>Nomenclatura y sintaxis</a>
+    <a href="#s6"><span class="n">06</span>Servicios y puertos</a>
+    <a href="#s7"><span class="n">07</span>DMZ con iptables</a>
+    <a href="#s8"><span class="n">08</span>Laboratorio guiado</a>
+    <a href="#s9"><span class="n">09</span>Hardening: puertos USB</a>
+    <a href="#s10"><span class="n">10</span>Referencia rápida y FAQ</a>
+  </nav>
+  <div class="side-foot">Ubuntu 24.04 LTS · iptables 1.8.x (nf_tables)<br>Laboratorio en red local aislada</div>
+</aside>
+
+<main>
+<div class="wrap">
+
+<header class="hero">
+  <div class="chips">
+    <span class="chip c">Unidad 4 · Seguridad en red</span>
+    <span class="chip">Netfilter · Capas 3/4</span>
+    <span class="chip">Ubuntu 24.04 LTS</span>
+    <span class="chip">Laboratorio sin internet</span>
+  </div>
+  <h1 class="kinetic" id="kinetic" data-text="iptables en Ubuntu" data-accent="iptables"></h1>
+  <p class="lead">Desde la sintaxis básica hasta el control de servicios, el diseño de una DMZ y el endurecimiento del host. Cada sección combina teoría del sistema operativo con comandos listos para copiar y comprobar en el laboratorio.</p>
+  <div class="hero-term"><span class="p">alumno@pc-a:~$</span> sudo iptables -L -v -n --line-numbers <span class="cur"></span></div>
+</header>
+
+<!-- ===================== 1 ===================== -->
+<section class="sec" id="s1">
+  <div class="sec-h"><span class="sec-num">01</span><h2>Introducción a iptables</h2></div>
+
+  <p><strong>iptables</strong> es una herramienta del <em>espacio de usuario</em> que sirve para escribir, leer y borrar reglas de filtrado de paquetes. Las reglas no “viven” en iptables: viven dentro del <strong>kernel de Linux</strong>, en el subsistema <strong>Netfilter</strong>. iptables solo es el panel de control que le dice al kernel qué hacer con cada paquete.</p>
+
+  <p>Netfilter coloca cinco <strong>hooks</strong> (ganchos) en la pila de red del kernel. Cada vez que un paquete pasa por uno de esos puntos, el kernel detiene momentáneamente su recorrido y evalúa las reglas registradas ahí, en microsegundos, antes de entregarlo a una aplicación o reenviarlo.</p>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Hook del kernel</th><th>Cadena de iptables</th><th>¿Cuándo se ejecuta?</th></tr></thead>
+    <tbody>
+      <tr><td><code>NF_INET_PRE_ROUTING</code></td><td>PREROUTING</td><td>Apenas llega el paquete a la tarjeta de red, antes de decidir a dónde va.</td></tr>
+      <tr><td><code>NF_INET_LOCAL_IN</code></td><td>INPUT</td><td>El paquete va dirigido a un proceso de <em>este</em> equipo.</td></tr>
+      <tr><td><code>NF_INET_FORWARD</code></td><td>FORWARD</td><td>El paquete solo atraviesa el equipo rumbo a otro host (router/firewall).</td></tr>
+      <tr><td><code>NF_INET_LOCAL_OUT</code></td><td>OUTPUT</td><td>Un proceso local generó el paquete (curl, apt, ping…).</td></tr>
+      <tr><td><code>NF_INET_POST_ROUTING</code></td><td>POSTROUTING</td><td>Justo antes de que el paquete salga por una interfaz.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="co co-blue"><span class="co-t">Nota pedagógica · ¿por qué esto es tema de Sistemas Operativos?</span>
+    <p>El firewall es un <strong>módulo del núcleo</strong>: el kernel es quien recibe la interrupción de la tarjeta de red, construye la estructura del paquete (<code>sk_buff</code>) y decide si la entrega a un socket. iptables es un claro ejemplo de la frontera entre espacio de usuario (la herramienta) y espacio de kernel (el mecanismo), la misma división que estudiamos en la estructura por niveles de un SO.</p>
+  </div>
+
+  <h3>Filtrado de paquetes (capas 3 y 4) vs. firewall de aplicación (capa 7)</h3>
+  <div class="grid">
+    <div class="card"><span class="tag">Capas 3–4 · iptables</span><h4>Filtro de paquetes</h4><p>Decide mirando la cabecera: IP origen/destino, protocolo (TCP/UDP/ICMP), puertos, interfaz y estado de la conexión. No entiende el contenido.</p><p class="tag">Ej.: “nadie fuera de 192.168.1.0/24 entra al 3306”.</p></div>
+    <div class="card"><span class="tag">Capa 7 · WAF / proxy</span><h4>Firewall de aplicación</h4><p>Lee el contenido del protocolo: URLs, cabeceras HTTP, consultas SQL. Detecta inyecciones o rutas prohibidas.</p><p class="tag">Ej.: ModSecurity en Apache, proxy Squid.</p></div>
+    <div class="card"><span class="tag">Arquitectura</span><h4>Seguridad perimetral</h4><p>Un equipo dedicado separa zonas de confianza (WAN, DMZ, LAN) y controla el tráfico entre ellas. iptables en la cadena FORWARD cumple este rol.</p><p class="tag">Lo construimos en la sección 07.</p></div>
+  </div>
+
+  <h3>Casos de uso reales en servidores Ubuntu</h3>
+  <ul class="l">
+    <li>Exponer solo los puertos necesarios de un servidor (22, 80, 443) y cerrar todo lo demás.</li>
+    <li>Restringir una base de datos para que solo la consulte el servidor de aplicaciones.</li>
+    <li>Convertir un Ubuntu con dos tarjetas de red en router/firewall con NAT y DMZ.</li>
+    <li>Limitar la tasa de conexiones para mitigar escaneos o ataques de inundación (flooding).</li>
+    <li>Registrar en los logs del sistema intentos de acceso sospechosos.</li>
+  </ul>
+
+  <h3>¿iptables o UFW?</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Criterio</th><th>iptables (bajo nivel)</th><th>UFW (Uncomplicated Firewall)</th></tr></thead>
+    <tbody>
+      <tr><td>Qué es</td><td>Interfaz directa a las tablas y cadenas de Netfilter.</td><td>Capa de abstracción que genera reglas de iptables por ti.</td></tr>
+      <tr><td>Sintaxis</td><td><code>iptables -A INPUT -p tcp --dport 80 -j ACCEPT</code></td><td><code>ufw allow 80/tcp</code></td></tr>
+      <tr><td>NAT, DMZ, reenvío</td><td>Control total (tablas <code>nat</code>, <code>mangle</code>, cadena FORWARD).</td><td>Posible, pero editando archivos <code>before.rules</code> a mano.</td></tr>
+      <tr><td>Ideal para</td><td>Aprender cómo funciona el kernel, routers, escenarios avanzados.</td><td>Un servidor sencillo donde solo se abren y cierran puertos.</td></tr>
+      <tr><td>Riesgo</td><td>Un error de orden o de política puede dejarte fuera del equipo.</td><td>Menor; trae valores por defecto razonables.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="co co-amber"><span class="co-t">Tip de producción</span><p>En la industria se usa UFW (o <code>firewalld</code>) en servidores sencillos y <code>nftables</code> en equipos nuevos. Aprender iptables sigue siendo indispensable: la lógica de tablas, cadenas, estados y NAT es la misma, Docker y Kubernetes siguen generando reglas con esta sintaxis, y es lo que encontrarás en la mayoría de la documentación y servidores existentes.</p></div>
+</section>
+
+<!-- ===================== 2 ===================== -->
+<section class="sec" id="s2">
+  <div class="sec-h"><span class="sec-num">02</span><h2>Instalación y preparación en Ubuntu</h2></div>
+
+  <h3>2.1 Verificar el entorno</h3>
+  <div class="cb" data-t="bash — verificación" data-b="user"><pre><code>iptables -V</code></pre></div>
+  <div class="cb" data-t="salida típica en Ubuntu 24.04" data-b="out"><pre><code>iptables v1.8.10 (nf_tables)</code></pre></div>
+  <p>El texto entre paréntesis indica el <strong>backend</strong>: <code>nf_tables</code> (moderno) o <code>legacy</code>. Lo explicamos en el punto 2.5.</p>
+
+  <h3>2.2 Instalación mediante APT</h3>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo apt update &amp;&amp; sudo apt install iptables -y</code></pre></div>
+  <div class="co co-blue"><span class="co-t">Nota para el laboratorio sin internet</span><p>En Ubuntu 24.04 el paquete <code>iptables</code> ya viene instalado (es dependencia de UFW), así que todo lo que sigue funciona sin conexión. Lo único que requiere repositorio es <code>iptables-persistent</code>; si no hay internet, usa el método del servicio de <code>systemd</code> que ya vimos en la Unidad 2 (script + <code>firewall.service</code>).</p></div>
+
+  <h3>2.3 Coexistencia con UFW</h3>
+  <p>UFW e iptables escriben en las mismas tablas del kernel. Si ambos están activos, UFW puede recargar sus propias cadenas (<code>ufw-before-input</code>, <code>ufw-user-input</code>…) encima de las tuyas y obtendrás resultados confusos. Para un laboratorio de bajo nivel, desactívalo primero:</p>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo ufw status verbose     # ¿está activo?
+sudo ufw disable            # lo detiene y no se reactiva al reiniciar
+sudo iptables -L -n         # ya no deben aparecer reglas ufw-*</code></pre></div>
+  <div class="co co-red"><span class="co-t">Advertencia crítica</span><p>Nunca administres el mismo equipo con UFW <em>y</em> con scripts de iptables al mismo tiempo. Elige uno por máquina.</p></div>
+
+  <h3>2.4 Persistencia de reglas</h3>
+  <p>Las reglas de iptables se guardan en memoria del kernel: <strong>se pierden al reiniciar</strong>. Hay dos caminos para hacerlas permanentes.</p>
+  <h4>Opción A · paquete iptables-persistent (requiere repositorio)</h4>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo apt install iptables-persistent -y   # pregunta si guardar las reglas actuales
+sudo netfilter-persistent save            # guarda en /etc/iptables/rules.v4 y rules.v6
+sudo netfilter-persistent reload          # vuelve a cargar desde los archivos</code></pre></div>
+  <div class="co co-amber"><span class="co-t">Tip</span><p>Al instalar <code>iptables-persistent</code>, APT puede proponer desinstalar <code>ufw</code>, porque ambos paquetes compiten por cargar el firewall al arranque. Lee la lista de cambios antes de aceptar.</p></div>
+  <p>También puedes guardar y restaurar manualmente con las herramientas base:</p>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo mkdir -p /etc/iptables
+sudo iptables-save | sudo tee /etc/iptables/rules.v4    # exportar
+sudo iptables-restore /etc/iptables/rules.v4            # importar</code></pre></div>
+  <h4>Opción B · tu propio script como servicio (funciona sin internet)</h4>
+  <div class="cb" data-t="/etc/systemd/system/firewall.service" data-b="file"><pre><code>[Unit]
+Description=Reglas de firewall del laboratorio
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/firewall.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target</code></pre></div>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo systemctl daemon-reload
+sudo systemctl enable firewall.service</code></pre></div>
+
+  <h3>2.5 Arquitectura moderna: iptables-legacy vs. iptables-nft</h3>
+  <p>Desde Ubuntu 21.04 el comando <code>iptables</code> es en realidad <strong>iptables-nft</strong>: acepta la sintaxis clásica pero traduce cada regla al motor <strong>nftables</strong> del kernel. La versión antigua, <strong>iptables-legacy</strong>, habla con el módulo <code>x_tables</code> original.</p>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo update-alternatives --config iptables   # elegir backend (nft por defecto)
+sudo iptables-legacy -L -n                   # ver reglas del backend legacy
+sudo iptables-nft -L -n                      # ver reglas del backend nft
+sudo nft list ruleset                        # ver cómo tradujo nftables tus reglas</code></pre></div>
+  <div class="co co-red"><span class="co-t">Advertencia crítica</span><p>No mezcles backends. Si un script usa <code>iptables-legacy</code> y otro <code>iptables-nft</code>, el kernel aplica <em>ambos</em> conjuntos de reglas, pero cada herramienta solo muestra los suyos. El síntoma típico: “el tráfico se bloquea y no aparece ninguna regla”.</p></div>
+</section>
+
+<!-- ===================== 3 ===================== -->
+<section class="sec" id="s3">
+  <div class="sec-h"><span class="sec-num">03</span><h2>Protocolo de reset total y recuperación ante bloqueos</h2></div>
+
+  <h3>El error fatal del novato</h3>
+  <p>Un alumno quiere “limpiar” su firewall y ejecuta solo <code>iptables -F</code>. Si antes había puesto la política <code>-P INPUT DROP</code>, el resultado es desastroso:</p>
+  <ol class="l">
+    <li><code>-F</code> (flush) <strong>borra las reglas</strong>, incluida la que aceptaba SSH (puerto 22).</li>
+    <li><code>-F</code> <strong>no cambia la política por defecto</strong>. La cadena INPUT sigue siendo DROP.</li>
+    <li>Sin reglas, todo paquete cae al final de la cadena y recibe la política: DROP.</li>
+    <li>La sesión SSH se congela, el servidor deja de responder ping, web y base de datos: queda <strong>aislado</strong>. Si es una máquina remota, solo queda ir físicamente a la consola.</li>
+  </ol>
+  <div class="co co-red"><span class="co-t">Regla de oro</span><p>Siempre restablece las políticas a <code>ACCEPT</code> <strong>antes</strong> de vaciar las reglas. El orden importa.</p></div>
+
+  <h3>Script seguro de Reset Total</h3>
+  <div class="cb" data-t="nano reset-firewall.sh" data-b="script"><pre><code>#!/bin/bash
+# reset-firewall.sh — deja Netfilter (IPv4) como recién instalado
+# Ejecutar con: sudo ./reset-firewall.sh
+
+# Paso 1: políticas por defecto en ACCEPT (primero, para no quedar fuera)
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+
+# Paso 2: vaciar (flush) todas las reglas de todas las tablas
+iptables -t filter -F
+iptables -t nat -F
+iptables -t mangle -F
+iptables -t raw -F
+iptables -t security -F
+
+# Paso 3: eliminar cadenas personalizadas (las creadas con -N)
+iptables -t filter -X
+iptables -t nat -X
+iptables -t mangle -X
+iptables -t raw -X
+iptables -t security -X
+
+# Paso 4: contadores de paquetes y bytes a cero
+iptables -t filter -Z
+iptables -t nat -Z
+iptables -t mangle -Z
+iptables -t raw -Z
+iptables -t security -Z
+
+echo "[OK] Firewall restablecido: todo el tráfico está permitido."
+iptables -L -n -v</code></pre></div>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>chmod +x reset-firewall.sh
+sudo cp reset-firewall.sh /usr/local/bin/reset-firewall.sh
+sudo reset-firewall.sh</code></pre></div>
+  <div class="co co-blue"><span class="co-t">Nota pedagógica</span>
+    <ul class="l">
+      <li><code>-F</code> borra reglas, <code>-X</code> borra cadenas vacías creadas por el usuario, <code>-Z</code> reinicia contadores. Son tres operaciones distintas.</li>
+      <li><code>-X</code> falla si una cadena todavía tiene reglas o está referenciada; por eso va <em>después</em> de <code>-F</code>.</li>
+      <li>Este script solo cubre IPv4. Para IPv6 se repite lo mismo con <code>ip6tables</code>.</li>
+    </ul>
+  </div>
+
+  <h3>Red de seguridad en producción: rollback automático</h3>
+  <p>Antes de aplicar reglas restrictivas en un equipo remoto, programa un “paracaídas”: si en 5 minutos no cancelas, el reset se ejecuta solo y recuperas el acceso.</p>
+  <div class="cb" data-t="bash — temporizador de systemd" data-b="sudo"><pre><code># 1. Programar el rollback para dentro de 5 minutos
+sudo systemd-run --on-active=5min --unit=fw-rollback /usr/local/bin/reset-firewall.sh
+
+# 2. Aplicar las reglas nuevas
+sudo /usr/local/bin/firewall.sh
+
+# 3. Si sigues conectado y todo funciona, cancela el paracaídas
+sudo systemctl stop fw-rollback.timer</code></pre></div>
+  <div class="cb" data-t="bash — alternativa integrada: iptables-apply" data-b="sudo"><pre><code># Aplica el archivo y espera confirmación; si no respondes en 60 s, revierte
+sudo iptables-apply -t 60 /etc/iptables/rules.v4</code></pre></div>
+  <div class="co co-amber"><span class="co-t">Tip de producción</span><p>Con <code>cron</code> se logra lo mismo agregando temporalmente una línea al <code>crontab</code> de root que ejecute el reset cada 10 minutos, y borrándola al confirmar. El temporizador de systemd es más limpio porque es de un solo disparo y desaparece al terminar.</p></div>
+</section>
+
+<!-- ===================== 4 ===================== -->
+<section class="sec" id="s4">
+  <div class="sec-h"><span class="sec-num">04</span><h2>Arquitectura: tablas, cadenas y trayectoria del paquete</h2></div>
+
+  <h3>Las tablas del kernel</h3>
+  <p>Una <strong>tabla</strong> agrupa reglas según su propósito. Cuando varias tablas actúan en el mismo hook, el kernel las evalúa por prioridad (número menor = primero).</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Tabla</th><th>Prioridad</th><th>Propósito</th><th>Cadenas que contiene</th></tr></thead>
+    <tbody>
+      <tr><td><code>raw</code></td><td>-300</td><td>Antes del seguimiento de conexiones; permite excluir tráfico de conntrack (<code>-j NOTRACK</code>/<code>CT --notrack</code>).</td><td>PREROUTING, OUTPUT</td></tr>
+      <tr><td><code>mangle</code></td><td>-150</td><td>Modificar campos del paquete: TTL, TOS/DSCP, marcas para enrutamiento avanzado o QoS.</td><td>Las cinco</td></tr>
+      <tr><td><code>nat</code></td><td>-100 (DNAT) · +100 (SNAT)</td><td>Traducción de direcciones. Solo evalúa el <strong>primer paquete</strong> de cada conexión; el resto sigue la misma traducción.</td><td>PREROUTING, INPUT, OUTPUT, POSTROUTING</td></tr>
+      <tr><td><code>filter</code></td><td>0</td><td>La tabla por defecto: decide si el paquete pasa o no (ACCEPT, DROP, REJECT).</td><td>INPUT, FORWARD, OUTPUT</td></tr>
+      <tr><td><code>security</code></td><td>+50</td><td>Reglas de control de acceso obligatorio (marcas de SELinux). Poco usada en Ubuntu.</td><td>INPUT, FORWARD, OUTPUT</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Targets y veredictos</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Target</th><th>Tipo</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><code>ACCEPT</code></td><td>Terminal</td><td>Deja pasar el paquete; ya no se evalúan más reglas de esa cadena.</td></tr>
+      <tr><td><code>DROP</code></td><td>Terminal</td><td>Lo descarta en silencio. El emisor no recibe nada y espera hasta agotar su tiempo (timeout): parece que el equipo está apagado.</td></tr>
+      <tr><td><code>REJECT</code></td><td>Terminal</td><td>Lo descarta <strong>y avisa</strong>: por defecto responde ICMP <em>port-unreachable</em>; con <code>--reject-with tcp-reset</code> envía un TCP RST. El cliente ve “Connection refused” al instante.</td></tr>
+      <tr><td><code>LOG</code></td><td>No terminal</td><td>Escribe el paquete en el log del kernel (<code>journalctl -k</code>, <code>/var/log/kern.log</code>) y <strong>continúa</strong> con la siguiente regla.</td></tr>
+      <tr><td><code>DNAT</code></td><td>NAT</td><td>Cambia la IP/puerto <em>destino</em> (port forwarding). PREROUTING u OUTPUT.</td></tr>
+      <tr><td><code>SNAT</code></td><td>NAT</td><td>Cambia la IP <em>origen</em> por una IP fija. POSTROUTING.</td></tr>
+      <tr><td><code>MASQUERADE</code></td><td>NAT</td><td>Como SNAT, pero toma la IP actual de la interfaz de salida (ideal con IP dinámica).</td></tr>
+      <tr><td><code>REDIRECT</code></td><td>NAT</td><td>Caso especial de DNAT: envía el paquete a un puerto de <em>este mismo</em> equipo.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="co co-blue"><span class="co-t">DROP vs. REJECT en una frase</span><p>DROP oculta el servicio y hace perder tiempo a un escáner; REJECT es más “honesto” y facilita el diagnóstico en una red interna. En servidores expuestos suele usarse DROP; dentro del laboratorio, REJECT ahorra minutos de espera.</p></div>
+
+  <h3>Simulador: ¿por dónde viaja el paquete?</h3>
+  <div class="lab-box">
+    <div class="lab-title"><span class="pulse"></span>Selecciona el tipo de tráfico</div>
+    <div class="seg" id="flowBtns">
+      <button data-route="entrante" class="on">Tráfico entrante (a este equipo)</button>
+      <button data-route="transito">Tráfico de tránsito / enrutado</button>
+      <button data-route="saliente">Tráfico saliente local</button>
+    </div>
+    <div class="svg-scroll">
+    <svg id="flow" viewBox="0 0 960 380" role="img" aria-label="Diagrama de flujo de un paquete a través de las cadenas de Netfilter">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#71717a"/></marker>
+      </defs>
+      <!-- aristas -->
+      <path id="e1" class="edge" d="M100,188 L128,188" marker-end="url(#arr)"/>
+      <path id="e2" class="edge" d="M280,188 L298,188" marker-end="url(#arr)"/>
+      <path id="e3" class="edge" d="M360,140 L360,68 L448,68" marker-end="url(#arr)"/>
+      <path id="e4" class="edge" d="M620,68 L678,68" marker-end="url(#arr)"/>
+      <path id="e5" class="edge" d="M420,188 L448,188" marker-end="url(#arr)"/>
+      <path id="e6" class="edge" d="M620,188 L678,188" marker-end="url(#arr)"/>
+      <path id="e7" class="edge" d="M830,188 L858,188" marker-end="url(#arr)"/>
+      <path id="e8" class="edge" d="M280,328 L448,328" marker-end="url(#arr)"/>
+      <path id="e9" class="edge" d="M620,328 L755,328 L755,228" marker-end="url(#arr)"/>
+      <text class="edge-l" x="352" y="112" text-anchor="end">destino = este host</text>
+      <text class="edge-l" x="292" y="258">destino = otro host →</text>
+      <text class="edge-l" x="296" y="318">ruteo local</text>
+      <!-- nodos -->
+      <g class="node" id="n-nicin"><rect x="10" y="160" width="90" height="56" rx="10"/><text class="t" x="55" y="185" text-anchor="middle">NIC</text><text x="55" y="203" text-anchor="middle">entrada</text></g>
+      <g class="node" id="n-pre"><rect x="130" y="150" width="150" height="76" rx="10"/><text class="t" x="205" y="178" text-anchor="middle">PREROUTING</text><text x="205" y="198" text-anchor="middle">raw · mangle</text><text x="205" y="214" text-anchor="middle">nat (DNAT)</text></g>
+      <g class="node" id="n-rt"><polygon points="360,140 420,188 360,236 300,188"/><text class="t" x="360" y="186" text-anchor="middle" style="font-size:12px">ROUTING</text><text x="360" y="202" text-anchor="middle" style="font-size:10px">¿para mí?</text></g>
+      <g class="node" id="n-input"><rect x="450" y="30" width="170" height="76" rx="10"/><text class="t" x="535" y="58" text-anchor="middle">INPUT</text><text x="535" y="78" text-anchor="middle">mangle · filter</text><text x="535" y="94" text-anchor="middle">security · nat(SNAT)</text></g>
+      <g class="node" id="n-procin"><rect x="680" y="30" width="150" height="76" rx="10"/><text class="t" x="755" y="60" text-anchor="middle">Proceso local</text><text x="755" y="82" text-anchor="middle">apache2, sshd…</text></g>
+      <g class="node" id="n-fwd"><rect x="450" y="150" width="170" height="76" rx="10"/><text class="t" x="535" y="178" text-anchor="middle">FORWARD</text><text x="535" y="198" text-anchor="middle">mangle · filter</text><text x="535" y="214" text-anchor="middle">security</text></g>
+      <g class="node" id="n-post"><rect x="680" y="150" width="150" height="76" rx="10"/><text class="t" x="755" y="178" text-anchor="middle">POSTROUTING</text><text x="755" y="198" text-anchor="middle">mangle</text><text x="755" y="214" text-anchor="middle">nat (SNAT/MASQ)</text></g>
+      <g class="node" id="n-nicout"><rect x="860" y="160" width="90" height="56" rx="10"/><text class="t" x="905" y="185" text-anchor="middle">NIC</text><text x="905" y="203" text-anchor="middle">salida</text></g>
+      <g class="node" id="n-procout"><rect x="130" y="293" width="150" height="70" rx="10"/><text class="t" x="205" y="322" text-anchor="middle">Proceso local</text><text x="205" y="343" text-anchor="middle">curl, apt, ping…</text></g>
+      <g class="node" id="n-out"><rect x="450" y="290" width="170" height="76" rx="10"/><text class="t" x="535" y="318" text-anchor="middle">OUTPUT</text><text x="535" y="338" text-anchor="middle">raw · mangle · nat</text><text x="535" y="354" text-anchor="middle">filter · security</text></g>
+    </svg>
+    </div>
+    <ol class="steps" id="flowSteps"></ol>
+  </div>
+</section>
+
+<!-- ===================== 5 ===================== -->
+<section class="sec" id="s5">
+  <div class="sec-h"><span class="sec-num">05</span><h2>Nomenclatura, parámetros y sintaxis a fondo</h2></div>
+
+  <h3>Anatomía de una regla</h3>
+  <div class="anat">
+    <span style="color:#e4e4e7">[comando]</span>
+    <span style="color:#c4b5fd">[tabla]</span>
+    <span style="color:#93c5fd">[acción + cadena]</span>
+    <span style="color:#67e8f9">[criterios de coincidencia]</span>
+    <span style="color:#fca5a5">[target / veredicto]</span>
+  </div>
+  <div class="cb" data-t="estructura general" data-b="out"><pre><code>iptables [-t tabla] -A|-I|-D|-R CADENA [criterios...] -j TARGET</code></pre></div>
+  <div class="co co-red"><span class="co-t">Principio fundamental: la primera coincidencia gana</span><p>Las reglas se evalúan de arriba hacia abajo. En cuanto un paquete coincide con una regla con target terminal (ACCEPT, DROP, REJECT), se detiene la evaluación. Si nada coincide, se aplica la <strong>política</strong> de la cadena. Por eso un <code>DROP</code> escrito <em>después</em> de un <code>ACCEPT</code> general nunca se ejecuta.</p></div>
+
+  <h3>Opciones cortas (<code>-</code>) vs. largas (<code>--</code>)</h3>
+  <p>Linux sigue la convención GNU <em>getopt</em>: un guion para opciones de una letra (<code>-A</code>, <code>-p</code>) y doble guion para nombres completos (<code>--append</code>, <code>--protocol</code>). Ambas formas son equivalentes para las opciones del núcleo de iptables.</p>
+  <p>Las opciones de los <strong>módulos de extensión</strong> (<code>--dport</code>, <code>--ctstate</code>, <code>--limit</code>) <strong>solo existen en forma larga</strong>: las letras sueltas están reservadas para iptables y no se pueden repartir entre decenas de módulos sin chocar. Cuando escribes <code>-p tcp</code>, iptables carga implícitamente el módulo <code>tcp</code>, y es ese módulo quien entiende <code>--dport</code>.</p>
+
+  <h3>Flags de administración</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Flag</th><th>Forma larga</th><th>Uso</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><code>-t</code></td><td><code>--table</code></td><td>Tabla a modificar (por defecto <code>filter</code>).</td><td><code>-t nat</code></td></tr>
+      <tr><td><code>-A</code></td><td><code>--append</code></td><td>Agrega la regla al <strong>final</strong> de la cadena.</td><td><code>-A INPUT ...</code></td></tr>
+      <tr><td><code>-I</code></td><td><code>--insert</code></td><td>Inserta en una posición (1 = arriba del todo).</td><td><code>-I INPUT 1 ...</code></td></tr>
+      <tr><td><code>-D</code></td><td><code>--delete</code></td><td>Borra por especificación exacta o por número.</td><td><code>-D INPUT 3</code></td></tr>
+      <tr><td><code>-R</code></td><td><code>--replace</code></td><td>Reemplaza la regla número N.</td><td><code>-R INPUT 2 -p tcp --dport 443 -j ACCEPT</code></td></tr>
+      <tr><td><code>-L</code></td><td><code>--list</code></td><td>Lista reglas.</td><td><code>-L INPUT</code></td></tr>
+      <tr><td><code>-S</code></td><td><code>--list-rules</code></td><td>Lista en formato de comando (ideal para copiar).</td><td><code>-S</code></td></tr>
+      <tr><td><code>-F</code></td><td><code>--flush</code></td><td>Vacía una cadena o todas.</td><td><code>-F INPUT</code></td></tr>
+      <tr><td><code>-P</code></td><td><code>--policy</code></td><td>Política por defecto de una cadena integrada.</td><td><code>-P INPUT DROP</code></td></tr>
+      <tr><td><code>-N</code> / <code>-X</code></td><td><code>--new-chain</code> / <code>--delete-chain</code></td><td>Crear / borrar cadenas propias.</td><td><code>-N ANTI_SCAN</code></td></tr>
+      <tr><td><code>-v</code></td><td><code>--verbose</code></td><td>Muestra contadores, interfaces y opciones.</td><td><code>-L -v</code></td></tr>
+      <tr><td><code>-n</code></td><td><code>--numeric</code></td><td>IPs y puertos en número, sin consultas DNS (más rápido y funciona sin red).</td><td><code>-L -n</code></td></tr>
+      <tr><td></td><td><code>--line-numbers</code></td><td>Numera las reglas para usar con -D, -I, -R.</td><td><code>-L --line-numbers</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Criterios de coincidencia estándar</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Criterio</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><code>-p</code></td><td>Protocolo: <code>tcp</code>, <code>udp</code>, <code>icmp</code>, <code>all</code>.</td><td><code>-p udp</code></td></tr>
+      <tr><td><code>-s</code></td><td>Dirección origen; acepta CIDR.</td><td><code>-s 192.168.1.0/24</code></td></tr>
+      <tr><td><code>-d</code></td><td>Dirección destino; <code>/32</code> = un solo host.</td><td><code>-d 10.0.0.80/32</code></td></tr>
+      <tr><td><code>-i</code></td><td>Interfaz de <strong>entrada</strong> (INPUT, FORWARD, PREROUTING).</td><td><code>-i enp0s3</code></td></tr>
+      <tr><td><code>-o</code></td><td>Interfaz de <strong>salida</strong> (OUTPUT, FORWARD, POSTROUTING).</td><td><code>-o enp0s8</code></td></tr>
+      <tr><td><code>!</code></td><td>Negación del criterio que sigue.</td><td><code>! -s 192.168.1.20</code></td></tr>
+      <tr><td><code>-j</code></td><td>Salto a un target o a una cadena propia.</td><td><code>-j ANTI_SCAN</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Extensiones y módulos (<code>-m</code> / <code>--match</code>)</h3>
+  <h4>multiport · varios puertos en una sola regla (máximo 15)</h4>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo iptables -A INPUT -p tcp -m multiport --dports 80,443,8080 -j ACCEPT</code></pre></div>
+  <h4>conntrack · inspección de estado (firewall stateful)</h4>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Estado</th><th>Significado</th></tr></thead>
+    <tbody>
+      <tr><td><code>NEW</code></td><td>Primer paquete de una conexión (ej. el SYN de TCP).</td></tr>
+      <tr><td><code>ESTABLISHED</code></td><td>Paquetes de una conexión ya vista en ambos sentidos (las respuestas).</td></tr>
+      <tr><td><code>RELATED</code></td><td>Conexión nueva pero asociada a otra existente (errores ICMP, datos de FTP).</td></tr>
+      <tr><td><code>INVALID</code></td><td>No corresponde a ninguna conexión conocida; suele descartarse.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -A INPUT -m conntrack --ctstate INVALID -j DROP</code></pre></div>
+  <h4>limit · control de tasa con ráfagas</h4>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code># Acepta hasta 5 pings por minuto, con ráfaga inicial de 10; el resto cae en la siguiente regla
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 5/min --limit-burst 10 -j ACCEPT
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j DROP</code></pre></div>
+  <h4>connlimit · conexiones simultáneas por host</h4>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code># Rechaza a cualquier IP que mantenga más de 20 conexiones abiertas al puerto 80
+sudo iptables -A INPUT -p tcp --syn --dport 80 -m connlimit --connlimit-above 20 -j REJECT --reject-with tcp-reset</code></pre></div>
+  <div class="co co-blue"><span class="co-t">Nota pedagógica</span><p><code>limit</code> cuenta paquetes de forma <strong>global</strong> (todos los orígenes juntos); <code>connlimit</code> cuenta conexiones <strong>por IP</strong>. Para limitar tasa por IP existe el módulo <code>hashlimit</code>.</p></div>
+
+  <h3>Explorador visual de sintaxis</h3>
+  <p class="muted">Pasa el cursor o toca cada fragmento de la regla para ver qué hace.</p>
+  <div class="lab-box">
+    <div class="seg" id="ruleTabs">
+      <button data-rule="http" class="on">Cerrar HTTP (80)</button>
+      <button data-rule="icmp">Bloquear ping (ICMP)</button>
+      <button data-rule="ssh">Permitir SSH (22)</button>
+      <button data-rule="mysql">MySQL solo desde la LAN</button>
+    </div>
+    <div class="rule-line" id="ruleLine" role="list"></div>
+    <div class="tok-card" id="tokCard" aria-live="polite"></div>
+    <div class="legend">
+      <span style="color:#a1a1aa">comando</span><span style="color:#a78bfa">tabla</span><span style="color:#60a5fa">cadena</span><span style="color:#fbbf24">protocolo</span><span style="color:#22d3ee">criterio</span><span style="color:#f472b6">módulo</span><span style="color:#f87171">target bloqueo</span><span style="color:#34d399">target permitir</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 6 ===================== -->
+<section class="sec" id="s6">
+  <div class="sec-h"><span class="sec-num">06</span><h2>Control de servicios y filtrado por puertos</h2></div>
+
+  <h3>Del puerto (capa 4) al servicio (capa 7)</h3>
+  <p>iptables no sabe qué es “un servidor web”; solo ve números de puerto. La relación puerto ↔ servicio está documentada en <code>/etc/services</code>:</p>
+  <div class="cb" data-t="bash" data-b="user"><pre><code>grep -wE "22|53|80|443|3306" /etc/services
+ss -tulnp      # ¿qué procesos están escuchando realmente?</code></pre></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Puerto</th><th>Protocolo</th><th>Servicio</th><th>Práctica del curso</th></tr></thead>
+    <tbody>
+      <tr><td>22</td><td>TCP</td><td>SSH / scp / rsync</td><td>Acceso remoto, compartir archivos</td></tr>
+      <tr><td>53</td><td>UDP y TCP</td><td>DNS</td><td>Resolución de nombres</td></tr>
+      <tr><td>80 / 443</td><td>TCP</td><td>HTTP / HTTPS</td><td>Apache</td></tr>
+      <tr><td>3306</td><td>TCP</td><td>MySQL / MariaDB</td><td>Servidor de base de datos</td></tr>
+      <tr><td>445</td><td>TCP</td><td>SMB (Samba)</td><td>Compartir con Windows</td></tr>
+      <tr><td>2049</td><td>TCP</td><td>NFS</td><td>Compartir entre Ubuntu</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Pila web y el “eslabón perdido”: DNS</h3>
+  <p>Escenario: un equipo con política de salida restrictiva (<code>OUTPUT DROP</code>) que solo debe navegar por web.</p>
+  <div class="cb" data-t="nano navegacion-web.sh" data-b="script"><pre><code>#!/bin/bash
+iptables -F
+# Loopback y respuestas de conexiones ya abiertas
+iptables -A INPUT  -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+iptables -A INPUT  -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Navegación web saliente: HTTP y HTTPS
+iptables -A OUTPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j ACCEPT
+
+# El eslabón perdido: DNS (UDP y TCP 53)
+iptables -A OUTPUT -p udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+
+# Políticas al final, cuando ya existen las excepciones
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP</code></pre></div>
+  <div class="co co-red"><span class="co-t">¿Qué pasa si olvidas la regla del puerto 53?</span>
+    <p><code>curl http://192.168.1.20</code> funciona, pero <code>curl http://servidor.lab</code> falla con <em>Could not resolve host</em>. Antes de abrir una conexión al puerto 80, el sistema necesita traducir el nombre (FQDN) a IP, y esa consulta viaja al puerto 53. Sin DNS, “internet no funciona” aunque los puertos web estén abiertos.</p>
+  </div>
+  <div class="co co-blue"><span class="co-t">Nota pedagógica · systemd-resolved</span><p>En Ubuntu las aplicaciones consultan primero a <code>127.0.0.53</code> (un resolvedor local). Ese tramo pasa por <code>lo</code>; después <code>systemd-resolved</code> consulta al DNS real por el puerto 53, y ese es el tráfico que necesita la regla de OUTPUT. UDP es lo habitual; TCP se usa para respuestas grandes.</p></div>
+
+  <h3>Proteger un servidor MySQL / MariaDB (3306)</h3>
+  <p>Topología de ejemplo: servidor de base de datos <code>192.168.1.10</code>, servidor de aplicaciones (backend) <code>192.168.1.20</code>. En la Unidad 3 configuramos <code>bind-address = 0.0.0.0</code>, así que MySQL escucha en toda la red: el firewall compensa esa apertura.</p>
+  <div class="cb" data-t="bash — en el servidor de BD (192.168.1.10)" data-b="sudo"><pre><code># 1. Solo el backend puede abrir conexiones nuevas al 3306
+sudo iptables -A INPUT -p tcp -s 192.168.1.20 --dport 3306 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+
+# 2. Cualquier otra procedencia: rechazo inmediato
+sudo iptables -A INPUT -p tcp --dport 3306 -j REJECT --reject-with tcp-reset
+
+# 3. El servidor NO puede iniciar conexiones hacia otras bases de datos (exfiltración)
+sudo iptables -A OUTPUT -o lo -j ACCEPT
+sudo iptables -A OUTPUT -p tcp --dport 3306 -m conntrack --ctstate NEW -j REJECT</code></pre></div>
+  <div class="cb" data-t="bash — comprobación" data-b="user"><pre><code># Desde el backend (192.168.1.20): debe decir "succeeded"
+nc -zv 192.168.1.10 3306
+# Desde cualquier otra PC: "Connection refused"
+nc -zv 192.168.1.10 3306
+# Desde el propio servidor de BD hacia otra base: debe fallar
+nc -zv 192.168.1.30 3306</code></pre></div>
+  <div class="co co-amber"><span class="co-t">Tip de producción · ¿DROP o REJECT para el 3306?</span><p>Hacia internet, <code>DROP</code> (no revela que hay un MySQL). En la red interna, <code>REJECT</code> ayuda a que los desarrolladores entiendan el error en segundos. La regla 3 no afecta las respuestas del servidor a su backend porque esas salen con <em>puerto origen</em> 3306, no destino.</p></div>
+</section>
+
+<!-- ===================== 7 ===================== -->
+<section class="sec" id="s7">
+  <div class="sec-h"><span class="sec-num">07</span><h2>Diseño e implementación de una DMZ</h2></div>
+
+  <p>Una <strong>DMZ</strong> (zona desmilitarizada) es una red intermedia donde viven los servidores que deben ser accesibles desde fuera (web, correo). Si un atacante compromete el servidor web, queda encerrado en la DMZ y <strong>no puede saltar a la LAN interna</strong>, donde están los equipos y datos sensibles.</p>
+  <ul class="l">
+    <li><strong>Menor privilegio:</strong> desde fuera solo se permite 80/443 hacia el servidor web; nada más.</li>
+    <li><strong>DMZ → LAN prohibido:</strong> la DMZ nunca inicia conexiones hacia la red interna.</li>
+    <li><strong>LAN → DMZ permitido:</strong> los administradores internos sí pueden entrar a la DMZ.</li>
+  </ul>
+
+  <div class="lab-box">
+    <div class="lab-title"><span class="pulse"></span>Prueba un flujo en la topología</div>
+    <div class="seg" id="dmzBtns">
+      <button data-f="web" class="on">Externo → Web (80/443)</button>
+      <button data-f="extlan">Externo → LAN</button>
+      <button data-f="dmzlan">DMZ → LAN</button>
+      <button data-f="landmz">LAN → DMZ</button>
+    </div>
+    <div class="svg-scroll">
+    <svg id="dmz" viewBox="0 0 900 430" role="img" aria-label="Topología de DMZ con firewall Ubuntu">
+      <!-- zonas -->
+      <rect class="zone" x="8" y="60" width="250" height="240" rx="14" stroke="#60a5fa"/>
+      <text x="22" y="84" style="fill:#93c5fd">Red externa (WAN) 192.168.1.0/24</text>
+      <rect class="zone" x="630" y="20" width="260" height="190" rx="14" stroke="#fbbf24"/>
+      <text x="644" y="44" style="fill:#fcd34d">DMZ · 10.0.0.0/24</text>
+      <rect class="zone" x="630" y="250" width="260" height="170" rx="14" stroke="#34d399"/>
+      <text x="644" y="274" style="fill:#6ee7b7">LAN · 172.16.0.0/24 (opcional)</text>
+      <!-- enlaces físicos -->
+      <line class="link" x1="200" y1="190" x2="345" y2="190"/>
+      <line class="link" x1="535" y1="160" x2="665" y2="120"/>
+      <line class="link" x1="535" y1="225" x2="665" y2="335"/>
+      <!-- flujos -->
+      <path id="f-web" class="flow ok" d="M200,181 L345,181 M535,140 L665,108"/>
+      <path id="f-extlan" class="flow no" d="M200,199 L345,199 M535,238 L592,288"/>
+      <path id="f-dmzlan" class="flow no" d="M665,132 L535,162 M535,238 L592,288"/>
+      <path id="f-landmz" class="flow ok" d="M665,358 L535,248 M535,128 L665,96"/>
+      <g id="x-extlan" class="xmark"><circle cx="604" cy="298" r="14" fill="#2a0f12" stroke="#f87171" stroke-width="2"/><path d="M597,291 L611,305 M611,291 L597,305" stroke="#f87171" stroke-width="3"/></g>
+      <g id="x-dmzlan" class="xmark"><circle cx="604" cy="298" r="14" fill="#2a0f12" stroke="#f87171" stroke-width="2"/><path d="M597,291 L611,305 M611,291 L597,305" stroke="#f87171" stroke-width="3"/></g>
+      <!-- nodos -->
+      <rect class="box" x="30" y="145" width="170" height="90" rx="12"/>
+      <text class="tt" x="45" y="172">Nodo 1 · Cliente</text>
+      <text x="45" y="194">192.168.1.10/24</text>
+      <text x="45" y="214">gw 192.168.1.1</text>
+      <rect class="fwbox" x="345" y="120" width="190" height="140" rx="14"/>
+      <text class="tt" x="360" y="148">Nodo 2 · Firewall</text>
+      <text x="360" y="170">Ubuntu + iptables</text>
+      <text x="360" y="190">ip_forward = 1</text>
+      <text x="360" y="215" style="fill:#93c5fd">eth0 192.168.1.1</text>
+      <text x="360" y="233" style="fill:#fcd34d">eth1 10.0.0.1</text>
+      <text x="360" y="251" style="fill:#6ee7b7">eth2 172.16.0.1</text>
+      <rect class="box" x="665" y="70" width="200" height="100" rx="12"/>
+      <text class="tt" x="680" y="98">Nodo 3 · Servidor web</text>
+      <text x="680" y="120">10.0.0.80/24</text>
+      <text x="680" y="140">gw 10.0.0.1 · :80 :443</text>
+      <rect class="box" x="665" y="300" width="200" height="90" rx="12"/>
+      <text class="tt" x="680" y="328">Equipos internos</text>
+      <text x="680" y="350">172.16.0.10 …</text>
+      <text x="680" y="370">gw 172.16.0.1</text>
+    </svg>
+    </div>
+    <div class="verdict" id="dmzVerdict"></div>
+  </div>
+
+  <h3>Laboratorio de 3 máquinas con IP estática</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Nodo</th><th>Rol</th><th>Interfaces / IP</th><th>Puerta de enlace</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Cliente externo</td><td>192.168.1.10/24</td><td>192.168.1.1</td></tr>
+      <tr><td>2</td><td>Firewall Ubuntu (2 NICs)</td><td><code>eth0</code> 192.168.1.1/24 (WAN) · <code>eth1</code> 10.0.0.1/24 (DMZ)</td><td>—</td></tr>
+      <tr><td>3</td><td>Servidor web en DMZ</td><td>10.0.0.80/24 (Apache en 80/443)</td><td>10.0.0.1</td></tr>
+    </tbody>
+  </table></div>
+  <div class="co co-blue"><span class="co-t">Nota para VirtualBox</span><p>Crea dos “Redes internas”: <code>wan</code> (Nodo 1 + adaptador 1 del firewall) y <code>dmz</code> (adaptador 2 del firewall + Nodo 3). En Ubuntu las interfaces no se llaman <code>eth0</code>/<code>eth1</code> sino <code>enp0s3</code>, <code>enp0s8</code>…; revisa los nombres reales con <code>ip a</code> y ajústalos en las variables del script. La LAN interna (<code>eth2</code>) es una cuarta máquina opcional para demostrar el bloqueo DMZ → LAN.</p></div>
+
+  <h4>Configuración de red del firewall (netplan)</h4>
+  <div class="cb" data-t="/etc/netplan/01-firewall.yaml" data-b="file"><pre><code>network:
+  version: 2
+  ethernets:
+    enp0s3:            # eth0 · WAN
+      addresses: [192.168.1.1/24]
+    enp0s8:            # eth1 · DMZ
+      addresses: [10.0.0.1/24]</code></pre></div>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo netplan apply
+# Activar el enrutamiento (ahora y de forma persistente)
+sudo sysctl -w net.ipv4.ip_forward=1
+echo "net.ipv4.ip_forward=1" | sudo tee /etc/sysctl.d/99-router.conf
+sudo sysctl --system</code></pre></div>
+
+  <h4>Script completo de la DMZ</h4>
+  <div class="cb" data-t="nano dmz-firewall.sh" data-b="script"><pre><code>#!/bin/bash
+# dmz-firewall.sh — Nodo 2 (router/firewall con iptables)
+WAN=eth0          # cambia por tu interfaz real (ej. enp0s3)
+DMZ=eth1          # ej. enp0s8
+LAN_NET=172.16.0.0/24
+WEB=10.0.0.80
+
+# --- Reset seguro ---
+iptables -P INPUT ACCEPT; iptables -P FORWARD ACCEPT; iptables -P OUTPUT ACCEPT
+iptables -F; iptables -t nat -F; iptables -X
+
+# --- Políticas restrictivas ---
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+
+# --- Protección del propio firewall (INPUT) ---
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i $WAN -p tcp --dport 22 -s 192.168.1.10 -j ACCEPT   # administración
+iptables -A INPUT -i $WAN -p icmp --icmp-type echo-request -j ACCEPT     # diagnóstico
+
+# --- Reenvío: respuestas de conexiones ya permitidas ---
+iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -m conntrack --ctstate INVALID -j DROP
+
+# --- Port forwarding: lo que llega al 80/443 del firewall va al servidor web ---
+iptables -t nat -A PREROUTING -i $WAN -p tcp -m multiport --dports 80,443 \
+         -j DNAT --to-destination $WEB
+
+# --- Autorizar ese reenvío solo hacia 80/443 del servidor web ---
+iptables -A FORWARD -i $WAN -o $DMZ -d $WEB -p tcp -m multiport --dports 80,443 \
+         -m conntrack --ctstate NEW -j ACCEPT
+
+# --- DMZ hacia la LAN interna: prohibido (con registro) ---
+iptables -A FORWARD -i $DMZ -d $LAN_NET -j LOG --log-prefix "DMZ->LAN BLOQ: "
+iptables -A FORWARD -i $DMZ -d $LAN_NET -j DROP
+
+# (Opcional, si existe eth2) LAN hacia DMZ: permitido
+# iptables -A FORWARD -i eth2 -o $DMZ -m conntrack --ctstate NEW -j ACCEPT
+
+echo "[OK] DMZ activa"; iptables -L FORWARD -v -n --line-numbers; iptables -t nat -L PREROUTING -v -n</code></pre></div>
+  <div class="co co-blue"><span class="co-t">¿Por qué no hace falta SNAT aquí?</span><p>El servidor web tiene como puerta de enlace al firewall (10.0.0.1), así que sus respuestas regresan por él y conntrack deshace el DNAT automáticamente. Además, en el log de Apache verás la IP real del cliente (192.168.1.10), algo valioso para auditoría.</p></div>
+  <div class="cb" data-t="bash — pruebas" data-b="user"><pre><code># Nodo 1: el cliente "llama" al firewall y le contesta el servidor web de la DMZ
+curl http://192.168.1.1
+# Nodo 3: el log muestra la IP del cliente externo
+sudo tail -n 3 /var/log/apache2/access.log
+# Nodo 3: intento de salto a la LAN (debe fallar)
+ping -c 2 172.16.0.10
+# Nodo 2: ver los paquetes bloqueados
+sudo journalctl -k | grep "DMZ->LAN"</code></pre></div>
+</section>
+
+<!-- ===================== 8 ===================== -->
+<section class="sec" id="s8">
+  <div class="sec-h"><span class="sec-num">08</span><h2>Laboratorio práctico en entorno local</h2></div>
+  <p>Escenario base (el mismo del manual de laboratorio): <strong>PC A</strong> = <code>192.168.1.10</code> (servidor), <strong>PC B</strong> = <code>192.168.1.20</code> (cliente/atacante simulado), red local sin internet. Antes de cada ejercicio, comprueba <code>ping -c 3</code> entre ambas.</p>
+
+  <div class="ex">
+    <div class="ex-h"><span class="ex-n">EJ 1</span><h3>Cierre de un puerto local</h3></div>
+    <p>Levanta un servicio de prueba en el 8080 y comprueba que responde:</p>
+    <div class="cb" data-t="terminal 1 · PC A" data-b="user"><pre><code>python3 -m http.server 8080</code></pre></div>
+    <div class="cb" data-t="terminal 2 · PC A y PC B" data-b="user"><pre><code>curl -I http://localhost:8080          # en PC A
+nc -zv -w 3 192.168.1.10 8080          # en PC B → succeeded</code></pre></div>
+    <p>Ciérralo y vuelve a probar:</p>
+    <div class="cb" data-t="bash · PC A" data-b="sudo"><pre><code>sudo iptables -I INPUT 1 -p tcp --dport 8080 -j REJECT --reject-with tcp-reset
+sudo iptables -L INPUT -v -n --line-numbers</code></pre></div>
+    <div class="cb" data-t="bash · comprobación" data-b="user"><pre><code>nc -zv -w 3 192.168.1.10 8080          # en PC B → Connection refused
+curl -I http://localhost:8080          # en PC A → también bloqueado (la regla no filtra interfaz)</code></pre></div>
+    <div class="co co-blue"><span class="co-t">Experimento</span><p>Cambia <code>REJECT</code> por <code>DROP</code> y repite: <code>nc</code> ya no responde “refused”, se queda esperando hasta el timeout de 3 s. Usamos <code>-I INPUT 1</code> para que la regla quede <em>antes</em> de una posible <code>-i lo -j ACCEPT</code>. Para limpiar: <code>sudo iptables -D INPUT 1</code>.</p></div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-h"><span class="ex-n">EJ 2</span><h3>Bloqueo de salida (cadena OUTPUT)</h3></div>
+    <p>Ahora el filtro va en sentido contrario: impedimos que <strong>PC A</strong> se comunique con un equipo o servicio.</p>
+    <div class="cb" data-t="bash · PC A" data-b="sudo"><pre><code># Todo el tráfico hacia PC B
+sudo iptables -A OUTPUT -d 192.168.1.20 -j REJECT
+ping -c 2 192.168.1.20        # error inmediato, no timeout
+
+# Más fino: solo la web de PC B, el resto sí funciona
+sudo iptables -D OUTPUT -d 192.168.1.20 -j REJECT
+sudo iptables -A OUTPUT -p tcp -d 192.168.1.20 --dport 80 -j REJECT
+curl http://192.168.1.20      # falla
+ping -c 2 192.168.1.20        # funciona
+
+# Un segmento completo
+sudo iptables -A OUTPUT -d 10.0.0.0/24 -j DROP</code></pre></div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-h"><span class="ex-n">EJ 3</span><h3>Redirección a una página local (“Sitio bloqueado”)</h3></div>
+    <p>Simulamos un portal cautivo: los intentos de navegar a cierto destino se desvían a una página local servida en el puerto 8080.</p>
+    <div class="cb" data-t="bash · preparar la página" data-b="user"><pre><code>mkdir -p ~/bloqueo &amp;&amp; cd ~/bloqueo
+cat &gt; index.html &lt;&lt;'EOF'
+&lt;!DOCTYPE html&gt;&lt;html lang="es"&gt;&lt;meta charset="utf-8"&gt;
+&lt;body style="font-family:sans-serif;text-align:center;padding-top:15vh;background:#111;color:#eee"&gt;
+&lt;h1&gt;⛔ Sitio bloqueado&lt;/h1&gt;&lt;p&gt;Acceso restringido por la política del laboratorio.&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
+EOF
+python3 -m http.server 8080</code></pre></div>
+
+    <h4>a) Redirección por IP</h4>
+    <p>En el laboratorio sin internet, el “sitio objetivo” es el Apache de PC B (<code>192.168.1.20</code>). Los paquetes que <em>genera</em> PC A recorren la cadena <code>OUTPUT</code> de la tabla <code>nat</code>, así que ahí se intercepta:</p>
+    <div class="cb" data-t="bash · PC A" data-b="sudo"><pre><code>sudo iptables -t nat -A OUTPUT -p tcp -d 192.168.1.20 --dport 80 -j REDIRECT --to-ports 8080
+curl http://192.168.1.20      # responde la página "Sitio bloqueado"
+# Equivalente con DNAT:
+# sudo iptables -t nat -A OUTPUT -p tcp -d 192.168.1.20 --dport 80 -j DNAT --to-destination 127.0.0.1:8080</code></pre></div>
+
+    <h4>b) Redirección por nombre de dominio</h4>
+    <div class="co co-red"><span class="co-t">Aclaración conceptual indispensable</span><p>iptables trabaja en capas 3 y 4: solo ve IPs y puertos, nunca el nombre <code>facebook.com</code>. Si escribes <code>-d facebook.com</code>, iptables resuelve el nombre <strong>una sola vez</strong>, al crear la regla, y guarda las IPs de ese momento. Los grandes sitios usan CDNs con cientos de IPs que cambian constantemente, así que la regla deja de funcionar rápido.</p></div>
+    <p>Solución combinada: hacemos que el <strong>resolvedor</strong> del sistema mienta, con <code>/etc/hosts</code>, y que iptables lleve ese tráfico a nuestra página.</p>
+    <div class="cb" data-t="sudo nano /etc/hosts" data-b="file"><pre><code>127.0.0.1   facebook.com www.facebook.com
+127.0.0.1   youtube.com  www.youtube.com</code></pre></div>
+    <div class="cb" data-t="bash · PC A" data-b="sudo"><pre><code># Lo que vaya al puerto 80 de localhost se desvía al 8080 de la página de bloqueo
+sudo iptables -t nat -A OUTPUT -p tcp -d 127.0.0.1 --dport 80 -j REDIRECT --to-ports 8080
+curl http://facebook.com      # aparece "Sitio bloqueado"
+getent hosts facebook.com     # confirma que resuelve a 127.0.0.1</code></pre></div>
+    <div class="co co-amber"><span class="co-t">Nota sobre HTTPS (443) y el navegador</span>
+      <ul class="l">
+        <li>Si se intercepta el 443, el navegador muestra una alerta de seguridad: espera el certificado TLS de facebook.com y recibe otro (o ninguno). Es justamente la protección contra suplantación.</li>
+        <li>Sitios como facebook.com y youtube.com están en la lista <strong>HSTS preload</strong>: el navegador fuerza HTTPS aunque escribas <code>http://</code>, así que la prueba limpia se hace con <code>curl http://…</code>.</li>
+        <li>Para una demostración en navegador usa un dominio inventado, por ejemplo <code>redsocial.lab</code>, en <code>/etc/hosts</code>. Algunos navegadores con “DNS seguro” (DoH) activo pueden ignorar <code>/etc/hosts</code>.</li>
+      </ul>
+    </div>
+    <div class="cb" data-t="bash · limpieza" data-b="sudo"><pre><code>sudo iptables -t nat -F OUTPUT
+sudo sed -i '/facebook.com\|youtube.com/d' /etc/hosts</code></pre></div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-h"><span class="ex-n">EJ 4</span><h3>Mitigación de escaneos y DoS básico</h3></div>
+    <p>Registramos primero (con límite, para no inundar el log) y después bloqueamos.</p>
+    <div class="cb" data-t="nano anti-flood.sh" data-b="script"><pre><code>#!/bin/bash
+# 1) Más de 20 conexiones simultáneas al 80 desde la misma IP: registrar y rechazar
+iptables -A INPUT -p tcp --syn --dport 80 -m connlimit --connlimit-above 20 \
+         -m limit --limit 5/min -j LOG --log-prefix "IPT-CONNLIMIT: "
+iptables -A INPUT -p tcp --syn --dport 80 -m connlimit --connlimit-above 20 \
+         -j REJECT --reject-with tcp-reset
+
+# 2) Cadena propia anti-escaneo: limitar la tasa de conexiones nuevas (SYN)
+iptables -N ANTI_SCAN
+iptables -A INPUT -p tcp --syn -j ANTI_SCAN
+iptables -A ANTI_SCAN -m limit --limit 10/s --limit-burst 20 -j RETURN
+iptables -A ANTI_SCAN -m limit --limit 5/min -j LOG --log-prefix "IPT-SCAN: "
+iptables -A ANTI_SCAN -j DROP</code></pre></div>
+    <div class="cb" data-t="bash · ataque simulado desde PC B" data-b="user"><pre><code>nmap -T4 -p 1-1000 192.168.1.10                  # escaneo agresivo
+ab -n 2000 -c 50 http://192.168.1.10/            # carga HTTP (apache2-utils)</code></pre></div>
+    <div class="cb" data-t="bash · observar en PC A" data-b="sudo"><pre><code>sudo tail -f /var/log/syslog | grep IPT-
+# alternativa: sudo journalctl -kf | grep IPT-
+sudo iptables -L ANTI_SCAN -v -n                 # contadores de la cadena</code></pre></div>
+    <div class="co co-amber"><span class="co-t">Tip</span><p><code>RETURN</code> devuelve el paquete a la cadena que lo llamó (INPUT) para que siga su evaluación normal. Así, la cadena ANTI_SCAN solo “filtra el exceso” y no decide sobre el tráfico legítimo.</p></div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-h"><span class="ex-n">EJ 5</span><h3>Reset total sin reiniciar</h3></div>
+    <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo reset-firewall.sh
+sudo iptables -S             # solo deben quedar: -P INPUT ACCEPT, -P FORWARD ACCEPT, -P OUTPUT ACCEPT
+sudo iptables -t nat -S      # sin reglas de REDIRECT/DNAT
+sudo iptables -L -v -n       # contadores en 0</code></pre></div>
+    <p class="muted">Si aplicaste el Ejercicio 3, revisa además que <code>/etc/hosts</code> quedó limpio.</p>
+  </div>
+</section>
+
+<!-- ===================== 9 ===================== -->
+<section class="sec" id="s9">
+  <div class="sec-h"><span class="sec-num">09</span><h2>Hardening físico complementario: bloqueo de USB</h2></div>
+
+  <h3>Delimitación de fronteras</h3>
+  <p>iptables se engancha en la pila de <strong>red</strong> del kernel. Una memoria USB no genera paquetes de red: se comunica por el subsistema USB y aparece como <strong>dispositivo de bloques</strong> (<code>/dev/sdb</code>) gracias a los drivers <code>usb-storage</code> y <code>uas</code>. Ninguna regla de iptables puede verla. Para cerrar esa puerta hay que actuar en otra capa del SO: los <strong>módulos del kernel</strong> (device drivers, Unidad 4 del temario).</p>
+  <div class="co co-blue"><span class="co-t">Nota pedagógica</span><p>Esto es defensa en profundidad: el firewall protege la red, el bloqueo de módulos protege los puertos físicos, los permisos protegen los archivos. Ninguna capa sustituye a otra.</p></div>
+
+  <h3>Desactivación inmediata (en caliente)</h3>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>lsmod | grep -E "usb_storage|uas"       # ¿están cargados?
+# Desmonta antes cualquier USB conectada; si está en uso, el módulo no se puede retirar
+sudo modprobe -r uas usb-storage        # uas depende de usb-storage: se retira primero</code></pre></div>
+
+  <h3>Inhabilitación persistente</h3>
+  <div class="cb" data-t="sudo nano /etc/modprobe.d/blacklist-usb.conf" data-b="file"><pre><code># Impide la carga automática de los drivers de almacenamiento USB
+blacklist usb-storage
+blacklist uas
+# Aunque alguien intente cargarlos a mano, ejecutará /bin/false en su lugar
+install usb-storage /bin/false
+install uas /bin/false</code></pre></div>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo update-initramfs -u     # aplica la lista negra también en el arranque temprano
+sudo reboot</code></pre></div>
+  <div class="cb" data-t="bash · comprobación" data-b="user"><pre><code># Conecta una memoria USB y observa
+sudo dmesg | tail -n 15      # el kernel detecta el dispositivo USB...
+lsblk                        # ...pero no aparece ningún /dev/sdX nuevo</code></pre></div>
+  <div class="co co-amber"><span class="co-t">Tip</span><p>Teclados y mouse USB siguen funcionando porque usan el driver <code>usbhid</code>, no <code>usb-storage</code>. No apliques este bloqueo en un equipo que arranca desde un disco USB. Para un control fino (permitir solo memorias autorizadas por número de serie) existe <code>USBGuard</code>.</p></div>
+
+  <h3>Revertir y reactivar los puertos USB</h3>
+  <div class="cb" data-t="bash" data-b="sudo"><pre><code>sudo rm /etc/modprobe.d/blacklist-usb.conf
+sudo update-initramfs -u
+sudo modprobe usb-storage
+sudo modprobe uas
+lsmod | grep -E "usb_storage|uas"       # deben aparecer de nuevo</code></pre></div>
+</section>
+
+<!-- ===================== 10 ===================== -->
+<section class="sec" id="s10">
+  <div class="sec-h"><span class="sec-num">10</span><h2>Referencia rápida, entrega y preguntas frecuentes</h2></div>
+
+  <h3>Hoja de referencia</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Necesito…</th><th>Comando</th></tr></thead>
+    <tbody>
+      <tr><td>Ver reglas con contadores y números</td><td><code>sudo iptables -L -v -n --line-numbers</code></td></tr>
+      <tr><td>Ver reglas como comandos</td><td><code>sudo iptables -S</code> · <code>sudo iptables -t nat -S</code></td></tr>
+      <tr><td>Permitir respuestas de lo que yo inicié</td><td><code>-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT</code></td></tr>
+      <tr><td>Abrir un puerto</td><td><code>-A INPUT -p tcp --dport 80 -j ACCEPT</code></td></tr>
+      <tr><td>Abrir solo para una subred</td><td><code>-A INPUT -p tcp -s 192.168.1.0/24 --dport 3306 -j ACCEPT</code></td></tr>
+      <tr><td>Bloquear una IP</td><td><code>-I INPUT 1 -s 192.168.1.20 -j DROP</code></td></tr>
+      <tr><td>Borrar la regla 3</td><td><code>sudo iptables -D INPUT 3</code></td></tr>
+      <tr><td>Port forwarding</td><td><code>-t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 10.0.0.80</code></td></tr>
+      <tr><td>Compartir internet (NAT)</td><td><code>-t nat -A POSTROUTING -o enp0s3 -j MASQUERADE</code></td></tr>
+      <tr><td>Guardar / restaurar</td><td><code>iptables-save</code> · <code>iptables-restore</code></td></tr>
+      <tr><td>Volver a cero</td><td><code>sudo reset-firewall.sh</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Lista de cotejo de la práctica</h3>
+  <p class="muted">Para tu repositorio en GitHub (carpetas <code>Codigo/</code>, <code>Terminal/</code>, <code>Reporte/</code>). Marca lo que ya tienes:</p>
+  <ul class="check" id="checklist">
+    <li><label><input type="checkbox"><span><code>firewall.sh</code> y <code>reset-firewall.sh</code> comentados en <code>Codigo/</code>.</span></label></li>
+    <li><label><input type="checkbox"><span>Captura de <code>iptables -L -v -n</code> con una regla DROP/REJECT cuyo contador sea mayor a cero.</span></label></li>
+    <li><label><input type="checkbox"><span>Captura del intento fallido desde la PC bloqueada (con <code>whoami</code> e IP visibles).</span></label></li>
+    <li><label><input type="checkbox"><span>Evidencia de que las reglas persisten tras reiniciar.</span></label></li>
+    <li><label><input type="checkbox"><span>Ejercicio 3: página “Sitio bloqueado” obtenida con <code>curl</code>.</span></label></li>
+    <li><label><input type="checkbox"><span>Reporte: explicación de DROP vs. REJECT y del orden de las reglas.</span></label></li>
+  </ul>
+
+  <h3>Preguntas frecuentes</h3>
+  <div class="acc" id="faq">
+    <div class="acc-i"><button class="acc-q">Apliqué mi firewall.sh con política DROP y ahora no funciona ping, apt ni curl hacia afuera. ¿Por qué?<span class="ic">+</span></button>
+      <div class="acc-a"><div class="acc-a-in"><p>Tus solicitudes salen bien por OUTPUT, pero las <strong>respuestas</strong> entran por INPUT y la política las descarta. Agrega al inicio del script <code>iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT</code>. Es la regla más importante de cualquier firewall con estado.</p></div></div></div>
+    <div class="acc-i"><button class="acc-q">Agregué una regla DROP y el tráfico sigue pasando.<span class="ic">+</span></button>
+      <div class="acc-a"><div class="acc-a-in"><p>Casi siempre es el orden: hay un ACCEPT más arriba que coincide primero. Revisa con <code>--line-numbers</code> y usa <code>-I INPUT 1</code> para insertar tu regla al principio. Comprueba también que no tengas UFW activo o reglas en el otro backend (legacy/nft).</p></div></div></div>
+    <div class="acc-i"><button class="acc-q">Mis reglas desaparecen al reiniciar.<span class="ic">+</span></button>
+      <div class="acc-a"><div class="acc-a-in"><p>Es lo esperado: viven en memoria del kernel. Usa <code>netfilter-persistent save</code> o tu script como servicio de systemd (sección 02).</p></div></div></div>
+    <div class="acc-i"><button class="acc-q">¿iptables también protege IPv6?<span class="ic">+</span></button>
+      <div class="acc-a"><div class="acc-a-in"><p>No. IPv6 tiene su propia herramienta, <code>ip6tables</code>, con la misma sintaxis. Si el equipo tiene IPv6 activo y solo filtraste IPv4, un servicio puede seguir expuesto por IPv6.</p></div></div></div>
+    <div class="acc-i"><button class="acc-q">¿Qué diferencia hay entre -j DROP y la política -P INPUT DROP?<span class="ic">+</span></button>
+      <div class="acc-a"><div class="acc-a-in"><p>La regla <code>-j DROP</code> es una línea más dentro de la cadena y se borra con <code>-F</code>. La política es el comportamiento por defecto cuando ninguna regla coincide y <strong>sobrevive</strong> a <code>-F</code>. De ahí el protocolo de reset de la sección 03.</p></div></div></div>
+    <div class="acc-i"><button class="acc-q">Instalé Docker y aparecieron cadenas que no creé.<span class="ic">+</span></button>
+      <div class="acc-a"><div class="acc-a-in"><p>Docker genera sus propias reglas (cadenas <code>DOCKER</code>, <code>DOCKER-USER</code>…) para publicar puertos de contenedores, y esas reglas en la tabla <code>nat</code> pueden saltarse tus filtros de INPUT. Las restricciones propias se colocan en la cadena <code>DOCKER-USER</code>.</p></div></div></div>
+    <div class="acc-i"><button class="acc-q">¿Vale la pena aprender nftables?<span class="ic">+</span></button>
+      <div class="acc-a"><div class="acc-a-in"><p>Sí, es el sucesor oficial y ya es el motor real bajo <code>iptables-nft</code>. Ejecuta <code>sudo nft list ruleset</code> después de crear tus reglas: verás los mismos conceptos (tablas, cadenas, hooks, prioridades) con otra sintaxis.</p></div></div></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-nav">
+    <a href="../../Unidad%203/3.2/3.2_Servidor_Base_Datos_MySQL_PHP.html"><small>← Anterior · Unidad 3</small>3.2 Servidor MySQL, PHP y phpMyAdmin</a>
+    <a href="#s1"><small>↑ Inicio</small>Volver al principio de esta página</a>
+    <a class="disabled" href="#"><small>Siguiente →</small>Próximo tema de la Unidad 4</a>
+  </div>
+  <p>Sistemas Operativos I (AEC-1061) · Instituto Tecnológico de Mazatlán · Material de laboratorio para Ubuntu 24.04 LTS en red local aislada.</p>
+</footer>
+
+</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Título cinético ---------- */
+  const k=document.getElementById("kinetic");
+  const txt=k.dataset.text, acc=k.dataset.accent;
+  let i=0;
+  txt.split(" ").forEach((w,wi,arr)=>{
+    const ws=document.createElement("span");
+    ws.style.whiteSpace="nowrap";
+    if(w===acc) ws.className="accent";
+    [...w].forEach(c=>{const s=document.createElement("span");s.className="ch";s.textContent=c;s.style.animationDelay=(i++*45)+"ms";ws.appendChild(s);});
+    k.appendChild(ws);
+    if(wi<arr.length-1) k.appendChild(document.createTextNode(" "));
+  });
+
+  /* ---------- Bloques de código ---------- */
+  const BADGES={sudo:["b-sudo","requiere sudo"],file:["b-file","edición de archivo"],user:["b-user","usuario normal"],script:["b-script","script .sh"],out:["b-out","referencia / salida"]};
+  const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  document.querySelectorAll(".cb").forEach(cb=>{
+    const code=cb.querySelector("code");
+    const raw=code.textContent;
+    code.innerHTML=raw.split("\n").map(line=>{
+      if(/^\s*#!/.test(line)) return '<span class="sb">'+esc(line)+'</span>';
+      if(/^\s*#/.test(line)) return '<span class="cm">'+esc(line)+'</span>';
+      const m=line.match(/^(.*?\S)(\s+#\s.*)$/);
+      if(m && !/["']/.test(m[2])) return esc(m[1])+'<span class="cm">'+esc(m[2])+'</span>';
+      return esc(line);
+    }).join("\n");
+    const head=document.createElement("div");head.className="cb-head";
+    const b=BADGES[cb.dataset.b]||BADGES.user;
+    head.innerHTML='<span class="dots"><i></i><i></i><i></i></span><span class="cb-title"></span><span class="badge '+b[0]+'">'+b[1]+'</span><button class="copy" type="button">Copiar</button>';
+    head.querySelector(".cb-title").textContent=cb.dataset.t||"bash";
+    cb.prepend(head);
+    head.querySelector(".copy").addEventListener("click",e=>{
+      const btn=e.currentTarget;
+      const done=()=>{btn.textContent="✓ Copiado";btn.classList.add("ok");setTimeout(()=>{btn.textContent="Copiar";btn.classList.remove("ok");},1600);};
+      const fallback=()=>{const ta=document.createElement("textarea");ta.value=raw;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(_){btn.textContent="Selecciona y copia";}ta.remove();};
+      if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(raw).then(done,fallback);}else fallback();
+    });
+  });
+
+  /* ---------- Sidebar móvil, progreso y sección activa ---------- */
+  const sb=document.getElementById("sidebar"),scrim=document.getElementById("scrim"),mb=document.getElementById("menuBtn");
+  const closeNav=()=>{sb.classList.remove("open");scrim.classList.remove("show");};
+  mb.addEventListener("click",()=>{sb.classList.toggle("open");scrim.classList.toggle("show");});
+  scrim.addEventListener("click",closeNav);
+  document.querySelectorAll(".nav a").forEach(a=>a.addEventListener("click",closeNav));
+  const prog=document.getElementById("progress");
+  window.addEventListener("scroll",()=>{const h=document.documentElement;prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%";},{passive:true});
+  const links=[...document.querySelectorAll(".nav a")];
+  if("IntersectionObserver" in window){
+    const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){links.forEach(l=>l.classList.toggle("active",l.getAttribute("href")==="#"+en.target.id));}});},{rootMargin:"-30% 0px -60% 0px"});
+    document.querySelectorAll("section.sec").forEach(s=>io.observe(s));
+  }
+
+  /* ---------- Simulador de trayectoria ---------- */
+  const ROUTES={
+    entrante:{path:["n-nicin","e1","n-pre","e2","n-rt","e3","n-input","e4","n-procin"],steps:[
+      "La tarjeta de red recibe el paquete y el kernel lo entrega a Netfilter.",
+      "PREROUTING: raw (exenciones de conntrack) → mangle → nat. Aquí actuaría un DNAT.",
+      "Decisión de enrutamiento: la IP destino pertenece a este equipo.",
+      "INPUT: mangle → filter (tu firewall: ACCEPT/DROP/REJECT) → security.",
+      "Si fue aceptado, el kernel lo entrega al socket del proceso (Apache, sshd…)."]},
+    transito:{path:["n-nicin","e1","n-pre","e2","n-rt","e5","n-fwd","e6","n-post","e7","n-nicout"],steps:[
+      "El paquete llega a la interfaz de entrada (ej. eth0, lado WAN).",
+      "PREROUTING: raw → mangle → nat. El DNAT de una DMZ cambia aquí el destino.",
+      "Decisión de enrutamiento: el destino es otro host; requiere ip_forward=1.",
+      "FORWARD: mangle → filter (decide si se reenvía) → security. INPUT nunca lo ve.",
+      "POSTROUTING: mangle → nat (SNAT/MASQUERADE cambia el origen).",
+      "Sale por la interfaz hacia la otra red (ej. eth1, DMZ)."]},
+    saliente:{path:["n-procout","e8","n-out","e9","n-post","e7","n-nicout"],steps:[
+      "Un proceso local (curl, apt, ping) genera el paquete.",
+      "Decisión de enrutamiento local: elige interfaz y puerta de enlace.",
+      "OUTPUT: raw → mangle → nat (REDIRECT/DNAT del Ejercicio 3) → filter → security.",
+      "POSTROUTING: mangle → nat (SNAT/MASQUERADE).",
+      "El paquete sale por la tarjeta de red."]}
+  };
+  const flowBtns=document.querySelectorAll("#flowBtns button"),stepsEl=document.getElementById("flowSteps");
+  let timers=[];
+  function runRoute(name){
+    timers.forEach(clearTimeout);timers=[];
+    document.querySelectorAll("#flow .on").forEach(el=>el.classList.remove("on"));
+    const r=ROUTES[name];
+    stepsEl.innerHTML=r.steps.map(s=>"<li>"+s+"</li>").join("");
+    const lis=stepsEl.querySelectorAll("li");
+    r.path.forEach((id,idx)=>timers.push(setTimeout(()=>{const el=document.getElementById(id);if(el)el.classList.add("on");},idx*260)));
+    const nodes=r.path.filter(id=>id.startsWith("n-"));
+    const per=(r.path.length*260)/lis.length;
+    lis.forEach((li,idx)=>timers.push(setTimeout(()=>li.classList.add("on"),idx*per)));
+    flowBtns.forEach(b=>b.classList.toggle("on",b.dataset.route===name));
+  }
+  flowBtns.forEach(b=>b.addEventListener("click",()=>runRoute(b.dataset.route)));
+  runRoute("entrante");
+
+  /* ---------- Explorador de sintaxis ---------- */
+  const T={
+    sudo:{t:"sudo iptables",k:"k-cmd",cat:"comando",que:"Ejecuta la herramienta iptables con privilegios de root.",por:"Modificar las tablas de Netfilter en el kernel exige la capacidad CAP_NET_ADMIN; un usuario normal recibe “Permission denied”.",imp:"Ninguno por sí mismo: solo abre el canal hacia el kernel."},
+    tfilter:{t:"-t filter",k:"k-table",cat:"tabla",que:"Indica que la regla va en la tabla filter.",por:"filter es la tabla dedicada a decidir si un paquete pasa o no. Es la tabla por defecto, por lo que escribir -t filter es opcional pero didáctico.",imp:"Define el propósito de la regla: filtrar (no traducir direcciones ni modificar el paquete)."},
+    ainput:{t:"-A INPUT",k:"k-chain",cat:"acción + cadena",que:"-A (append) agrega la regla al final de la cadena INPUT.",por:"INPUT procesa los paquetes cuyo destino es este mismo equipo, que es donde escucha Apache.",imp:"Al ir al final, cualquier ACCEPT anterior para el puerto 80 ganaría primero. Para que tenga prioridad usa -I INPUT 1."},
+    ptcp:{t:"-p tcp",k:"k-proto",cat:"protocolo",que:"Coincide solo con paquetes del protocolo TCP.",por:"HTTP viaja sobre TCP. Además, -p tcp carga implícitamente el módulo tcp, que es el que entiende --dport.",imp:"UDP, ICMP y otros protocolos no se ven afectados por esta regla."},
+    dport80:{t:"--dport 80",k:"k-match",cat:"criterio (módulo tcp)",que:"Coincide con el puerto destino 80 (HTTP).",por:"Es una opción del módulo tcp, por eso solo existe en forma larga con doble guion. Sin -p tcp previo, iptables daría error.",imp:"Solo el tráfico dirigido al servidor web; SSH (22) o MySQL (3306) siguen igual."},
+    jdrop:{t:"-j DROP",k:"k-drop",cat:"target",que:"Salta al target DROP: descarta el paquete en silencio.",por:"Oculta el servicio: el cliente no recibe respuesta y espera hasta el timeout, como si no existiera.",imp:"El navegador del cliente se queda “cargando”. Con REJECT vería un rechazo inmediato."},
+    picmp:{t:"-p icmp",k:"k-proto",cat:"protocolo",que:"Coincide con paquetes ICMP, el protocolo de control y diagnóstico de IP.",por:"ping usa ICMP, no TCP ni UDP; ICMP no tiene puertos.",imp:"Carga el módulo icmp, que habilita --icmp-type."},
+    echoreq:{t:"--icmp-type echo-request",k:"k-match",cat:"criterio (módulo icmp)",que:"Solo el mensaje ICMP tipo 8, la solicitud de ping.",por:"Bloquear todo ICMP rompe funciones útiles (por ejemplo, “destino inalcanzable” o el descubrimiento de MTU). Filtrar solo echo-request es más fino.",imp:"El equipo deja de responder a ping, pero los demás mensajes ICMP siguen funcionando."},
+    dport22:{t:"--dport 22",k:"k-match",cat:"criterio (módulo tcp)",que:"Puerto destino 22, el de SSH.",por:"Es el canal de administración remota; si se cierra por error, se pierde el acceso al servidor.",imp:"Solo afecta conexiones al servicio sshd."},
+    mct:{t:"-m conntrack",k:"k-mod",cat:"módulo",que:"Carga explícitamente el módulo de seguimiento de conexiones.",por:"conntrack recuerda cada conexión y su estado, convirtiendo a iptables en un firewall con estado (stateful).",imp:"Habilita la opción --ctstate en esta regla."},
+    ctstate:{t:"--ctstate NEW,ESTABLISHED",k:"k-mod",cat:"criterio (módulo conntrack)",que:"Coincide con paquetes que abren una conexión (NEW) o que pertenecen a una ya abierta (ESTABLISHED).",por:"Separa explícitamente el inicio de sesión del tráfico de la sesión ya en curso.",imp:"Paquetes INVALID (que no corresponden a ninguna conexión) no coinciden y caen en reglas posteriores o en la política."},
+    jaccept:{t:"-j ACCEPT",k:"k-acc",cat:"target",que:"Acepta el paquete y detiene la evaluación de la cadena.",por:"Es la excepción que permite el servicio antes de una política DROP.",imp:"Debe estar ANTES de cualquier regla que bloquee ese tráfico."},
+    s24:{t:"-s 192.168.1.0/24",k:"k-match",cat:"criterio",que:"Origen dentro de la subred 192.168.1.0 a 192.168.1.255.",por:"La notación CIDR /24 fija los primeros 24 bits: describe a todo el laboratorio en un solo criterio.",imp:"Equipos fuera de esa subred no coinciden y no reciben el ACCEPT."},
+    dport3306:{t:"--dport 3306",k:"k-match",cat:"criterio (módulo tcp)",que:"Puerto destino 3306, el de MySQL/MariaDB.",por:"Recuerda que en la Unidad 3 configuramos bind-address = 0.0.0.0; esta regla limita quién aprovecha esa apertura.",imp:"Solo las conexiones al motor de base de datos."},
+    ainput2:{t:"-A INPUT",k:"k-chain",cat:"acción + cadena",que:"Agrega la regla al final de INPUT.",por:"El tráfico va dirigido a un servicio de este equipo.",imp:"Recuerda: la primera coincidencia gana."}
+  };
+  const RULES={
+    http:["sudo","tfilter","ainput","ptcp","dport80","jdrop"],
+    icmp:["sudo","ainput2","picmp","echoreq","jdrop"],
+    ssh:["sudo","ainput2","ptcp","dport22","mct","ctstate","jaccept"],
+    mysql:["sudo","ainput2","ptcp","s24","dport3306","jaccept"]
+  };
+  const line=document.getElementById("ruleLine"),card=document.getElementById("tokCard");
+  function showTok(el){
+    line.querySelectorAll(".tok").forEach(t=>t.classList.remove("on"));
+    el.classList.add("on");
+    const d=T[el.dataset.k];
+    card.innerHTML='<span class="tk"></span><span class="cat"></span><dl><dt>Qué hace</dt><dd></dd><dt>Por qué</dt><dd></dd><dt>Impacto</dt><dd></dd></dl>';
+    card.querySelector(".tk").textContent=d.t;card.querySelector(".cat").textContent=d.cat;
+    const dds=card.querySelectorAll("dd");dds[0].textContent=d.que;dds[1].textContent=d.por;dds[2].textContent=d.imp;
+    const lr=line.getBoundingClientRect(),er=el.getBoundingClientRect();
+    card.style.setProperty("--arrow",Math.max(14,Math.min(er.left-lr.left+er.width/2-7,lr.width-28))+"px");
+  }
+  function renderRule(name){
+    line.innerHTML="";
+    RULES[name].forEach(key=>{
+      const d=T[key],s=document.createElement("span");
+      s.className="tok "+d.k;s.textContent=d.t;s.dataset.k=key;s.tabIndex=0;s.setAttribute("role","listitem");
+      ["mouseenter","click","focus"].forEach(ev=>s.addEventListener(ev,()=>showTok(s)));
+      line.appendChild(s);
+    });
+    document.querySelectorAll("#ruleTabs button").forEach(b=>b.classList.toggle("on",b.dataset.rule===name));
+    showTok(line.firstChild);
+  }
+  document.querySelectorAll("#ruleTabs button").forEach(b=>b.addEventListener("click",()=>renderRule(b.dataset.rule)));
+  renderRule("http");
+  window.addEventListener("resize",()=>{const on=line.querySelector(".tok.on");if(on)showTok(on);});
+
+  /* ---------- DMZ ---------- */
+  const DMZ={
+    web:{ids:["f-web"],ok:true,txt:"El cliente pide http://192.168.1.1. En <code>nat PREROUTING</code> el DNAT cambia el destino a 10.0.0.80 y la regla <code>FORWARD -i eth0 -o eth1 -d 10.0.0.80 --dports 80,443 --ctstate NEW -j ACCEPT</code> lo deja pasar. Las respuestas regresan por la regla ESTABLISHED,RELATED."},
+    extlan:{ids:["f-extlan","x-extlan"],ok:false,txt:"No existe ninguna regla FORWARD que autorice WAN → LAN, así que el paquete llega al final de la cadena y recibe la política <code>FORWARD DROP</code>. La LAN es invisible desde fuera."},
+    dmzlan:{ids:["f-dmzlan","x-dmzlan"],ok:false,txt:"Si el servidor web es comprometido e intenta conectarse a 172.16.0.0/24, las reglas <code>FORWARD -i eth1 -d 172.16.0.0/24 -j LOG</code> y <code>-j DROP</code> lo registran y lo descartan. Este es el corazón de la DMZ."},
+    landmz:{ids:["f-landmz"],ok:true,txt:"La LAN puede administrar la DMZ con la regla opcional <code>FORWARD -i eth2 -o eth1 --ctstate NEW -j ACCEPT</code>. Las respuestas del servidor hacia la LAN están permitidas porque son ESTABLISHED, aunque la DMZ no pueda <em>iniciar</em> conexiones hacia allá."}
+  };
+  const vd=document.getElementById("dmzVerdict");
+  function showFlow(f){
+    document.querySelectorAll("#dmz .flow,#dmz .xmark").forEach(e=>e.classList.remove("on"));
+    const d=DMZ[f];d.ids.forEach(id=>document.getElementById(id).classList.add("on"));
+    vd.innerHTML=(d.ok?'<b class="ok">✓ PERMITIDO</b> — ':'<b class="no">✕ BLOQUEADO</b> — ')+d.txt;
+    document.querySelectorAll("#dmzBtns button").forEach(b=>b.classList.toggle("on",b.dataset.f===f));
+  }
+  document.querySelectorAll("#dmzBtns button").forEach(b=>b.addEventListener("click",()=>showFlow(b.dataset.f)));
+  showFlow("web");
+
+  /* ---------- Acordeón ---------- */
+  document.querySelectorAll(".acc-q").forEach(q=>q.addEventListener("click",()=>{
+    const it=q.parentElement,a=it.querySelector(".acc-a"),open=it.classList.toggle("open");
+    a.style.maxHeight=open?a.scrollHeight+"px":"0";
+  }));
+
+  /* ---------- Checklist (preferencia local) ---------- */
+  const boxes=document.querySelectorAll("#checklist input");
+  let saved=[];try{saved=JSON.parse(localStorage.getItem("ipt-check")||"[]");}catch(_){}
+  boxes.forEach((b,ix)=>{b.checked=!!saved[ix];b.addEventListener("change",()=>{try{localStorage.setItem("ipt-check",JSON.stringify([...boxes].map(x=>x.checked)));}catch(_){}});});
+})();
+</script>
+</body>
+</html>
