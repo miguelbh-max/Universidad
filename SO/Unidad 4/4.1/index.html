@@ -49,8 +49,8 @@ strong{color:#fafafa}
 .scrim{display:none}
 
 /* main */
-main{margin-left:var(--sidebar);padding:2.5rem clamp(1rem,4vw,3.5rem) 3rem;max-width:calc(var(--sidebar) + 1060px)}
-.wrap{max-width:1000px}
+main{padding:2.5rem clamp(1rem,4vw,3.5rem) 3rem}
+.wrap{max-width:1000px;margin:0 auto}
 
 /* hero */
 .hero{padding:2.2rem 0 2.6rem;border-bottom:1px solid var(--border);margin-bottom:2.5rem}
@@ -126,6 +126,25 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .co-amber .co-t{color:var(--amber)}
 .co-green{background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3);border-left-color:var(--green)}
 .co-green .co-t{color:var(--green)}
+
+/* modelo OSI */
+.osi{display:grid;gap:.45rem;margin:1rem 0 1.4rem}
+.osi-l{display:grid;grid-template-columns:3rem 1fr;border:1px solid var(--border);border-radius:11px;background:var(--panel);overflow:hidden;cursor:pointer;transition:.2s}
+.osi-l:hover{border-color:var(--border2)}
+.osi-n{display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:1.1rem;color:#06222a}
+.osi-b{padding:.65rem .95rem}
+.osi-top{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .8rem}
+.osi-top b{font-family:var(--f-head);font-size:1.02rem}
+.osi-pdu{font-family:var(--f-mono);font-size:.72rem;color:var(--dim)}
+.osi-tag{font-family:var(--f-mono);font-size:.68rem;padding:.1rem .5rem;border-radius:999px;border:1px solid}
+.osi-tag.ipt{color:var(--cyan);border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.08)}
+.osi-tag.waf{color:var(--amber);border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.08)}
+.osi-tag.hw{color:var(--violet);border-color:rgba(167,139,250,.5);background:rgba(167,139,250,.08)}
+.osi-d{max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:.92rem;color:#d4d4d8}
+.osi-l.open .osi-d{max-height:400px}
+.osi-d p{margin:.5rem 0 .2rem}
+.osi-ex{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.osi-l.ipt{border-color:rgba(34,211,238,.45);box-shadow:0 0 0 1px rgba(34,211,238,.15)}
 
 /* anatomía */
 .anat{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 1.3rem}
@@ -227,38 +246,11 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .foot-nav .disabled{opacity:.45;pointer-events:none}
 
 /* responsive */
-@media (max-width:980px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:none;box-shadow:20px 0 50px rgba(0,0,0,.6)}
-  .menu-btn{display:block}
-  .scrim.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:45}
-  main{margin-left:0;padding-top:3.5rem}
-}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.kinetic .ch{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <div id="progress"></div>
-<button class="menu-btn" id="menuBtn" aria-label="Abrir menú">☰ Índice</button>
-<div class="scrim" id="scrim"></div>
-
-<aside class="sidebar" id="sidebar">
-  <div class="brand"><span class="logo">ipt</span>iptables · Ubuntu</div>
-  <div class="brand-sub">SO I · AEC-1061 · Unidad 4</div>
-  <nav class="nav" id="nav">
-    <a href="#s1"><span class="n">01</span>Introducción a iptables</a>
-    <a href="#s2"><span class="n">02</span>Instalación y preparación</a>
-    <a href="#s3"><span class="n">03</span>Reset total y recuperación</a>
-    <a href="#s4"><span class="n">04</span>Tablas, cadenas y trayectoria</a>
-    <a href="#s5"><span class="n">05</span>Nomenclatura y sintaxis</a>
-    <a href="#s6"><span class="n">06</span>Servicios y puertos</a>
-    <a href="#s7"><span class="n">07</span>DMZ con iptables</a>
-    <a href="#s8"><span class="n">08</span>Laboratorio guiado</a>
-    <a href="#s9"><span class="n">09</span>Hardening: puertos USB</a>
-    <a href="#s10"><span class="n">10</span>Referencia rápida y FAQ</a>
-  </nav>
-  <div class="side-foot">Ubuntu 24.04 LTS · iptables 1.8.x (nf_tables)<br>Laboratorio en red local aislada</div>
-</aside>
 
 <main>
 <div class="wrap">
@@ -297,6 +289,20 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   <div class="co co-blue"><span class="co-t">Nota pedagógica · ¿por qué esto es tema de Sistemas Operativos?</span>
     <p>El firewall es un <strong>módulo del núcleo</strong>: el kernel es quien recibe la interrupción de la tarjeta de red, construye la estructura del paquete (<code>sk_buff</code>) y decide si la entrega a un socket. iptables es un claro ejemplo de la frontera entre espacio de usuario (la herramienta) y espacio de kernel (el mecanismo), la misma división que estudiamos en la estructura por niveles de un SO.</p>
   </div>
+
+  <h3>El modelo OSI: ¿para qué sirve?</h3>
+  <p>El modelo <strong>OSI</strong> (Open Systems Interconnection, ISO 7498) divide la comunicación en red en <strong>7 capas</strong>. Cada capa resuelve un problema concreto y solo habla con la de arriba y la de abajo. Sirve para tres cosas: <strong>entender</strong> cómo viaja la información, <strong>diagnosticar</strong> fallas por niveles (¿es el cable, la IP, el puerto o la aplicación?) y <strong>ubicar</strong> qué hace cada herramienta de seguridad.</p>
+  <p>Al enviar, los datos bajan de la capa 7 a la 1 y cada capa agrega su encabezado (<em>encapsulamiento</em>); al recibir, suben de la 1 a la 7 y cada capa quita el suyo. Toca cada capa para ver qué hace.</p>
+  <div class="osi" id="osi">
+    <div class="osi-l"><div class="osi-n" style="background:#f472b6">7</div><div class="osi-b"><div class="osi-top"><b>Aplicación</b><span class="osi-pdu">PDU: Datos</span><span class="osi-tag waf">Firewall de aplicación (capa 7)</span></div><div class="osi-d"><p>Es la capa que ve el usuario a través de sus programas. Define los protocolos con los que las aplicaciones piden y entregan servicios: páginas web, correo, nombres de dominio, transferencia de archivos.</p><p class="osi-ex">Ejemplos: HTTP/HTTPS · DNS · SSH · SMTP · FTP · DHCP</p></div></div></div>
+    <div class="osi-l"><div class="osi-n" style="background:#fb923c">6</div><div class="osi-b"><div class="osi-top"><b>Presentación</b><span class="osi-pdu">PDU: Datos</span></div><div class="osi-d"><p>Traduce el formato de los datos para que ambos extremos los entiendan: codificación de caracteres, compresión y cifrado.</p><p class="osi-ex">Ejemplos: TLS/SSL (cifrado) · UTF-8 · JPEG · gzip</p></div></div></div>
+    <div class="osi-l"><div class="osi-n" style="background:#fbbf24">5</div><div class="osi-b"><div class="osi-top"><b>Sesión</b><span class="osi-pdu">PDU: Datos</span></div><div class="osi-d"><p>Abre, mantiene y cierra el diálogo entre dos aplicaciones; controla quién habla y permite retomar una comunicación interrumpida.</p><p class="osi-ex">Ejemplos: Sesiones RPC · NetBIOS · inicio/cierre de sesión</p></div></div></div>
+    <div class="osi-l ipt"><div class="osi-n" style="background:#34d399">4</div><div class="osi-b"><div class="osi-top"><b>Transporte</b><span class="osi-pdu">PDU: Segmento (TCP) / Datagrama (UDP)</span><span class="osi-tag ipt">Aquí filtra iptables</span></div><div class="osi-d"><p>Lleva los datos de un proceso a otro proceso usando <strong>puertos</strong>. TCP garantiza entrega ordenada (saludo SYN, ACK, retransmisión); UDP es rápido y sin confirmación. iptables lee aquí <code>--dport</code>, <code>--sport</code>, banderas TCP y el estado de la conexión.</p><p class="osi-ex">Ejemplos: TCP · UDP · puertos 22, 53, 80, 443, 3306</p></div></div></div>
+    <div class="osi-l ipt"><div class="osi-n" style="background:#22d3ee">3</div><div class="osi-b"><div class="osi-top"><b>Red</b><span class="osi-pdu">PDU: Paquete</span><span class="osi-tag ipt">Aquí filtra iptables</span></div><div class="osi-d"><p>Lleva el paquete de una red a otra usando <strong>direcciones IP</strong> y decide la ruta (enrutamiento). iptables lee aquí <code>-s</code>, <code>-d</code>, el protocolo <code>-p</code> e ICMP; NAT también trabaja en esta capa.</p><p class="osi-ex">Ejemplos: IPv4 · IPv6 · ICMP (ping) · routers</p></div></div></div>
+    <div class="osi-l"><div class="osi-n" style="background:#60a5fa">2</div><div class="osi-b"><div class="osi-top"><b>Enlace de datos</b><span class="osi-pdu">PDU: Trama</span><span class="osi-tag hw">Switch</span></div><div class="osi-d"><p>Mueve tramas dentro de la misma red local usando <strong>direcciones MAC</strong> y detecta errores de transmisión.</p><p class="osi-ex">Ejemplos: Ethernet · Wi-Fi 802.11 · MAC · ARP · switches</p></div></div></div>
+    <div class="osi-l"><div class="osi-n" style="background:#a78bfa">1</div><div class="osi-b"><div class="osi-top"><b>Física</b><span class="osi-pdu">PDU: Bits</span><span class="osi-tag hw">Hardware</span></div><div class="osi-d"><p>Transmite los bits como señales eléctricas, luz o radio: define cables, conectores, voltajes y frecuencias.</p><p class="osi-ex">Ejemplos: Cable UTP · fibra óptica · RJ-45 · tarjeta de red</p></div></div></div>
+  </div>
+  <div class="co co-blue"><span class="co-t">¿Dónde queda iptables?</span><p>iptables trabaja en las capas <strong>3 (Red)</strong> y <strong>4 (Transporte)</strong>: decide con IPs, protocolos, puertos y estado de conexión. No ve el contenido de la capa 7 (la URL, el usuario o la consulta SQL), y como el tráfico HTTPS va cifrado en la capa 6, tampoco podría leerlo. Para eso existen los firewalls de aplicación. En la práctica se usa también el modelo <strong>TCP/IP</strong> de 4 capas, que agrupa 5-6-7 en “Aplicación” y 1-2 en “Acceso a la red”.</p></div>
 
   <h3>Filtrado de paquetes (capas 3 y 4) vs. firewall de aplicación (capa 7)</h3>
   <div class="grid">
@@ -1085,19 +1091,12 @@ lsmod | grep -E "usb_storage|uas"       # deben aparecer de nuevo</code></pre></
     });
   });
 
-  /* ---------- Sidebar móvil, progreso y sección activa ---------- */
-  const sb=document.getElementById("sidebar"),scrim=document.getElementById("scrim"),mb=document.getElementById("menuBtn");
-  const closeNav=()=>{sb.classList.remove("open");scrim.classList.remove("show");};
-  mb.addEventListener("click",()=>{sb.classList.toggle("open");scrim.classList.toggle("show");});
-  scrim.addEventListener("click",closeNav);
-  document.querySelectorAll(".nav a").forEach(a=>a.addEventListener("click",closeNav));
   const prog=document.getElementById("progress");
   window.addEventListener("scroll",()=>{const h=document.documentElement;prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%";},{passive:true});
-  const links=[...document.querySelectorAll(".nav a")];
-  if("IntersectionObserver" in window){
-    const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){links.forEach(l=>l.classList.toggle("active",l.getAttribute("href")==="#"+en.target.id));}});},{rootMargin:"-30% 0px -60% 0px"});
-    document.querySelectorAll("section.sec").forEach(s=>io.observe(s));
-  }
+
+  /* ---------- Modelo OSI ---------- */
+  document.querySelectorAll(".osi-l").forEach(l=>l.addEventListener("click",()=>l.classList.toggle("open")));
+  document.querySelectorAll(".osi-l.ipt").forEach(l=>l.classList.add("open"));
 
   /* ---------- Simulador de trayectoria ---------- */
   const ROUTES={
