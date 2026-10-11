@@ -174,6 +174,17 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .pt-rules .hit-rej{border-color:rgba(251,146,60,.6);background:rgba(251,146,60,.1);color:#fed7aa}
 .pt-leg{display:flex;flex-wrap:wrap;gap:.9rem;font-family:var(--f-mono);font-size:.74rem;color:var(--muted);margin-top:.7rem}
 
+/* nomenclatura extendida */
+details.nx{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin:.8rem 0;overflow:hidden}
+details.nx[open]{border-color:var(--border2)}
+details.nx>summary{cursor:pointer;list-style:none;padding:.9rem 1.1rem;font-family:var(--f-head);font-weight:600;font-size:1.02rem;display:flex;justify-content:space-between;gap:1rem;align-items:center}
+details.nx>summary::-webkit-details-marker{display:none}
+details.nx>summary::after{content:"+";font-family:var(--f-mono);color:var(--cyan);transition:transform .3s}
+details.nx[open]>summary::after{transform:rotate(45deg)}
+details.nx>summary small{font-family:var(--f-mono);font-weight:400;font-size:.72rem;color:var(--dim);margin-left:.5rem}
+.nx-in{padding:0 1.1rem 1rem}
+.nx-in .tbl-wrap{background:var(--bg2)}
+
 /* anatomía */
 .anat{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 1.3rem}
 .anat span{font-family:var(--f-mono);font-size:.82rem;padding:.4rem .7rem;border-radius:8px;border:1px dashed var(--border2);background:var(--panel)}
@@ -694,6 +705,100 @@ sudo iptables -A INPUT -p icmp --icmp-type echo-request -j DROP</code></pre></di
   <div class="cb" data-t="bash" data-b="sudo"><pre><code># Rechaza a cualquier IP que mantenga más de 20 conexiones abiertas al puerto 80
 sudo iptables -A INPUT -p tcp --syn --dport 80 -m connlimit --connlimit-above 20 -j REJECT --reject-with tcp-reset</code></pre></div>
   <div class="co co-blue"><span class="co-t">Nota pedagógica</span><p><code>limit</code> cuenta paquetes de forma <strong>global</strong> (todos los orígenes juntos); <code>connlimit</code> cuenta conexiones <strong>por IP</strong>. Para limitar tasa por IP existe el módulo <code>hashlimit</code>.</p></div>
+
+  <h3>Nomenclatura extendida: todas las opciones</h3>
+  <p>Abre cada bloque para ver las opciones, qué hace cada una y ejemplos listos para copiar. Regla práctica: las opciones con <strong>un guion</strong> pertenecen a iptables; las de <strong>doble guion</strong> que siguen a <code>-p</code> o <code>-m</code> pertenecen al módulo que las carga.</p>
+<details class="nx" open><summary><span>1 · Puertos<small>--dport · --sport · rangos · --dports</small></span></summary><div class="nx-in">
+<div class="tbl-wrap"><table><thead><tr><th>Opción</th><th>Qué hace</th><th>Ejemplo</th></tr></thead><tbody><tr><td><code>--dport</code> / <code>--destination-port</code></td><td>Un solo puerto <strong>destino</strong>. No necesita <code>-m</code>: lo aporta <code>-p tcp</code> o <code>-p udp</code>.</td><td><code>-p tcp --dport 80</code></td></tr><tr><td><code>--sport</code> / <code>--source-port</code></td><td>Un solo puerto <strong>origen</strong>. Útil para reconocer respuestas de un servicio.</td><td><code>-p udp --sport 53</code></td></tr><tr><td><code>--dport 1000:2000</code></td><td><strong>Rango</strong> continuo de puertos, separado con dos puntos.</td><td><code>-p tcp --dport 6000:6007</code></td></tr><tr><td><code>--dport :1023</code> / <code>--dport 1024:</code></td><td>Rango abierto: del 0 al 1023 (puertos privilegiados) o del 1024 al 65535.</td><td><code>-p tcp --dport :1023</code></td></tr><tr><td><code>! --dport 22</code></td><td>Negación: cualquier puerto <strong>excepto</strong> el indicado.</td><td><code>-p tcp ! --dport 22</code></td></tr><tr><td><code>-m multiport --dports</code></td><td><strong>Lista</strong> de puertos destino separados por coma (máximo 15 elementos).</td><td><code>--dports 80,443,8080</code></td></tr><tr><td><code>-m multiport --sports</code></td><td>Lista de puertos origen.</td><td><code>--sports 53,123</code></td></tr><tr><td><code>-m multiport --ports</code></td><td>Coincide si el puerto aparece como origen <strong>o</strong> como destino.</td><td><code>--ports 22,80</code></td></tr><tr><td>Rango dentro de multiport</td><td>Se pueden mezclar puertos sueltos y rangos (un rango cuenta como 2 elementos).</td><td><code>--dports 80,443,8000:8100</code></td></tr></tbody></table></div>
+<div class="co co-red"><span class="co-t">--dport vs. --dports: el error más común</span><p><code>--dport</code> (singular) acepta un puerto o un rango y viene con <code>-p tcp</code>/<code>-p udp</code>. <code>--dports</code> (plural) acepta una lista y <strong>solo existe en el módulo multiport</strong>. Escribir <code>-p tcp --dports 80,443</code> sin <code>-m multiport</code> produce: <em>unknown option "--dports"</em>.</p></div>
+<div class="cb" data-t="bash — puertos" data-b="sudo"><pre><code># Un puerto
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+# Rango: puertos pasivos de un servidor FTP
+sudo iptables -A INPUT -p tcp --dport 40000:40100 -j ACCEPT
+# Lista con multiport (incluye un rango)
+sudo iptables -A INPUT -p tcp -m multiport --dports 80,443,8000:8100 -j ACCEPT
+# Todo TCP excepto SSH hacia la red de servidores
+sudo iptables -A FORWARD -p tcp -d 10.0.0.0/24 ! --dport 22 -j DROP
+# Mismo puerto en TCP y UDP: se necesitan dos reglas
+sudo iptables -A INPUT -p udp --dport 53 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 53 -j ACCEPT</code></pre></div>
+</div></details>
+<details class="nx"><summary><span>2 · Banderas TCP<small>--syn · --tcp-flags</small></span></summary><div class="nx-in">
+<p>Cada segmento TCP lleva banderas (<strong>SYN, ACK, FIN, RST, PSH, URG</strong>). El saludo de 3 vías es SYN → SYN+ACK → ACK; RST corta la conexión y FIN la cierra de forma ordenada. Filtrar por banderas permite distinguir el inicio de una conexión y detectar paquetes anómalos que solo generan los escáneres.</p>
+<div class="tbl-wrap"><table><thead><tr><th>Opción</th><th>Qué hace</th></tr></thead><tbody><tr><td><code>--syn</code></td><td>Solo el <strong>primer paquete</strong> de una conexión (SYN=1, ACK=0, RST=0, FIN=0). Equivale a <code>--tcp-flags SYN,RST,ACK,FIN SYN</code>. Con <code>! --syn</code> se niega.</td></tr><tr><td><code>--tcp-flags MÁSCARA ACTIVAS</code></td><td>Primer argumento: banderas a <strong>revisar</strong>. Segundo: cuáles de esas deben estar <strong>encendidas</strong> (las demás de la máscara, apagadas). <code>ALL</code> = todas, <code>NONE</code> = ninguna.</td></tr><tr><td><code>--tcp-option N</code></td><td>Coincide si el segmento trae la opción TCP número N (ej. 2 = MSS).</td></tr></tbody></table></div>
+<div class="cb" data-t="bash — banderas TCP" data-b="sudo"><pre><code># Escaneo NULL: ninguna bandera encendida (nmap -sN)
+sudo iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+# Escaneo XMAS: FIN, PSH y URG encendidas (nmap -sX)
+sudo iptables -A INPUT -p tcp --tcp-flags ALL FIN,PSH,URG -j DROP
+# Combinación imposible: SYN y FIN a la vez
+sudo iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+# Paquete NEW que no es SYN: sospechoso
+sudo iptables -A INPUT -p tcp ! --syn -m conntrack --ctstate NEW -j DROP</code></pre></div>
+</div></details>
+<details class="nx"><summary><span>3 · Tipos ICMP<small>--icmp-type</small></span></summary><div class="nx-in">
+<p>ICMP no usa puertos: cada mensaje tiene un <strong>tipo</strong> (y a veces un código). Por eso se filtra con <code>--icmp-type</code>, que puede escribirse con nombre o con número.</p>
+<div class="tbl-wrap"><table><thead><tr><th>Tipo</th><th>Número</th><th>Para qué sirve</th></tr></thead><tbody><tr><td><code>echo-request</code></td><td>8</td><td>El ping que sale del cliente.</td></tr><tr><td><code>echo-reply</code></td><td>0</td><td>La respuesta al ping.</td></tr><tr><td><code>destination-unreachable</code></td><td>3</td><td>Avisa que un host, red o puerto no está disponible. Bloquearlo rompe diagnósticos y el descubrimiento de MTU.</td></tr><tr><td><code>time-exceeded</code></td><td>11</td><td>El TTL llegó a cero. Es lo que usa <code>traceroute</code> para descubrir cada salto.</td></tr><tr><td><code>iptables -p icmp -h</code></td><td>—</td><td>Muestra la lista completa de tipos válidos.</td></tr></tbody></table></div>
+<div class="cb" data-t="bash — ICMP" data-b="sudo"><pre><code># El servidor no contesta ping, pero yo sí puedo hacer ping hacia afuera
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+sudo iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+# Permitir traceroute y avisos de error
+sudo iptables -A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT
+sudo iptables -A INPUT -p icmp --icmp-type 3 -j ACCEPT</code></pre></div>
+</div></details>
+<details class="nx"><summary><span>4 · Direcciones, rangos e interfaces<small>iprange · mac · addrtype · -f</small></span></summary><div class="nx-in">
+<div class="tbl-wrap"><table><thead><tr><th>Opción</th><th>Qué hace</th><th>Ejemplo</th></tr></thead><tbody><tr><td><code>-s</code> / <code>--source</code>, <code>-d</code> / <code>--destination</code></td><td>Formas largas de origen y destino. Aceptan IP, CIDR, varias IPs separadas por coma (iptables crea una regla por cada una) o un nombre que se resuelve una sola vez.</td><td><code>--source 10.0.0.0/8</code></td></tr><tr><td><code>-m iprange --src-range</code></td><td>Rango de IPs que <strong>no</strong> coincide con una subred CIDR exacta.</td><td><code>--src-range 192.168.1.10-192.168.1.50</code></td></tr><tr><td><code>-m iprange --dst-range</code></td><td>Igual, pero para el destino.</td><td><code>--dst-range 10.0.0.80-10.0.0.89</code></td></tr><tr><td><code>-m mac --mac-source</code></td><td>Filtra por dirección <strong>MAC</strong> (capa 2). Solo funciona en PREROUTING, INPUT y FORWARD, y solo dentro de la misma red local.</td><td><code>--mac-source 00:1A:2B:3C:4D:5E</code></td></tr><tr><td><code>-i eth+</code></td><td>Comodín: el <code>+</code> cubre todas las interfaces que empiezan con ese nombre.</td><td><code>-i enp+</code></td></tr><tr><td><code>-m addrtype --dst-type</code></td><td>Tipo de dirección: <code>LOCAL</code>, <code>BROADCAST</code>, <code>MULTICAST</code>, <code>UNICAST</code>.</td><td><code>--dst-type BROADCAST -j DROP</code></td></tr><tr><td><code>-f</code> / <code>--fragment</code></td><td>Solo fragmentos IP del segundo en adelante (no traen cabecera TCP/UDP, así que no se les puede revisar el puerto).</td><td><code>-f -j DROP</code></td></tr></tbody></table></div>
+<div class="cb" data-t="bash — direcciones" data-b="sudo"><pre><code># Solo las PCs 10 a 50 del laboratorio pueden entrar por SSH
+sudo iptables -A INPUT -p tcp --dport 22 -m iprange --src-range 192.168.1.10-192.168.1.50 -j ACCEPT
+# Bloquear una laptop concreta por su MAC
+sudo iptables -A INPUT -m mac --mac-source 00:1A:2B:3C:4D:5E -j DROP
+# Aceptar todo lo que entre por cualquier interfaz Ethernet enp*
+sudo iptables -A INPUT -i enp+ -p tcp --dport 80 -j ACCEPT</code></pre></div>
+<div class="co co-amber"><span class="co-t">Tip</span><p>Una MAC se puede falsificar fácilmente (<code>ip link set dev enp0s3 address ...</code>). Úsala para ordenar el laboratorio, no como única medida de seguridad.</p></div>
+</div></details>
+<details class="nx"><summary><span>5 · Estado y otros módulos -m<small>state · hashlimit · recent · time · comment · owner · string · set</small></span></summary><div class="nx-in">
+<div class="tbl-wrap"><table><thead><tr><th>Módulo / opción</th><th>Qué hace</th></tr></thead><tbody><tr><td><code>-m state --state</code></td><td>Versión <strong>antigua</strong> de conntrack. Hace lo mismo que <code>-m conntrack --ctstate</code> y aparece en muchos tutoriales viejos; en reglas nuevas usa conntrack.</td></tr><tr><td><code>--ctstate DNAT</code> / <code>SNAT</code></td><td>Estados extra de conntrack: paquetes cuya dirección fue traducida por NAT.</td></tr><tr><td><code>--connlimit-mask 24</code></td><td>connlimit cuenta conexiones por grupo de IPs (/24) en vez de por IP individual.</td></tr><tr><td><code>-m hashlimit</code></td><td>Límite de tasa <strong>por IP</strong> (o por puerto, o por red). <code>limit</code>, en cambio, es un solo contador global para todos.</td></tr><tr><td><code>-m recent</code></td><td>Guarda una lista de IPs vistas recientemente: <code>--set</code> agrega, <code>--update</code>/<code>--rcheck</code> consulta, <code>--seconds</code> y <code>--hitcount</code> definen cuántas veces en cuánto tiempo.</td></tr><tr><td><code>-m time</code></td><td>Activa la regla solo en un horario: <code>--timestart</code>, <code>--timestop</code>, <code>--weekdays</code>. Usa la hora UTC salvo que agregues <code>--kerneltz</code>.</td></tr><tr><td><code>-m comment --comment</code></td><td>Agrega un comentario a la regla; aparece en <code>-L</code> y <code>-S</code>. Ideal para documentar.</td></tr><tr><td><code>-m owner --uid-owner</code> / <code>--gid-owner</code></td><td>Filtra por el <strong>usuario o grupo de Linux</strong> que generó el paquete. Solo en OUTPUT (el kernel sabe qué proceso lo creó).</td></tr><tr><td><code>-m string --string --algo bm</code></td><td>Busca un texto dentro del contenido del paquete (algoritmo <code>bm</code> o <code>kmp</code>). Es un vistazo limitado a la capa 7: no funciona con HTTPS porque el contenido va cifrado.</td></tr><tr><td><code>-m set --match-set</code> (ipset)</td><td>Compara contra listas de miles de IPs guardadas con <code>ipset</code>, con una sola regla y sin perder rendimiento.</td></tr></tbody></table></div>
+<div class="cb" data-t="bash — anti fuerza bruta SSH con recent" data-b="sudo"><pre><code># Cada conexión nueva al 22 se anota en la lista "ssh"
+sudo iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -m recent --set --name ssh
+# Si la misma IP lo intenta 4 veces en 60 s, se descarta
+sudo iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -m recent --update --seconds 60 --hitcount 4 --name ssh -j DROP
+# Ver la lista: cat /proc/net/xt_recent/ssh</code></pre></div>
+<div class="cb" data-t="bash — hashlimit, time, comment, owner" data-b="sudo"><pre><code># Máximo 20 conexiones nuevas por segundo POR IP al servidor web
+sudo iptables -A INPUT -p tcp --dport 80 --syn -m hashlimit --hashlimit-above 20/sec --hashlimit-mode srcip --hashlimit-name web -j DROP
+# Internet solo en horario de clase (lunes a viernes, 7:00 a 14:00 hora local)
+sudo iptables -A FORWARD -s 192.168.1.0/24 -m time --timestart 07:00 --timestop 14:00 --weekdays Mon,Tue,Wed,Thu,Fri --kerneltz -j ACCEPT
+# Regla documentada
+sudo iptables -A INPUT -p tcp --dport 3306 -s 192.168.1.20 -m comment --comment "MySQL solo backend" -j ACCEPT
+# El usuario "alumno" no puede navegar por web desde este equipo
+sudo iptables -A OUTPUT -p tcp -m multiport --dports 80,443 -m owner --uid-owner alumno -j REJECT</code></pre></div>
+<div class="cb" data-t="bash — string e ipset" data-b="sudo"><pre><code># Bloquear peticiones HTTP (sin cifrar) que contengan "juegos"
+sudo iptables -A FORWARD -p tcp --dport 80 -m string --string "juegos" --algo bm -j DROP
+# Lista negra con ipset (sudo apt install ipset)
+sudo ipset create lista_negra hash:ip
+sudo ipset add lista_negra 192.168.1.66
+sudo iptables -I INPUT 1 -m set --match-set lista_negra src -j DROP</code></pre></div>
+</div></details>
+<details class="nx"><summary><span>6 · Comandos de administración extra<small>-Z · -C · -E · -x · -g · -w · -4/-6</small></span></summary><div class="nx-in">
+<div class="tbl-wrap"><table><thead><tr><th>Comando</th><th>Forma larga</th><th>Qué hace</th><th>Ejemplo</th></tr></thead><tbody><tr><td><code>-Z</code></td><td><code>--zero</code></td><td>Pone en cero los contadores de paquetes y bytes (de una cadena o de todas).</td><td><code>sudo iptables -Z INPUT</code></td></tr><tr><td><code>-C</code></td><td><code>--check</code></td><td>Verifica si una regla <strong>ya existe</strong> sin crearla. Devuelve código 0 si existe. Evita duplicados en scripts.</td><td><code>iptables -C INPUT -p tcp --dport 22 -j ACCEPT</code></td></tr><tr><td><code>-E</code></td><td><code>--rename-chain</code></td><td>Cambia el nombre de una cadena creada por el usuario.</td><td><code>-E ANTI_SCAN ESCANEOS</code></td></tr><tr><td><code>-x</code></td><td><code>--exact</code></td><td>Muestra los contadores exactos, sin redondear a K, M o G.</td><td><code>-L -v -n -x</code></td></tr><tr><td><code>-g</code></td><td><code>--goto</code></td><td>Salta a una cadena propia y, al terminarla, <strong>no regresa</strong> a la cadena original (con <code>-j</code> sí regresa).</td><td><code>-A INPUT -i enp0s8 -g DESDE_DMZ</code></td></tr><tr><td><code>-w</code></td><td><code>--wait</code></td><td>Si otro proceso está modificando iptables, espera el candado (xtables lock) en vez de fallar.</td><td><code>iptables -w 5 -A INPUT ...</code></td></tr><tr><td><code>-4</code> / <code>-6</code></td><td><code>--ipv4</code> / <code>--ipv6</code></td><td>Marca una línea como exclusiva de IPv4 o IPv6 en archivos compartidos de reglas.</td><td><code>-4 -A INPUT -p icmp -j ACCEPT</code></td></tr></tbody></table></div>
+<div class="cb" data-t="nano firewall.sh — no duplicar reglas con -C" data-b="script"><pre><code>#!/bin/bash
+# Solo agrega la regla si todavía no existe
+iptables -C INPUT -p tcp --dport 22 -j ACCEPT 2&gt;/dev/null || \
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT</code></pre></div>
+</div></details>
+<details class="nx"><summary><span>7 · Opciones de los targets<small>--reject-with · --log-* · --to-* · RETURN · MARK · CT · TTL</small></span></summary><div class="nx-in">
+<div class="tbl-wrap"><table><thead><tr><th>Target</th><th>Opciones</th><th>Explicación</th></tr></thead><tbody><tr><td><code>REJECT</code></td><td><code>--reject-with</code> <code>icmp-port-unreachable</code> (por defecto), <code>icmp-host-unreachable</code>, <code>icmp-net-unreachable</code>, <code>icmp-admin-prohibited</code>, <code>tcp-reset</code></td><td>Define qué respuesta recibe el cliente. <code>tcp-reset</code> (solo con <code>-p tcp</code>) es lo más realista para TCP: “Connection refused”. <code>icmp-admin-prohibited</code> dice explícitamente “bloqueado por el administrador”.</td></tr><tr><td><code>LOG</code></td><td><code>--log-prefix "TEXTO: "</code>, <code>--log-level 4</code>, <code>--log-tcp-options</code>, <code>--log-ip-options</code>, <code>--log-uid</code></td><td>El prefijo (máx. 29 caracteres) permite buscar con <code>grep</code>. El nivel va de 0 (emerg) a 7 (debug); 4 = warning. Las demás opciones agregan detalle al registro.</td></tr><tr><td><code>DNAT</code></td><td><code>--to-destination IP[:puerto]</code></td><td>Cambia el destino. Acepta rango de IPs (<code>10.0.0.80-10.0.0.82</code>) para un balanceo simple y cambio de puerto (<code>10.0.0.80:8080</code>).</td></tr><tr><td><code>SNAT</code></td><td><code>--to-source IP[:puerto]</code></td><td>Cambia el origen por una IP fija (POSTROUTING).</td></tr><tr><td><code>MASQUERADE</code></td><td><code>--to-ports</code> (opcional)</td><td>Como SNAT, pero toma automáticamente la IP de la interfaz de salida.</td></tr><tr><td><code>REDIRECT</code></td><td><code>--to-ports 8080</code> o <code>8080-8090</code></td><td>Envía el paquete a un puerto de este mismo equipo.</td></tr><tr><td><code>RETURN</code></td><td>—</td><td>Regresa a la cadena que hizo el salto. En una cadena integrada (INPUT, OUTPUT…) aplica la política.</td></tr><tr><td><code>MARK</code></td><td><code>--set-mark 1</code></td><td>Tabla <code>mangle</code>. Pone una marca interna al paquete para usarla después en enrutamiento avanzado o control de ancho de banda.</td></tr><tr><td><code>CT</code></td><td><code>--notrack</code></td><td>Tabla <code>raw</code>. Excluye ese tráfico de conntrack (servidores con muchísimas conexiones).</td></tr><tr><td><code>TTL</code></td><td><code>--ttl-set</code>, <code>--ttl-dec</code>, <code>--ttl-inc</code></td><td>Tabla <code>mangle</code>. Modifica el tiempo de vida del paquete.</td></tr></tbody></table></div>
+<div class="cb" data-t="bash — opciones de targets" data-b="sudo"><pre><code># Rechazo explícito “prohibido por el administrador”
+sudo iptables -A INPUT -p tcp --dport 23 -j REJECT --reject-with icmp-admin-prohibited
+# Registro con prefijo y nivel
+sudo iptables -A INPUT -p tcp --dport 22 -j LOG --log-prefix "SSH-INTENTO: " --log-level 4
+# Port forwarding cambiando el puerto: 8080 externo -&gt; 80 del servidor
+sudo iptables -t nat -A PREROUTING -i enp0s3 -p tcp --dport 8080 -j DNAT --to-destination 10.0.0.80:80
+# Balanceo simple entre tres servidores web
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 10.0.0.80-10.0.0.82
+# SNAT con IP fija
+sudo iptables -t nat -A POSTROUTING -o enp0s3 -s 10.0.0.0/24 -j SNAT --to-source 192.168.1.1
+# Marcar el tráfico SSH
+sudo iptables -t mangle -A PREROUTING -p tcp --dport 22 -j MARK --set-mark 1</code></pre></div>
+</div></details>
 
   <h3>Explorador visual de sintaxis</h3>
   <p class="muted">Pasa el cursor o toca cada fragmento de la regla para ver qué hace.</p>
