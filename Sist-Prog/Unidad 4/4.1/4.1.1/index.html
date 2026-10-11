@@ -19,111 +19,217 @@
 
 <section class="hero"><div class="wrap">
   <span class="kicker">Unidad 4 · Control de actuadores y lógica de procesos segura</span>
-  <h1><span class="num">4.1.1</span><br>Relevadores y puentes H en software</h1>
-  <p class="sub">Del pin suelto a la orden con significado: modela en C++ cómo se comporta el hardware de potencia.</p>
+  <h1><span class="num">4.1.1</span><br>Relevadores y puentes H, modelados en software</h1>
+  <p class="sub">Cómo el Arduino UNO R4 WiFi controla cargas de potencia, y cómo convertir ese hardware en un modelo claro y seguro dentro del programa.</p>
   <div class="chips">
-    <span class="chip"><i></i>Físico: L298N + motor DC</span>
-    <span class="chip sim"><i></i>Tinkercad: L293D + LED como relevador</span>
-    <span class="chip teo"><i></i>Referencia: motor a pasos</span>
+    <span class="chip"><i></i>Relevador optoacoplado</span>
+    <span class="chip"><i></i>Puente H L298N</span>
+    <span class="chip c-sim"><i></i>Motor DC</span>
+    <span class="chip c-teo"><i></i>Motor a pasos</span>
   </div>
-  <div class="cta"><a class="btn" href="#practica">Ir a la práctica ↓</a><a class="btn ghost" href="#puente-h">Simulador del puente H</a></div>
+  <div class="cta"><a class="btn" href="#modelo">Empezar ↓</a><a class="btn ghost" href="#puente-h">Simulador del puente H</a></div>
 </div></section>
 
-<section id="objetivo"><div class="wrap">
-  <span class="kicker reveal">Objetivo</span>
-  <h2 class="reveal">Del pin a la orden</h2>
-  <p class="lead reveal">El resto del programa no debería saber qué pin mueve el motor ni si el relevador se activa con LOW. Eso lo sabe una clase; el programa solo da órdenes.</p>
-  <div class="grid g2">
-    <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Antes: ¿qué hace esto?</span><button class="copy" type="button">Copiar</button></div><pre><code>digitalWrite(8, HIGH);
-digitalWrite(7, LOW);
-analogWrite(5, 180);
-digitalWrite(4, LOW);   // ¿enciende o apaga?</code></pre></div>
-    <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Después: se lee solo</span><button class="copy" type="button">Copiar</button></div><pre><code>motor.adelante(180);
-rele.encender();</code></pre></div>
+<section id="modelo"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">¿Qué es modelar un módulo por software?</h2>
+  <div class="theory reveal">
+    <p>Un <b>modelo</b> es una representación simplificada de algo real que conserva solo lo que importa para controlarlo. Cuando modelamos un relevador o un puente H, no simulamos la física completa: describimos sus <b>estados posibles</b>, las <b>órdenes</b> que acepta y las <b>reglas</b> que nunca deben romperse.</p>
+    <p>El resto del programa ya no escribe niveles de voltaje en pines sueltos; le habla al modelo con órdenes que tienen significado (<b>encender</b>, <b>adelante</b>, <b>frenar</b>). El modelo se encarga de traducirlas a lo que el hardware entiende.</p>
   </div>
-  <div class="grid g3" style="margin-top:8px">
-    <div class="card reveal"><span class="ico">📖</span><h3>Legible</h3><p>El código dice qué pasa, no qué voltaje hay en cada pin.</p></div>
-    <div class="card reveal"><span class="ico">🛡️</span><h3>Seguro</h3><p>Estado inicial y reglas viven en un solo lugar: no se pueden olvidar.</p></div>
-    <div class="card reveal"><span class="ico">♻️</span><h3>Reutilizable</h3><p>Cambias L298N por L293D y <span class="mono">loop()</span> no se toca.</p></div>
+  <div class="figure reveal fit"><svg viewBox="0 0 760 250" class="art" role="img" aria-label="Relación entre el hardware real y su modelo en software">
+<defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a78bfa"/></marker></defs>
+<rect x="10" y="20" width="250" height="210" rx="16" fill="#191d25" stroke="#2a303c"/>
+<text x="135" y="48" text-anchor="middle" class="albl" style="font-size:14px;fill:#fbbf24">MUNDO FÍSICO</text>
+<text x="30" y="84" class="albl">• bobinas, contactos, transistores</text>
+<text x="30" y="110" class="albl">• voltajes y corrientes</text>
+<text x="30" y="136" class="albl">• tiempos de conmutación</text>
+<text x="30" y="162" class="albl">• inercia del motor</text>
+<text x="30" y="188" class="albl">• calor, desgaste, ruido</text>
+<rect x="500" y="20" width="250" height="210" rx="16" fill="#191d25" stroke="#22d3ee"/>
+<text x="625" y="48" text-anchor="middle" class="albl" style="font-size:14px;fill:#22d3ee">MODELO EN SOFTWARE</text>
+<text x="520" y="84" class="albl">• estados: APAGADO / ENCENDIDO</text>
+<text x="520" y="110" class="albl">• órdenes: encender, adelante</text>
+<text x="520" y="136" class="albl">• reglas: no conmutar tan rápido</text>
+<text x="520" y="162" class="albl">• estado seguro al iniciar</text>
+<text x="520" y="188" class="albl">• traducción a niveles de pin</text>
+<line x1="265" y1="110" x2="495" y2="110" stroke="#a78bfa" stroke-width="2.5" marker-end="url(#m1)"/>
+<line x1="495" y1="150" x2="265" y2="150" stroke="#a78bfa" stroke-width="2.5" marker-end="url(#m1)"/>
+<text x="380" y="100" text-anchor="middle" class="albl">se abstrae lo importante</text>
+<text x="380" y="172" text-anchor="middle" class="albl">el modelo ordena al hardware</text>
+</svg></div>
+  <div class="grid g4">
+    <div class="card reveal"><span class="tag">1</span><h3>Estado</h3><p>Lo que el actuador está haciendo ahora. El programa siempre lo conoce.</p></div>
+    <div class="card reveal"><span class="tag">2</span><h3>Interfaz</h3><p>Las órdenes permitidas, con nombres que expresan intención.</p></div>
+    <div class="card warn reveal"><span class="tag w">3</span><h3>Restricciones</h3><p>Reglas físicas: tiempos mínimos, combinaciones prohibidas, límites.</p></div>
+    <div class="card ok reveal"><span class="tag">4</span><h3>Estado seguro</h3><p>Cómo debe quedar al encender o ante un fallo: normalmente, apagado.</p></div>
   </div>
 </div></section>
 
-<section id="relevador" style="background:var(--bg2)"><div class="wrap">
+<section id="r4" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Contexto</span>
+  <h2 class="reveal">El Arduino UNO R4 WiFi no puede mover cargas solo</h2>
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 420 300" class="art" role="img" aria-label="Ilustración de la placa Arduino UNO R4 WiFi"><rect x="20" y="20" width="380" height="260" rx="14" fill="#00838f" stroke="#005f66" stroke-width="3"/><circle cx="40" cy="40" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><circle cx="380" cy="40" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><circle cx="40" cy="260" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><circle cx="380" cy="260" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><rect x="6" y="70" width="44" height="30" rx="8" fill="#b0bec5" stroke="#78909c" stroke-width="2"/><rect x="14" y="80" width="28" height="10" rx="5" fill="#37474f"/><rect x="4" y="200" width="60" height="50" rx="4" fill="#212121"/><circle cx="26" cy="225" r="10" fill="#424242" stroke="#616161" stroke-width="2"/><rect x="150" y="26" width="236" height="16" rx="2" fill="#1b1b1b"/><rect x="156.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="168.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="181.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="193.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="206.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="218.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="231.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="243.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="256.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="268.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="281.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="293.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="306.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="318.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="331.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="343.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="356.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="368.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="170" y="258" width="216" height="16" rx="2" fill="#1b1b1b"/><rect x="176" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="191" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="206" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="221" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="236" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="251" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="266" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="281" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="296" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="311" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="326" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="341" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="356" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="371" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="80" y="60" width="96" height="70" rx="4" fill="#cfd8dc" stroke="#90a4ae" stroke-width="2"/><rect x="88" y="68" width="80" height="44" rx="2" fill="#b0bec5"/><text x="128" y="94" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#37474f">ESP32-S3</text><rect x="230" y="160" width="56" height="56" rx="4" fill="#212121" stroke="#424242" stroke-width="2"/><text x="258" y="192" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#9e9e9e">RA4M1</text><defs><pattern id="mx" width="14" height="10" patternUnits="userSpaceOnUse" x="208" y="62"><rect width="7" height="5" rx="1" fill="#e57373" opacity=".85"/></pattern></defs><rect x="208" y="62" width="168" height="80" fill="url(#mx)"/><rect x="352" y="110" width="30" height="16" rx="2" fill="#f5f5f5" stroke="#bdbdbd"/><text x="300" y="248" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#e0f7fa" opacity=".8">UNO R4 WiFi</text><circle cx="28" cy="62" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="28" y="66" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">1</text><circle cx="34" cy="192" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="34" y="196" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">2</text><circle cx="128" cy="140" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="128" y="144" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">3</text><circle cx="296" cy="160" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="296" y="164" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">4</text><circle cx="290" cy="50" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="290" y="54" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">5</text><circle cx="268" cy="24" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="268" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">6</text></svg><p class="cap">Ilustración del UNO R4 WiFi</p></div>
+    <div>
+      <h3>Lo que importa de la placa para este tema</h3>
+      <ol class="callouts">
+        <li><b>USB-C:</b> alimenta a 5 V y programa la placa.</li>
+        <li><b>Jack / VIN:</b> acepta de 6 a 24 V y un regulador los baja a 5 V.</li>
+        <li><b>ESP32-S3:</b> coprocesador de WiFi y Bluetooth. Al transmitir pide picos de corriente.</li>
+        <li><b>Renesas RA4M1:</b> el microcontrolador que ejecuta tu programa, con lógica de 5 V.</li>
+        <li><b>Matriz LED 12×8:</b> útil para mostrar estados del actuador.</li>
+        <li><b>Pines digitales:</b> dan como máximo unos <b>8 mA</b> cada uno. Los marcados con ~ generan PWM.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="figure reveal"><svg viewBox="0 0 760 210" class="art" role="img" aria-label="El pin del Arduino necesita una interfaz de potencia para mover cargas">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker></defs>
+<rect x="10" y="60" width="170" height="90" rx="14" fill="#191d25" stroke="#22d3ee"/>
+<text x="95" y="96" text-anchor="middle" class="albl" style="font-size:14px;fill:#e8eaed">Pin del UNO R4</text>
+<text x="95" y="118" text-anchor="middle" class="albl">5 V · máx. 8 mA</text>
+<rect x="295" y="60" width="170" height="90" rx="14" fill="#191d25" stroke="#a78bfa"/>
+<text x="380" y="96" text-anchor="middle" class="albl" style="font-size:14px;fill:#e8eaed">Interfaz de potencia</text>
+<text x="380" y="118" text-anchor="middle" class="albl">relevador · puente H</text>
+<rect x="580" y="60" width="170" height="90" rx="14" fill="#191d25" stroke="#fbbf24"/>
+<text x="665" y="96" text-anchor="middle" class="albl" style="font-size:14px;fill:#e8eaed">Carga</text>
+<text x="665" y="118" text-anchor="middle" class="albl">motor · lámpara · bomba</text>
+<line x1="180" y1="105" x2="292" y2="105" stroke="#22d3ee" stroke-width="2.5" marker-end="url(#ar)"/>
+<line x1="465" y1="105" x2="577" y2="105" stroke="#22d3ee" stroke-width="5" marker-end="url(#ar)"/>
+<text x="236" y="92" text-anchor="middle" class="albl">señal (mA)</text>
+<text x="521" y="92" text-anchor="middle" class="albl">potencia (A)</text>
+<text x="380" y="190" text-anchor="middle" class="albl">Un motor pequeño puede pedir de 200 mA a más de 1 A al arrancar: 25 a 100+ veces lo que da un pin.</text>
+</svg></div>
+  <div class="note info reveal"><b>Regla de oro:</b> el pin solo <b>da la orden</b>; la energía para la carga sale de otra fuente, a través de un relevador o de un puente H.</div>
+</div></section>
+
+<section id="relevador"><div class="wrap">
   <span class="kicker reveal">Parte 1</span>
   <h2 class="reveal">Módulo de relevador optoacoplado</h2>
-  <p class="lead reveal">Un interruptor mecánico que el Arduino acciona sin tocar eléctricamente la carga.</p>
-  <div class="figure reveal"><svg class="dg" viewBox="0 0 830 220" role="img" aria-label="Diagrama interno de un módulo de relevador optoacoplado"><defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker></defs><line class="sep" x1="267" y1="14" x2="267" y2="210"/><text class="zone" x="135" y="28">LADO LÓGICO · ARDUINO</text><text class="zone" x="550" y="28">LADO POTENCIA · JD-VCC</text><rect class="bx hl" x="10" y="70" width="110" height="64" rx="12"/><text class="t" x="65.0" y="106.0">Pin D4</text><text class="s" x="65.0" y="154">LOW = activar</text><rect class="bx" x="145" y="70" width="110" height="64" rx="12"/><text class="t" x="200.0" y="106.0">LED del opto</text><text class="s" x="200.0" y="154">emite luz</text><rect class="bx" x="280" y="70" width="120" height="64" rx="12"/><text class="t" x="340.0" y="106.0">Fototransistor</text><text class="s" x="340.0" y="154">recibe la luz</text><rect class="bx" x="425" y="70" width="110" height="64" rx="12"/><text class="t" x="480.0" y="106.0">Transistor</text><text class="s" x="480.0" y="154">da corriente</text><rect class="bx" x="560" y="70" width="120" height="64" rx="12"/><text class="t" x="620.0" y="106.0">Bobina + diodo</text><text class="s" x="620.0" y="154">electroimán</text><rect class="bx hl" x="705" y="70" width="115" height="64" rx="12"/><text class="t" x="762.5" y="106.0">COM·NO·NC</text><text class="s" x="762.5" y="154">contacto a la carga</text><line class="ar" x1="120" y1="102" x2="143" y2="102" marker-end="url(#a1)"/><path class="light" d="M255 92 q6 -8 12 0 t12 0"/><path class="light" d="M255 112 q6 -8 12 0 t12 0"/><line class="ar" x1="400" y1="102" x2="423" y2="102" marker-end="url(#a1)"/><line class="ar" x1="535" y1="102" x2="558" y2="102" marker-end="url(#a1)"/><line class="ar" x1="680" y1="102" x2="703" y2="102" marker-end="url(#a1)"/><text class="s" x="267" y="64">solo luz: aislamiento</text></svg><p class="figcap">La señal cruza de un lado a otro solo como luz: así se protege el microcontrolador.</p></div>
-  <div class="grid g4">
-    <div class="card warn reveal"><span class="tag w">OJO</span><h3>Activo en BAJO</h3><p>En casi todos los módulos, <b>LOW = encendido</b>. El driver traduce para que nadie se confunda.</p></div>
-    <div class="card reveal"><span class="tag">AISLAMIENTO</span><h3>JD-VCC</h3><p>Sin el jumper y con fuente aparte, la bobina no comparte tierra con el Arduino.</p></div>
-    <div class="card bad reveal"><span class="tag w">MECÁNICO</span><h3>Es lento</h3><p>Tarda ~5–15 ms en conmutar y tiene vida limitada. <b>Nunca</b> le mandes PWM.</p></div>
-    <div class="card ok reveal"><span class="tag">ARRANQUE</span><h3>Estado seguro</h3><p>Lo primero en <span class="mono">setup()</span>: dejarlo APAGADO.</p></div>
+  <div class="theory reveal">
+    <p>Un <b>relevador</b> (relé) es un interruptor que se acciona con un <b>electroimán</b>. Al pasar corriente por su bobina, el campo magnético atrae una lámina metálica (armadura) que cambia la posición de los contactos. Así, una señal pequeña controla un circuito independiente que puede ser de corriente alterna o de mayor potencia.</p>
+  </div>
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 420 260" class="art" role="img" aria-label="Ilustración de un módulo de relevador optoacoplado de un canal"><rect x="20" y="20" width="380" height="220" rx="10" fill="#1565c0" stroke="#0d47a1" stroke-width="3"/><rect x="150" y="45" width="150" height="120" rx="6" fill="#1e88e5" stroke="#0d47a1" stroke-width="3"/><text x="225" y="98" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#e3f2fd">RELÉ 5VDC</text><text x="225" y="118" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#bbdefb">10A 250VAC · 10A 30VDC</text><rect x="320" y="60" width="66" height="120" rx="4" fill="#1976d2" stroke="#0d47a1" stroke-width="2"/><circle cx="353" cy="80" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="346" y1="80" x2="360" y2="80" stroke="#455a64" stroke-width="3"/><text x="380" y="84" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#e3f2fd" text-anchor="end"></text><text x="318" y="84" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#e3f2fd" text-anchor="end">NO</text><circle cx="353" cy="116" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="346" y1="116" x2="360" y2="116" stroke="#455a64" stroke-width="3"/><text x="380" y="120" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#e3f2fd" text-anchor="end"></text><text x="318" y="120" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#e3f2fd" text-anchor="end">COM</text><circle cx="353" cy="152" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="346" y1="152" x2="360" y2="152" stroke="#455a64" stroke-width="3"/><text x="380" y="156" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#e3f2fd" text-anchor="end"></text><text x="318" y="156" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#e3f2fd" text-anchor="end">NC</text><rect x="32" y="80" width="18" height="80" rx="2" fill="#1b1b1b"/><rect x="37" y="88" width="8" height="8" fill="#c9a227"/><text x="56" y="96" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#e3f2fd">VCC</text><rect x="37" y="112" width="8" height="8" fill="#c9a227"/><text x="56" y="120" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#e3f2fd">GND</text><rect x="37" y="136" width="8" height="8" fill="#c9a227"/><text x="56" y="144" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#e3f2fd">IN</text><rect x="90" y="150" width="38" height="26" rx="3" fill="#f5f5f5" stroke="#9e9e9e"/><circle cx="96" cy="156" r="2" fill="#9e9e9e"/><text x="109" y="191" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#e3f2fd">PC817</text><rect x="97" y="146" width="4" height="4" fill="#bdbdbd"/><rect x="97" y="176" width="4" height="4" fill="#bdbdbd"/><rect x="115" y="146" width="4" height="4" fill="#bdbdbd"/><rect x="115" y="176" width="4" height="4" fill="#bdbdbd"/><path d="M150 190 h22 v12 a11 11 0 0 1 -22 0z" fill="#212121"/><text x="161" y="225" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#e3f2fd">transistor</text><rect x="196" y="190" width="34" height="10" rx="4" fill="#212121"/><rect x="222" y="190" width="5" height="10" fill="#cfd8dc"/><text x="213" y="216" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#e3f2fd">diodo</text><circle cx="80" cy="60" r="6" fill="#ef5350"/><circle cx="110" cy="60" r="6" fill="#66bb6a"/><rect x="250" y="185" width="44" height="22" rx="2" fill="#1b1b1b"/><rect x="254" y="193" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="267" y="193" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="280" y="193" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="263" y="188" width="24" height="16" rx="2" fill="#fdd835" opacity=".9"/><text x="272" y="226" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#e3f2fd">JD-VCC</text><circle cx="30" cy="70" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="30" y="74" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">1</text><circle cx="84" cy="140" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="84" y="144" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">2</text><circle cx="150" cy="40" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="150" y="44" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">3</text><circle cx="150" cy="185" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="150" y="189" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">4</text><circle cx="394" cy="56" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="394" y="60" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">5</text><circle cx="250" cy="180" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="250" y="184" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">6</text><circle cx="70" cy="44" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="70" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">7</text></svg><p class="cap">Ilustración de un módulo de 1 canal</p></div>
+    <div>
+      <h3>Partes del módulo</h3>
+      <ol class="callouts">
+        <li><b>VCC, GND, IN:</b> alimentación del módulo y la señal que viene del Arduino.</li>
+        <li><b>Optoacoplador (PC817):</b> pasa la orden como luz, sin conexión eléctrica.</li>
+        <li><b>Relevador:</b> el interruptor electromecánico. Su bobina pide unos 70 mA a 5 V.</li>
+        <li><b>Transistor y diodo:</b> el transistor alimenta la bobina; el diodo absorbe el pico de voltaje al apagarla.</li>
+        <li><b>Bornera NO · COM · NC:</b> donde se conecta la carga.</li>
+        <li><b>Jumper JD-VCC:</b> al retirarlo, la bobina se alimenta con una fuente aparte y el aislamiento es total.</li>
+        <li><b>LEDs:</b> uno indica alimentación y el otro que el relevador está activo.</li>
+      </ol>
+    </div>
   </div>
 
-  <div class="sim reveal" id="rel-sim">
+  <h3 class="reveal" style="margin-top:28px">Por dentro: cómo se mueven los contactos</h3>
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Anatomía del relevador</h3><button class="tog" id="relBtn" type="button">Energizar bobina</button></div>
+    <div style="max-width:620px;margin:0 auto"><svg viewBox="0 0 440 240" class="art" role="img" aria-label="Partes internas de un relevador electromecánico" id="relAnat">
+  <rect x="10" y="10" width="420" height="220" rx="14" fill="#14171d" stroke="#2a303c"/>
+  <rect x="50" y="110" width="70" height="90" rx="6" fill="#8d6e63" stroke="#5d4037" stroke-width="2"/>
+  <g stroke="#ffb74d" stroke-width="3"><line x1="46" y1="118" x2="124" y2="118"/><line x1="46" y1="127" x2="124" y2="127"/><line x1="46" y1="136" x2="124" y2="136"/><line x1="46" y1="145" x2="124" y2="145"/><line x1="46" y1="154" x2="124" y2="154"/><line x1="46" y1="163" x2="124" y2="163"/><line x1="46" y1="172" x2="124" y2="172"/><line x1="46" y1="181" x2="124" y2="181"/><line x1="46" y1="190" x2="124" y2="190"/></g>
+  <rect x="74" y="96" width="22" height="16" fill="#90a4ae"/>
+  <text x="85" y="222" text-anchor="middle" class="albl">Bobina (electroimán)</text>
+  <line x1="60" y1="200" x2="60" y2="215" stroke="#ef4444" stroke-width="3"/><line x1="110" y1="200" x2="110" y2="215" stroke="#9aa3b2" stroke-width="3"/>
+  <g id="armadura"><path d="M60 92 L300 92" stroke="#cfd8dc" stroke-width="8" stroke-linecap="round"/><rect x="296" y="84" width="30" height="16" rx="3" fill="#ffca28"/></g>
+  <circle cx="60" cy="92" r="7" fill="#607d8b"/>
+  <rect x="300" y="41" width="70" height="12" rx="3" fill="#ffca28"/><text x="378" y="51" class="albl">NC</text>
+  <rect x="300" y="131" width="70" height="12" rx="3" fill="#ffca28"/><text x="378" y="141" class="albl">NO</text>
+  <line x1="60" y1="92" x2="30" y2="60" stroke="#cfd8dc" stroke-width="3"/><text x="22" y="52" class="albl" style="fill:#e8eaed">COM</text>
+  <text x="150" y="182" class="albl">armadura = contacto móvil (unida a COM)</text>
+  <text x="150" y="200" class="albl">un resorte la regresa a NC sin energía</text>
+  <circle id="relCarga" cx="395" cy="200" r="16" fill="#2a2f3a" stroke="#2a303c" stroke-width="2"/>
+  <text x="395" y="228" text-anchor="middle" class="albl">carga en NO</text>
+</svg></div>
+    <p class="out" id="relAnatTxt"></p>
+  </div>
+  <div class="grid g3">
+    <div class="card reveal"><span class="tag">COM</span><h3>Común</h3><p>El contacto que se mueve. Siempre se conecta la carga a él.</p></div>
+    <div class="card ok reveal"><span class="tag">NO</span><h3>Normalmente abierto</h3><p>Se une a COM solo cuando la bobina tiene energía. Es la opción segura: si falla el control, la carga se apaga.</p></div>
+    <div class="card warn reveal"><span class="tag w">NC</span><h3>Normalmente cerrado</h3><p>Unido a COM en reposo. Se usa cuando la carga debe funcionar mientras el sistema está apagado.</p></div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:28px">El optoacoplador: aislamiento con luz</h3>
+  <div class="comp rev reveal">
+    <div class="pic"><div id="optoWrap"><svg viewBox="0 0 440 200" class="art" role="img" aria-label="Interior de un optoacoplador: LED infrarrojo y fototransistor" id="optoSvg">
+  <rect x="10" y="10" width="420" height="180" rx="14" fill="#14171d" stroke="#2a303c"/>
+  <rect x="140" y="30" width="160" height="140" rx="10" fill="#e0e0e0" opacity=".08" stroke="#9aa3b2" stroke-dasharray="6 5"/>
+  <text x="220" y="185" text-anchor="middle" class="albl">encapsulado (no hay conexión eléctrica interna)</text>
+  <line x1="40" y1="60" x2="180" y2="60" stroke="#3b82f6" stroke-width="3"/><line x1="40" y1="140" x2="180" y2="140" stroke="#9aa3b2" stroke-width="3"/>
+  <line x1="180" y1="60" x2="180" y2="85" stroke="#3b82f6" stroke-width="3"/><line x1="180" y1="115" x2="180" y2="140" stroke="#9aa3b2" stroke-width="3"/>
+  <polygon points="165,85 195,85 180,112" fill="#f87171" id="optoLed"/><line x1="163" y1="114" x2="197" y2="114" stroke="#f87171" stroke-width="3"/>
+  <text x="40" y="52" class="albl">ánodo (señal)</text><text x="40" y="160" class="albl">cátodo</text>
+  <g id="optoLuz" opacity=".15" stroke="#fbbf24" stroke-width="2.5" fill="none">
+    <path d="M200 90 l20 0 m-6 -5 l6 5 l-6 5"/><path d="M200 104 l20 0 m-6 -5 l6 5 l-6 5"/></g>
+  <line x1="256" y1="78" x2="256" y2="122" stroke="#cfd8dc" stroke-width="4"/>
+  <line x1="256" y1="90" x2="290" y2="62" stroke="#cfd8dc" stroke-width="3"/><line x1="256" y1="110" x2="290" y2="138" stroke="#cfd8dc" stroke-width="3"/>
+  <polygon points="282,128 292,140 278,138" fill="#cfd8dc"/>
+  <line x1="290" y1="62" x2="400" y2="62" stroke="#ef4444" stroke-width="3"/><line x1="290" y1="138" x2="400" y2="138" stroke="#9aa3b2" stroke-width="3"/>
+  <text x="400" y="52" text-anchor="end" class="albl">colector → transistor del relé</text><text x="400" y="160" text-anchor="end" class="albl">emisor</text>
+  <text x="180" y="28" text-anchor="middle" class="albl" fill="#22d3ee">LED infrarrojo</text><text x="270" y="28" text-anchor="middle" class="albl">fototransistor</text>
+</svg></div><div style="text-align:center;margin-top:10px"><button class="tog" id="optoBtn" type="button">Encender LED interno</button></div></div>
+    <div class="theory">
+      <p>Dentro del <b>optoacoplador</b> hay un LED infrarrojo y un fototransistor, uno frente al otro. Cuando el Arduino enciende el LED, la luz hace conducir al fototransistor, que a su vez activa el transistor que alimenta la bobina.</p>
+      <p>Entre ambos lados <b>no hay cable</b>: solo luz. Un PC817 soporta varios miles de volts de aislamiento entre su entrada y su salida. Si hay un pico en el lado de potencia, no llega al microcontrolador.</p>
+      <p>La relación entre la corriente que entra al LED y la que deja pasar el fototransistor se llama <b>CTR</b> (Current Transfer Ratio).</p>
+    </div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:28px">Activo en bajo: el detalle que más confunde</h3>
+  <div class="theory reveal"><p>En la mayoría de los módulos, el pin <b>IN</b> está conectado al cátodo del LED del optoacoplador. El LED enciende cuando IN está en <b>LOW</b> (0 V), porque así la corriente puede fluir desde VCC. Por eso el relevador se activa con LOW y se apaga con HIGH. Algunos módulos traen un jumper para elegir el disparo en alto o en bajo.</p></div>
+  <div class="sim reveal">
     <div class="sim-h"><h3>Prueba: ¿qué nivel enciende el relevador?</h3></div>
     <div class="sim-ctrl">
-      <button class="tog" id="relPin" type="button">Pin D4: HIGH</button>
+      <button class="tog" id="relPin" type="button">Pin: HIGH</button>
       <button class="tog" id="relLogic" type="button">Módulo: activo en BAJO</button>
       <div class="lamp" id="relLamp" aria-hidden="true"></div>
     </div>
     <p class="out" id="relTxt"></p>
   </div>
 
-  <h3 class="reveal" style="margin-top:28px">El driver en C++</h3>
-  <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Relevador.h · clase</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-rel">// ===== Driver de un módulo de relevador optoacoplado =====
-class Relevador {
-  public:
-    Relevador(uint8_t pin, bool activoEnBajo = true)
-      : _pin(pin), _activoEnBajo(activoEnBajo) {}
-
-    void begin() {
-      pinMode(_pin, OUTPUT);
-      _escribir(false);            // de inmediato: APAGADO (estado seguro)
-      _ultimoCambio = millis();
-    }
-
-    bool encender() { return _cambiar(true);  }
-    bool apagar()   { return _cambiar(false); }
-    bool estaEncendido() const { return _encendido; }
-
-  private:
-    static constexpr unsigned long TIEMPO_MIN_MS = 100;   // protege los contactos
-    uint8_t _pin;
-    bool _activoEnBajo;
-    bool _encendido = false;
-    unsigned long _ultimoCambio = 0;
-
-    // Traduce &quot;encendido/apagado&quot; al nivel eléctrico que pide el módulo
-    void _escribir(bool on) {
-      digitalWrite(_pin, (on != _activoEnBajo) ? HIGH : LOW);
-    }
-
-    bool _cambiar(bool on) {
-      if (on == _encendido) return true;                          // ya está así
-      if (millis() - _ultimoCambio &lt; TIEMPO_MIN_MS) return false; // conmutación demasiado rápida
-      _escribir(on);
-      _encendido = on;
-      _ultimoCambio = millis();
-      return true;
-    }
-};</code></pre></div>
-  <div class="note info reveal"><b>¿Por qué 100 ms mínimos?</b> Si un error del programa manda encender/apagar en cada vuelta de <span class="mono">loop()</span>, el relevador vibraría y se quemarían los contactos. El driver lo rechaza y devuelve <span class="mono">false</span>.</div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Característica típica (relevador de 5 V)</th><th>Valor</th><th>Qué implica para el software</th></tr>
+    <tr><td>Corriente de la bobina</td><td class="c">≈ 70 mA</td><td class="w">Nunca se conecta directo a un pin: se usa el módulo.</td></tr>
+    <tr><td>Tiempo de conmutación</td><td class="c">5 – 10 ms</td><td class="w">No responde a cambios rápidos: no sirve para PWM.</td></tr>
+    <tr><td>Contactos</td><td class="c">10 A · 250 VAC</td><td class="w">Valor máximo, no de trabajo; con corriente alterna, solo con supervisión.</td></tr>
+    <tr><td>Vida eléctrica</td><td class="c">≈ 100 000 ciclos</td><td class="w">Cada conmutación desgasta: hay que evitar encender y apagar sin necesidad.</td></tr>
+  </table></div>
 </div></section>
 
-<section id="puente-h"><div class="wrap">
+<section id="puente-h" style="background:var(--bg2)"><div class="wrap">
   <span class="kicker reveal">Parte 2</span>
-  <h2 class="reveal">Puente H: dirección y velocidad</h2>
-  <p class="lead reveal">Cuatro interruptores electrónicos alrededor del motor. Según cuáles se cierren, la corriente lo cruza en un sentido o en el otro.</p>
+  <h2 class="reveal">Puente H: sentido y velocidad de un motor DC</h2>
+  <div class="theory reveal">
+    <p>Un relevador solo enciende o apaga. Un motor de corriente directa necesita además <b>cambiar de sentido</b> (invirtiendo la polaridad) y <b>variar su velocidad</b>. El <b>puente H</b> resuelve ambas cosas con cuatro interruptores electrónicos dispuestos en forma de letra H, con el motor en el travesaño.</p>
+  </div>
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 420 320" class="art" role="img" aria-label="Ilustración del módulo puente H L298N"><rect x="40" y="20" width="340" height="280" rx="10" fill="#c62828" stroke="#8e0000" stroke-width="3"/><rect x="140" y="30" width="140" height="120" rx="4" fill="#212121"/><rect x="146" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="161" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="176" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="191" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="206" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="221" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="236" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="251" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="266" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="170" y="150" width="80" height="26" rx="2" fill="#1b1b1b"/><text x="210" y="168" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#bdbdbd">L298N</text><rect x="48" y="60" width="42" height="84" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="69" cy="82" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="62" y1="82" x2="76" y2="82" stroke="#455a64" stroke-width="3"/><circle cx="69" cy="122" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="62" y1="122" x2="76" y2="122" stroke="#455a64" stroke-width="3"/><rect x="330" y="60" width="42" height="84" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="351" cy="82" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="344" y1="82" x2="358" y2="82" stroke="#455a64" stroke-width="3"/><circle cx="351" cy="122" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="344" y1="122" x2="358" y2="122" stroke="#455a64" stroke-width="3"/><text x="69" y="160" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">Motor A</text><text x="351" y="160" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">Motor B</text><rect x="60" y="230" width="126" height="44" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="81" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="74" y1="252" x2="88" y2="252" stroke="#455a64" stroke-width="3"/><text x="81" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">+12V</text><circle cx="123" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="116" y1="252" x2="130" y2="252" stroke="#455a64" stroke-width="3"/><text x="123" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">GND</text><circle cx="165" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="158" y1="252" x2="172" y2="252" stroke="#455a64" stroke-width="3"/><text x="165" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">+5V</text><rect x="210" y="236" width="150" height="20" rx="2" fill="#1b1b1b"/><rect x="220" y="243" width="7" height="7" fill="#c9a227"/><text x="223" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">ENA</text><rect x="244" y="243" width="7" height="7" fill="#c9a227"/><text x="247" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN1</text><rect x="268" y="243" width="7" height="7" fill="#c9a227"/><text x="271" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN2</text><rect x="292" y="243" width="7" height="7" fill="#c9a227"/><text x="295" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN3</text><rect x="316" y="243" width="7" height="7" fill="#c9a227"/><text x="319" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN4</text><rect x="340" y="243" width="7" height="7" fill="#c9a227"/><text x="343" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">ENB</text><rect x="214" y="230" width="18" height="12" rx="2" fill="#fdd835"/><rect x="334" y="230" width="18" height="12" rx="2" fill="#fdd835"/><rect x="100" y="186" width="30" height="24" rx="2" fill="#212121"/><rect x="104" y="178" width="22" height="8" fill="#9e9e9e"/><text x="115" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ffebee">78M05</text><rect x="150" y="196" width="18" height="12" rx="2" fill="#fdd835"/><text x="159" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ffebee">5V-EN</text><circle cx="290" cy="196" r="14" fill="#212121" stroke="#9e9e9e" stroke-width="2"/><path d="M276 196 a14 14 0 0 1 8 -12.7" stroke="#bdbdbd" stroke-width="3" fill="none"/><circle cx="325" cy="196" r="14" fill="#212121" stroke="#9e9e9e" stroke-width="2"/><path d="M311 196 a14 14 0 0 1 8 -12.7" stroke="#bdbdbd" stroke-width="3" fill="none"/><circle cx="210" cy="24" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="210" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">1</text><circle cx="48" cy="54" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="48" y="58" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">2</text><circle cx="60" cy="224" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="60" y="228" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">3</text><circle cx="290" cy="224" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="290" y="228" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">4</text><circle cx="366" cy="226" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="366" y="230" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">5</text><circle cx="100" cy="180" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="100" y="184" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">6</text><circle cx="310" cy="176" r="11" fill="#22d3ee" stroke="#0f1115" stroke-width="2"/><text x="310" y="180" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#0f1115">7</text></svg><p class="cap">Ilustración del módulo L298N (dos puentes H)</p></div>
+    <div>
+      <h3>Partes del módulo L298N</h3>
+      <ol class="callouts">
+        <li><b>Chip L298N con disipador:</b> contiene dos puentes H completos de transistores bipolares.</li>
+        <li><b>OUT1–OUT4:</b> salidas a los motores (A y B).</li>
+        <li><b>+12V · GND · +5V:</b> fuente del motor (hasta unos 35 V en el módulo), tierra común y salida/entrada de 5 V.</li>
+        <li><b>ENA, IN1–IN4, ENB:</b> señales del Arduino. IN fija el sentido y EN la velocidad (PWM).</li>
+        <li><b>Jumpers de ENA/ENB:</b> con jumper el motor va a velocidad fija; se retiran para controlar con PWM.</li>
+        <li><b>Regulador 78M05:</b> obtiene 5 V para la lógica del módulo a partir de la fuente del motor.</li>
+        <li><b>Capacitores:</b> estabilizan la alimentación ante los picos del motor.</li>
+      </ol>
+    </div>
+  </div>
 
   <div class="sim reveal">
-    <div class="sim-h"><h3>Simulador L298N · canal A</h3><span class="badge b-acc" id="hState">ADELANTE</span></div>
+    <div class="sim-h"><h3>Simulador del puente H (canal A)</h3><span class="badge b-acc" id="hState">ADELANTE</span></div>
     <div class="sim-ctrl">
       <button class="tog" id="hIn1" type="button">IN1 = 1</button>
       <button class="tog" id="hIn2" type="button">IN2 = 0</button>
       <label class="rng">ENA (PWM) <input type="range" id="hEn" min="0" max="255" value="180"> <span class="mono" id="hEnV">180</span></label>
     </div>
-    <div class="figure fit" style="max-width:460px;margin:0 auto"><svg class="hb" viewBox="0 0 400 300" role="img" aria-label="Puente H interactivo">
+    <div class="figure fit" style="max-width:460px;margin:0 auto"><svg class="hb art" viewBox="0 0 400 300" role="img" aria-label="Puente H interactivo">
   <text class="lbl" x="200" y="20" text-anchor="middle">+Vm · fuente del motor</text>
   <line class="rail vcc" x1="80" y1="30" x2="320" y2="30"/>
   <line class="rail gndr" x1="80" y1="270" x2="320" y2="270"/>
@@ -145,166 +251,123 @@ class Relevador {
   <text class="lbl" x="200" y="205" text-anchor="middle">Motor DC</text>
 </svg></div>
     <p class="out" id="hDesc"></p>
-    <p class="out">Equivale a: <code id="hCode"></code></p>
+    <p class="out">Orden del modelo: <b id="hCode" style="color:var(--accent)"></b></p>
   </div>
 
   <div class="tblwrap reveal"><table class="tbl">
-    <tr><th>ENA</th><th>IN1</th><th>IN2</th><th>Resultado</th><th>Método</th></tr>
-    <tr><td class="c">PWM</td><td class="c">1</td><td class="c">0</td><td><span class="badge b-ok">ADELANTE</span></td><td class="mono">adelante(vel)</td></tr>
-    <tr><td class="c">PWM</td><td class="c">0</td><td class="c">1</td><td><span class="badge b-ok">ATRÁS</span></td><td class="mono">atras(vel)</td></tr>
-    <tr><td class="c">1</td><td class="c">igual</td><td class="c">igual</td><td><span class="badge b-warn">FRENO</span></td><td class="mono">frenar()</td></tr>
-    <tr><td class="c">0</td><td class="c">x</td><td class="c">x</td><td><span class="badge b-mut">LIBRE</span></td><td class="mono">libre()</td></tr>
+    <tr><th>ENA</th><th>IN1</th><th>IN2</th><th>Resultado</th><th>Orden en el modelo</th></tr>
+    <tr><td class="c">PWM</td><td class="c">1</td><td class="c">0</td><td><span class="badge b-ok">ADELANTE</span></td><td>Adelante a cierta velocidad</td></tr>
+    <tr><td class="c">PWM</td><td class="c">0</td><td class="c">1</td><td><span class="badge b-ok">ATRÁS</span></td><td>Atrás a cierta velocidad</td></tr>
+    <tr><td class="c">1</td><td class="c">igual</td><td class="c">igual</td><td><span class="badge b-warn">FRENO</span></td><td>Frenar</td></tr>
+    <tr><td class="c">0</td><td class="c">x</td><td class="c">x</td><td><span class="badge b-mut">LIBRE</span></td><td>Dejar libre (sin energía)</td></tr>
   </table></div>
 
   <div class="grid g3">
-    <div class="card warn reveal"><span class="ico">🛑</span><h3>Freno ≠ Libre</h3><p><b>Freno</b> pone en corto el motor: se detiene rápido. <b>Libre</b> le quita energía: sigue girando por inercia.</p></div>
-    <div class="card bad reveal"><span class="ico">⚡</span><h3>Nunca invertir de golpe</h3><p>Pasar de adelante a atrás a toda velocidad produce un pico de corriente. Primero frenar, esperar, luego invertir.</p></div>
-    <div class="card reveal"><span class="ico">🔌</span><h3>Detalles del L298N</h3><p>Quita el jumper de ENA para usar PWM. Pierde ~2 V internamente. Tierra común con el Arduino, siempre.</p></div>
+    <div class="card warn reveal"><span class="ico">🛑</span><h3>Freno ≠ libre</h3><p><b>Freno:</b> une las terminales del motor; su propia fuerza contraelectromotriz lo detiene rápido. <b>Libre:</b> sin energía, gira por inercia.</p></div>
+    <div class="card bad reveal"><span class="ico">⚡</span><h3>Cortocircuito (shoot-through)</h3><p>Si S1 y S2 (o S3 y S4) conducen a la vez, la fuente queda en corto. Un buen modelo nunca permite esa combinación.</p></div>
+    <div class="card reveal"><span class="ico">🔄</span><h3>Invertir con cuidado</h3><p>Cambiar de adelante a atrás a plena velocidad genera un pico de corriente. Primero frenar, esperar y luego invertir.</p></div>
   </div>
-
-  <h3 class="reveal" style="margin-top:28px">El driver en C++</h3>
-  <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; PuenteH.h · clase</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-ph">// ===== Driver de un canal del puente H (L298N / L293D) =====
-class PuenteH {
-  public:
-    enum class Modo { LIBRE, ADELANTE, ATRAS, FRENO };
-
-    PuenteH(uint8_t en, uint8_t in1, uint8_t in2) : _en(en), _in1(in1), _in2(in2) {}
-
-    void begin() {
-      pinMode(_en, OUTPUT);
-      pinMode(_in1, OUTPUT);
-      pinMode(_in2, OUTPUT);
-      libre();                        // estado seguro: motor sin energía
-    }
-
-    void adelante(uint8_t vel) { _aplicar(Modo::ADELANTE, true,  false, vel); }
-    void atras(uint8_t vel)    { _aplicar(Modo::ATRAS,    false, true,  vel); }
-    void frenar()              { _aplicar(Modo::FRENO,    true,  true,  255); }
-    void libre()               { _aplicar(Modo::LIBRE,    false, false, 0);   }
-    Modo modo() const { return _modo; }
-
-  private:
-    uint8_t _en, _in1, _in2;
-    Modo _modo = Modo::LIBRE;
-
-    void _aplicar(Modo m, bool a, bool b, uint8_t vel) {
-      analogWrite(_en, 0);                    // 1) quitar energía antes de cambiar
-      digitalWrite(_in1, a ? HIGH : LOW);     // 2) nueva combinación de IN1/IN2
-      digitalWrite(_in2, b ? HIGH : LOW);
-      analogWrite(_en, vel);                  // 3) aplicar la orden
-      _modo = m;
-    }
-};</code></pre></div>
-
-  <details class="acc reveal"><summary>Motor a pasos con L298N (referencia, no está en el laboratorio)</summary><div class="acc-b">
-    <p style="color:var(--muted)">Un motor a pasos bipolar usa <b>los dos canales</b> del L298N: una bobina en OUT1–OUT2 y otra en OUT3–OUT4. Se mueve encendiendo las bobinas en secuencia.</p>
-    <div class="tblwrap"><table class="tbl">
-      <tr><th>Paso</th><th>IN1</th><th>IN2</th><th>IN3</th><th>IN4</th></tr>
-      <tr><td class="c">1</td><td class="c">1</td><td class="c">0</td><td class="c">1</td><td class="c">0</td></tr>
-      <tr><td class="c">2</td><td class="c">0</td><td class="c">1</td><td class="c">1</td><td class="c">0</td></tr>
-      <tr><td class="c">3</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">1</td></tr>
-      <tr><td class="c">4</td><td class="c">1</td><td class="c">0</td><td class="c">0</td><td class="c">1</td></tr>
-    </table></div>
-    <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Ejemplo con la librería Stepper</span><button class="copy" type="button">Copiar</button></div><pre><code>#include &lt;Stepper.h&gt;
-// Motor bipolar de 200 pasos/vuelta en OUT1–OUT4 del L298N (ENA y ENB con jumper)
-Stepper pasos(200, 8, 9, 10, 11);     // IN1, IN2, IN3, IN4
-
-void setup() { pasos.setSpeed(60); }  // 60 RPM
-
-void loop() {
-  pasos.step(200);    // una vuelta en un sentido    ⚠ step() BLOQUEA hasta terminar
-  pasos.step(-200);   // una vuelta en sentido contrario
-}</code></pre></div>
-    <div class="note"><b>Observa:</b> <span class="mono">step()</span> bloquea el programa hasta terminar. En el tema 4.2 se hace sin bloquear, con rampas.</div>
-  </div></details>
 </div></section>
 
-<section id="conexiones" style="background:var(--bg2)"><div class="wrap">
-  <span class="kicker reveal">Conexiones</span>
-  <h2 class="reveal">Armado físico y en Tinkercad</h2>
-  <div class="legend reveal"><span><i class="dot d-vcc"></i>Alimentación</span><span><i class="dot d-gnd"></i>GND</span><span><i class="dot d-data"></i>Señal</span><span><i class="dot d-mot"></i>Motor</span></div>
-  <div class="grid g2">
-    <div class="reveal"><h3 style="margin-top:16px">Laboratorio · L298N</h3>
-    <div class="tblwrap"><table class="tbl">
-      <tr><th>L298N</th><th>Va a</th></tr>
-      <tr><td><i class="dot d-data"></i>ENA</td><td>D5 (PWM) · <b>sin jumper</b></td></tr>
-      <tr><td><i class="dot d-data"></i>IN1</td><td>D8</td></tr>
-      <tr><td><i class="dot d-data"></i>IN2</td><td>D7</td></tr>
-      <tr><td><i class="dot d-mot"></i>OUT1 / OUT2</td><td>Terminales del motor DC</td></tr>
-      <tr><td><i class="dot d-vcc"></i>+12V</td><td>+ fuente externa (7–12 V)</td></tr>
-      <tr><td><i class="dot d-gnd"></i>GND</td><td>− fuente <b>y</b> GND del Arduino</td></tr>
-      <tr><td><i class="dot d-vcc"></i>+5V</td><td>No conectar (Arduino por USB)</td></tr>
-    </table></div></div>
-    <div class="reveal"><h3 style="margin-top:16px">Tinkercad · L293D</h3>
-    <div class="tblwrap"><table class="tbl">
-      <tr><th>L293D (pin)</th><th>Va a</th></tr>
-      <tr><td><i class="dot d-data"></i>1 · EN1,2</td><td>D5</td></tr>
-      <tr><td><i class="dot d-data"></i>2 · IN1</td><td>D8</td></tr>
-      <tr><td><i class="dot d-data"></i>7 · IN2</td><td>D7</td></tr>
-      <tr><td><i class="dot d-mot"></i>3 y 6 · OUT</td><td>Motor DC</td></tr>
-      <tr><td><i class="dot d-vcc"></i>16 · VCC1</td><td>5V del Arduino</td></tr>
-      <tr><td><i class="dot d-vcc"></i>8 · VCC2</td><td>+ batería 9 V</td></tr>
-      <tr><td><i class="dot d-gnd"></i>4, 5, 12, 13</td><td>GND común</td></tr>
-    </table></div></div>
+<section id="pwm"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">PWM: cómo se controla la velocidad</h2>
+  <div class="theory reveal">
+    <p>El Arduino no genera voltajes intermedios en un pin digital. La <b>modulación por ancho de pulso (PWM)</b> enciende y apaga la salida muy rápido; el porcentaje del tiempo que está encendida se llama <b>ciclo de trabajo</b> (duty cycle). Por su inercia, el motor responde al <b>promedio</b>: a mayor ciclo de trabajo, mayor velocidad.</p>
+    <p>En el UNO R4, <b>analogWrite</b> usa por defecto 8 bits (de 0 a 255) en los pines marcados con ~, y su resolución se puede aumentar.</p>
   </div>
-  <div class="card reveal" style="margin-top:8px"><h3>Relevador simulado con un LED (físico y Tinkercad)</h3>
-  <p><i class="dot d-vcc"></i>5V → resistencia 220 Ω → ánodo del LED · cátodo del LED → <i class="dot d-data"></i>D4. Así el LED enciende con <b>LOW</b>, igual que un módulo activo en bajo.</p></div>
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Ciclo de trabajo</h3><label class="rng">Duty <input type="range" id="dty" min="0" max="100" value="60"> <span class="mono" id="dtyV">60 %</span></label></div>
+    <svg id="pwmSvg" class="wave" viewBox="0 0 600 160" role="img" aria-label="Señal PWM"></svg>
+    <div class="kpi"><div><b id="kDuty">153</b><span>valor 0–255</span></div><div><b id="kV">7.2 V</b><span>voltaje promedio con fuente de 12 V</span></div><div><b id="kVel">60 %</b><span>velocidad aproximada</span></div></div>
+    <p class="out">Ojo: el L298N pierde cerca de 2 V internamente, así que el motor recibe un poco menos.</p>
+  </div>
+
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 260 150" class="art" role="img" aria-label="Ilustración de un motor de corriente directa">
+  <rect x="30" y="35" width="150" height="80" rx="36" fill="#b0bec5" stroke="#78909c" stroke-width="3"/>
+  <rect x="40" y="45" width="130" height="10" rx="5" fill="#eceff1" opacity=".6"/>
+  <rect x="170" y="50" width="26" height="50" rx="6" fill="#90a4ae" stroke="#78909c" stroke-width="2"/>
+  <rect x="196" y="70" width="44" height="10" rx="3" fill="#cfd8dc" stroke="#90a4ae"/>
+  <rect x="18" y="50" width="16" height="50" rx="4" fill="#ffd54f" stroke="#c9a227"/>
+  <line x1="18" y1="62" x2="2" y2="62" stroke="#ef4444" stroke-width="4"/><line x1="18" y1="88" x2="2" y2="88" stroke="#1b1b1b" stroke-width="4"/>
+  <text x="105" y="140" text-anchor="middle" class="albl">motor DC con escobillas</text>
+</svg></div>
+    <div class="theory">
+      <h3>El motor DC por dentro</h3>
+      <p>Un motor de corriente directa gira cuando circula corriente por sus bobinas dentro de un campo magnético. Su <b>velocidad depende del voltaje</b> y su <b>fuerza (par) de la corriente</b>.</p>
+      <p>Al girar, el motor genera un voltaje en sentido contrario (<b>fuerza contraelectromotriz</b>). Por eso, <b>al arrancar</b>, cuando aún está quieto, pide la corriente más alta: es el momento de mayor riesgo para la alimentación (lo verás en 4.1.2).</p>
+    </div>
+  </div>
 </div></section>
 
-<section id="practica"><div class="wrap">
-  <span class="kicker reveal">Práctica 4.1.1</span>
-  <h2 class="reveal">Motor y relevador por comandos</h2>
-  <p class="lead reveal">Desde el Monitor serie (115200) controlas el motor y el relevador solo con los métodos de las clases.</p>
-  <div class="code reveal"><div class="code-h"><span class="dots"><i></i><i></i><i></i>&nbsp; Programa principal</span><button class="copy" type="button">Copiar</button></div><pre><code id="c-main">// ===== Práctica 4.1.1 — Programa principal =====
-// Pega ANTES de esto las clases Relevador y PuenteH.
-const uint8_t PIN_ENA = 5, PIN_IN1 = 8, PIN_IN2 = 7, PIN_RELE = 4;
-
-PuenteH   motor(PIN_ENA, PIN_IN1, PIN_IN2);
-Relevador rele(PIN_RELE);            // activo en BAJO (como los módulos comerciales)
-int velocidad = 150;
-
-void reaplicar() {                   // si el motor gira, aplica la nueva velocidad
-  if (motor.modo() == PuenteH::Modo::ADELANTE)   motor.adelante(velocidad);
-  else if (motor.modo() == PuenteH::Modo::ATRAS) motor.atras(velocidad);
-}
-
-void setup() {
-  rele.begin();                      // 1) primero, todo en estado seguro
-  motor.begin();
-  Serial.begin(115200);
-  Serial.println(F(&quot;a=adelante r=atras f=freno l=libre +/-=velocidad e=relevador&quot;));
-}
-
-void loop() {
-  if (!Serial.available()) return;
-  char c = Serial.read();
-  switch (c) {
-    case &#x27;a&#x27;: motor.adelante(velocidad); break;
-    case &#x27;r&#x27;: motor.atras(velocidad);    break;
-    case &#x27;f&#x27;: motor.frenar();            break;
-    case &#x27;l&#x27;: motor.libre();             break;
-    case &#x27;+&#x27;: velocidad = constrain(velocidad + 25, 0, 255); reaplicar(); break;
-    case &#x27;-&#x27;: velocidad = constrain(velocidad - 25, 0, 255); reaplicar(); break;
-    case &#x27;e&#x27;:
-      if (rele.estaEncendido()) rele.apagar(); else rele.encender();
-      break;
-    default: return;                   // ignora saltos de línea
-  }
-  Serial.print(F(&quot;Velocidad: &quot;));     Serial.print(velocidad);
-  Serial.print(F(&quot; | Relevador: &quot;));  Serial.println(rele.estaEncendido() ? &quot;ON&quot; : &quot;OFF&quot;);
-}</code></pre></div>
-  <div class="reveal" style="margin:8px 0 24px"><button class="btn copyall" type="button" data-all="c-rel,c-ph,c-main">📋 Copiar sketch completo (3 bloques)</button></div>
-  <ol class="steps">
-    <li class="reveal"><b>Tinkercad:</b> Arduino Uno, L293D, motor DC, batería de 9 V y LED con 220 Ω en D4, según la tabla.</li>
-    <li class="reveal"><b>Simula:</b> pega el sketch completo, inicia y abre el Monitor serie.</li>
-    <li class="reveal"><b>Prueba cada comando</b> (a, r, f, l, +, −, e) y anota qué hace el motor y el LED.</li>
-    <li class="reveal"><b>Laboratorio:</b> mismo sketch en el UNO R4 WiFi con L298N, motor y fuente externa. Revisa la tierra común y el jumper de ENA.</li>
-    <li class="reveal"><b>Mide:</b> con velocidad 250, cronometra cuánto tarda en detenerse con <span class="mono">f</span> y con <span class="mono">l</span>. Tres veces cada uno.</li>
-  </ol>
-  <div class="grid g2" style="margin-top:16px">
-    <div class="card ok reveal"><span class="tag">ENTREGABLE</span><h3>Evidencias</h3><ul class="clean"><li>Tabla freno vs. libre (3 mediciones)</li><li>Video de 30 s: ambos sentidos y el relevador</li><li>Código en tu repositorio de prácticas</li></ul></div>
-    <div class="card vio reveal"><span class="tag v">RETO</span><h3>Inversión segura</h3><p>Agrega a <span class="mono">PuenteH</span> un método <span class="mono">invertir()</span> que frene, espere 300 ms <b>sin delay()</b> y luego cambie de sentido.</p></div>
+<section id="pasos" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Parte 3</span>
+  <h2 class="reveal">Motor a pasos (stepper)</h2>
+  <div class="theory reveal">
+    <p>Un <b>motor a pasos</b> no gira de forma continua: avanza un ángulo fijo cada vez que se energiza la siguiente bobina en la secuencia. Contando pasos se conoce la posición <b>sin necesidad de sensor</b>, siempre que el motor no pierda pasos por exceso de carga o de velocidad.</p>
   </div>
+  <div class="gallery reveal">
+    <figure><svg viewBox="0 0 220 180" class="art" role="img" aria-label="Ilustración de un motor a pasos bipolar tipo NEMA 17">
+  <rect x="40" y="20" width="120" height="120" rx="10" fill="#37474f" stroke="#263238" stroke-width="3"/>
+  <rect x="50" y="30" width="100" height="100" rx="8" fill="#455a64"/>
+  <circle cx="100" cy="80" r="22" fill="#263238" stroke="#90a4ae" stroke-width="3"/><circle cx="100" cy="80" r="6" fill="#cfd8dc"/>
+  <circle cx="56" cy="36" r="5" fill="#212121"/><circle cx="144" cy="36" r="5" fill="#212121"/><circle cx="56" cy="124" r="5" fill="#212121"/><circle cx="144" cy="124" r="5" fill="#212121"/>
+  <path d="M75 140 q0 20 -30 30" stroke="#ef4444" stroke-width="4" fill="none"/><path d="M91 140 q0 20 -10 30" stroke="#3b82f6" stroke-width="4" fill="none"/><path d="M107 140 q0 20 10 30" stroke="#22c55e" stroke-width="4" fill="none"/><path d="M123 140 q0 20 30 30" stroke="#111" stroke-width="4" fill="none"/>
+  <text x="110" y="176" text-anchor="middle" class="albl">bipolar · 4 cables · 1.8°/paso</text>
+</svg><figcaption><span class="ft">Bipolar (ej. NEMA 17)</span>2 bobinas y 4 cables. La corriente se invierte en cada bobina, así que necesita <b>dos puentes H</b>: el L298N completo.</figcaption></figure>
+    <figure><svg viewBox="0 0 300 180" class="art" role="img" aria-label="Ilustración de un motor a pasos 28BYJ-48 con su placa ULN2003">
+  <circle cx="80" cy="80" r="56" fill="#b0bec5" stroke="#78909c" stroke-width="3"/>
+  <rect x="20" y="64" width="18" height="32" rx="4" fill="#90a4ae"/><rect x="122" y="64" width="18" height="32" rx="4" fill="#90a4ae"/>
+  <circle cx="80" cy="58" r="12" fill="#cfd8dc" stroke="#78909c"/><rect x="77" y="46" width="6" height="24" rx="2" fill="#eceff1"/>
+  <rect x="60" y="126" width="40" height="16" rx="3" fill="#1e88e5"/>
+  <path d="M66 142 q0 18 110 10" stroke="#3b82f6" stroke-width="3" fill="none"/><path d="M73 142 q0 18 106 10" stroke="#ec4899" stroke-width="3" fill="none"/><path d="M80 142 q0 18 102 10" stroke="#fbbf24" stroke-width="3" fill="none"/><path d="M87 142 q0 18 98 10" stroke="#f97316" stroke-width="3" fill="none"/><path d="M94 142 q0 18 94 10" stroke="#ef4444" stroke-width="3" fill="none"/>
+  <rect x="170" y="40" width="112" height="100" rx="6" fill="#2e7d32" stroke="#1b5e20" stroke-width="2"/>
+  <rect x="190" y="60" width="44" height="22" rx="2" fill="#212121"/><text x="212" y="75" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#bdbdbd">ULN2003</text>
+  <circle cx="252" cy="58" r="4" fill="#ef5350"/><circle cx="252" cy="72" r="4" fill="#ef5350"/><circle cx="252" cy="86" r="4" fill="#ef5350"/><circle cx="252" cy="100" r="4" fill="#ef5350"/>
+  <rect x="190" y="118" width="70" height="14" rx="2" fill="#f5f5f5"/>
+  <text x="150" y="176" text-anchor="middle" class="albl">unipolar 28BYJ-48 + placa ULN2003</text>
+</svg><figcaption><span class="ft">Unipolar (28BYJ-48)</span>Bobinas con toma central y 5 cables. Se maneja con transistores simples como la placa ULN2003. Tiene reductor de engranes interno.</figcaption></figure>
+  </div>
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Secuencia de pasos</h3>
+      <div class="sim-ctrl" style="margin:0">
+        <button class="tog on" data-modo="onda" type="button">Onda</button>
+        <button class="tog" data-modo="completo" type="button">Paso completo</button>
+        <button class="tog" data-modo="medio" type="button">Medio paso</button>
+      </div></div>
+    <div class="vs">
+      <div style="max-width:300px;margin:0 auto;width:100%"><svg viewBox="0 0 300 300" class="art" role="img" aria-label="Motor a pasos: bobinas y rotor"><circle cx="150" cy="150" r="118" fill="#14171d" stroke="#2a303c" stroke-width="2"/><rect id="c0" class="stp" x="125" y="26" width="50" height="40" rx="8"/><text x="150" y="51" text-anchor="middle" class="albl" style="fill:#e8eaed">A+</text><rect id="c1" class="stp" x="234" y="125" width="40" height="50" rx="8"/><text x="254" y="154" text-anchor="middle" class="albl" style="fill:#e8eaed">B+</text><rect id="c2" class="stp" x="125" y="234" width="50" height="40" rx="8"/><text x="150" y="259" text-anchor="middle" class="albl" style="fill:#e8eaed">A−</text><rect id="c3" class="stp" x="26" y="125" width="40" height="50" rx="8"/><text x="46" y="154" text-anchor="middle" class="albl" style="fill:#e8eaed">B−</text><circle cx="150" cy="150" r="56" fill="#1f2430" stroke="#a78bfa" stroke-width="3"/><g id="stRot" style="transform-origin:150px 150px;transition:transform .25s ease"><polygon points="150,98 140,150 160,150" fill="#ef4444"/><polygon points="150,202 140,150 160,150" fill="#9aa3b2"/><text x="150" y="122" text-anchor="middle" class="albl" style="fill:#fff;font-weight:800">N</text></g><circle cx="150" cy="150" r="6" fill="#e8eaed"/></svg></div>
+      <div>
+        <div class="sim-ctrl"><button class="tog" id="stBack" type="button">◀ Paso</button><button class="tog" id="stFwd" type="button">Paso ▶</button><button class="tog grn" id="stPlay" type="button">▶ Automático</button></div>
+        <div class="kpi"><div><b id="stCount">0</b><span>pasos dados</span></div><div><b id="stAng">0°</b><span>ángulo del rotor (modelo de 4 pasos)</span></div></div>
+        <p class="out" id="stTxt"></p>
+      </div>
+    </div>
+  </div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Modo</th><th>Bobinas activas</th><th>Par</th><th>Resolución</th></tr>
+    <tr><td>Onda (wave)</td><td>1 a la vez</td><td>Menor</td><td>Paso completo</td></tr>
+    <tr><td>Paso completo</td><td>2 a la vez</td><td>Mayor</td><td>Paso completo</td></tr>
+    <tr><td>Medio paso</td><td>Alterna 1 y 2</td><td>Variable</td><td>El doble de posiciones</td></tr>
+    <tr><td>Micropaso</td><td>Corrientes graduadas</td><td>Suave</td><td>Muy alta (requiere drivers especiales, no el L298N)</td></tr>
+  </table></div>
+  <div class="grid g3">
+    <div class="card reveal"><span class="tag">NEMA 17</span><h3>1.8° por paso</h3><p>200 pasos por vuelta completa.</p></div>
+    <div class="card reveal"><span class="tag">28BYJ-48</span><h3>≈ 2048 pasos</h3><p>Por vuelta del eje de salida, gracias a su reductor de 1:64 (en paso completo).</p></div>
+    <div class="card warn reveal"><span class="tag w">LÍMITE</span><h3>Pérdida de pasos</h3><p>Si se acelera de golpe o la carga es excesiva, el rotor no alcanza a seguir la secuencia y el modelo pierde la posición real.</p></div>
+  </div>
+</div></section>
+
+<section id="resumen"><div class="wrap">
+  <span class="kicker reveal">Resumen</span>
+  <h2 class="reveal">El modelo de cada módulo</h2>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Módulo</th><th>Estados</th><th>Órdenes</th><th>Restricciones</th><th>Estado seguro</th></tr>
+    <tr><td><b>Relevador</b></td><td class="w">Apagado · Encendido</td><td class="w">encender, apagar</td><td class="w">Tiempo mínimo entre cambios; nunca PWM; traducir “activo en bajo”.</td><td>Apagado</td></tr>
+    <tr><td><b>Puente H + motor DC</b></td><td class="w">Libre · Adelante · Atrás · Freno</td><td class="w">adelante(vel), atrás(vel), frenar, libre</td><td class="w">Nunca cortocircuitar una rama; frenar antes de invertir; tierra común.</td><td>Libre</td></tr>
+    <tr><td><b>Motor a pasos</b></td><td class="w">Posición (en pasos) · Detenido / Moviéndose</td><td class="w">avanzar(n), retroceder(n), velocidad</td><td class="w">Respetar la secuencia; acelerar gradualmente; no exceder la velocidad máxima.</td><td>Bobinas sin energía</td></tr>
+  </table></div>
 </div></section>
 
 <div class="wrap"><div class="pager"><a class="btn ghost" href="../../../Unidad%203/3.3.3/">← Tema anterior: 3.3.3 Filtro complementario</a><a class="btn ghost" href="../4.1.2/">Siguiente: 4.1.2 Brownouts y debounce →</a></div></div>
@@ -312,21 +375,40 @@ void loop() {
 <footer>Sistemas Programables (SCC-1023) · Unidad 4: Control de actuadores y lógica de procesos segura · Arduino UNO R4 WiFi</footer>
 <script src="../u4.js"></script>
 <script>
-/* Simulador del relevador: nivel del pin vs. lógica del módulo */
+/* Anatomía del relevador */
+(function(){
+  var on=false,b=document.getElementById('relBtn'),arm=document.getElementById('armadura'),
+      c=document.getElementById('relCarga'),t=document.getElementById('relAnatTxt');
+  function r(){
+    arm.style.transformOrigin='60px 92px';
+    arm.style.transform=on?'rotate(10deg)':'rotate(-10deg)';
+    c.setAttribute('fill',on?'#4ade80':'#2a2f3a');
+    c.style.filter=on?'drop-shadow(0 0 10px #4ade80)':'none';
+    b.textContent=on?'Quitar energía':'Energizar bobina';b.classList.toggle('on',on);
+    t.innerHTML=on?'La bobina crea un campo magnético que atrae la armadura: <b>COM se une a NO</b> y la carga recibe energía.'
+                  :'Sin corriente en la bobina, el resorte mantiene la armadura arriba: <b>COM está unido a NC</b>.';
+  }
+  b.onclick=function(){on=!on;r()};r();
+})();
+/* Optoacoplador */
+(function(){
+  var on=false,b=document.getElementById('optoBtn'),l=document.getElementById('optoLuz'),led=document.getElementById('optoLed');
+  b.onclick=function(){on=!on;l.style.opacity=on?1:.15;led.style.filter=on?'drop-shadow(0 0 8px #f87171)':'none';
+    b.textContent=on?'Apagar LED interno':'Encender LED interno';b.classList.toggle('on',on);};
+})();
+/* Activo en bajo */
 (function(){
   var pin=document.getElementById('relPin'),lg=document.getElementById('relLogic'),lamp=document.getElementById('relLamp'),txt=document.getElementById('relTxt');
   var high=true,activoBajo=true;
   function render(){
-    pin.textContent='Pin D4: '+(high?'HIGH':'LOW');pin.classList.toggle('on',high);
+    pin.textContent='Pin: '+(high?'HIGH':'LOW');pin.classList.toggle('on',high);
     lg.textContent='Módulo: activo en '+(activoBajo?'BAJO':'ALTO');
     var on=activoBajo?!high:high;lamp.classList.toggle('on',on);
-    txt.innerHTML=on?'Relevador <b>ENCENDIDO</b>: se cierra COM → NO, la carga recibe energía.':'Relevador <b>APAGADO</b>: COM queda unido a NC, la carga en NO está sin energía.';
+    txt.innerHTML=on?'Relevador <b>ENCENDIDO</b>: COM se une a NO y la carga recibe energía.':'Relevador <b>APAGADO</b>: COM queda unido a NC; la carga en NO no tiene energía.';
   }
-  pin.onclick=function(){high=!high;render()};
-  lg.onclick=function(){activoBajo=!activoBajo;render()};
-  render();
+  pin.onclick=function(){high=!high;render()};lg.onclick=function(){activoBajo=!activoBajo;render()};render();
 })();
-/* Simulador del puente H */
+/* Puente H */
 (function(){
   var g=function(id){return document.getElementById(id)};
   var in1=g('hIn1'),in2=g('hIn2'),en=g('hEn'),enV=g('hEnV'),st=g('hState'),cd=g('hCode'),ds=g('hDesc'),rot=g('rotor');
@@ -346,17 +428,68 @@ void loop() {
     rot.style.animationPlayState=gira?'running':'paused';
     rot.style.animationDuration=(2.6-2.2*pwm/255).toFixed(2)+'s';
     rot.style.animationDirection=modo==='ATRAS'?'reverse':'normal';
+    var pct=Math.round(pwm/255*100);
     var info={
-      ADELANTE:['b-ok','Corriente: +Vm → S1 → motor → S4 → GND','motor.adelante('+pwm+');'],
-      ATRAS:['b-ok','Corriente: +Vm → S3 → motor → S2 → GND (sentido contrario)','motor.atras('+pwm+');'],
-      FRENO:['b-warn','Las dos terminales del motor quedan unidas: se detiene rápido','motor.frenar();'],
-      LIBRE:['b-mut','Sin energía: el motor gira por inercia hasta pararse','motor.libre();']
+      ADELANTE:['b-ok','Corriente: +Vm → S1 → motor → S4 → GND','Adelante al '+pct+' %'],
+      ATRAS:['b-ok','Corriente: +Vm → S3 → motor → S2 → GND (sentido contrario)','Atrás al '+pct+' %'],
+      FRENO:['b-warn','Las dos terminales del motor quedan unidas: se detiene rápido','Frenar'],
+      LIBRE:['b-mut','Sin energía: el motor gira por inercia hasta pararse','Libre']
     }[modo];
     st.className='badge '+info[0];st.textContent=modo==='ATRAS'?'ATRÁS':modo;
     ds.textContent=info[1];cd.textContent=info[2];
   }
-  in1.onclick=function(){a^=1;render()};in2.onclick=function(){b^=1;render()};en.oninput=render;
-  render();
+  in1.onclick=function(){a^=1;render()};in2.onclick=function(){b^=1;render()};en.oninput=render;render();
+})();
+/* PWM */
+(function(){
+  var s=document.getElementById('dty'),v=document.getElementById('dtyV'),svg=document.getElementById('pwmSvg');
+  function r(){
+    var d=+s.value/100,p='',x=20,per=112,hi=30,lo=120;
+    p='M20 '+lo;
+    for(var i=0;i<5;i++){var w=per*d;
+      if(w>0){p+=' L'+x+' '+hi+' L'+(x+w)+' '+hi;}
+      p+=' L'+(x+w)+' '+lo+' L'+(x+per)+' '+lo;x+=per;}
+    var avg=lo-(lo-hi)*d;
+    svg.innerHTML='<line x1="20" y1="'+lo+'" x2="580" y2="'+lo+'" stroke="#2a303c"/>'+
+      '<path d="'+p+'" fill="none" stroke="#22d3ee" stroke-width="3"/>'+
+      '<line x1="20" y1="'+avg+'" x2="580" y2="'+avg+'" stroke="#fbbf24" stroke-width="2" stroke-dasharray="8 6"/>'+
+      '<text x="575" y="'+(avg-6)+'" text-anchor="end" fill="#fbbf24" font-family="Inter" font-size="12">promedio</text>'+
+      '<text x="24" y="22" fill="#9aa3b2" font-family="Inter" font-size="11">HIGH</text><text x="24" y="146" fill="#9aa3b2" font-family="Inter" font-size="11">LOW</text>';
+    v.textContent=s.value+' %';
+    document.getElementById('kDuty').textContent=Math.round(d*255);
+    document.getElementById('kV').textContent=(12*d).toFixed(1)+' V';
+    document.getElementById('kVel').textContent=s.value+' %';
+  }
+  s.oninput=r;r();
+})();
+/* Motor a pasos */
+(function(){
+  var SEQ={onda:[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],
+           completo:[[1,1,0,0],[0,1,1,0],[0,0,1,1],[1,0,0,1]],
+           medio:[[1,0,0,0],[1,1,0,0],[0,1,0,0],[0,1,1,0],[0,0,1,0],[0,0,1,1],[0,0,0,1],[1,0,0,1]]};
+  var BASE={onda:0,completo:45,medio:0},modo='onda',i=0,n=0,timer=null,ang=0;
+  var cs=[0,1,2,3].map(function(k){return document.getElementById('c'+k)}),rot=document.getElementById('stRot');
+  var names=['A+','B+','A−','B−'];
+  function r(){
+    var seq=SEQ[modo],st=seq[((i%seq.length)+seq.length)%seq.length];
+    cs.forEach(function(c,k){c.classList.toggle('on',!!st[k])});
+    var stepAng=modo==='medio'?45:90;
+    ang=BASE[modo]+n*stepAng;
+    rot.style.transform='rotate('+ang+'deg)';
+    document.getElementById('stCount').textContent=n;
+    document.getElementById('stAng').textContent=(((ang%360)+360)%360)+'°';
+    var act=names.filter(function(_,k){return st[k]}).join(' + ');
+    document.getElementById('stTxt').innerHTML='Bobinas con energía: <b>'+act+'</b>. El polo norte del rotor se alinea con ellas.';
+  }
+  function paso(d){i+=d;n+=d;r();}
+  document.getElementById('stFwd').onclick=function(){paso(1)};
+  document.getElementById('stBack').onclick=function(){paso(-1)};
+  var play=document.getElementById('stPlay');
+  play.onclick=function(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Automático';play.classList.remove('on');}
+    else{timer=setInterval(function(){paso(1)},450);play.textContent='■ Detener';play.classList.add('on');}};
+  document.querySelectorAll('[data-modo]').forEach(function(b){b.onclick=function(){
+    modo=b.dataset.modo;i=0;n=0;document.querySelectorAll('[data-modo]').forEach(function(x){x.classList.toggle('on',x===b)});r();}});
+  r();
 })();
 </script>
 </body>
