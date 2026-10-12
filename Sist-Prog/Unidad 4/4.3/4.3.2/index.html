@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.3.2 Failsafe y paro de emergencia · Sistemas Programables</title>
+<meta name="description" content="Lógica a prueba de fallos (failsafe) y secuencias de paro de emergencia ante pérdida de señales de control por WiFi con Arduino UNO R4 WiFi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../u4.css">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div class="brand">Sistemas <span>Programables</span> · 4.3</div>
+  <nav class="tabs" aria-label="Subtemas 4.3"><a href="../4.3.1/" class="">4.3.1 · Watchdog Timer</a><a href="../4.3.2/" class="active">4.3.2 · Failsafe y paro de emergencia</a></nav>
+</div></header>
+<main>
+
+<section class="hero"><div class="wrap">
+  <span class="kicker">Unidad 4 · Tema 4.3</span>
+  <h1 class="long"><span class="num">4.3.2</span><br>Lógica a prueba de fallos (Failsafe) y secuencias de paro de emergencia ante pérdida de señales de control</h1>
+  <p class="sub">Si se pierde la señal de control, el sistema no debe “seguir con lo último que le dijeron”: debe ir solo a un estado seguro.</p>
+  <div class="chips">
+    <span class="chip"><i></i>Control por WiFi</span>
+    <span class="chip"><i></i>Motor DC + L298N</span>
+    <span class="chip c-sim"><i></i>Latido (heartbeat)</span>
+    <span class="chip c-teo"><i></i>Paro de emergencia</span>
+  </div>
+  <div class="cta"><a class="btn" href="#failsafe">Empezar ↓</a><a class="btn ghost" href="#sim">Simulador de pérdida de WiFi</a></div>
+</div></section>
+
+<section id="failsafe"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Lógica a prueba de fallos (failsafe)</h2>
+  <div class="def reveal"><b>Failsafe</b>: diseño en el que, cuando algo falla, el sistema pasa automáticamente al estado que causa <b>el menor daño posible</b>. El principio central es: <b>la ausencia de señal significa detenerse</b>.</div>
+  <div class="theory reveal"><p>Muchos sistemas se programan pensando solo en las órdenes que llegan: “si llega ADELANTE, avanza”. El problema es qué ocurre cuando <b>dejan de llegar órdenes</b>. Si el programa simplemente conserva la última, un robot que iba hacia adelante seguirá avanzando sin control.</p></div>
+  <div class="grid g3">
+    <div class="card reveal"><span class="ico">🚆</span><h3>Hombre muerto</h3><p>En los trenes, si el conductor suelta el pedal o la palanca, el tren frena. Hay que mantener la señal para seguir en marcha.</p></div>
+    <div class="card reveal"><span class="ico">🛩️</span><h3>Drones y aviones RC</h3><p>Al perder la señal del radiocontrol, el equipo entra en failsafe: se detiene, aterriza o regresa a casa.</p></div>
+    <div class="card reveal"><span class="ico">🚪</span><h3>Electroimanes de puertas</h3><p>Ante un corte de energía, la cerradura se libera para permitir la evacuación.</p></div>
+  </div>
+</div></section>
+
+<section id="escenario" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Escenario del tema</span>
+  <h2 class="reveal">Motor DC controlado por WiFi</h2>
+  <div class="figure reveal"><svg viewBox="0 0 780 230" class="art" role="img" aria-label="Cadena de control por WiFi desde el celular hasta el motor">
+<defs><marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker></defs>
+<rect x="20" y="40" width="70" height="120" rx="12" fill="#263238" stroke="#90a4ae" stroke-width="2"/><rect x="28" y="54" width="54" height="86" rx="4" fill="#1e88e5"/><circle cx="55" cy="150" r="4" fill="#90a4ae"/>
+<text x="55" y="185" text-anchor="middle" class="albl" style="fill:#e8eaed">Celular / PC</text><text x="55" y="202" text-anchor="middle" class="albl">página o app</text>
+<rect x="150" y="80" width="100" height="44" rx="8" fill="#37474f" stroke="#90a4ae" stroke-width="2"/><line x1="170" y1="80" x2="160" y2="50" stroke="#90a4ae" stroke-width="3"/><line x1="230" y1="80" x2="240" y2="50" stroke="#90a4ae" stroke-width="3"/>
+<circle cx="170" cy="102" r="3" fill="#4ade80"/><circle cx="185" cy="102" r="3" fill="#4ade80"/><circle cx="200" cy="102" r="3" fill="#4ade80"/><circle cx="215" cy="102" r="3" fill="#4ade80"/><circle cx="230" cy="102" r="3" fill="#4ade80"/>
+<text x="200" y="150" text-anchor="middle" class="albl" style="fill:#e8eaed">Router WiFi</text>
+<rect x="310" y="60" width="170" height="90" rx="10" fill="#00838f" stroke="#005f66" stroke-width="2"/><rect x="322" y="72" width="60" height="40" rx="3" fill="#cfd8dc"/><text x="352" y="96" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#37474f">ESP32-S3</text>
+<rect x="410" y="96" width="34" height="34" rx="3" fill="#212121"/><text x="427" y="117" text-anchor="middle" font-family="Inter" font-size="8" fill="#9e9e9e">RA4M1</text>
+<text x="395" y="175" text-anchor="middle" class="albl" style="fill:#e8eaed">UNO R4 WiFi</text>
+<rect x="540" y="70" width="80" height="70" rx="6" fill="#c62828" stroke="#8e0000" stroke-width="2"/><rect x="560" y="76" width="40" height="34" fill="#212121"/><text x="580" y="130" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#ffebee">L298N</text>
+<rect x="670" y="80" width="80" height="44" rx="20" fill="#b0bec5" stroke="#78909c" stroke-width="2"/><rect x="750" y="96" width="20" height="10" rx="3" fill="#cfd8dc"/>
+<text x="710" y="150" text-anchor="middle" class="albl" style="fill:#e8eaed">Motor DC</text>
+<path d="M95 100 L146 100" stroke="#22d3ee" stroke-width="2.2" stroke-dasharray="5 5" marker-end="url(#ca)"/>
+<path d="M255 100 L306 100" stroke="#22d3ee" stroke-width="2.2" stroke-dasharray="5 5" marker-end="url(#ca)"/>
+<path d="M480 105 L536 105" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#ca)"/>
+<path d="M620 102 L666 102" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#ca)"/>
+<text x="200" y="40" text-anchor="middle" class="albl" style="fill:#fbbf24">inalámbrico: puede fallar</text>
+<text x="390" y="222" text-anchor="middle" class="albl">Cada eslabón inalámbrico puede perderse; el UNO R4 debe decidir qué hacer cuando deja de recibir órdenes.</text>
+</svg></div>
+  <div class="gallery reveal" style="margin-top:16px">
+    <figure><svg viewBox="0 0 420 320" class="art" role="img" aria-label="Ilustración del módulo puente H L298N"><rect x="40" y="20" width="340" height="280" rx="10" fill="#c62828" stroke="#8e0000" stroke-width="3"/><rect x="140" y="30" width="140" height="120" rx="4" fill="#212121"/><rect x="146" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="161" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="176" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="191" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="206" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="221" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="236" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="251" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="266" y="34" width="9" height="112" rx="2" fill="#424242"/><rect x="170" y="150" width="80" height="26" rx="2" fill="#1b1b1b"/><text x="210" y="168" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#bdbdbd">L298N</text><rect x="48" y="60" width="42" height="84" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="69" cy="82" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="62" y1="82" x2="76" y2="82" stroke="#455a64" stroke-width="3"/><circle cx="69" cy="122" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="62" y1="122" x2="76" y2="122" stroke="#455a64" stroke-width="3"/><rect x="330" y="60" width="42" height="84" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="351" cy="82" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="344" y1="82" x2="358" y2="82" stroke="#455a64" stroke-width="3"/><circle cx="351" cy="122" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="344" y1="122" x2="358" y2="122" stroke="#455a64" stroke-width="3"/><text x="69" y="160" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">Motor A</text><text x="351" y="160" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">Motor B</text><rect x="60" y="230" width="126" height="44" rx="3" fill="#1e88e5" stroke="#0d47a1" stroke-width="2"/><circle cx="81" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="74" y1="252" x2="88" y2="252" stroke="#455a64" stroke-width="3"/><text x="81" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">+12V</text><circle cx="123" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="116" y1="252" x2="130" y2="252" stroke="#455a64" stroke-width="3"/><text x="123" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">GND</text><circle cx="165" cy="252" r="11" fill="#b0bec5" stroke="#607d8b" stroke-width="2"/><line x1="158" y1="252" x2="172" y2="252" stroke="#455a64" stroke-width="3"/><text x="165" y="292" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#ffebee">+5V</text><rect x="210" y="236" width="150" height="20" rx="2" fill="#1b1b1b"/><rect x="220" y="243" width="7" height="7" fill="#c9a227"/><text x="223" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">ENA</text><rect x="244" y="243" width="7" height="7" fill="#c9a227"/><text x="247" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN1</text><rect x="268" y="243" width="7" height="7" fill="#c9a227"/><text x="271" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN2</text><rect x="292" y="243" width="7" height="7" fill="#c9a227"/><text x="295" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN3</text><rect x="316" y="243" width="7" height="7" fill="#c9a227"/><text x="319" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">IN4</text><rect x="340" y="243" width="7" height="7" fill="#c9a227"/><text x="343" y="272" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#ffebee">ENB</text><rect x="214" y="230" width="18" height="12" rx="2" fill="#fdd835"/><rect x="334" y="230" width="18" height="12" rx="2" fill="#fdd835"/><rect x="100" y="186" width="30" height="24" rx="2" fill="#212121"/><rect x="104" y="178" width="22" height="8" fill="#9e9e9e"/><text x="115" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ffebee">78M05</text><rect x="150" y="196" width="18" height="12" rx="2" fill="#fdd835"/><text x="159" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ffebee">5V-EN</text><circle cx="290" cy="196" r="14" fill="#212121" stroke="#9e9e9e" stroke-width="2"/><path d="M276 196 a14 14 0 0 1 8 -12.7" stroke="#bdbdbd" stroke-width="3" fill="none"/><circle cx="325" cy="196" r="14" fill="#212121" stroke="#9e9e9e" stroke-width="2"/><path d="M311 196 a14 14 0 0 1 8 -12.7" stroke="#bdbdbd" stroke-width="3" fill="none"/></svg><figcaption><span class="ft">Puente H L298N</span>Recibe del UNO R4 la velocidad (PWM) y el sentido del motor.</figcaption></figure>
+    <figure><svg viewBox="0 0 260 150" class="art" role="img" aria-label="Ilustración de un motor de corriente directa">
+  <rect x="30" y="35" width="150" height="80" rx="36" fill="#b0bec5" stroke="#78909c" stroke-width="3"/>
+  <rect x="40" y="45" width="130" height="10" rx="5" fill="#eceff1" opacity=".6"/>
+  <rect x="170" y="50" width="26" height="50" rx="6" fill="#90a4ae" stroke="#78909c" stroke-width="2"/>
+  <rect x="196" y="70" width="44" height="10" rx="3" fill="#cfd8dc" stroke="#90a4ae"/>
+  <rect x="18" y="50" width="16" height="50" rx="4" fill="#ffd54f" stroke="#c9a227"/>
+  <line x1="18" y1="62" x2="2" y2="62" stroke="#ef4444" stroke-width="4"/><line x1="18" y1="88" x2="2" y2="88" stroke="#1b1b1b" stroke-width="4"/>
+  <text x="105" y="140" text-anchor="middle" class="albl">motor DC con escobillas</text>
+</svg><figcaption><span class="ft">Motor DC</span>El actuador que debe detenerse de forma segura.</figcaption></figure>
+  </div>
+  <h3 class="reveal" style="margin-top:28px">¿Cómo se puede perder la señal de control?</h3>
+  <div class="grid g3">
+    <div class="card bad reveal"><span class="tag w">RED</span><h3>Se cae el WiFi</h3><p>El router se reinicia, la señal es débil o el R4 se aleja del alcance.</p></div>
+    <div class="card bad reveal"><span class="tag w">CONTROL</span><h3>Se cierra la app</h3><p>El celular se bloquea, se acaba la batería o se cierra la página de control.</p></div>
+    <div class="card warn reveal"><span class="tag w">MENSAJES</span><h3>Datos que no llegan</h3><p>Mensajes perdidos, retrasados, repetidos o con valores fuera de rango.</p></div>
+  </div>
+</div></section>
+
+<section id="deteccion"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Detectar la pérdida: latido (heartbeat) y tiempo de espera</h2>
+  <div class="theory reveal">
+    <p>El UNO R4 no puede “ver” que el celular se apagó. Por eso el control envía un <b>mensaje periódico</b> aunque la orden no cambie: el <b>latido</b>. El R4 guarda la hora (con <b>millis()</b>) del último mensaje válido. Si pasa más tiempo que el <b>tiempo de espera</b> (timeout) sin recibir otro, declara la <b>pérdida de señal</b>.</p>
+  </div>
+  <div class="figure reveal"><svg viewBox="0 0 760 230" class="art" role="img" aria-label="Mensajes de latido y tiempo de espera para detectar la pérdida de señal">
+<rect x="0" y="0" width="760" height="230" rx="14" fill="#0b0d11"/>
+<line x1="40" y1="90" x2="740" y2="90" stroke="#2a303c"/>
+<path d="M60 90 v-34" stroke="#4ade80" stroke-width="3"/><circle cx="60" cy="52" r="5" fill="#4ade80"/><path d="M110 90 v-34" stroke="#4ade80" stroke-width="3"/><circle cx="110" cy="52" r="5" fill="#4ade80"/><path d="M160 90 v-34" stroke="#4ade80" stroke-width="3"/><circle cx="160" cy="52" r="5" fill="#4ade80"/><path d="M210 90 v-34" stroke="#4ade80" stroke-width="3"/><circle cx="210" cy="52" r="5" fill="#4ade80"/><path d="M260 90 v-34" stroke="#4ade80" stroke-width="3"/><circle cx="260" cy="52" r="5" fill="#4ade80"/><path d="M310 90 v-34" stroke="#4ade80" stroke-width="3"/><circle cx="310" cy="52" r="5" fill="#4ade80"/>
+<text x="185" y="36" text-anchor="middle" class="albl" style="fill:#4ade80">latido cada 200 ms (“sigo aquí, velocidad 70 %”)</text>
+<rect x="312" y="96" width="250" height="20" rx="4" fill="rgba(251,191,36,.12)" stroke="#fbbf24"/><text x="437" y="110" text-anchor="middle" class="albl" style="fill:#fbbf24">tiempo de espera (ej. 1 s) sin latidos</text>
+<line x1="562" y1="40" x2="562" y2="200" stroke="#f87171" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="572" y="60" class="albl" style="fill:#f87171;font-weight:700">se declara la falla</text>
+<path d="M40 190 H562 L650 215 H740" fill="none" stroke="#22d3ee" stroke-width="3"/>
+<text x="40" y="180" class="albl" style="fill:#22d3ee">velocidad del motor</text>
+<text x="660" y="200" class="albl">paro con rampa</text>
+<text x="436" y="150" text-anchor="middle" class="albl">se cayó el WiFi: el motor sigue con la última orden… pero solo durante el tiempo de espera</text>
+</svg></div>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Parámetro</th><th>Valor de ejemplo</th><th>Criterio</th></tr>
+    <tr><td><b>Periodo del latido</b></td><td class="c">200 ms</td><td class="w">Bastante frecuente para detectar rápido, sin saturar la red.</td></tr>
+    <tr><td><b>Tiempo de espera</b></td><td class="c">1 s (5 latidos)</td><td class="w">Tolera que se pierdan algunos mensajes sueltos sin falsas alarmas.</td></tr>
+    <tr><td><b>Nivel degradado</b></td><td class="c">0.5 s</td><td class="w">Antes del paro, reducir la velocidad como precaución.</td></tr>
+  </table></div>
+  <div class="grid g3">
+    <div class="card reveal"><span class="tag">VALIDAR</span><h3>Mensajes válidos</h3><p>Solo cuenta como latido un mensaje con formato correcto y valores dentro de rango.</p></div>
+    <div class="card reveal"><span class="tag">ORDEN</span><h3>Número de secuencia</h3><p>Cada mensaje lleva un número que aumenta; los viejos o repetidos se descartan.</p></div>
+    <div class="card reveal"><span class="tag">NO BLOQUEAR</span><h3>Revisar en cada vuelta</h3><p>La comprobación del tiempo de espera se hace en loop() sin retardos (4.2.1).</p></div>
+  </div>
+</div></section>
+
+<section id="estados" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Estados del sistema a prueba de fallos</h2>
+  <div class="figure reveal"><svg viewBox="0 0 780 300" class="art" role="img" aria-label="Máquina de estados del failsafe"><defs><marker id="fs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker></defs><rect x="20" y="48" width="160" height="64" rx="14" fill="#191d25" stroke="#4ade80" stroke-width="2.5"/><text x="100" y="76" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:800">NORMAL</text><text x="100" y="95" text-anchor="middle" class="albl">latidos a tiempo</text><rect x="310" y="48" width="160" height="64" rx="14" fill="#191d25" stroke="#fbbf24" stroke-width="2.5"/><text x="390" y="76" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:800">DEGRADADO</text><text x="390" y="95" text-anchor="middle" class="albl">velocidad reducida</text><rect x="600" y="48" width="160" height="64" rx="14" fill="#191d25" stroke="#f87171" stroke-width="2.5"/><text x="680" y="76" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:800">PARO SEGURO</text><text x="680" y="95" text-anchor="middle" class="albl">rampa → freno → libre</text><rect x="600" y="198" width="160" height="64" rx="14" fill="#191d25" stroke="#a78bfa" stroke-width="2.5"/><text x="680" y="226" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:800">BLOQUEADO</text><text x="680" y="245" text-anchor="middle" class="albl">espera rearme</text><rect x="170" y="198" width="160" height="64" rx="14" fill="#191d25" stroke="#9aa3b2" stroke-width="2.5"/><text x="250" y="226" text-anchor="middle" class="albl" style="fill:#e8eaed;font-size:13px;font-weight:800">ARRANQUE</text><text x="250" y="245" text-anchor="middle" class="albl">estado seguro</text><path d="M180 80 L306 80" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#fs)"/><text x="243" y="70" text-anchor="middle" class="albl">sin latido 0.5 s</text><path d="M470 80 L596 80" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#fs)"/><text x="533" y="70" text-anchor="middle" class="albl">sin latido 1 s</text><path d="M390 112 Q300 150 160 112" fill="none" stroke="#4ade80" stroke-width="2" marker-end="url(#fs)"/><text x="280" y="152" text-anchor="middle" class="albl" style="fill:#4ade80">vuelve el latido</text><path d="M680 112 L680 194" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#fs)"/><text x="690" y="158" class="albl">motor detenido</text><path d="M600 230 L334 230" stroke="#a78bfa" stroke-width="2.2" marker-end="url(#fs)"/><text x="467" y="220" text-anchor="middle" class="albl" style="fill:#a78bfa">orden de REARME explícita</text><path d="M250 198 L130 114" stroke="#22d3ee" stroke-width="2.2" marker-end="url(#fs)"/><text x="215" y="168" class="albl">latido + arranque</text><text x="390" y="290" text-anchor="middle" class="albl">Al regresar la señal, el motor NO reanuda solo: se necesita un rearme y una nueva orden de arranque.</text></svg></div>
+</div></section>
+
+<section id="secuencia"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Secuencia de paro de emergencia</h2>
+  <div class="theory reveal"><p>Detenerse no es solo poner el PWM en cero. Una <b>secuencia de paro</b> es un orden de pasos definido de antemano para llevar el motor a reposo de forma segura y dejar constancia de lo ocurrido.</p></div>
+  <ol class="steps">
+    <li class="reveal"><b>Bloquear órdenes nuevas:</b> desde ese momento se ignora cualquier orden de movimiento.</li>
+    <li class="reveal"><b>Detener el motor:</b> rampa de desaceleración corta (categoría 1) o freno inmediato del L298N si hay peligro (vistos en 4.1.3 y 4.2.1).</li>
+    <li class="reveal"><b>Quitar la energía:</b> al detenerse, ENA en 0 (motor libre): nada queda energizado.</li>
+    <li class="reveal"><b>Señalizar:</b> mostrar el estado en la matriz LED del R4 y, si la red vuelve, informar al control.</li>
+    <li class="reveal"><b>Registrar:</b> guardar el motivo (pérdida de WiFi) y la hora.</li>
+    <li class="reveal"><b>Esperar rearme:</b> aunque la señal regrese, no se reanuda solo. Se requiere una orden explícita de rearme y luego una nueva orden de arranque.</li>
+  </ol>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card warn reveal"><span class="tag w">¿POR QUÉ NO REANUDAR SOLO?</span><h3>Reinicio inesperado</h3><p>Si el motor arrancara solo al volver el WiFi, podría moverse cuando alguien ya se acercó a revisarlo. Es el mismo principio del paro de emergencia de 4.1.3.</p></div>
+    <div class="card reveal"><span class="tag">PROTECCIÓN EN CAPAS</span><h3>Failsafe + watchdog</h3><p>El failsafe cubre la pérdida de señal; el watchdog (4.3.1) cubre el bloqueo del propio programa. Ambos terminan en el mismo estado seguro.</p></div>
+  </div>
+</div></section>
+
+<section id="sim" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Simulador</span>
+  <h2 class="reveal">Pérdida de WiFi con el motor en marcha</h2>
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Control remoto del motor</h3><span class="badge b-mut" id="fEst">ARRANQUE</span></div>
+    <div class="sim-ctrl">
+      <label class="rng">Velocidad pedida <input type="range" id="fVel" min="0" max="100" value="70"> <span class="mono" id="fVelV">70 %</span></label>
+      <button class="tog grn" id="fGo" type="button">ARRANCAR</button>
+      <button class="tog" id="fRearm" type="button">REARME</button>
+    </div>
+    <div class="sim-ctrl">
+      <button class="tog red" id="fCut" type="button">Cortar WiFi</button>
+      <button class="tog" id="fFlaky" type="button">Señal intermitente</button>
+      <button class="tog" id="fFail" type="button">Failsafe: ACTIVO</button>
+    </div>
+    <canvas id="fCv" height="240" aria-label="Latidos recibidos y velocidad del motor"></canvas>
+    <div class="kpi"><div><b id="fLast">0 ms</b><span>desde el último latido</span></div><div><b id="fSpd">0 %</b><span>velocidad del motor</span></div><div><b id="fNet">CONECTADO</b><span>WiFi</span></div></div>
+    <ul class="log" id="fLog" style="min-height:120px"></ul>
+    <p class="out">Prueba con el failsafe desactivado: al cortar el WiFi el motor sigue girando con la última orden.</p>
+  </div>
+</div></section>
+
+<section id="resumen"><div class="wrap">
+  <span class="kicker reveal">Resumen</span>
+  <h2 class="reveal">Lo esencial</h2>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Concepto</th><th>Idea clave</th></tr>
+    <tr><td><b>Failsafe</b></td><td class="w">Ante una falla, ir solo al estado de menor daño: sin señal, detenerse.</td></tr>
+    <tr><td><b>Latido</b></td><td class="w">Mensaje periódico que demuestra que el control sigue presente.</td></tr>
+    <tr><td><b>Tiempo de espera</b></td><td class="w">Si pasa sin latidos válidos, se declara la pérdida de señal.</td></tr>
+    <tr><td><b>Secuencia de paro</b></td><td class="w">Bloquear órdenes, detener, quitar energía, señalizar, registrar y esperar rearme.</td></tr>
+    <tr><td><b>Rearme</b></td><td class="w">El sistema nunca reanuda solo al volver la señal.</td></tr>
+  </table></div>
+</div></section>
+
+<div class="wrap"><div class="pager"><a class="btn ghost" href="../4.3.1/">← Tema anterior: 4.3.1 Watchdog Timer</a><span></span></div></div>
+</main>
+<footer>Sistemas Programables (SCC-1023) · Unidad 4 · Tema 4.3 · Arduino UNO R4 WiFi</footer>
+<script src="../u4.js"></script>
+<script>
+(function(){
+  var g=function(id){return document.getElementById(id)};
+  var cv=g('fCv'),ctx=cv.getContext('2d');
+  var net=true,flaky=false,fsOn=true,state='ARRANQUE',cmd=0,spd=0,lastHb=performance.now(),nextHb=0,hb=[],sp=[],N=360,acc=0,last=performance.now();
+  for(var i=0;i<N;i++){hb.push(0);sp.push(0);}
+  function log(t,c){var li=document.createElement('li');li.className=c||'';li.textContent=t;g('fLog').prepend(li);while(g('fLog').children.length>6)g('fLog').lastChild.remove();}
+  function setS(s,c,msg,cls){if(state!==s){state=s;if(msg)log(msg,cls);}}
+  g('fVel').oninput=function(){g('fVelV').textContent=g('fVel').value+' %';};
+  g('fGo').onclick=function(){if(state==='BLOQUEADO'||state==='PARO SEGURO'){log('RECHAZADO: falta el rearme','bad');return;}
+    if(!net){log('Sin WiFi: la orden no llegó','bad');return;}cmd=+g('fVel').value;setS('NORMAL',0,'Orden de arranque recibida','ok');};
+  g('fRearm').onclick=function(){if(state!=='BLOQUEADO'){log('Rearme solo es posible en estado BLOQUEADO','bad');return;}
+    if(!net){log('Sin WiFi: el rearme no llegó','bad');return;}cmd=0;setS('ARRANQUE',0,'Rearme aceptado: listo para arrancar','ok');};
+  g('fCut').onclick=function(){net=!net;flaky=false;g('fFlaky').classList.remove('on');g('fCut').textContent=net?'Cortar WiFi':'Restablecer WiFi';g('fCut').classList.toggle('on',!net);
+    log(net?'WiFi restablecido':'WiFi perdido',net?'ok':'bad');};
+  g('fFlaky').onclick=function(){flaky=!flaky;net=true;g('fCut').textContent='Cortar WiFi';g('fCut').classList.remove('on');g('fFlaky').classList.toggle('on',flaky);log(flaky?'Señal intermitente: se pierden mensajes':'Señal estable');};
+  g('fFail').onclick=function(){fsOn=!fsOn;g('fFail').textContent='Failsafe: '+(fsOn?'ACTIVO':'DESACTIVADO');g('fFail').classList.toggle('on',!fsOn);log(fsOn?'Failsafe activado':'Failsafe desactivado (peligro)',fsOn?'ok':'bad');};
+  function step(now){ /* cada 20 ms */
+    var got=0;
+    if(now>=nextHb){nextHb=now+200;if(net&&!(flaky&&Math.random()<0.6)){lastHb=now;got=1;if(state==='NORMAL'||state==='DEGRADADO')cmd=+g('fVel').value;}}
+    var dt=now-lastHb,target=0;
+    if(state==='NORMAL'||state==='DEGRADADO'){
+      if(fsOn&&dt>1000){setS('PARO SEGURO',0,'Sin latido 1 s → PARO SEGURO: rampa de desaceleración','bad');}
+      else if(fsOn&&dt>500){setS('DEGRADADO',0,'Sin latido 0.5 s → velocidad reducida','');}
+      else if(state==='DEGRADADO'&&dt<=500){setS('NORMAL',0,'Latido recuperado','ok');}
+    }
+    if(state==='NORMAL')target=cmd;
+    else if(state==='DEGRADADO')target=Math.min(cmd,30);
+    else target=0;
+    if(spd<target)spd=Math.min(target,spd+2);else if(spd>target)spd=Math.max(target,spd-(state==='PARO SEGURO'?4:2));
+    if(state==='PARO SEGURO'&&spd===0)setS('BLOQUEADO',0,'Motor detenido y sin energía · esperando rearme','');
+    hb.push(got);hb.shift();sp.push(spd);sp.shift();
+  }
+  function draw(){
+    var w=cv.clientWidth,h=240,dpr=window.devicePixelRatio||1;
+    cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    var L=44,R=w-10,X=function(i){return L+(R-L)*i/(N-1)},top=60,bot=h-24,Y=function(v){return bot-(bot-top)*v/100};
+    ctx.font='11px Inter,sans-serif';ctx.fillStyle='#4ade80';ctx.fillText('latidos',4,30);
+    for(var i=0;i<N;i++)if(hb[i]){ctx.fillStyle='#4ade80';ctx.fillRect(X(i)-1.5,18,3,22);}
+    ctx.strokeStyle='#232833';ctx.fillStyle='#6b7280';
+    [0,50,100].forEach(function(v){ctx.beginPath();ctx.moveTo(L,Y(v));ctx.lineTo(R,Y(v));ctx.stroke();ctx.fillText(v+'%',8,Y(v)+4);});
+    ctx.strokeStyle='#22d3ee';ctx.lineWidth=2.5;ctx.beginPath();sp.forEach(function(v,i){i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v))});ctx.stroke();
+    ctx.fillStyle='#22d3ee';ctx.fillText('velocidad del motor',L+6,top+12);ctx.fillStyle='#6b7280';ctx.fillText('últimos 7 s',R-66,h-6);
+  }
+  var COL={'ARRANQUE':'b-mut','NORMAL':'b-ok','DEGRADADO':'b-warn','PARO SEGURO':'b-bad','BLOQUEADO':'b-vio'};
+  function loop(now){
+    acc+=now-last;last=now;if(acc>400)acc=400;
+    while(acc>=20){acc-=20;step(now-acc);}
+    var e=g('fEst');e.textContent=state;e.className='badge '+COL[state];
+    g('fLast').textContent=Math.min(9999,Math.round(now-lastHb))+' ms';g('fSpd').textContent=Math.round(spd)+' %';
+    g('fNet').textContent=!net?'SIN SEÑAL':(flaky?'INTERMITENTE':'CONECTADO');
+    draw();requestAnimationFrame(loop);
+  }
+  log('Sistema iniciado en estado seguro','ok');
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

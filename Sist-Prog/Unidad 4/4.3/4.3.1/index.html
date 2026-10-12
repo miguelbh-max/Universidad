@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.3.1 Watchdog Timer (WDT) · Sistemas Programables</title>
+<meta name="description" content="Configuración y refresco del Watchdog Timer (WDT) nativo del Arduino UNO R4 WiFi para auto-recuperación ante bloqueos de firmware.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../u4.css">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div class="brand">Sistemas <span>Programables</span> · 4.3</div>
+  <nav class="tabs" aria-label="Subtemas 4.3"><a href="../4.3.1/" class="active">4.3.1 · Watchdog Timer</a><a href="../4.3.2/" class="">4.3.2 · Failsafe y paro de emergencia</a></nav>
+</div></header>
+<main>
+
+<section class="hero"><div class="wrap">
+  <span class="kicker">Unidad 4 · Tema 4.3</span>
+  <h1 class="long"><span class="num">4.3.1</span><br>Configuración y refresco del Watchdog Timer (WDT) nativo para auto-recuperación ante bloqueos de firmware</h1>
+  <p class="sub">Un “perro guardián” dentro del microcontrolador: si el programa deja de dar señales de vida, reinicia la placa para que se recupere sola.</p>
+  <div class="chips">
+    <span class="chip"><i></i>UNO R4 WiFi</span>
+    <span class="chip"><i></i>Watchdog nativo del RA4M1</span>
+    <span class="chip c-sim"><i></i>Refresco</span>
+    <span class="chip c-teo"><i></i>Auto-recuperación</span>
+  </div>
+  <div class="cta"><a class="btn" href="#bloqueo">Empezar ↓</a><a class="btn ghost" href="#sim">Simulador del watchdog</a></div>
+</div></section>
+
+<section id="bloqueo"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">¿Qué es un bloqueo de firmware?</h2>
+  <div class="theory reveal">
+    <p>El <b>firmware</b> es el programa grabado en el microcontrolador. Se dice que está <b>bloqueado</b> (colgado) cuando deja de ejecutar su ciclo normal: no lee entradas, no actualiza salidas y no responde, aunque la placa siga encendida.</p>
+    <p>En un sistema embebido no hay una persona que presione “reiniciar”. Un equipo instalado en un invernadero o en una banda transportadora debe <b>recuperarse solo</b>.</p>
+  </div>
+  <div class="grid g4">
+    <div class="card bad reveal"><span class="ico">🔁</span><h3>Ciclo infinito</h3><p>Una condición que nunca se cumple deja al programa girando en el mismo lugar.</p></div>
+    <div class="card bad reveal"><span class="ico">⏳</span><h3>Espera eterna</h3><p>El programa espera una respuesta (sensor, WiFi, serial) que nunca llega.</p></div>
+    <div class="card warn reveal"><span class="ico">⚡</span><h3>Ruido eléctrico</h3><p>Un pico o una caída de voltaje deja al micro en un estado inválido.</p></div>
+    <div class="card warn reveal"><span class="ico">🧠</span><h3>Memoria agotada</h3><p>Desbordamiento de pila o memoria dinámica mal usada corrompen datos.</p></div>
+  </div>
+</div></section>
+
+<section id="wdt" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">El Watchdog Timer (WDT)</h2>
+  <div class="def reveal"><b>Watchdog Timer</b>: temporizador de hardware que cuenta de forma independiente al programa. Si el programa no lo <b>refresca</b> (lo “alimenta”) antes de que llegue a su <b>tiempo límite</b>, el watchdog <b>reinicia el microcontrolador</b>.</div>
+  <div class="figure reveal"><svg viewBox="0 0 760 260" class="art" role="img" aria-label="Contador del watchdog que se reinicia con cada refresco hasta que el firmware se bloquea">
+<rect x="0" y="0" width="760" height="260" rx="14" fill="#0b0d11"/>
+<line x1="50" y1="200" x2="740" y2="200" stroke="#2a303c"/><line x1="50" y1="30" x2="50" y2="200" stroke="#2a303c"/>
+<line x1="50" y1="60" x2="740" y2="60" stroke="#f87171" stroke-dasharray="6 5"/><text x="736" y="52" text-anchor="end" class="albl" style="fill:#f87171">tiempo límite (timeout)</text>
+<path d="M50 200 L130 150 V200 L210 150 V200 L290 150 V200 L370 150 V200 L560 60" fill="none" stroke="#22d3ee" stroke-width="3"/>
+<circle cx="130" cy="200" r="6" fill="#4ade80"/><circle cx="210" cy="200" r="6" fill="#4ade80"/><circle cx="290" cy="200" r="6" fill="#4ade80"/><circle cx="370" cy="200" r="6" fill="#4ade80"/>
+<text x="250" y="226" text-anchor="middle" class="albl" style="fill:#4ade80">● refresco: el programa avisa “sigo vivo” y el contador vuelve a cero</text>
+<rect x="372" y="80" width="186" height="26" rx="6" fill="rgba(251,191,36,.12)" stroke="#fbbf24"/><text x="465" y="98" text-anchor="middle" class="albl" style="fill:#fbbf24">el firmware se bloquea</text>
+<circle cx="560" cy="60" r="10" fill="#f87171"/><text x="580" y="100" class="albl" style="fill:#f87171;font-size:13px;font-weight:700">RESET</text>
+<path d="M560 200 L600 200 L640 170 V200 L680 170 V200 L720 170" fill="none" stroke="#22d3ee" stroke-width="3" stroke-dasharray="5 4"/>
+<text x="650" y="226" text-anchor="middle" class="albl">el sistema arranca de nuevo</text>
+<text x="20" y="36" class="albl">cuenta</text>
+</svg></div>
+  <div class="grid g3">
+    <div class="card reveal"><span class="tag">1 · CONFIGURAR</span><h3>Elegir el tiempo límite</h3><p>Se inicia el watchdog indicando cuánto tiempo puede pasar sin refresco.</p></div>
+    <div class="card ok reveal"><span class="tag">2 · REFRESCAR</span><h3>Avisar “sigo vivo”</h3><p>En cada vuelta sana del programa se refresca y el contador regresa a cero.</p></div>
+    <div class="card bad reveal"><span class="tag w">3 · RECUPERAR</span><h3>Reinicio automático</h3><p>Si el programa se cuelga, no refresca, el contador llega al límite y la placa se reinicia.</p></div>
+  </div>
+</div></section>
+
+<section id="r4"><div class="wrap">
+  <span class="kicker reveal">Hardware del tema</span>
+  <h2 class="reveal">El watchdog nativo del UNO R4 WiFi</h2>
+  <div class="comp reveal">
+    <div class="pic"><svg viewBox="0 0 420 300" class="art" role="img" aria-label="Ilustración de la placa Arduino UNO R4 WiFi"><rect x="20" y="20" width="380" height="260" rx="14" fill="#00838f" stroke="#005f66" stroke-width="3"/><circle cx="40" cy="40" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><circle cx="380" cy="40" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><circle cx="40" cy="260" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><circle cx="380" cy="260" r="7" fill="#0f1115" stroke="#b0bec5" stroke-width="2"/><rect x="6" y="70" width="44" height="30" rx="8" fill="#b0bec5" stroke="#78909c" stroke-width="2"/><rect x="14" y="80" width="28" height="10" rx="5" fill="#37474f"/><rect x="4" y="200" width="60" height="50" rx="4" fill="#212121"/><circle cx="26" cy="225" r="10" fill="#424242" stroke="#616161" stroke-width="2"/><rect x="150" y="26" width="236" height="16" rx="2" fill="#1b1b1b"/><rect x="156.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="168.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="181.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="193.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="206.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="218.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="231.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="243.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="256.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="268.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="281.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="293.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="306.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="318.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="331.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="343.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="356.0" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="368.5" y="31" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="170" y="258" width="216" height="16" rx="2" fill="#1b1b1b"/><rect x="176" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="191" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="206" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="221" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="236" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="251" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="266" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="281" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="296" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="311" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="326" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="341" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="356" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="371" y="263" width="6" height="6" fill="#c9a227" stroke="#111" stroke-width=".6"/><rect x="80" y="60" width="96" height="70" rx="4" fill="#cfd8dc" stroke="#90a4ae" stroke-width="2"/><rect x="88" y="68" width="80" height="44" rx="2" fill="#b0bec5"/><text x="128" y="94" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#37474f">ESP32-S3</text><rect x="230" y="160" width="56" height="56" rx="4" fill="#212121" stroke="#424242" stroke-width="2"/><text x="258" y="192" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#9e9e9e">RA4M1</text><defs><pattern id="mx" width="14" height="10" patternUnits="userSpaceOnUse" x="208" y="62"><rect width="7" height="5" rx="1" fill="#e57373" opacity=".85"/></pattern></defs><rect x="208" y="62" width="168" height="80" fill="url(#mx)"/><rect x="352" y="110" width="30" height="16" rx="2" fill="#f5f5f5" stroke="#bdbdbd"/><text x="300" y="248" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#e0f7fa" opacity=".8">UNO R4 WiFi</text></svg><p class="cap">El watchdog vive dentro del microcontrolador RA4M1</p></div>
+    <div class="theory">
+      <p>El <b>Renesas RA4M1</b> del UNO R4 incluye dos watchdogs de hardware: el <b>WDT</b> y el <b>IWDT</b> (independiente, que funciona con su propio oscilador interno). Son “nativos”: no se necesita ningún módulo externo.</p>
+      <p>El núcleo de Arduino para el R4 incluye una biblioteca de watchdog con dos operaciones: <b>iniciar</b> con un tiempo límite en milisegundos y <b>refrescar</b>.</p>
+      <ul class="clean">
+        <li>El tiempo límite máximo es de unos pocos segundos (alrededor de 5.6 s en el R4).</li>
+        <li>Una vez iniciado, el watchdog <b>no se puede apagar</b> desde el programa: solo un reinicio lo detiene.</li>
+        <li>Para mostrar lo que pasa usaremos el <b>LED integrado (L)</b> y la <b>matriz LED de 12×8</b> de la placa.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="sim" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Simulador</span>
+  <h2 class="reveal">Watchdog en el UNO R4 WiFi</h2>
+  <div class="sim reveal">
+    <div class="sim-h"><h3>Programa con latido en la matriz LED</h3><span class="badge b-ok" id="wEst">FUNCIONANDO</span></div>
+    <div class="sim-ctrl">
+      <label class="rng">Tiempo límite <input type="range" id="wTo" min="500" max="5000" step="100" value="2000"> <span class="mono" id="wToV">2000 ms</span></label>
+      <button class="tog grn" id="wOn" type="button">Watchdog: ACTIVO</button>
+    </div>
+    <div class="sim-ctrl">
+      <button class="tog red" id="wHang" type="button">Simular bloqueo (ciclo infinito)</button>
+      <button class="tog" id="wSlow" type="button">Tarea lenta (1.5 s)</button>
+    </div>
+    <div class="vs" style="align-items:center">
+      <div style="max-width:420px;width:100%;margin:0 auto">
+        <svg viewBox="0 0 300 180" class="art" role="img" aria-label="Matriz LED y LED integrado simulados">
+          <rect x="10" y="10" width="280" height="160" rx="14" fill="#00838f" stroke="#005f66" stroke-width="3"/>
+          <g id="wMx"></g>
+          <circle id="wL" cx="262" cy="150" r="7" fill="#3a3f47"/><text x="246" y="154" text-anchor="end" font-family="Inter" font-size="11" fill="#e0f7fa">L</text>
+        </svg>
+      </div>
+      <div>
+        <p class="out" style="margin-top:0">Contador del watchdog</p>
+        <div style="height:22px;border-radius:999px;background:#0b0d11;border:1px solid var(--line);overflow:hidden"><div id="wBar" style="height:100%;width:0;background:linear-gradient(90deg,#4ade80,#fbbf24,#f87171);transition:width .05s"></div></div>
+        <div class="kpi"><div><b id="wCnt">0 ms</b><span>tiempo sin refresco</span></div><div><b id="wRst">0</b><span>reinicios por watchdog</span></div><div><b id="wUp">0 s</b><span>tiempo funcionando</span></div></div>
+        <ul class="log" id="wLog" style="min-height:120px"></ul>
+      </div>
+    </div>
+    <p class="out">Prueba: con el watchdog desactivado, el bloqueo deja la placa colgada para siempre. Con una tarea lenta y un límite corto, el watchdog reinicia aunque el programa no esté colgado.</p>
+  </div>
+</div></section>
+
+<section id="refresco"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Dónde y cómo refrescar</h2>
+  <div class="theory reveal"><p>El refresco es una <b>promesa</b>: “todo el programa está funcionando”. Si se refresca en el lugar equivocado, el watchdog deja de proteger.</p></div>
+  <div class="vs">
+    <div class="card ok reveal"><span class="tag">CORRECTO</span><h3>Una vez por vuelta del ciclo principal</h3><ul class="clean"><li>Al final de loop(), después de atender todas las tareas.</li><li>Solo si cada tarea reportó que terminó bien (banderas de salud).</li><li>Programa no bloqueante: cada vuelta dura milisegundos.</li></ul></div>
+    <div class="card bad reveal"><span class="tag w">INCORRECTO</span><h3>Refrescar “para que no moleste”</h3><ul class="clean"><li>Dentro de una interrupción de temporizador: refresca aunque loop() esté colgado.</li><li>Dentro de un ciclo de espera: oculta justamente el bloqueo.</li><li>En varios lugares a la vez: imposible saber qué parte falló.</li></ul></div>
+  </div>
+  <h3 class="reveal" style="margin-top:28px">Cómo elegir el tiempo límite</h3>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Criterio</th><th>Regla</th></tr>
+    <tr><td><b>Mínimo</b></td><td class="w">Mayor que la vuelta más lenta del programa, con margen (por ejemplo, el doble).</td></tr>
+    <tr><td><b>Máximo</b></td><td class="w">Menor que el tiempo que el sistema puede quedar sin control sin causar daño.</td></tr>
+    <tr><td><b>Tareas lentas</b></td><td class="w">Si una operación tarda más que el límite (conectar WiFi, por ejemplo), se divide en pasos no bloqueantes; no se aumenta el límite sin pensar.</td></tr>
+  </table></div>
+</div></section>
+
+<section id="recuperacion" style="background:var(--bg2)"><div class="wrap">
+  <span class="kicker reveal">Teoría</span>
+  <h2 class="reveal">Auto-recuperación después del reinicio</h2>
+  <ol class="steps">
+    <li class="reveal"><b>Arranque en estado seguro:</b> todas las salidas apagadas antes de cualquier otra cosa.</li>
+    <li class="reveal"><b>Saber por qué se reinició:</b> el RA4M1 guarda la causa del último reinicio (visto en 4.1.2). Un reinicio por watchdog indica que hubo un bloqueo.</li>
+    <li class="reveal"><b>Avisar:</b> mostrar un símbolo en la matriz LED o enviar un mensaje para que alguien revise el problema.</li>
+    <li class="reveal"><b>Iniciar el watchdog</b> lo antes posible en setup(), después del estado seguro.</li>
+    <li class="reveal"><b>Evitar el ciclo de reinicios:</b> si el watchdog reinicia varias veces seguidas, entrar a un modo seguro reducido en lugar de repetir lo mismo indefinidamente.</li>
+  </ol>
+  <div class="note reveal"><b>El watchdog no corrige el error:</b> solo devuelve el sistema a un punto conocido. Si un reinicio por watchdog se repite, hay un error de programación que se debe encontrar.</div>
+</div></section>
+
+<section id="resumen"><div class="wrap">
+  <span class="kicker reveal">Resumen</span>
+  <h2 class="reveal">Lo esencial</h2>
+  <div class="tblwrap reveal"><table class="tbl">
+    <tr><th>Concepto</th><th>Idea clave</th></tr>
+    <tr><td><b>Bloqueo</b></td><td class="w">El programa deja de avanzar aunque la placa esté encendida.</td></tr>
+    <tr><td><b>Watchdog</b></td><td class="w">Temporizador de hardware que reinicia el micro si no se refresca a tiempo.</td></tr>
+    <tr><td><b>Configuración</b></td><td class="w">Tiempo límite mayor que la vuelta más lenta y menor que lo que el sistema tolera.</td></tr>
+    <tr><td><b>Refresco</b></td><td class="w">Una vez por vuelta sana de loop(); nunca desde interrupciones ni dentro de esperas.</td></tr>
+    <tr><td><b>Recuperación</b></td><td class="w">Estado seguro, conocer la causa, avisar y evitar reinicios en cadena.</td></tr>
+  </table></div>
+</div></section>
+
+<div class="wrap"><div class="pager"><a class="btn ghost" href="../../4.2/4.2.3/">← Tema anterior: 4.2.3 Controladores P y PID</a><a class="btn ghost" href="../4.3.2/">Siguiente: 4.3.2 Failsafe y paro de emergencia →</a></div></div>
+</main>
+<footer>Sistemas Programables (SCC-1023) · Unidad 4 · Tema 4.3 · Arduino UNO R4 WiFi</footer>
+<script src="../u4.js"></script>
+<script>
+(function(){
+  var g=function(id){return document.getElementById(id)};
+  var mx=g('wMx'),cells=[];
+  for(var r=0;r<8;r++)for(var c=0;c<12;c++){var e=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    e.setAttribute('x',38+c*19);e.setAttribute('y',28+r*14);e.setAttribute('width',12);e.setAttribute('height',9);e.setAttribute('rx',2);e.setAttribute('fill','#3a1e1e');mx.appendChild(e);cells.push(e);}
+  var HEART=['001100110000','011111111000','011111111000','001111110000','000111100000','000011000000','000000000000','000000000000'];
+  var W=['100010001000','100010001000','100010001000','100010001000','101010101000','110001100000','100000100000','000000000000'];
+  var X=['100000010000','010000100000','001001000000','000110000000','000110000000','001001000000','010000100000','100000010000'];
+  function show(p,on,col){for(var i=0;i<96;i++){var bit=p?p[Math.floor(i/12)][i%12]==='1':false;cells[i].setAttribute('fill',bit&&on?(col||'#ff5252'):'#3a1e1e');}}
+  var en=true,hang=false,slowUntil=0,cnt=0,rst=0,up=0,state='RUN',bootT=0,last=performance.now(),beat=0;
+  function log(t,c){var li=document.createElement('li');li.className=c||'';li.textContent=t;g('wLog').prepend(li);while(g('wLog').children.length>6)g('wLog').lastChild.remove();}
+  g('wTo').oninput=function(){g('wToV').textContent=g('wTo').value+' ms';};
+  g('wOn').onclick=function(){en=!en;g('wOn').textContent='Watchdog: '+(en?'ACTIVO':'DESACTIVADO');g('wOn').classList.toggle('grn',en);
+    log(en?'Watchdog activado':'Watchdog desactivado (sin protección)',en?'ok':'bad');cnt=0;};
+  g('wHang').onclick=function(){if(state==='RUN'){hang=true;log('¡Bloqueo! El programa quedó en un ciclo infinito','bad');}};
+  g('wSlow').onclick=function(){if(state==='RUN'){slowUntil=performance.now()+1500;log('Tarea lenta de 1.5 s en curso…');}};
+  function loop(now){
+    var dt=now-last;last=now;if(dt>200)dt=200;
+    var to=+g('wTo').value,e=g('wEst');
+    if(state==='BOOT'){
+      show(rst>0?W:null,true,'#fbbf24');g('wL').setAttribute('fill',Math.floor(now/120)%2?'#fbbf24':'#3a3f47');
+      if(now-bootT>1200){state='RUN';hang=false;cnt=0;log('Arranque en estado seguro · causa: watchdog','ok');}
+      e.textContent='REINICIANDO';e.className='badge b-warn';
+    }else{
+      var busy=hang||now<slowUntil;
+      if(!busy){cnt=0;up+=dt;beat+=dt;show(HEART,(beat%1000)<500);g('wL').setAttribute('fill',(beat%1000)<500?'#fbbf24':'#3a3f47');
+        e.textContent='FUNCIONANDO';e.className='badge b-ok';}
+      else{ if(en)cnt+=dt; show(hang?X:HEART,true,hang?'#f87171':'#ff5252');g('wL').setAttribute('fill','#3a3f47');
+        e.textContent=hang?(en?'BLOQUEADO':'BLOQUEADO PARA SIEMPRE'):'TAREA LENTA';e.className='badge '+(hang?'b-bad':'b-warn');}
+      if(en&&cnt>=to){rst++;state='BOOT';bootT=now;cnt=0;up=0;slowUntil=0;log('WDT: tiempo límite alcanzado → RESET','bad');}
+    }
+    g('wBar').style.width=Math.min(100,cnt/to*100)+'%';
+    g('wCnt').textContent=Math.round(cnt)+' ms';g('wRst').textContent=rst;g('wUp').textContent=(up/1000).toFixed(0)+' s';
+    requestAnimationFrame(loop);
+  }
+  log('Programa iniciado · watchdog activo','ok');
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
